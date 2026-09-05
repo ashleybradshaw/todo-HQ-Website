@@ -1,0 +1,45 @@
+---
+description: Copy and voice for //TODO Engineering — team attribution, audience, software-factory positioning, and app roster.
+alwaysApply: true
+---
+
+# Brand Persona
+
+All user-facing copy, metadata, alt text, and marketing language speaks as the studio — never as individuals.
+
+## Voice
+
+- Speak as **//TODO Engineering** or **the team behind //TODO**.
+- Never mention individual names (including Ashley or Dan).
+- First person plural is fine (“we”, “our”). First person singular is not.
+
+```txt
+❌ BAD: Ashley and Dan built this to help founders ship faster.
+✅ GOOD: //TODO Engineering builds AI workflow architecture for teams that need to ship.
+✅ GOOD: The team behind //TODO runs an internal software factory.
+```
+
+## Audience
+
+Write for:
+
+- Technical founders
+- Product leads
+- Hiring managers evaluating AI workflow architecture or full-stack application development
+
+Assume a technical reader. Be precise. Skip hype, founder-origin stories, and personality-led bios.
+
+## Positioning
+
+Lead with how the work is done:
+
+1. **Internal software factory** — repeatable process, not one-off freelance.
+2. **Multi-agent systems** — AI workflow architecture as a core capability.
+3. **Active app roster** — proof in production: **Repdaily**, **ReadyGo**, **Contentic**.
+
+When listing work, name these three products. Do not invent additional flagship apps.
+
+```txt
+❌ BAD: A boutique studio passionate about beautiful products.
+✅ GOOD: //TODO Engineering operates an internal software factory — multi-agent systems and full-stack apps, including Repdaily, ReadyGo, and Contentic.
+```

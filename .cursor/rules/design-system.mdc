@@ -1,0 +1,77 @@
+---
+description: Visual identity for //TODO — cream/electric-blue palette, structural grid, sans + mono type, humble Framer Motion reveals.
+alwaysApply: true
+---
+
+# Design System
+
+All UI must follow this visual identity. Do not introduce competing palettes, decorative fonts, or theatrical motion.
+
+## Palette
+
+| Token | Hex | Use |
+|---|---|---|
+| Background | `#F4ECE1` | Page and surface fills |
+| Accent | `#0A00E6` | Links, focus, structural emphasis, CTAs |
+| Text | `#111111` | Body, headings, primary copy |
+
+Do not use off-palette colors except derived tints of the accent (e.g. grid stroke below). Cream is the default canvas — not white, not gray.
+
+```tsx
+// ❌ BAD
+<div className="bg-white text-slate-700">
+
+// ✅ GOOD
+<div className="bg-[#F4ECE1] text-[#111111]">
+```
+
+## Grid
+
+Use a 1px high-contrast structural grid. Borders and dividers:
+
+```
+rgba(10, 0, 230, 0.15)
+```
+
+Treat layout as an engineering drawing: visible edges, aligned columns, no soft drop shadows or glassmorphism.
+
+```tsx
+// ✅ GOOD
+<div className="border border-[rgba(10,0,230,0.15)]">
+```
+
+## Typography
+
+- **Display / body:** sans-serif.
+- **Metadata, labels, code snippets, UI controls** (buttons, inputs, nav, badges, timestamps): `font-mono` only.
+
+Never set body copy in mono. Never set labels or controls in a rounded/display face.
+
+```tsx
+// ❌ BAD
+<button className="font-sans">Submit</button>
+<p className="font-mono">We build software factories.</p>
+
+// ✅ GOOD
+<button className="font-mono">Submit</button>
+<p className="font-sans">We build software factories.</p>
+<span className="font-mono text-sm">Repdaily · in production</span>
+```
+
+## Motion
+
+Reveals are clean and humble. Default Framer Motion pattern:
+
+- `opacity: 0 → 1`
+- `translateY(10px) → 0`
+
+No bounce, spring-overshoot, large travel, or staggered spectacle unless a specific interaction requires it. Keep duration short (~0.4s) and easing understated.
+
+```tsx
+// ✅ GOOD
+<motion.div
+  initial={{ opacity: 0, y: 10 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.4, ease: "easeOut" }}
+>
+```

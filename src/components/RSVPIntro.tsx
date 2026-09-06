@@ -12,21 +12,85 @@ type Phase = "idle" | "countdown" | "reading" | "done";
 type SequenceItem = { kind: "logo" } | { kind: "word"; text: string };
 
 const TICK_PITCHES = [1200, 1400, 1000] as const;
-const TICK_DURATION = 0.02;
+const TICK_DURATION = 0.04;
+
+function createAudioContext() {
+  const Ctor =
+    window.AudioContext ||
+    (window as Window & { webkitAudioContext?: typeof AudioContext })
+      .webkitAudioContext;
+
+  if (!Ctor) {
+    throw new Error("Web Audio is not available");
+  }
+
+  try {
+    return new Ctor({ latencyHint: "interactive" });
+  } catch {
+    return new Ctor();
+  }
+}
 
 class RSVPSynth {
-  private readonly context: AudioContext;
+  private context: AudioContext;
+  private unlocking: Promise<void> | null = null;
   private tickIndex = 0;
 
   constructor() {
-    this.context = new AudioContext({ latencyHint: "interactive" });
-    void this.context.resume();
+    this.context = createAudioContext();
+    void this.unlock();
   }
 
   playTick() {
-    this.ensureRunning();
+    void this.unlock().then(() => {
+      this.emitTick();
+    });
+  }
 
+  playBeep(frequency: number) {
+    void this.unlock().then(() => {
+      this.emitBeep(frequency);
+    });
+  }
+
+  close() {
+    this.unlocking = null;
+
+    if (this.context.state !== "closed") {
+      void this.context.close();
+    }
+  }
+
+  private unlock() {
+    if (this.context.state === "closed") {
+      this.context = createAudioContext();
+      this.unlocking = null;
+    }
+
+    if (this.context.state === "running") {
+      this.unlocking = null;
+      return Promise.resolve();
+    }
+
+    this.unlocking ??= this.context.resume().then(
+      () => {
+        this.unlocking = null;
+      },
+      () => {
+        this.unlocking = null;
+      },
+    );
+
+    return this.unlocking;
+  }
+
+  private emitTick() {
     const { context } = this;
+
+    if (context.state !== "running") {
+      return;
+    }
+
     const now = context.currentTime;
     const pitch = TICK_PITCHES[this.tickIndex % TICK_PITCHES.length];
     this.tickIndex += 1;
@@ -42,8 +106,8 @@ class RSVPSynth {
     filter.frequency.setValueAtTime(800, now);
     filter.Q.setValueAtTime(0.7, now);
 
-    amp.gain.setValueAtTime(0.16, now);
-    amp.gain.exponentialRampToValueAtTime(0.001, now + TICK_DURATION);
+    amp.gain.setValueAtTime(0.18, now);
+    amp.gain.linearRampToValueAtTime(0.001, now + TICK_DURATION);
 
     oscillator.connect(filter);
     filter.connect(amp);
@@ -59,12 +123,15 @@ class RSVPSynth {
     oscillator.stop(now + TICK_DURATION);
   }
 
-  playBeep(frequency: number) {
-    this.ensureRunning();
-
+  private emitBeep(frequency: number) {
     const { context } = this;
+
+    if (context.state !== "running") {
+      return;
+    }
+
     const now = context.currentTime;
-    const duration = 0.09;
+    const duration = 0.11;
 
     const oscillator = context.createOscillator();
     const amp = context.createGain();
@@ -72,8 +139,8 @@ class RSVPSynth {
     oscillator.type = "square";
     oscillator.frequency.setValueAtTime(frequency, now);
 
-    amp.gain.setValueAtTime(0.08, now);
-    amp.gain.exponentialRampToValueAtTime(0.001, now + duration);
+    amp.gain.setValueAtTime(0.1, now);
+    amp.gain.linearRampToValueAtTime(0.001, now + duration);
 
     oscillator.connect(amp);
     amp.connect(context.destination);
@@ -85,18 +152,6 @@ class RSVPSynth {
 
     oscillator.start(now);
     oscillator.stop(now + duration);
-  }
-
-  close() {
-    if (this.context.state !== "closed") {
-      void this.context.close();
-    }
-  }
-
-  private ensureRunning() {
-    if (this.context.state === "suspended") {
-      void this.context.resume();
-    }
   }
 }
 
@@ -392,7 +447,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
                     onClick={() => {
                       const synth = new RSVPSynth();
                       audioRef.current = synth;
-                      playBeep(synth, soundEnabledRef.current, 800);
+                      playBeep(synth, soundEnabled, 800);
                       setCount(3);
                       setPhase("countdown");
                     }}
@@ -415,7 +470,13 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
                   type="button"
                   className="font-jetbrains min-h-11 cursor-pointer bg-transparent py-2.5 text-base leading-5 font-bold"
                   aria-pressed={soundEnabled}
-                  onClick={() => setSoundEnabled((enabled) => !enabled)}
+                  onClick={() => {
+                    setSoundEnabled((enabled) => {
+                      const next = !enabled;
+                      soundEnabledRef.current = next;
+                      return next;
+                    });
+                  }}
                 >
                   {`[ Sound: ${soundEnabled ? "ON" : "OFF"} ]`}
                 </button>

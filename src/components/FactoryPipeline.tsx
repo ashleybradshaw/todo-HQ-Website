@@ -99,7 +99,7 @@ export function FactoryPipeline({
         ))}
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col justify-start gap-3 overflow-visible px-4 py-3 lg:justify-evenly lg:gap-0 lg:overflow-hidden lg:pr-8 lg:pl-0">
+      <div className="flex min-h-0 flex-1 flex-col justify-start gap-3 overflow-visible px-4 pt-3 pb-8 lg:justify-evenly lg:gap-0 lg:overflow-hidden lg:pr-8 lg:pb-3 lg:pl-0">
         <div className="border border-[rgba(10,0,230,0.15)]">
           <div className="flex items-center justify-between border-b border-[rgba(10,0,230,0.15)] px-3 py-1.5">
             <span className="text-[11px] text-[#0A00E6]">cli · factory</span>
@@ -140,7 +140,7 @@ export function FactoryPipeline({
                 <div
                   key={agent}
                   className={cn(
-                    "px-3 py-2 text-[11px] leading-4",
+                    "px-2 py-2.5 text-[11px] leading-4 lg:px-3 lg:py-2",
                     agent !== "ship" && "border-r border-[rgba(10,0,230,0.15)]",
                     active ? "text-[#0A00E6]" : "text-blue-900/40",
                   )}

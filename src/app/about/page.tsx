@@ -139,15 +139,15 @@ export default function AboutPage() {
         </div>
         <div className="flex min-h-0 flex-1 flex-col overflow-auto lg:flex-row lg:overflow-hidden">
           <div
-            className="flex shrink-0 border-[rgba(10,0,230,0.15)] text-sm leading-6 lg:w-[min(36rem,50%)] lg:border-r"
+            className="flex shrink-0 border-[rgba(10,0,230,0.15)] text-xs leading-5 lg:w-[min(36rem,50%)] lg:border-r lg:text-sm lg:leading-6"
             aria-label="TODO_HQ TypeScript source"
           >
             <div
               aria-hidden="true"
-              className="flex w-10 shrink-0 flex-col border-r border-[rgba(10,0,230,0.15)] py-4 text-right text-blue-900/30 select-none"
+              className="flex w-8 shrink-0 flex-col border-r border-[rgba(10,0,230,0.15)] py-4 text-right text-blue-900/30 select-none lg:w-10"
             >
               {CODE_LINES.map((_, index) => (
-                <span key={index} className="pr-3 leading-6">
+                <span key={index} className="pr-2 leading-5 lg:pr-3 lg:leading-6">
                   {index + 1}
                 </span>
               ))}

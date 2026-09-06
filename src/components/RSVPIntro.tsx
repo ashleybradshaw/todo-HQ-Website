@@ -272,7 +272,9 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
   const soundEnabledRef = useRef(soundEnabled);
   const bloomControls = useAnimation();
 
-  soundEnabledRef.current = soundEnabled;
+  useEffect(() => {
+    soundEnabledRef.current = soundEnabled;
+  }, [soundEnabled]);
 
   useEffect(() => {
     return () => {
@@ -386,7 +388,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
                 <div className="font-jetbrains flex items-center justify-center py-2.5 text-base leading-5 font-bold">
                   <button
                     type="button"
-                    className="cursor-pointer bg-transparent p-0"
+                    className="min-h-11 cursor-pointer bg-transparent px-1 py-2.5"
                     onClick={() => {
                       const synth = new RSVPSynth();
                       audioRef.current = synth;
@@ -400,7 +402,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
                   <span>&nbsp;-&nbsp;</span>
                   <button
                     type="button"
-                    className="cursor-pointer bg-transparent p-0"
+                    className="min-h-11 cursor-pointer bg-transparent px-1 py-2.5"
                     onClick={() => {
                       setBypassReading(true);
                       setPhase("done");
@@ -411,7 +413,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
                 </div>
                 <button
                   type="button"
-                  className="font-jetbrains cursor-pointer bg-transparent py-2.5 text-base leading-5 font-bold"
+                  className="font-jetbrains min-h-11 cursor-pointer bg-transparent py-2.5 text-base leading-5 font-bold"
                   aria-pressed={soundEnabled}
                   onClick={() => setSoundEnabled((enabled) => !enabled)}
                 >

@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useState, type ReactNode } from "react";
 import { useReducedMotion } from "framer-motion";
-import { FactoryPipeline } from "@/components/FactoryPipeline";
+import { LiveTerminal } from "@/components/LiveTerminal";
 import { PhyllotaxisBloom } from "@/components/PhyllotaxisBloom";
 import { useMousePosition } from "@/hooks/useMousePosition";
 
@@ -133,39 +133,41 @@ export default function AboutPage() {
           TODO_HQ.ts, a CLI with LLM planning, a multi-agent team, then
           Repdaily, ReadyGo, and Contentic in production.
         </p>
-        <div className="flex shrink-0 items-center justify-between border-b border-[rgba(10,0,230,0.15)] px-6 py-2">
-          <span className="text-xs text-[#0A00E6]">TODO_HQ.ts</span>
-          <span className="text-xs text-blue-900/30">TypeScript</span>
-        </div>
-        <div className="flex min-h-0 flex-1 flex-col overflow-auto lg:flex-row lg:overflow-hidden">
-          <div
-            className="flex shrink-0 border-[rgba(10,0,230,0.15)] text-xs leading-5 lg:w-[min(36rem,50%)] lg:border-r lg:text-sm lg:leading-6"
+        <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_minmax(11rem,38%)] overflow-hidden lg:grid-cols-[70%_30%] lg:grid-rows-1">
+          <section
+            className="flex min-h-0 min-w-0 flex-col overflow-auto"
             aria-label="TODO_HQ TypeScript source"
           >
-            <div
-              aria-hidden="true"
-              className="flex w-8 shrink-0 flex-col border-r border-[rgba(10,0,230,0.15)] py-4 text-right text-blue-900/30 select-none lg:w-10"
-            >
-              {CODE_LINES.map((_, index) => (
-                <span key={index} className="pr-2 leading-5 lg:pr-3 lg:leading-6">
-                  {index + 1}
-                </span>
-              ))}
+            <div className="flex shrink-0 items-center justify-between border-b border-[rgba(10,0,230,0.15)] px-6 py-2">
+              <span className="text-xs text-[#0A00E6]">TODO_HQ.ts</span>
+              <span className="text-xs text-blue-900/30">TypeScript</span>
             </div>
-            <pre className="min-w-0 flex-1 py-4">
-              <code className="font-jetbrains">
-                {CODE_LINES.map((line, index) => (
-                  <div key={index} className="pr-6 pl-4 whitespace-pre-wrap">
-                    {line}
-                  </div>
+            <div className="flex min-h-0 flex-1 text-xs leading-5 lg:text-sm lg:leading-6">
+              <div
+                aria-hidden="true"
+                className="flex w-8 shrink-0 flex-col border-r border-[rgba(10,0,230,0.15)] py-4 text-right text-blue-900/30 select-none lg:w-10"
+              >
+                {CODE_LINES.map((_, index) => (
+                  <span
+                    key={index}
+                    className="pr-2 leading-5 lg:pr-3 lg:leading-6"
+                  >
+                    {index + 1}
+                  </span>
                 ))}
-              </code>
-            </pre>
-          </div>
-          <FactoryPipeline
-            reduceMotion={Boolean(reduceMotion)}
-            className="shrink-0 lg:h-full lg:min-h-0 lg:flex-1"
-          />
+              </div>
+              <pre className="min-w-0 flex-1 py-4">
+                <code className="font-jetbrains">
+                  {CODE_LINES.map((line, index) => (
+                    <div key={index} className="pr-6 pl-4 whitespace-pre-wrap">
+                      {line}
+                    </div>
+                  ))}
+                </code>
+              </pre>
+            </div>
+          </section>
+          <LiveTerminal />
         </div>
       </div>
     </main>

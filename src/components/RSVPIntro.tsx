@@ -10,8 +10,12 @@ type Phase = "idle" | "countdown" | "reading" | "done";
 
 type SequenceItem = { kind: "logo" } | { kind: "word"; text: string };
 
+const TICK_PITCHES = [1200, 1400, 1000] as const;
+const TICK_DURATION = 0.02;
+
 class RSVPSynth {
   private readonly context: AudioContext;
+  private tickIndex = 0;
 
   constructor() {
     this.context = new AudioContext({ latencyHint: "interactive" });
@@ -23,22 +27,22 @@ class RSVPSynth {
 
     const { context } = this;
     const now = context.currentTime;
-    const duration = 0.032;
+    const pitch = TICK_PITCHES[this.tickIndex % TICK_PITCHES.length];
+    this.tickIndex += 1;
 
     const oscillator = context.createOscillator();
     const filter = context.createBiquadFilter();
     const amp = context.createGain();
 
     oscillator.type = "square";
-    oscillator.frequency.setValueAtTime(7200, now);
-    oscillator.frequency.exponentialRampToValueAtTime(1800, now + duration);
+    oscillator.frequency.setValueAtTime(pitch, now);
 
     filter.type = "highpass";
-    filter.frequency.setValueAtTime(2400, now);
-    filter.Q.setValueAtTime(0.8, now);
+    filter.frequency.setValueAtTime(800, now);
+    filter.Q.setValueAtTime(0.7, now);
 
     amp.gain.setValueAtTime(0.16, now);
-    amp.gain.exponentialRampToValueAtTime(0.001, now + duration);
+    amp.gain.exponentialRampToValueAtTime(0.001, now + TICK_DURATION);
 
     oscillator.connect(filter);
     filter.connect(amp);
@@ -51,7 +55,7 @@ class RSVPSynth {
     };
 
     oscillator.start(now);
-    oscillator.stop(now + duration);
+    oscillator.stop(now + TICK_DURATION);
   }
 
   playBeep(frequency: number) {
@@ -261,85 +265,102 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
 
   const item = DISPLAY_SEQUENCE[wordIndex];
   const showSequence = phase === "reading" || phase === "done";
+  const exiting = phase === "done";
 
   return (
-    <motion.div
+    <div
       className={cn(
         "fixed inset-0 z-40 overflow-hidden bg-[#4545FF] text-[#DDDDFF]",
-        phase === "done" && "pointer-events-none",
+        exiting && "pointer-events-none",
       )}
-      initial={{ scale: 1, opacity: 1 }}
-      animate={
-        phase === "done" ? { scale: 25, opacity: 0 } : { scale: 1, opacity: 1 }
-      }
-      transition={{ duration: 0.9, ease: [0.83, 0, 0.39, 1] }}
-      style={{ transformOrigin: "center center" }}
-      onAnimationComplete={() => {
-        if (phase === "done") {
-          onComplete();
-        }
-      }}
     >
-      {phase === "idle" ? (
-        <div className="font-space flex h-full w-full flex-col items-center justify-center">
-          <p className="text-center">READY?</p>
-          <div className="mt-6">
-            <button
-              type="button"
-              className="cursor-pointer bg-transparent p-0"
-              onClick={() => {
-                const synth = new RSVPSynth();
-                audioRef.current = synth;
-                playBeep(synth, soundEnabledRef.current, 800);
-                setCount(3);
-                setPhase("countdown");
-              }}
-            >
-              [Yes]
-            </button>
-            <span> - </span>
-            <button
-              type="button"
-              className="cursor-pointer bg-transparent p-0"
-              onClick={() => {
-                setPhase("done");
-              }}
-            >
-              [No]
-            </button>
-            <span> </span>
-            <button
-              type="button"
-              className="cursor-pointer bg-transparent p-0"
-              aria-pressed={soundEnabled}
-              onClick={() => setSoundEnabled((enabled) => !enabled)}
-            >
-              {`[ Sound: ${soundEnabled ? "ON" : "OFF"} ]`}
-            </button>
-          </div>
-        </div>
-      ) : null}
+      <motion.div
+        className="h-full w-full"
+        initial={{ scale: 1 }}
+        animate={{ scale: exiting ? 25 : 1 }}
+        transition={{ duration: 0.9, ease: [0.83, 0, 0.39, 1] }}
+        style={{ transformOrigin: "center center" }}
+        onAnimationComplete={() => {
+          if (exiting) {
+            onComplete();
+          }
+        }}
+      >
+        <motion.div
+          className="relative h-full w-full text-[#DDDDFF]"
+          animate={{ opacity: exiting ? 0 : 1 }}
+          transition={{ duration: 0.3, ease: "easeIn" }}
+        >
+          {phase === "idle" ? (
+            <div className="font-space flex h-full w-full flex-col items-center justify-center">
+              <p className="text-center">READY?</p>
+              <div className="mt-6">
+                <button
+                  type="button"
+                  className="cursor-pointer bg-transparent p-0"
+                  onClick={() => {
+                    const synth = new RSVPSynth();
+                    audioRef.current = synth;
+                    playBeep(synth, soundEnabledRef.current, 800);
+                    setCount(3);
+                    setPhase("countdown");
+                  }}
+                >
+                  [Yes]
+                </button>
+                <span> - </span>
+                <button
+                  type="button"
+                  className="cursor-pointer bg-transparent p-0"
+                  onClick={() => {
+                    setPhase("done");
+                  }}
+                >
+                  [No]
+                </button>
+                <span> </span>
+                <button
+                  type="button"
+                  className="cursor-pointer bg-transparent p-0"
+                  aria-pressed={soundEnabled}
+                  onClick={() => setSoundEnabled((enabled) => !enabled)}
+                >
+                  {`[ Sound: ${soundEnabled ? "ON" : "OFF"} ]`}
+                </button>
+              </div>
+            </div>
+          ) : null}
 
-      {phase === "countdown" ? (
-        <Centered className={cn(WORD_CLASS, getFontSize(String(count)))}>
-          {String(count)}
-        </Centered>
-      ) : null}
+          {phase === "countdown" ? (
+            <Centered className={cn(WORD_CLASS, getFontSize(String(count)))}>
+              {String(count)}
+            </Centered>
+          ) : null}
 
-      {showSequence ? (
-        <>
-          <PerspectiveGrid />
-          <Centered>
-            {item.kind === "logo" ? (
-              <Logo className={cn(WORD_CLASS, "text-8xl")} />
-            ) : (
-              <span className={cn(WORD_CLASS, getFontSize(item.text))}>
-                {item.text}
-              </span>
-            )}
-          </Centered>
-        </>
-      ) : null}
-    </motion.div>
+          {showSequence ? (
+            <>
+              <PerspectiveGrid />
+              <Centered>
+                {item.kind === "logo" ? (
+                  <Logo className={cn(WORD_CLASS, "text-8xl")} />
+                ) : (
+                  <span className={cn(WORD_CLASS, getFontSize(item.text))}>
+                    {item.text}
+                  </span>
+                )}
+              </Centered>
+            </>
+          ) : null}
+        </motion.div>
+      </motion.div>
+
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-20 bg-[#4545FF]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: exiting ? 1 : 0 }}
+        transition={{ duration: 0.3, ease: "easeIn" }}
+      />
+    </div>
   );
 }

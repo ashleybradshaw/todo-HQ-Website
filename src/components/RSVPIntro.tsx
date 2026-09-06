@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { motion } from "framer-motion";
 import { Logo } from "@/components/Logo";
 import { PerspectiveGrid } from "@/components/PerspectiveGrid";
 import { cn } from "@/lib/cn";
@@ -9,14 +10,110 @@ type Phase = "idle" | "countdown" | "reading" | "done";
 
 type SequenceItem = { kind: "logo" } | { kind: "word"; text: string };
 
-type Cue = "countdown" | "start" | "tick";
+class RSVPSynth {
+  private readonly context: AudioContext;
 
-type AudioEngine = {
-  context: AudioContext;
-  countdownBeep: HTMLAudioElement;
-  startBeep: HTMLAudioElement;
-  wordTick: HTMLAudioElement;
-};
+  constructor() {
+    this.context = new AudioContext({ latencyHint: "interactive" });
+    void this.context.resume();
+  }
+
+  playTick() {
+    this.ensureRunning();
+
+    const { context } = this;
+    const now = context.currentTime;
+    const duration = 0.032;
+
+    const oscillator = context.createOscillator();
+    const filter = context.createBiquadFilter();
+    const amp = context.createGain();
+
+    oscillator.type = "square";
+    oscillator.frequency.setValueAtTime(7200, now);
+    oscillator.frequency.exponentialRampToValueAtTime(1800, now + duration);
+
+    filter.type = "highpass";
+    filter.frequency.setValueAtTime(2400, now);
+    filter.Q.setValueAtTime(0.8, now);
+
+    amp.gain.setValueAtTime(0.16, now);
+    amp.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+    oscillator.connect(filter);
+    filter.connect(amp);
+    amp.connect(context.destination);
+
+    oscillator.onended = () => {
+      oscillator.disconnect();
+      filter.disconnect();
+      amp.disconnect();
+    };
+
+    oscillator.start(now);
+    oscillator.stop(now + duration);
+  }
+
+  playBeep(frequency: number) {
+    this.ensureRunning();
+
+    const { context } = this;
+    const now = context.currentTime;
+    const duration = 0.09;
+
+    const oscillator = context.createOscillator();
+    const amp = context.createGain();
+
+    oscillator.type = "square";
+    oscillator.frequency.setValueAtTime(frequency, now);
+
+    amp.gain.setValueAtTime(0.08, now);
+    amp.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+    oscillator.connect(amp);
+    amp.connect(context.destination);
+
+    oscillator.onended = () => {
+      oscillator.disconnect();
+      amp.disconnect();
+    };
+
+    oscillator.start(now);
+    oscillator.stop(now + duration);
+  }
+
+  close() {
+    if (this.context.state !== "closed") {
+      void this.context.close();
+    }
+  }
+
+  private ensureRunning() {
+    if (this.context.state === "suspended") {
+      void this.context.resume();
+    }
+  }
+}
+
+function playTick(synth: RSVPSynth | null, enabled: boolean) {
+  if (!synth || !enabled) {
+    return;
+  }
+
+  synth.playTick();
+}
+
+function playBeep(
+  synth: RSVPSynth | null,
+  enabled: boolean,
+  frequency: number,
+) {
+  if (!synth || !enabled) {
+    return;
+  }
+
+  synth.playBeep(frequency);
+}
 
 const SCRIPT =
   "is an engineering team shipping AI-driven applications, multi-agent backends, and automated development lifecycles. We don’t just write code; we orchestrate the systems that write it. By leveraging multi-agent ecosystems and custom AI tooling, we automate the software development lifecycle. The result is faster shipping, scalable architecture, and a growing portfolio of in-house and client applications.";
@@ -29,13 +126,27 @@ const DISPLAY_SEQUENCE: SequenceItem[] = [
   })),
 ];
 
-const BASE_WORD_MS = 180;
+const BASE_WORD_MS = 160;
+const LONG_WORD_EXTRA_MS = 50;
 const COMMA_DELAY_MS = 250;
-const SENTENCE_DELAY_MS = 420;
+const PERIOD_DELAY_MS = 450;
 const FINAL_HOLD_MS = 1500;
 const COUNTDOWN_MS = 800;
-const WORD_CLASS =
-  "font-unbounded text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight";
+const WORD_CLASS = "font-unbounded font-bold tracking-tight";
+
+function getFontSize(word: string) {
+  const { length } = word;
+
+  if (length <= 4) {
+    return "text-8xl";
+  }
+
+  if (length <= 8) {
+    return "text-7xl";
+  }
+
+  return "text-6xl";
+}
 
 function delayForItem(item: SequenceItem, isLast: boolean) {
   if (isLast) {
@@ -46,114 +157,21 @@ function delayForItem(item: SequenceItem, isLast: boolean) {
     return BASE_WORD_MS;
   }
 
+  let delay = BASE_WORD_MS;
+
+  if (item.text.length > 8) {
+    delay += LONG_WORD_EXTRA_MS;
+  }
+
   if (/,$/.test(item.text)) {
-    return BASE_WORD_MS + COMMA_DELAY_MS;
+    delay += COMMA_DELAY_MS;
   }
 
   if (/[.;]$/.test(item.text)) {
-    return BASE_WORD_MS + SENTENCE_DELAY_MS;
+    delay += PERIOD_DELAY_MS;
   }
 
-  return BASE_WORD_MS;
-}
-
-function createSound(src: string) {
-  const audio = new Audio(src);
-  audio.preload = "auto";
-  audio.load();
-  return audio;
-}
-
-function unlockAudio() {
-  const context = new AudioContext();
-  void context.resume();
-
-  const engine: AudioEngine = {
-    context,
-    countdownBeep: createSound("/sounds/beep.mp3"),
-    startBeep: createSound("/sounds/start.mp3"),
-    wordTick: createSound("/sounds/tick.mp3"),
-  };
-
-  return engine;
-}
-
-function synthesize(context: AudioContext, cue: Cue) {
-  const now = context.currentTime;
-
-  if (cue === "tick") {
-    const duration = 0.03;
-    const frames = Math.max(1, Math.floor(context.sampleRate * duration));
-    const buffer = context.createBuffer(1, frames, context.sampleRate);
-    const data = buffer.getChannelData(0);
-
-    for (let i = 0; i < frames; i += 1) {
-      data[i] = (Math.random() * 2 - 1) * (1 - i / frames);
-    }
-
-    const source = context.createBufferSource();
-    const filter = context.createBiquadFilter();
-    const gain = context.createGain();
-    source.buffer = buffer;
-    filter.type = "bandpass";
-    filter.frequency.value = 1200;
-    filter.Q.value = 0.8;
-    gain.gain.setValueAtTime(0.18, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-    source.connect(filter);
-    filter.connect(gain);
-    gain.connect(context.destination);
-    source.start(now);
-    source.stop(now + duration);
-    return;
-  }
-
-  const oscillator = context.createOscillator();
-  const gain = context.createGain();
-  const duration = cue === "start" ? 0.12 : 0.08;
-  oscillator.type = "square";
-  oscillator.frequency.value = cue === "start" ? 1200 : 800;
-  gain.gain.setValueAtTime(0.08, now);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-  oscillator.connect(gain);
-  gain.connect(context.destination);
-  oscillator.start(now);
-  oscillator.stop(now + duration);
-}
-
-function sampleForCue(engine: AudioEngine, cue: Cue) {
-  if (cue === "countdown") {
-    return engine.countdownBeep;
-  }
-
-  if (cue === "start") {
-    return engine.startBeep;
-  }
-
-  return engine.wordTick;
-}
-
-function playCue(engine: AudioEngine | null, enabled: boolean, cue: Cue) {
-  if (!engine || !enabled) {
-    return;
-  }
-
-  const sample = sampleForCue(engine, cue);
-  const fallback = () => synthesize(engine.context, cue);
-
-  if (sample.error) {
-    fallback();
-    return;
-  }
-
-  sample.currentTime = 0;
-  const playback = sample.play();
-
-  if (playback && typeof playback.catch === "function") {
-    playback.catch(() => {
-      fallback();
-    });
-  }
+  return delay;
 }
 
 function Centered({
@@ -176,61 +194,53 @@ function Centered({
   );
 }
 
-export function RSVPIntro() {
+export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [count, setCount] = useState(3);
   const [wordIndex, setWordIndex] = useState(0);
-  const [skipHold, setSkipHold] = useState(false);
-  const [fading, setFading] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const audioRef = useRef<AudioEngine | null>(null);
+  const audioRef = useRef<RSVPSynth | null>(null);
   const soundEnabledRef = useRef(soundEnabled);
-  const previousWordIndexRef = useRef<number | null>(null);
 
   soundEnabledRef.current = soundEnabled;
+
+  useEffect(() => {
+    return () => {
+      audioRef.current?.close();
+    };
+  }, []);
 
   useEffect(() => {
     if (phase !== "countdown") {
       return;
     }
 
-    playCue(
-      audioRef.current,
-      soundEnabledRef.current,
-      count === 1 ? "start" : "countdown",
-    );
-
-    let value = count;
+    let value = 3;
 
     const interval = window.setInterval(() => {
       value -= 1;
 
       if (value < 1) {
         window.clearInterval(interval);
+        playTick(audioRef.current, soundEnabledRef.current);
         setPhase("reading");
         return;
       }
 
+      playBeep(
+        audioRef.current,
+        soundEnabledRef.current,
+        value === 1 ? 1200 : 800,
+      );
       setCount(value);
     }, COUNTDOWN_MS);
 
     return () => window.clearInterval(interval);
-  }, [phase, count]);
+  }, [phase]);
 
   useEffect(() => {
     if (phase !== "reading") {
-      previousWordIndexRef.current = null;
       return;
-    }
-
-    const previousIndex = previousWordIndexRef.current;
-    const shouldTick =
-      previousIndex === null || wordIndex !== previousIndex;
-
-    previousWordIndexRef.current = wordIndex;
-
-    if (shouldTick) {
-      playCue(audioRef.current, soundEnabledRef.current, "tick");
     }
 
     const item = DISPLAY_SEQUENCE[wordIndex];
@@ -239,32 +249,36 @@ export function RSVPIntro() {
     const timeout = window.setTimeout(() => {
       if (isLast) {
         setPhase("done");
-        setFading(true);
         return;
       }
 
+      playTick(audioRef.current, soundEnabledRef.current);
       setWordIndex((index) => index + 1);
     }, delayForItem(item, isLast));
 
     return () => window.clearTimeout(timeout);
   }, [phase, wordIndex]);
 
-  useEffect(() => {
-    if (phase !== "done" || !skipHold) {
-      return;
-    }
-
-    setFading(true);
-  }, [phase, skipHold]);
-
   const item = DISPLAY_SEQUENCE[wordIndex];
+  const showSequence = phase === "reading" || phase === "done";
 
   return (
-    <div
+    <motion.div
       className={cn(
-        "relative h-screen w-screen text-[#DDDDFF] transition-opacity duration-[400ms] ease-out",
-        fading && "pointer-events-none opacity-0",
+        "fixed inset-0 z-40 overflow-hidden bg-[#4545FF] text-[#DDDDFF]",
+        phase === "done" && "pointer-events-none",
       )}
+      initial={{ scale: 1, opacity: 1 }}
+      animate={
+        phase === "done" ? { scale: 25, opacity: 0 } : { scale: 1, opacity: 1 }
+      }
+      transition={{ duration: 0.9, ease: [0.83, 0, 0.39, 1] }}
+      style={{ transformOrigin: "center center" }}
+      onAnimationComplete={() => {
+        if (phase === "done") {
+          onComplete();
+        }
+      }}
     >
       {phase === "idle" ? (
         <div className="font-space flex h-full w-full flex-col items-center justify-center">
@@ -274,7 +288,9 @@ export function RSVPIntro() {
               type="button"
               className="cursor-pointer bg-transparent p-0"
               onClick={() => {
-                audioRef.current = unlockAudio();
+                const synth = new RSVPSynth();
+                audioRef.current = synth;
+                playBeep(synth, soundEnabledRef.current, 800);
                 setCount(3);
                 setPhase("countdown");
               }}
@@ -286,7 +302,6 @@ export function RSVPIntro() {
               type="button"
               className="cursor-pointer bg-transparent p-0"
               onClick={() => {
-                setSkipHold(true);
                 setPhase("done");
               }}
             >
@@ -306,21 +321,25 @@ export function RSVPIntro() {
       ) : null}
 
       {phase === "countdown" ? (
-        <Centered className={WORD_CLASS}>{String(count)}</Centered>
+        <Centered className={cn(WORD_CLASS, getFontSize(String(count)))}>
+          {String(count)}
+        </Centered>
       ) : null}
 
-      {phase === "reading" ? (
+      {showSequence ? (
         <>
           <PerspectiveGrid />
           <Centered>
             {item.kind === "logo" ? (
-              <Logo className={WORD_CLASS} />
+              <Logo className={cn(WORD_CLASS, "text-8xl")} />
             ) : (
-              <span className={WORD_CLASS}>{item.text}</span>
+              <span className={cn(WORD_CLASS, getFontSize(item.text))}>
+                {item.text}
+              </span>
             )}
           </Centered>
         </>
       ) : null}
-    </div>
+    </motion.div>
   );
 }

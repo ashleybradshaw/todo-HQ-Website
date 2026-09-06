@@ -1,8 +1,11 @@
 "use client";
 
+import { useId } from "react";
 import { motion } from "framer-motion";
 
 export function PerspectiveGrid() {
+  const patternId = `perspective-wireframe-${useId().replace(/:/g, "")}`;
+
   return (
     <div
       aria-hidden="true"
@@ -17,7 +20,7 @@ export function PerspectiveGrid() {
         <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern
-              id="perspective-wireframe"
+              id={patternId}
               width="64"
               height="64"
               patternUnits="userSpaceOnUse"
@@ -31,11 +34,7 @@ export function PerspectiveGrid() {
               />
             </pattern>
           </defs>
-          <rect
-            width="100%"
-            height="100%"
-            fill="url(#perspective-wireframe)"
-          />
+          <rect width="100%" height="100%" fill={`url(#${patternId})`} />
         </svg>
       </motion.div>
     </div>

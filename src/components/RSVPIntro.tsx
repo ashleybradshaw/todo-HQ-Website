@@ -119,22 +119,46 @@ function playBeep(
   synth.playBeep(frequency);
 }
 
-const SCRIPT =
-  "is an engineering team shipping AI-driven applications, multi-agent backends, and automated development lifecycles. We don’t just write code; we orchestrate the systems that write it. By leveraging multi-agent ecosystems and custom AI tooling, we automate the software development lifecycle. The result is faster shipping, scalable architecture, and a growing portfolio of in-house and client applications.";
+const rsvpWords = [
+  "is",
+  "an",
+  "engineering",
+  "team.",
+  "We",
+  "don’t",
+  "just",
+  "write",
+  "code.",
+  "We",
+  "build",
+  "the",
+  "factory.",
+  "Autonomous",
+  "agents.",
+  "Automated",
+  "workflows.",
+  "Scalable",
+  "backends.",
+  "We",
+  "design,",
+  "code,",
+  "and",
+  "ship",
+  "production-ready",
+  "applications.",
+  "Fast.",
+];
 
 const DISPLAY_SEQUENCE: SequenceItem[] = [
   { kind: "logo" },
-  ...SCRIPT.split(/\s+/).filter(Boolean).map((text) => ({
-    kind: "word" as const,
-    text,
-  })),
+  ...rsvpWords.map((text) => ({ kind: "word" as const, text })),
 ];
 
-const BASE_WORD_MS = 160;
-const LONG_WORD_EXTRA_MS = 50;
-const COMMA_DELAY_MS = 250;
-const PERIOD_DELAY_MS = 450;
-const FINAL_HOLD_MS = 1500;
+const BASE_WORD_MS = 165;
+const LONG_WORD_EXTRA_MS = 40;
+const COMMA_DELAY_MS = 180;
+const PERIOD_DELAY_MS = 380;
+const FINAL_HOLD_MS = 1200;
 const COUNTDOWN_MS = 800;
 const WORD_CLASS = "font-unbounded font-bold tracking-tight";
 
@@ -171,7 +195,7 @@ function delayForItem(item: SequenceItem, isLast: boolean) {
     delay += COMMA_DELAY_MS;
   }
 
-  if (/[.;]$/.test(item.text)) {
+  if (/\.$/.test(item.text)) {
     delay += PERIOD_DELAY_MS;
   }
 
@@ -356,7 +380,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
 
       <motion.div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-20 bg-[#4545FF]"
+        className="pointer-events-none absolute inset-0 z-20 bg-[#DDDDFF]"
         initial={{ opacity: 0 }}
         animate={{ opacity: exiting ? 1 : 0 }}
         transition={{ duration: 0.3, ease: "easeIn" }}

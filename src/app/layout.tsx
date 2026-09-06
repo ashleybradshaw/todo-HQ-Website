@@ -20,7 +20,7 @@ const spaceMono = Space_Mono({
 export const metadata: Metadata = {
   title: "//TODO Engineering & Design",
   description:
-    "//TODO is an engineering team shipping AI-driven applications, multi-agent backends, and automated development lifecycles.",
+    "//TODO is an engineering team. We don’t just write code — we build the factory.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

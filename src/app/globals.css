@@ -9,7 +9,12 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-unbounded: var(--font-unbounded);
-  --font-space: var(--font-space-mono);
+  --font-jetbrains: var(--font-jetbrains);
+}
+
+.font-jetbrains {
+  font-variant-ligatures: contextual;
+  font-feature-settings: "liga" 1, "calt" 1;
 }
 
 body {

@@ -383,7 +383,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
                 <p className={`${WORD_CLASS} py-5 text-center text-[40px] leading-12`}>
                   First time?
                 </p>
-                <div className="font-space flex items-center justify-center py-2.5 text-base leading-5 font-bold">
+                <div className="font-jetbrains flex items-center justify-center py-2.5 text-base leading-5 font-bold">
                   <button
                     type="button"
                     className="cursor-pointer bg-transparent p-0"
@@ -411,7 +411,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
                 </div>
                 <button
                   type="button"
-                  className="font-space cursor-pointer bg-transparent py-2.5 text-base leading-5 font-bold"
+                  className="font-jetbrains cursor-pointer bg-transparent py-2.5 text-base leading-5 font-bold"
                   aria-pressed={soundEnabled}
                   onClick={() => setSoundEnabled((enabled) => !enabled)}
                 >

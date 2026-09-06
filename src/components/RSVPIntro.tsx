@@ -377,17 +377,11 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
           {showIdle ? (
             <div className="flex h-full w-full flex-col items-center justify-center px-6">
               <div className="flex flex-col items-center">
-                <p className="font-space text-center text-base leading-5 font-bold">
-                  First time?
-                </p>
-                <div className="mt-[23px] flex items-center justify-center py-2.5">
+                <div className="flex items-center justify-center py-2.5">
                   <Logo className="h-[35px] w-auto text-[#0B0CB4]" />
                 </div>
-                <p className="font-space mt-[23px] text-center text-base leading-5 font-bold">
-                  Find out?
-                </p>
-                <p className={`${WORD_CLASS} mt-3 py-5 text-[40px] leading-12`}>
-                  READY?
+                <p className={`${WORD_CLASS} py-5 text-center text-[40px] leading-12`}>
+                  First time?
                 </p>
                 <div className="font-space flex items-center justify-center py-2.5 text-base leading-5 font-bold">
                   <button

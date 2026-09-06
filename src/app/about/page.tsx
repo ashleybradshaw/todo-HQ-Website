@@ -2,8 +2,9 @@
 
 import { Fragment, useEffect, useState, type ReactNode } from "react";
 import { useReducedMotion } from "framer-motion";
-import { LiveTerminal } from "@/components/LiveTerminal";
+import { Minimap } from "@/components/Minimap";
 import { PhyllotaxisBloom } from "@/components/PhyllotaxisBloom";
+import { Telemetry } from "@/components/Telemetry";
 import { useMousePosition } from "@/hooks/useMousePosition";
 
 const PARALLAX_DISTANCE = 28;
@@ -133,9 +134,9 @@ export default function AboutPage() {
           TODO_HQ.ts, a CLI with LLM planning, a multi-agent team, then
           Repdaily, ReadyGo, and Contentic in production.
         </p>
-        <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_minmax(11rem,38%)] overflow-hidden lg:grid-cols-[70%_30%] lg:grid-rows-1">
+        <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_minmax(12rem,38%)] overflow-hidden lg:grid-cols-12 lg:grid-rows-1">
           <section
-            className="flex min-h-0 min-w-0 flex-col overflow-auto"
+            className="flex min-h-0 min-w-0 flex-col overflow-auto lg:col-span-9"
             aria-label="TODO_HQ TypeScript source"
           >
             <div className="flex shrink-0 items-center justify-between border-b border-[rgba(10,0,230,0.15)] px-6 py-2">
@@ -167,7 +168,13 @@ export default function AboutPage() {
               </pre>
             </div>
           </section>
-          <LiveTerminal />
+          <aside
+            className="flex min-h-0 flex-col border-t border-[#0000FF]/15 lg:col-span-3 lg:border-t-0 lg:border-l"
+            aria-label="IDE sidebar"
+          >
+            <Minimap />
+            <Telemetry />
+          </aside>
         </div>
       </div>
     </main>

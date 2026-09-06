@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Mono, Unbounded } from "next/font/google";
+import { Navigation } from "@/components/Navigation";
 import { NoiseOverlay } from "@/components/NoiseOverlay";
 import "./globals.css";
 
@@ -13,7 +14,7 @@ const unbounded = Unbounded({
 const spaceMono = Space_Mono({
   subsets: ["latin"],
   variable: "--font-space-mono",
-  weight: "400",
+  weight: ["400", "700"],
   display: "swap",
 });
 
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${unbounded.variable} ${spaceMono.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-[#4545FF] text-[#DDDDFF]">
+        <Navigation />
         {children}
         <NoiseOverlay />
       </body>

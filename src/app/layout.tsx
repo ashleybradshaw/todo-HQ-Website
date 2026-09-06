@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Space_Mono, Unbounded } from "next/font/google";
-import { siteData } from "@/data/siteData";
 import "./globals.css";
 
 const unbounded = Unbounded({
@@ -18,8 +17,9 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: siteData.metadata.title,
-  description: siteData.metadata.description,
+  title: "//TODO Engineering & Design",
+  description:
+    "//TODO is an engineering team shipping AI-driven applications, multi-agent backends, and automated development lifecycles.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

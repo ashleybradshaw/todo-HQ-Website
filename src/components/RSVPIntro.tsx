@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { Logo } from "@/components/Logo";
+import { PerspectiveGrid } from "@/components/PerspectiveGrid";
 import { cn } from "@/lib/cn";
 
 type Phase = "idle" | "countdown" | "reading" | "done";
@@ -58,7 +59,7 @@ function Centered({
     <div
       aria-live="polite"
       className={cn(
-        "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap",
+        "absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap",
         className,
       )}
     >
@@ -168,13 +169,16 @@ export function RSVPIntro() {
       ) : null}
 
       {phase === "reading" ? (
-        <Centered>
-          {item.kind === "logo" ? (
-            <Logo className={WORD_CLASS} />
-          ) : (
-            <span className={WORD_CLASS}>{item.text}</span>
-          )}
-        </Centered>
+        <>
+          <PerspectiveGrid />
+          <Centered>
+            {item.kind === "logo" ? (
+              <Logo className={WORD_CLASS} />
+            ) : (
+              <span className={WORD_CLASS}>{item.text}</span>
+            )}
+          </Centered>
+        </>
       ) : null}
     </div>
   );

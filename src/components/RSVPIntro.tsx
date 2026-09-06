@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { Logo } from "@/components/Logo";
 import { PerspectiveGrid } from "@/components/PerspectiveGrid";
@@ -162,18 +162,13 @@ const FINAL_HOLD_MS = 1200;
 const COUNTDOWN_MS = 800;
 const WORD_CLASS = "font-unbounded font-bold tracking-tight";
 
-function getFontSize(word: string) {
-  const { length } = word;
+function fontSizeForWord(word: string) {
+  const length = Math.max(word.length, 1);
+  const maxRem = length <= 4 ? 6 : length <= 8 ? 4.5 : 3.75;
+  const minRem = length <= 4 ? 2.75 : length <= 8 ? 2.125 : 1.5;
+  const vw = Math.min(18, 84 / (length * 0.66));
 
-  if (length <= 4) {
-    return "text-8xl";
-  }
-
-  if (length <= 8) {
-    return "text-7xl";
-  }
-
-  return "text-6xl";
+  return `clamp(${minRem}rem, ${vw}vw, ${maxRem}rem)`;
 }
 
 function delayForItem(item: SequenceItem, isLast: boolean) {
@@ -205,17 +200,20 @@ function delayForItem(item: SequenceItem, isLast: boolean) {
 function Centered({
   children,
   className,
+  style,
 }: {
   children: ReactNode;
   className?: string;
+  style?: CSSProperties;
 }) {
   return (
     <div
       aria-live="polite"
       className={cn(
-        "absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap",
+        "absolute top-1/2 left-1/2 z-10 max-w-[90vw] -translate-x-1/2 -translate-y-1/2 text-center whitespace-nowrap",
         className,
       )}
+      style={style}
     >
       {children}
     </div>
@@ -316,9 +314,9 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
           transition={{ duration: 0.3, ease: "easeIn" }}
         >
           {phase === "idle" ? (
-            <div className="font-space flex h-full w-full flex-col items-center justify-center">
+            <div className="font-space flex h-full w-full flex-col items-center justify-center px-6">
               <p className="text-center">READY?</p>
-              <div className="mt-6">
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-3 text-center">
                 <button
                   type="button"
                   className="cursor-pointer bg-transparent p-0"
@@ -356,7 +354,10 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
           ) : null}
 
           {phase === "countdown" ? (
-            <Centered className={cn(WORD_CLASS, getFontSize(String(count)))}>
+            <Centered
+              className={WORD_CLASS}
+              style={{ fontSize: fontSizeForWord(String(count)) }}
+            >
               {String(count)}
             </Centered>
           ) : null}
@@ -366,9 +367,12 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
               <PerspectiveGrid />
               <Centered>
                 {item.kind === "logo" ? (
-                  <Logo className={cn(WORD_CLASS, "text-8xl")} />
+                  <Logo className="h-auto w-[min(28rem,84vw)]" />
                 ) : (
-                  <span className={cn(WORD_CLASS, getFontSize(item.text))}>
+                  <span
+                    className={WORD_CLASS}
+                    style={{ fontSize: fontSizeForWord(item.text) }}
+                  >
                     {item.text}
                   </span>
                 )}

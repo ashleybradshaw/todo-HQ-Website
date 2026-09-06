@@ -1,8 +1,4 @@
-const ROWS = [
-  { key: "AGENTS_ACTIVE", value: "04", numeric: true },
-  { key: "INFRASTRUCTURE", value: "ONLINE", status: true },
-  { key: "CURRENT_SPRINT", value: "READYGO" },
-] as const;
+const PIPE_BARS = 8;
 
 function StatusDot() {
   return (
@@ -23,17 +19,58 @@ function StatusDot() {
   );
 }
 
-export function Telemetry() {
+function Pipe({ tick }: { tick: number }) {
+  return (
+    <div
+      className="flex h-3 items-end justify-end gap-px"
+      aria-hidden="true"
+    >
+      {Array.from({ length: PIPE_BARS }, (_, index) => {
+        const wave = (tick + index * 3) % 7;
+        const height = 4 + wave * 1.5;
+
+        return (
+          <span
+            key={index}
+            className="w-px bg-[#0A00E6] transition-[height] duration-300 ease-out motion-reduce:h-[7px] motion-reduce:transition-none"
+            style={{ height }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+export function Telemetry({
+  agents,
+  sprint,
+  tick,
+}: {
+  agents: number;
+  sprint: string;
+  tick: number;
+}) {
+  const rows = [
+    {
+      key: "AGENTS_ACTIVE",
+      value: String(agents).padStart(2, "0"),
+      numeric: true,
+    },
+    { key: "INFRASTRUCTURE", value: "ONLINE", status: true },
+    { key: "CURRENT_SPRINT", value: sprint },
+  ] as const;
+
   return (
     <section
       className="shrink-0 border-t border-[#0000FF]/15"
       aria-label="Factory telemetry"
     >
-      <div className="flex items-center border-b border-[#0000FF]/15 px-3 py-2">
+      <div className="flex items-center justify-between border-b border-[#0000FF]/15 px-3 py-2">
         <p className="font-jetbrains text-xs text-[#0A00E6]">SYS // TELEMETRY</p>
+        <Pipe tick={tick} />
       </div>
       <dl className="font-jetbrains grid grid-cols-[1fr_auto] items-center text-xs leading-5">
-        {ROWS.map((row) => (
+        {rows.map((row) => (
           <div
             key={row.key}
             className="col-span-2 grid grid-cols-subgrid items-center border-b border-[#0000FF]/15 px-3 py-2 last:border-b-0"

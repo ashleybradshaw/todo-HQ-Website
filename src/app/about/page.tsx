@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useState, type ReactNode } from "react";
 import { useReducedMotion } from "framer-motion";
-import { Minimap } from "@/components/Minimap";
+import { LiveTerminal, useFactoryStream } from "@/components/LiveTerminal";
 import { PhyllotaxisBloom } from "@/components/PhyllotaxisBloom";
 import { Telemetry } from "@/components/Telemetry";
 import { useMousePosition } from "@/hooks/useMousePosition";
@@ -88,6 +88,21 @@ const CODE_LINES: ReactNode[] = [
   </Fragment>,
 ];
 
+function FactorySidecar() {
+  const feed = useFactoryStream();
+
+  return (
+    <>
+      <LiveTerminal lines={feed.lines} clock={feed.clock} />
+      <Telemetry
+        agents={feed.agents}
+        sprint={feed.sprint}
+        tick={feed.tick}
+      />
+    </>
+  );
+}
+
 export default function AboutPage() {
   const { x, y, isReady } = useMousePosition();
   const reduceMotion = useReducedMotion();
@@ -134,9 +149,9 @@ export default function AboutPage() {
           TODO_HQ.ts, a CLI with LLM planning, a multi-agent team, then
           Repdaily, ReadyGo, and Contentic in production.
         </p>
-        <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_minmax(12rem,38%)] overflow-hidden lg:grid-cols-12 lg:grid-rows-1">
+        <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_minmax(14rem,42%)] overflow-hidden lg:grid-cols-[70%_30%] lg:grid-rows-1">
           <section
-            className="flex min-h-0 min-w-0 flex-col overflow-auto lg:col-span-9"
+            className="flex min-h-0 min-w-0 flex-col overflow-auto"
             aria-label="TODO_HQ TypeScript source"
           >
             <div className="flex shrink-0 items-center justify-between border-b border-[rgba(10,0,230,0.15)] px-6 py-2">
@@ -169,11 +184,10 @@ export default function AboutPage() {
             </div>
           </section>
           <aside
-            className="flex min-h-0 flex-col border-t border-[#0000FF]/15 lg:col-span-3 lg:border-t-0 lg:border-l"
-            aria-label="IDE sidebar"
+            className="flex min-h-0 flex-col border-t border-[#0000FF]/15 lg:border-t-0 lg:border-l"
+            aria-label="Factory sidecar"
           >
-            <Minimap />
-            <Telemetry />
+            <FactorySidecar />
           </aside>
         </div>
       </div>

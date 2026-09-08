@@ -520,6 +520,32 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
         </motion.div>
       </motion.div>
 
+      {phase === "reading" ? (
+        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50">
+          <p
+            className="font-jetbrains absolute bottom-4 left-1/2 -translate-x-1/2 text-sm tracking-widest text-[#DDDDFF]/70"
+            aria-live="polite"
+          >
+            {`[ ${wordIndex} / ${rsvpWords.length} ]`}
+          </p>
+          <div
+            className="absolute bottom-0 left-0 h-[2px] w-full bg-[#DDDDFF]/20"
+            role="progressbar"
+            aria-label="Reading progress"
+            aria-valuemin={0}
+            aria-valuemax={rsvpWords.length}
+            aria-valuenow={wordIndex}
+          >
+            <div
+              className="h-full bg-[#DDDDFF] transition-all duration-150"
+              style={{
+                width: `${(wordIndex / rsvpWords.length) * 100}%`,
+              }}
+            />
+          </div>
+        </div>
+      ) : null}
+
       <motion.div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-20 bg-[#DDDDFF]"

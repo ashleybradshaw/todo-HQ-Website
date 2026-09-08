@@ -2,7 +2,7 @@
 
 import { Fragment, useCallback, useEffect, useState, type ReactNode } from "react";
 import { useReducedMotion } from "framer-motion";
-import { useFactoryStream } from "@/components/LiveTerminal";
+import { useFactoryStream } from "@/hooks/useFactoryStream";
 import { PipelineRunner } from "@/components/PipelineRunner";
 import { PhyllotaxisBloom } from "@/components/PhyllotaxisBloom";
 import { Telemetry } from "@/components/Telemetry";

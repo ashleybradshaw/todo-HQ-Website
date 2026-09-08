@@ -2,10 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { motion, useAnimation } from "framer-motion";
-import {
-  ANIMATED_TODO_LOGO_INTRO_MS,
-  AnimatedTodoLogo,
-} from "@/components/AnimatedTodoLogo";
+import { LogoStatic } from "@/components/LogoStatic";
 import { PerspectiveGrid } from "@/components/PerspectiveGrid";
 import { PhyllotaxisBloom } from "@/components/PhyllotaxisBloom";
 import { cn } from "@/lib/cn";
@@ -237,7 +234,7 @@ function delayForItem(item: SequenceItem, isLast: boolean) {
   }
 
   if (item.kind === "logo") {
-    return ANIMATED_TODO_LOGO_INTRO_MS;
+    return BASE_WORD_MS;
   }
 
   let delay = BASE_WORD_MS;
@@ -438,7 +435,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
             <div className="flex h-full w-full flex-col items-center justify-center px-6">
               <div className="flex flex-col items-center">
                 <div className="flex items-center justify-center py-2.5">
-                  <AnimatedTodoLogo className="h-[35px] w-auto text-[#0B0CB4]" />
+                  <LogoStatic className="h-[35px] w-auto text-[#0B0CB4]" />
                 </div>
                 <p className={`${WORD_CLASS} py-5 text-center text-[40px] leading-12`}>
                   First time?
@@ -510,7 +507,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
               <PerspectiveGrid />
               <Centered>
                 {item.kind === "logo" ? (
-                  <AnimatedTodoLogo className="h-auto w-[min(28rem,84vw)] text-[#DDDDFF]" />
+                  <LogoStatic className="h-auto w-[min(28rem,84vw)]" />
                 ) : (
                   <FitWord className={WORD_CLASS} text={item.text} />
                 )}

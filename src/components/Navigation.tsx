@@ -4,7 +4,7 @@ import { useEffect, useId, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Logo } from "@/components/Logo";
+import { LogoAnimated } from "@/components/LogoAnimated";
 import { cn } from "@/lib/cn";
 
 const LINKS = [
@@ -82,7 +82,9 @@ export function Navigation() {
           className="relative z-10"
           onClick={() => setMenuOpen(false)}
         >
-          <Logo className="h-7 w-auto" />
+          {pathname === "/" ? null : (
+            <LogoAnimated className="h-7 w-auto" />
+          )}
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex" aria-label="Primary">

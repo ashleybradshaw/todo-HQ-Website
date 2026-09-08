@@ -1,8 +1,9 @@
 "use client";
 
-import { Fragment, useEffect, useState, type ReactNode } from "react";
+import { Fragment, useCallback, useEffect, useState, type ReactNode } from "react";
 import { useReducedMotion } from "framer-motion";
-import { LiveTerminal, useFactoryStream } from "@/components/LiveTerminal";
+import { useFactoryStream } from "@/components/LiveTerminal";
+import { PipelineRunner } from "@/components/PipelineRunner";
 import { PhyllotaxisBloom } from "@/components/PhyllotaxisBloom";
 import { Telemetry } from "@/components/Telemetry";
 import { useMousePosition } from "@/hooks/useMousePosition";
@@ -26,7 +27,28 @@ function Punct({ children }: { children: ReactNode }) {
   return <span className="text-blue-900/70">{children}</span>;
 }
 
-const CODE_LINES: ReactNode[] = [
+function Fn({
+  children,
+  onActivate,
+}: {
+  children: ReactNode;
+  onActivate: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onActivate}
+      onMouseEnter={onActivate}
+      aria-label="Restart factory pipeline"
+      className="cursor-pointer bg-transparent p-0 font-jetbrains text-[#0A00E6] hover:underline focus-visible:underline"
+    >
+      {children}
+    </button>
+  );
+}
+
+function codeLines(onExecutePipeline: () => void): ReactNode[] {
+  return [
   <Fragment key={1}>
     <Comment>{`/** A little more about us and what we do. */`}</Comment>
   </Fragment>,
@@ -60,40 +82,46 @@ const CODE_LINES: ReactNode[] = [
     <Punct>{"],"}</Punct>
   </Fragment>,
   <Fragment key={9}>
-    {"  "}inProduction<Punct>:</Punct> <Punct>[</Punct>
+    {"  "}methodology<Punct>:</Punct>{" "}
+    <Fn onActivate={onExecutePipeline}>executePipeline()</Fn>
+    <Punct>,</Punct>
   </Fragment>,
   <Fragment key={10}>
+    {"  "}inProduction<Punct>:</Punct> <Punct>[</Punct>
+  </Fragment>,
+  <Fragment key={11}>
     {"    "}
     <Str>{`"Repdaily"`}</Str>
     <Punct>,</Punct>
   </Fragment>,
-  <Fragment key={11}>
+  <Fragment key={12}>
     {"    "}
     <Str>{`"ReadyGo"`}</Str>
     <Punct>,</Punct>
   </Fragment>,
-  <Fragment key={12}>
+  <Fragment key={13}>
     {"    "}
     <Str>{`"Contentic"`}</Str>
   </Fragment>,
-  <Fragment key={13}>
+  <Fragment key={14}>
     {"  "}
     <Punct>{"],"}</Punct>
   </Fragment>,
-  <Fragment key={14}>
+  <Fragment key={15}>
     {"  "}velocity<Punct>:</Punct> <Str>{`"Production-ready. Fast."`}</Str>
   </Fragment>,
-  <Fragment key={15}>
+  <Fragment key={16}>
     <Punct>{"}"};</Punct>
   </Fragment>,
-];
+  ];
+}
 
-function FactorySidecar() {
+function FactorySidecar({ rebootSignal }: { rebootSignal: number }) {
   const feed = useFactoryStream();
 
   return (
     <>
-      <LiveTerminal lines={feed.lines} clock={feed.clock} />
+      <PipelineRunner rebootSignal={rebootSignal} />
       <Telemetry
         agents={feed.agents}
         sprint={feed.sprint}
@@ -107,6 +135,13 @@ export default function AboutPage() {
   const { x, y, isReady } = useMousePosition();
   const reduceMotion = useReducedMotion();
   const [viewport, setViewport] = useState({ width: 1, height: 1 });
+  const [rebootSignal, setRebootSignal] = useState(0);
+
+  const rebootPipeline = useCallback(() => {
+    setRebootSignal((current) => current + 1);
+  }, []);
+
+  const lines = codeLines(rebootPipeline);
 
   useEffect(() => {
     const syncViewport = () => {
@@ -146,7 +181,7 @@ export default function AboutPage() {
         <h1 className="sr-only">A little more about us and what we do.</h1>
         <p className="sr-only">
           The team behind //TODO runs an internal software factory: source in
-          TODO_HQ.ts, a CLI with LLM planning, a multi-agent team, then
+          TODO_HQ.ts, executePipeline() as methodology, a multi-agent team, then
           Repdaily, ReadyGo, and Contentic in production.
         </p>
         <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_minmax(14rem,42%)] overflow-hidden lg:grid-cols-[70%_30%] lg:grid-rows-1">
@@ -163,7 +198,7 @@ export default function AboutPage() {
                 aria-hidden="true"
                 className="flex w-8 shrink-0 flex-col border-r border-[rgba(10,0,230,0.15)] py-4 text-right text-blue-900/30 select-none lg:w-10"
               >
-                {CODE_LINES.map((_, index) => (
+                {lines.map((_, index) => (
                   <span
                     key={index}
                     className="pr-2 leading-5 lg:pr-3 lg:leading-6"
@@ -174,7 +209,7 @@ export default function AboutPage() {
               </div>
               <pre className="min-w-0 flex-1 py-4">
                 <code className="font-jetbrains">
-                  {CODE_LINES.map((line, index) => (
+                  {lines.map((line, index) => (
                     <div key={index} className="pr-6 pl-4 whitespace-pre-wrap">
                       {line}
                     </div>
@@ -187,7 +222,7 @@ export default function AboutPage() {
             className="flex min-h-0 flex-col border-t border-[#0000FF]/15 lg:border-t-0 lg:border-l"
             aria-label="Factory sidecar"
           >
-            <FactorySidecar />
+            <FactorySidecar rebootSignal={rebootSignal} />
           </aside>
         </div>
       </div>

@@ -2,14 +2,12 @@
 
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { motion, useAnimation } from "framer-motion";
-import { LogoStatic } from "@/components/LogoStatic";
+import { LogoAnimated } from "@/components/LogoAnimated";
 import { PerspectiveGrid } from "@/components/PerspectiveGrid";
 import { PhyllotaxisBloom } from "@/components/PhyllotaxisBloom";
 import { cn } from "@/lib/cn";
 
 type Phase = "idle" | "countdown" | "reading" | "done";
-
-type SequenceItem = { kind: "logo" } | { kind: "word"; text: string };
 
 const TICK_PITCHES = [1200, 1400, 1000] as const;
 const TICK_DURATION = 0.04;
@@ -205,11 +203,6 @@ const rsvpWords = [
   "Fast.",
 ];
 
-const DISPLAY_SEQUENCE: SequenceItem[] = [
-  { kind: "logo" },
-  ...rsvpWords.map((text) => ({ kind: "word" as const, text })),
-];
-
 const BASE_WORD_MS = 165;
 const LONG_WORD_EXTRA_MS = 90;
 const VERY_LONG_WORD_EXTRA_MS = 150;
@@ -228,28 +221,24 @@ function fontSizeForWord(word: string) {
   return `clamp(${minRem}rem, ${vw}vw, ${maxRem}rem)`;
 }
 
-function delayForItem(item: SequenceItem, isLast: boolean) {
+function delayForWord(word: string, isLast: boolean) {
   if (isLast) {
     return FINAL_HOLD_MS;
   }
 
-  if (item.kind === "logo") {
-    return BASE_WORD_MS;
-  }
-
   let delay = BASE_WORD_MS;
 
-  if (item.text.length > 12) {
+  if (word.length > 12) {
     delay += VERY_LONG_WORD_EXTRA_MS;
-  } else if (item.text.length > 8) {
+  } else if (word.length > 8) {
     delay += LONG_WORD_EXTRA_MS;
   }
 
-  if (/,$/.test(item.text)) {
+  if (/,$/.test(word)) {
     delay += COMMA_DELAY_MS;
   }
 
-  if (/\.$/.test(item.text)) {
+  if (/\.$/.test(word)) {
     delay += PERIOD_DELAY_MS;
   }
 
@@ -370,8 +359,8 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
       return;
     }
 
-    const item = DISPLAY_SEQUENCE[wordIndex];
-    const isLast = wordIndex >= DISPLAY_SEQUENCE.length - 1;
+    const word = rsvpWords[wordIndex];
+    const isLast = wordIndex >= rsvpWords.length - 1;
 
     const timeout = window.setTimeout(() => {
       if (isLast) {
@@ -381,7 +370,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
 
       playTick(audioRef.current, soundEnabledRef.current);
       setWordIndex((index) => index + 1);
-    }, delayForItem(item, isLast));
+    }, delayForWord(word, isLast));
 
     return () => window.clearTimeout(timeout);
   }, [phase, wordIndex]);
@@ -398,7 +387,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
     });
   }, [bloomControls, count, phase, wordIndex]);
 
-  const item = DISPLAY_SEQUENCE[wordIndex];
+  const word = rsvpWords[wordIndex];
   const exiting = phase === "done";
   const showIdle = phase === "idle" || (exiting && bypassReading);
   const showSequence = (phase === "reading" || exiting) && !bypassReading;
@@ -435,7 +424,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
             <div className="flex h-full w-full flex-col items-center justify-center px-6">
               <div className="flex flex-col items-center">
                 <div className="flex items-center justify-center py-2.5">
-                  <LogoStatic className="h-[35px] w-auto text-[#0B0CB4]" />
+                  <LogoAnimated className="h-[35px] w-auto text-[#0B0CB4]" />
                 </div>
                 <p className={`${WORD_CLASS} py-5 text-center text-[40px] leading-12`}>
                   First time?
@@ -506,11 +495,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
             <>
               <PerspectiveGrid />
               <Centered>
-                {item.kind === "logo" ? (
-                  <LogoStatic className="h-auto w-[min(28rem,84vw)]" />
-                ) : (
-                  <FitWord className={WORD_CLASS} text={item.text} />
-                )}
+                <FitWord className={WORD_CLASS} text={word} />
               </Centered>
             </>
           ) : null}
@@ -523,20 +508,20 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
             className="font-jetbrains absolute bottom-4 left-1/2 -translate-x-1/2 text-sm tracking-widest text-[#DDDDFF]/70"
             aria-live="polite"
           >
-            {`[ ${wordIndex} / ${rsvpWords.length} ]`}
+            {`[ ${wordIndex + 1} / ${rsvpWords.length} ]`}
           </p>
           <div
             className="absolute bottom-0 left-0 h-[2px] w-full bg-[#DDDDFF]/20"
             role="progressbar"
             aria-label="Reading progress"
-            aria-valuemin={0}
+            aria-valuemin={1}
             aria-valuemax={rsvpWords.length}
-            aria-valuenow={wordIndex}
+            aria-valuenow={wordIndex + 1}
           >
             <div
               className="h-full bg-[#DDDDFF] transition-all duration-150"
               style={{
-                width: `${(wordIndex / rsvpWords.length) * 100}%`,
+                width: `${((wordIndex + 1) / rsvpWords.length) * 100}%`,
               }}
             />
           </div>

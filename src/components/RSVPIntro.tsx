@@ -7,10 +7,7 @@ import { PerspectiveGrid } from "@/components/PerspectiveGrid";
 import { PhyllotaxisBloom } from "@/components/PhyllotaxisBloom";
 import { cn } from "@/lib/cn";
 
-type Phase = "idle" | "countdown" | "whatWeDo" | "reading" | "done";
-
-const TICK_PITCHES = [1200, 1400, 1000] as const;
-const TICK_DURATION = 0.04;
+type Phase = "idle" | "countdown" | "reading" | "done";
 
 function createAudioContext() {
   const Ctor =
@@ -32,24 +29,10 @@ function createAudioContext() {
 class RSVPSynth {
   private context: AudioContext;
   private unlocking: Promise<void> | null = null;
-  private tickIndex = 0;
 
   constructor() {
     this.context = createAudioContext();
     void this.unlock();
-  }
-
-  playTick() {
-    if (this.context.state === "running") {
-      this.emitTick();
-      return;
-    }
-
-    void this.unlock().then(() => {
-      if (this.context.state === "running") {
-        this.emitTick();
-      }
-    });
   }
 
   playBeep(frequency: number) {
@@ -96,7 +79,7 @@ class RSVPSynth {
     return this.unlocking;
   }
 
-  private emitTick() {
+  private emitBeep(frequency: number) {
     const { context } = this;
 
     if (context.state !== "running") {
@@ -104,22 +87,25 @@ class RSVPSynth {
     }
 
     const now = context.currentTime;
-    const pitch = TICK_PITCHES[this.tickIndex % TICK_PITCHES.length];
-    this.tickIndex += 1;
+    const duration = 0.14;
 
     const oscillator = context.createOscillator();
     const filter = context.createBiquadFilter();
     const amp = context.createGain();
 
-    oscillator.type = "square";
-    oscillator.frequency.setValueAtTime(pitch, now);
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(frequency, now);
+    oscillator.frequency.exponentialRampToValueAtTime(
+      Math.max(frequency * 0.5, 50),
+      now + duration,
+    );
 
-    filter.type = "highpass";
-    filter.frequency.setValueAtTime(800, now);
-    filter.Q.setValueAtTime(0.7, now);
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(280, now);
+    filter.Q.setValueAtTime(0.5, now);
 
-    amp.gain.setValueAtTime(0.18, now);
-    amp.gain.linearRampToValueAtTime(0.001, now + TICK_DURATION);
+    amp.gain.setValueAtTime(0.16, now);
+    amp.gain.linearRampToValueAtTime(0.001, now + duration);
 
     oscillator.connect(filter);
     filter.connect(amp);
@@ -132,47 +118,8 @@ class RSVPSynth {
     };
 
     oscillator.start(now);
-    oscillator.stop(now + TICK_DURATION);
-  }
-
-  private emitBeep(frequency: number) {
-    const { context } = this;
-
-    if (context.state !== "running") {
-      return;
-    }
-
-    const now = context.currentTime;
-    const duration = 0.11;
-
-    const oscillator = context.createOscillator();
-    const amp = context.createGain();
-
-    oscillator.type = "square";
-    oscillator.frequency.setValueAtTime(frequency, now);
-
-    amp.gain.setValueAtTime(0.1, now);
-    amp.gain.linearRampToValueAtTime(0.001, now + duration);
-
-    oscillator.connect(amp);
-    amp.connect(context.destination);
-
-    oscillator.onended = () => {
-      oscillator.disconnect();
-      amp.disconnect();
-    };
-
-    oscillator.start(now);
     oscillator.stop(now + duration);
   }
-}
-
-function playTick(synth: RSVPSynth | null, enabled: boolean) {
-  if (!synth || !enabled) {
-    return;
-  }
-
-  synth.playTick();
 }
 
 function playBeep(
@@ -187,77 +134,45 @@ function playBeep(
   synth.playBeep(frequency);
 }
 
-const rsvpWords = [
-  "is",
-  "an",
-  "engineering",
-  "team.",
-  "We",
-  "don’t",
-  "just",
-  "write",
-  "code.",
-  "We",
-  "build",
-  "the",
-  "factory.",
-  "Autonomous",
-  "agents.",
-  "Automated",
-  "workflows.",
-  "Scalable",
-  "backends.",
-  "We",
-  "design,",
-  "code,",
-  "and",
-  "ship",
-  "production-ready",
-  "applications.",
-  "Fast.",
-];
+const rsvpSequence = [
+  { text: "Most teams", ms: 380 },
+  { text: "just", ms: 200 },
+  { text: "write", ms: 200 },
+  { text: "code.", ms: 640 },
+  { text: "We", ms: 170 },
+  { text: "build", ms: 200 },
+  { text: "the", ms: 150 },
+  { text: "entire", ms: 240 },
+  { text: "factory.", ms: 700 },
+  { text: "Autonomous", ms: 280 },
+  { text: "agents.", ms: 540 },
+  { text: "Automated", ms: 260 },
+  { text: "workflows.", ms: 540 },
+  { text: "We", ms: 140 },
+  { text: "design,", ms: 280 },
+  { text: "build,", ms: 280 },
+  { text: "and ship", ms: 240 },
+  { text: "production-", ms: 300 },
+  { text: "ready.", ms: 640 },
+  { text: "Fast.", ms: 1200 },
+] as const;
 
-const WARMUP_MS = 750;
-const WARMUP_HOP_MS = WARMUP_MS / 3;
-const RAMP_WORD_MS = 220;
-const MID_WORD_MS = 165;
-const SPRINT_WORD_MS = 130;
-const COMMA_DELAY_MS = 150;
-const PERIOD_DELAY_MS = 300;
-const FINAL_HOLD_MS = 1200;
-const COUNTDOWN_MS = 800;
+const COUNTDOWN_MS = 700;
+const RSVP_FONT_SIZE = "clamp(2.5rem, 7.5vw, 5.25rem)";
 const WORD_CLASS = "font-unbounded font-bold tracking-tight";
 const WORD_ANCHOR_CLASS =
   "absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2";
-const WARMUP_SPRING = { type: "spring" as const, stiffness: 400, damping: 12 };
-const WARMUP_WORDS = ["What", "we", "do..."] as const;
 
-function fontSizeForWord(word: string) {
-  const length = Math.max(word.length, 1);
-  const maxRem = length <= 4 ? 6 : length <= 8 ? 4.5 : 3.25;
-  const minRem = length <= 4 ? 2.5 : 1.25;
-  const vw = Math.min(16, 82 / (length * 1.02));
-
-  return `clamp(${minRem}rem, ${vw}vw, ${maxRem}rem)`;
-}
-
-function delayForWord(word: string, index: number, isLast: boolean) {
-  if (isLast) {
-    return FINAL_HOLD_MS;
+function fontSizeForCount(count: number) {
+  if (count === 3) {
+    return "clamp(6.5rem, 22vw, 11rem)";
   }
 
-  let delay =
-    index < 3 ? RAMP_WORD_MS : index < 8 ? MID_WORD_MS : SPRINT_WORD_MS;
-
-  if (/,$/.test(word)) {
-    delay += COMMA_DELAY_MS;
+  if (count === 2) {
+    return "clamp(3.75rem, 12vw, 6.5rem)";
   }
 
-  if (/\.$/.test(word)) {
-    delay += PERIOD_DELAY_MS;
-  }
-
-  return delay;
+  return "clamp(1.75rem, 5.5vw, 2.75rem)";
 }
 
 function FitWord({
@@ -276,7 +191,7 @@ function FitWord({
       return;
     }
 
-    el.style.fontSize = fontSizeForWord(text);
+    el.style.fontSize = RSVP_FONT_SIZE;
 
     const available = window.innerWidth * 0.86;
     const width = el.scrollWidth;
@@ -288,76 +203,9 @@ function FitWord({
   }, [text]);
 
   return (
-    <span
-      ref={ref}
-      className={className}
-      style={{ fontSize: fontSizeForWord(text) }}
-    >
+    <span ref={ref} className={className} style={{ fontSize: RSVP_FONT_SIZE }}>
       {text}
     </span>
-  );
-}
-
-function WhatWeDoWarmUp() {
-  const phraseRef = useRef<HTMLParagraphElement>(null);
-  const wordRefs = useRef<Array<HTMLSpanElement | null>>([]);
-  const [hop, setHop] = useState(0);
-  const [x, setX] = useState(0);
-
-  useLayoutEffect(() => {
-    const phrase = phraseRef.current;
-    const word = wordRefs.current[hop];
-
-    if (!phrase || !word) {
-      return;
-    }
-
-    const phraseBox = phrase.getBoundingClientRect();
-    const wordBox = word.getBoundingClientRect();
-    const center = wordBox.left + wordBox.width / 2 - phraseBox.left;
-
-    setX(center - 6);
-  }, [hop]);
-
-  useEffect(() => {
-    const hopToWe = window.setTimeout(() => setHop(1), WARMUP_HOP_MS);
-    const hopToDo = window.setTimeout(() => setHop(2), WARMUP_HOP_MS * 2);
-
-    return () => {
-      window.clearTimeout(hopToWe);
-      window.clearTimeout(hopToDo);
-    };
-  }, []);
-
-  return (
-    <div className={WORD_ANCHOR_CLASS}>
-      <div className="relative">
-        <motion.span
-          aria-hidden="true"
-          className="absolute top-0 left-0 h-3 w-3 rounded-full bg-[#DDDDFF]"
-          style={{ marginTop: "-20px" }}
-          animate={{ x }}
-          transition={WARMUP_SPRING}
-        />
-        <p
-          ref={phraseRef}
-          className={`${WORD_CLASS} whitespace-nowrap text-[clamp(1.75rem,6vw,2.75rem)]`}
-        >
-          {WARMUP_WORDS.map((word, index) => (
-            <span key={word}>
-              {index > 0 ? " " : null}
-              <span
-                ref={(node) => {
-                  wordRefs.current[index] = node;
-                }}
-              >
-                {word}
-              </span>
-            </span>
-          ))}
-        </p>
-      </div>
-    </div>
   );
 }
 
@@ -413,15 +261,15 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
 
       if (value < 1) {
         window.clearInterval(interval);
-        playTick(audioRef.current, soundEnabledRef.current);
-        setPhase("whatWeDo");
+        setWordIndex(0);
+        setPhase("reading");
         return;
       }
 
       playBeep(
         audioRef.current,
         soundEnabledRef.current,
-        value === 1 ? 1200 : 800,
+        value === 1 ? 140 : 190,
       );
       setCount(value);
     }, COUNTDOWN_MS);
@@ -430,26 +278,12 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
   }, [phase]);
 
   useEffect(() => {
-    if (phase !== "whatWeDo") {
-      return;
-    }
-
-    const timeout = window.setTimeout(() => {
-      playTick(audioRef.current, soundEnabledRef.current);
-      setWordIndex(0);
-      setPhase("reading");
-    }, WARMUP_MS);
-
-    return () => window.clearTimeout(timeout);
-  }, [phase]);
-
-  useEffect(() => {
     if (phase !== "reading") {
       return;
     }
 
-    const word = rsvpWords[wordIndex];
-    const isLast = wordIndex >= rsvpWords.length - 1;
+    const current = rsvpSequence[wordIndex];
+    const isLast = wordIndex >= rsvpSequence.length - 1;
 
     const timeout = window.setTimeout(() => {
       if (isLast) {
@@ -457,15 +291,14 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
         return;
       }
 
-      playTick(audioRef.current, soundEnabledRef.current);
       setWordIndex((index) => index + 1);
-    }, delayForWord(word, wordIndex, isLast));
+    }, current.ms);
 
     return () => window.clearTimeout(timeout);
   }, [phase, wordIndex]);
 
   useLayoutEffect(() => {
-    if (phase !== "countdown" && phase !== "whatWeDo" && phase !== "reading") {
+    if (phase !== "countdown") {
       return;
     }
 
@@ -474,15 +307,14 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
       scale: 1,
       transition: { duration: 0.15, ease: "easeOut" },
     });
-  }, [bloomControls, count, phase, wordIndex]);
+  }, [bloomControls, count, phase]);
 
-  const word = rsvpWords[wordIndex];
+  const word = rsvpSequence[wordIndex].text;
   const exiting = phase === "done";
   const showIdle = phase === "idle" || (exiting && bypassReading);
   const showSequence = (phase === "reading" || exiting) && !bypassReading;
   const showBloom =
     phase === "countdown" ||
-    phase === "whatWeDo" ||
     phase === "reading" ||
     (exiting && !bypassReading);
 
@@ -526,7 +358,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
                     onClick={() => {
                       const synth = new RSVPSynth();
                       audioRef.current = synth;
-                      playBeep(synth, soundEnabled, 800);
+                      playBeep(synth, soundEnabled, 180);
                       setCount(3);
                       setPhase("countdown");
                     }}
@@ -575,13 +407,11 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
           {phase === "countdown" ? (
             <Centered
               className={WORD_CLASS}
-              style={{ fontSize: fontSizeForWord(String(count)) }}
+              style={{ fontSize: fontSizeForCount(count) }}
             >
               {String(count)}
             </Centered>
           ) : null}
-
-          {phase === "whatWeDo" ? <WhatWeDoWarmUp /> : null}
 
           {showSequence ? (
             <>

@@ -7,7 +7,7 @@ import { PerspectiveGrid } from "@/components/PerspectiveGrid";
 import { PhyllotaxisBloom } from "@/components/PhyllotaxisBloom";
 import { cn } from "@/lib/cn";
 
-type Phase = "idle" | "countdown" | "reading" | "done";
+type Phase = "idle" | "countdown" | "whatWeDo" | "reading" | "done";
 
 const TICK_PITCHES = [1200, 1400, 1000] as const;
 const TICK_DURATION = 0.04;
@@ -40,14 +40,28 @@ class RSVPSynth {
   }
 
   playTick() {
-    void this.unlock().then(() => {
+    if (this.context.state === "running") {
       this.emitTick();
+      return;
+    }
+
+    void this.unlock().then(() => {
+      if (this.context.state === "running") {
+        this.emitTick();
+      }
     });
   }
 
   playBeep(frequency: number) {
-    void this.unlock().then(() => {
+    if (this.context.state === "running") {
       this.emitBeep(frequency);
+      return;
+    }
+
+    void this.unlock().then(() => {
+      if (this.context.state === "running") {
+        this.emitBeep(frequency);
+      }
     });
   }
 
@@ -203,14 +217,20 @@ const rsvpWords = [
   "Fast.",
 ];
 
-const BASE_WORD_MS = 165;
-const LONG_WORD_EXTRA_MS = 90;
-const VERY_LONG_WORD_EXTRA_MS = 150;
-const COMMA_DELAY_MS = 180;
-const PERIOD_DELAY_MS = 380;
+const WARMUP_MS = 750;
+const WARMUP_HOP_MS = WARMUP_MS / 3;
+const RAMP_WORD_MS = 220;
+const MID_WORD_MS = 165;
+const SPRINT_WORD_MS = 130;
+const COMMA_DELAY_MS = 150;
+const PERIOD_DELAY_MS = 300;
 const FINAL_HOLD_MS = 1200;
 const COUNTDOWN_MS = 800;
 const WORD_CLASS = "font-unbounded font-bold tracking-tight";
+const WORD_ANCHOR_CLASS =
+  "absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2";
+const WARMUP_SPRING = { type: "spring" as const, stiffness: 400, damping: 12 };
+const WARMUP_WORDS = ["What", "we", "do..."] as const;
 
 function fontSizeForWord(word: string) {
   const length = Math.max(word.length, 1);
@@ -221,18 +241,13 @@ function fontSizeForWord(word: string) {
   return `clamp(${minRem}rem, ${vw}vw, ${maxRem}rem)`;
 }
 
-function delayForWord(word: string, isLast: boolean) {
+function delayForWord(word: string, index: number, isLast: boolean) {
   if (isLast) {
     return FINAL_HOLD_MS;
   }
 
-  let delay = BASE_WORD_MS;
-
-  if (word.length > 12) {
-    delay += VERY_LONG_WORD_EXTRA_MS;
-  } else if (word.length > 8) {
-    delay += LONG_WORD_EXTRA_MS;
-  }
+  let delay =
+    index < 3 ? RAMP_WORD_MS : index < 8 ? MID_WORD_MS : SPRINT_WORD_MS;
 
   if (/,$/.test(word)) {
     delay += COMMA_DELAY_MS;
@@ -263,7 +278,7 @@ function FitWord({
 
     el.style.fontSize = fontSizeForWord(text);
 
-    const available = el.parentElement?.clientWidth ?? window.innerWidth * 0.86;
+    const available = window.innerWidth * 0.86;
     const width = el.scrollWidth;
 
     if (width > available && width > 0) {
@@ -283,6 +298,69 @@ function FitWord({
   );
 }
 
+function WhatWeDoWarmUp() {
+  const phraseRef = useRef<HTMLParagraphElement>(null);
+  const wordRefs = useRef<Array<HTMLSpanElement | null>>([]);
+  const [hop, setHop] = useState(0);
+  const [x, setX] = useState(0);
+
+  useLayoutEffect(() => {
+    const phrase = phraseRef.current;
+    const word = wordRefs.current[hop];
+
+    if (!phrase || !word) {
+      return;
+    }
+
+    const phraseBox = phrase.getBoundingClientRect();
+    const wordBox = word.getBoundingClientRect();
+    const center = wordBox.left + wordBox.width / 2 - phraseBox.left;
+
+    setX(center - 6);
+  }, [hop]);
+
+  useEffect(() => {
+    const hopToWe = window.setTimeout(() => setHop(1), WARMUP_HOP_MS);
+    const hopToDo = window.setTimeout(() => setHop(2), WARMUP_HOP_MS * 2);
+
+    return () => {
+      window.clearTimeout(hopToWe);
+      window.clearTimeout(hopToDo);
+    };
+  }, []);
+
+  return (
+    <div className={WORD_ANCHOR_CLASS}>
+      <div className="relative">
+        <motion.span
+          aria-hidden="true"
+          className="absolute top-0 left-0 h-3 w-3 rounded-full bg-[#DDDDFF]"
+          style={{ marginTop: "-20px" }}
+          animate={{ x }}
+          transition={WARMUP_SPRING}
+        />
+        <p
+          ref={phraseRef}
+          className={`${WORD_CLASS} whitespace-nowrap text-[clamp(1.75rem,6vw,2.75rem)]`}
+        >
+          {WARMUP_WORDS.map((word, index) => (
+            <span key={word}>
+              {index > 0 ? " " : null}
+              <span
+                ref={(node) => {
+                  wordRefs.current[index] = node;
+                }}
+              >
+                {word}
+              </span>
+            </span>
+          ))}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function Centered({
   children,
   className,
@@ -295,10 +373,7 @@ function Centered({
   return (
     <div
       aria-live="polite"
-      className={cn(
-        "absolute top-1/2 left-1/2 z-10 w-[min(90vw,36rem)] -translate-x-1/2 -translate-y-1/2 overflow-hidden text-center whitespace-nowrap",
-        className,
-      )}
+      className={cn(WORD_ANCHOR_CLASS, "text-center whitespace-nowrap", className)}
       style={style}
     >
       {children}
@@ -339,7 +414,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
       if (value < 1) {
         window.clearInterval(interval);
         playTick(audioRef.current, soundEnabledRef.current);
-        setPhase("reading");
+        setPhase("whatWeDo");
         return;
       }
 
@@ -352,6 +427,20 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
     }, COUNTDOWN_MS);
 
     return () => window.clearInterval(interval);
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase !== "whatWeDo") {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      playTick(audioRef.current, soundEnabledRef.current);
+      setWordIndex(0);
+      setPhase("reading");
+    }, WARMUP_MS);
+
+    return () => window.clearTimeout(timeout);
   }, [phase]);
 
   useEffect(() => {
@@ -370,13 +459,13 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
 
       playTick(audioRef.current, soundEnabledRef.current);
       setWordIndex((index) => index + 1);
-    }, delayForWord(word, isLast));
+    }, delayForWord(word, wordIndex, isLast));
 
     return () => window.clearTimeout(timeout);
   }, [phase, wordIndex]);
 
   useLayoutEffect(() => {
-    if (phase !== "countdown" && phase !== "reading") {
+    if (phase !== "countdown" && phase !== "whatWeDo" && phase !== "reading") {
       return;
     }
 
@@ -393,6 +482,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
   const showSequence = (phase === "reading" || exiting) && !bypassReading;
   const showBloom =
     phase === "countdown" ||
+    phase === "whatWeDo" ||
     phase === "reading" ||
     (exiting && !bypassReading);
 
@@ -491,6 +581,8 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
             </Centered>
           ) : null}
 
+          {phase === "whatWeDo" ? <WhatWeDoWarmUp /> : null}
+
           {showSequence ? (
             <>
               <PerspectiveGrid />
@@ -501,32 +593,6 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
           ) : null}
         </motion.div>
       </motion.div>
-
-      {phase === "reading" ? (
-        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50">
-          <p
-            className="font-jetbrains absolute bottom-4 left-1/2 -translate-x-1/2 text-sm tracking-widest text-[#DDDDFF]/70"
-            aria-live="polite"
-          >
-            {`[ ${wordIndex + 1} / ${rsvpWords.length} ]`}
-          </p>
-          <div
-            className="absolute bottom-0 left-0 h-[2px] w-full bg-[#DDDDFF]/20"
-            role="progressbar"
-            aria-label="Reading progress"
-            aria-valuemin={1}
-            aria-valuemax={rsvpWords.length}
-            aria-valuenow={wordIndex + 1}
-          >
-            <div
-              className="h-full bg-[#DDDDFF] transition-all duration-150"
-              style={{
-                width: `${((wordIndex + 1) / rsvpWords.length) * 100}%`,
-              }}
-            />
-          </div>
-        </div>
-      ) : null}
 
       <motion.div
         aria-hidden="true"

@@ -1,15 +1,42 @@
 @import "tailwindcss";
+@config "../../tailwind.config.ts";
 
 :root {
   --background: #4545ff;
   --foreground: #ddddff;
+  --bg-canvas: #e6e6fa;
+  --border-ide: rgba(0, 0, 255, 0.12);
+  --syn-keyword: #4545ff;
+  --syn-property: #0f172a;
+  --syn-string: #059669;
+  --syn-number: #d97706;
+  --syn-comment: rgba(0, 0, 255, 0.45);
+  --syn-bracket: #2563eb;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-bg-canvas: var(--bg-canvas);
+  --color-border-ide: var(--border-ide);
+  --color-syn-keyword: var(--syn-keyword);
+  --color-syn-property: var(--syn-property);
+  --color-syn-string: var(--syn-string);
+  --color-syn-number: var(--syn-number);
+  --color-syn-comment: var(--syn-comment);
+  --color-syn-bracket: var(--syn-bracket);
   --font-unbounded: var(--font-unbounded);
   --font-jetbrains: var(--font-jetbrains);
+  --animate-shimmer: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .font-jetbrains {

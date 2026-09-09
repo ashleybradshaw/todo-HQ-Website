@@ -1,24 +1,46 @@
-import { PerspectiveGrid } from "@/components/PerspectiveGrid";
+import { ProjectCard, type Project } from "@/components/ProjectCard";
 
-const APPS = ["Repdaily", "ReadyGo", "Contentic"] as const;
+const PROJECTS: readonly Project[] = [
+  {
+    name: "ReadyGo",
+    description:
+      "A pre-activity planning app for runners and cyclists. Designed and shipped using a fully integrated AI workflow stack to bypass sequential handoffs.",
+    imageSrc: "/work/readygo.jpg",
+    imageAlt:
+      "ReadyGo still: a cyclist and a runner on a mountain road under the line Take it out on the road.",
+    imageWidth: 1400,
+    imageHeight: 756,
+  },
+  {
+    name: "RepDaily",
+    description:
+      "A camera-based fitness tracking app. Designed, prototyped, and shipped using an advanced AI-assisted engineering workflow.",
+    imageSrc: "/work/repdaily.jpg",
+    imageAlt:
+      "Repdaily production interface on a phone, showing workout progression and a January training calendar.",
+    imageWidth: 1400,
+    imageHeight: 787,
+  },
+];
 
 export default function WorkPage() {
   return (
-    <main className="relative min-h-screen overflow-hidden px-6 pt-28 pb-16">
-      <PerspectiveGrid />
-      <div className="relative z-10 mx-auto max-w-2xl">
-        <p className="font-jetbrains text-sm text-[#DDDDFF]">Work</p>
-        <h1 className="font-unbounded mt-4 text-4xl font-bold tracking-tight text-[#DDDDFF]">
-          Proof in production.
-        </h1>
-        <ul className="mt-10 border-t border-[rgba(10,0,230,0.15)]">
-          {APPS.map((app) => (
-            <li
-              key={app}
-              className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-b border-[rgba(10,0,230,0.15)] py-6"
-            >
-              <h2 className="font-unbounded text-2xl font-bold">{app}</h2>
-              <span className="font-jetbrains text-sm">in production</span>
+    <main className="relative min-h-screen overflow-x-hidden bg-[#DDDDFF] px-6 pt-28 pb-16 text-[#0B0CB4]">
+      <div className="relative z-10 mx-auto max-w-[1336px]">
+        <div className="max-w-[592px]">
+          <h1 className="font-jetbrains text-base leading-5 font-bold">
+            The work;
+          </h1>
+          <p className="font-jetbrains mt-2 text-sm leading-[18px] tracking-[-0.01em]">
+            {
+              "//TODO Engineering operates an internal software factory. Active apps in production: Repdaily, ReadyGo, and Contentic."
+            }
+          </p>
+        </div>
+        <ul className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-2">
+          {PROJECTS.map((project) => (
+            <li key={project.name}>
+              <ProjectCard project={project} />
             </li>
           ))}
         </ul>

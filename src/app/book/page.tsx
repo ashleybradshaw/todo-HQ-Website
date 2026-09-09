@@ -10,9 +10,9 @@ export default function BookPage() {
           Bring the factory to the problem.
         </h1>
         <p className="mt-6 max-w-xl text-lg leading-relaxed text-[#DDDDFF]">
-          //TODO Engineering works with technical founders and product leads who
-          need AI workflow architecture or a full-stack application in
-          production. Tell us what has to ship.
+          {
+            "//TODO Engineering works with technical founders and product leads who need AI workflow architecture or a full-stack application in production. Tell us what has to ship."
+          }
         </p>
       </div>
     </main>

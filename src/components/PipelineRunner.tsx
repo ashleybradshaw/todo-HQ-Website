@@ -10,6 +10,9 @@ const PROGRESS_HOLD_MS = 380;
 const PROGRESS_MAX = 8;
 const PROGRESS_STAGE = 2;
 const REBOOT_MS = 720;
+const COMPILE_MS = 300;
+
+const SKELETON_BAR_WIDTHS = ["w-[92%]", "w-[68%]", "w-[84%]", "w-[54%]"] as const;
 
 const REBOOT_LOGS = [
   "> REBOOTING FACTORY PIPELINE...",
@@ -77,6 +80,23 @@ function progressBracket(equals: number) {
   return `[${"=".repeat(clamped)}>${" ".repeat(PROGRESS_MAX + 2 - clamped)}]`;
 }
 
+function LogSkeleton() {
+  return (
+    <div className="space-y-1" aria-hidden="true">
+      {SKELETON_BAR_WIDTHS.map((width) => (
+        <div
+          key={width}
+          className={cn(
+            "h-3.5 rounded-[1px]",
+            width,
+            "animate-shimmer bg-[length:200%_100%] bg-gradient-to-r from-[#0000FF]/5 via-[#0000FF]/15 to-[#0000FF]/5 motion-reduce:animate-none",
+          )}
+        />
+      ))}
+    </div>
+  );
+}
+
 function BlockCursor({ reduceMotion }: { reduceMotion: boolean | null }) {
   return (
     <motion.span
@@ -138,7 +158,15 @@ export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
   const [pinned, setPinned] = useState(false);
   const [buildReady, setBuildReady] = useState(false);
   const [rebooting, setRebooting] = useState(false);
+  const compileKey = `${rebooting ? "reboot" : "live"}-${rebootSignal}-${activeIndex}-${reduceMotion ? "still" : "motion"}`;
+  const [loadingKey, setLoadingKey] = useState(compileKey);
+  const [isLoading, setIsLoading] = useState(true);
   const lastRebootSignal = useRef(rebootSignal);
+
+  if (loadingKey !== compileKey) {
+    setLoadingKey(compileKey);
+    setIsLoading(!rebooting && !reduceMotion);
+  }
 
   const markBuildReady = useCallback(() => {
     setBuildReady(true);
@@ -161,6 +189,18 @@ export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
 
     return () => window.clearTimeout(timeout);
   }, [rebootSignal, reduceMotion]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setIsLoading(false);
+    }, COMPILE_MS);
+
+    return () => window.clearTimeout(timeout);
+  }, [isLoading, loadingKey]);
 
   useEffect(() => {
     if (pinned || reduceMotion || rebooting) {
@@ -202,11 +242,19 @@ export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
     >
       <div className="flex shrink-0 items-center justify-between border-b border-[rgba(10,0,230,0.15)] px-3 py-2">
         <p className="font-jetbrains text-xs text-[#0000FF]">pipeline.log</p>
-        <p className="font-jetbrains text-xs tabular-nums text-[#0000FF]/40">
-          {rebooting ? "REBOOT" : pinned ? "PINNED" : "LIVE"}
-          {" · "}
-          {String(activeIndex + 1).padStart(2, "0")}/
-          {String(STAGES.length).padStart(2, "0")}
+        <p className="font-jetbrains text-xs tabular-nums">
+          {isLoading ? (
+            <span className="text-syn-number">
+              [ AGENT_COMPILING... ]
+            </span>
+          ) : (
+            <span className="text-[#0000FF]/40">
+              {rebooting ? "REBOOT" : pinned ? "PINNED" : "LIVE"}
+              {" · "}
+              {String(activeIndex + 1).padStart(2, "0")}/
+              {String(STAGES.length).padStart(2, "0")}
+            </span>
+          )}
         </p>
       </div>
 
@@ -289,23 +337,39 @@ export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
                   <div
                     className="space-y-1 pb-2 pl-5 text-xs leading-4 text-[#0000FF]"
                     aria-hidden={!active}
+                    aria-busy={active && isLoading}
                   >
-                    {lines.map((line, lineIndex) => (
-                      <p key={`${stage.id}-${line}`} className="whitespace-pre">
-                        {line}
-                        {active &&
-                        !stage.hasProgress &&
-                        lineIndex === lines.length - 1 ? (
-                          <BlockCursor reduceMotion={reduceMotion} />
+                    {active && isLoading ? (
+                      <LogSkeleton />
+                    ) : (
+                      <>
+                        {lines.map((line, lineIndex) => (
+                          <motion.p
+                            key={`${stage.id}-${line}`}
+                            className="whitespace-pre"
+                            initial={reduceMotion ? false : { opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{
+                              duration: reduceMotion ? 0 : 0.4,
+                              ease: "easeOut",
+                            }}
+                          >
+                            {line}
+                            {active &&
+                            !stage.hasProgress &&
+                            lineIndex === lines.length - 1 ? (
+                              <BlockCursor reduceMotion={reduceMotion} />
+                            ) : null}
+                          </motion.p>
+                        ))}
+                        {stage.hasProgress && active ? (
+                          <BuildProgress
+                            reduceMotion={reduceMotion}
+                            onFilled={markBuildReady}
+                          />
                         ) : null}
-                      </p>
-                    ))}
-                    {stage.hasProgress && active ? (
-                      <BuildProgress
-                        reduceMotion={reduceMotion}
-                        onFilled={markBuildReady}
-                      />
-                    ) : null}
+                      </>
+                    )}
                   </div>
                 </motion.div>
               </li>

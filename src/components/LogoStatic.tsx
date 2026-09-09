@@ -1,5 +1,3 @@
-import { cn } from "@/lib/cn";
-
 export const LOGO_VIEWBOX = "0 0 182 35";
 
 export const LOGO_PATHS = [
@@ -22,24 +20,3 @@ export const LOGO_PATHS = [
     d: "M146 17.469C146 7.852 153.832 0 163.54 0s17.587 7.852 17.587 17.469-7.879 17.376-17.587 17.376S146 27.086 146 17.47m25.935-.046c0-4.6-3.752-8.317-8.395-8.317-4.596 0-8.348 3.717-8.348 8.317 0 4.553 3.752 8.316 8.348 8.316 4.643 0 8.395-3.763 8.395-8.316",
   },
 ] as const;
-
-type LogoStaticProps = {
-  className?: string;
-};
-
-export function LogoStatic({ className }: LogoStaticProps) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox={LOGO_VIEWBOX}
-      fill="currentColor"
-      className={cn("h-[1em] w-auto", className)}
-      aria-hidden="true"
-      focusable="false"
-    >
-      {LOGO_PATHS.map((path) => (
-        <path key={path.id} d={path.d} />
-      ))}
-    </svg>
-  );
-}

@@ -30,9 +30,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${unbounded.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-[#4545FF] text-[#DDDDFF]">
+        <NoiseOverlay />
         <Navigation />
         {children}
-        <NoiseOverlay />
       </body>
     </html>
   );

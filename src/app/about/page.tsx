@@ -1,30 +1,32 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useState, type ReactNode } from "react";
-import { useReducedMotion } from "framer-motion";
+import { Fragment, useCallback, useState, type ReactNode } from "react";
 import { useFactoryStream } from "@/hooks/useFactoryStream";
 import { PipelineRunner } from "@/components/PipelineRunner";
-import { PhyllotaxisBloom } from "@/components/PhyllotaxisBloom";
 import { Telemetry } from "@/components/Telemetry";
-import { useMousePosition } from "@/hooks/useMousePosition";
-
-const PARALLAX_DISTANCE = 28;
-const PARALLAX_ROTATE = 4;
 
 function Comment({ children }: { children: ReactNode }) {
-  return <span className="italic text-blue-900/50">{children}</span>;
+  return <span className="text-syn-comment italic">{children}</span>;
 }
 
 function Keyword({ children }: { children: ReactNode }) {
-  return <span className="font-bold text-[#0A00E6]">{children}</span>;
+  return <span className="text-syn-keyword font-bold">{children}</span>;
+}
+
+function Property({ children }: { children: ReactNode }) {
+  return <span className="text-syn-property">{children}</span>;
 }
 
 function Str({ children }: { children: ReactNode }) {
-  return <span className="text-emerald-600">{children}</span>;
+  return <span className="text-syn-string">{children}</span>;
+}
+
+function Bracket({ children }: { children: ReactNode }) {
+  return <span className="text-syn-bracket">{children}</span>;
 }
 
 function Punct({ children }: { children: ReactNode }) {
-  return <span className="text-blue-900/70">{children}</span>;
+  return <span className="text-syn-property">{children}</span>;
 }
 
 function Fn({
@@ -40,7 +42,7 @@ function Fn({
       onClick={onActivate}
       onMouseEnter={onActivate}
       aria-label="Restart factory pipeline"
-      className="cursor-pointer bg-transparent p-0 font-jetbrains text-[#0A00E6] hover:underline focus-visible:underline"
+      className="text-syn-keyword cursor-pointer bg-transparent p-0 font-jetbrains hover:underline focus-visible:underline"
     >
       {children}
     </button>
@@ -49,70 +51,84 @@ function Fn({
 
 function codeLines(onExecutePipeline: () => void): ReactNode[] {
   return [
-  <Fragment key={1}>
-    <Comment>{`/** A little more about us and what we do. */`}</Comment>
-  </Fragment>,
-  <Fragment key={2}>
-    <Keyword>export const</Keyword> TODO_HQ <Punct>=</Punct> <Punct>{"{"}</Punct>
-  </Fragment>,
-  <Fragment key={3}>
-    {"  "}manifesto<Punct>:</Punct>{" "}
-    <Str>{`"We don't just write code; we build the factory."`}</Str>
-    <Punct>,</Punct>
-  </Fragment>,
-  <Fragment key={4}>
-    {"  "}coreInfrastructure<Punct>:</Punct> <Punct>[</Punct>
-  </Fragment>,
-  <Fragment key={5}>
-    {"    "}
-    <Str>{`"Multi-agent ecosystems"`}</Str>
-    <Punct>,</Punct>
-  </Fragment>,
-  <Fragment key={6}>
-    {"    "}
-    <Str>{`"Automated workflows"`}</Str>
-    <Punct>,</Punct>
-  </Fragment>,
-  <Fragment key={7}>
-    {"    "}
-    <Str>{`"Scalable backends"`}</Str>
-  </Fragment>,
-  <Fragment key={8}>
-    {"  "}
-    <Punct>{"],"}</Punct>
-  </Fragment>,
-  <Fragment key={9}>
-    {"  "}methodology<Punct>:</Punct>{" "}
-    <Fn onActivate={onExecutePipeline}>executePipeline()</Fn>
-    <Punct>,</Punct>
-  </Fragment>,
-  <Fragment key={10}>
-    {"  "}inProduction<Punct>:</Punct> <Punct>[</Punct>
-  </Fragment>,
-  <Fragment key={11}>
-    {"    "}
-    <Str>{`"Repdaily"`}</Str>
-    <Punct>,</Punct>
-  </Fragment>,
-  <Fragment key={12}>
-    {"    "}
-    <Str>{`"ReadyGo"`}</Str>
-    <Punct>,</Punct>
-  </Fragment>,
-  <Fragment key={13}>
-    {"    "}
-    <Str>{`"Contentic"`}</Str>
-  </Fragment>,
-  <Fragment key={14}>
-    {"  "}
-    <Punct>{"],"}</Punct>
-  </Fragment>,
-  <Fragment key={15}>
-    {"  "}velocity<Punct>:</Punct> <Str>{`"Production-ready. Fast."`}</Str>
-  </Fragment>,
-  <Fragment key={16}>
-    <Punct>{"}"};</Punct>
-  </Fragment>,
+    <Fragment key={1}>
+      <Comment>{`/** A little more about us and what we do. */`}</Comment>
+    </Fragment>,
+    <Fragment key={2}>
+      <Keyword>export const</Keyword> TODO_HQ <Punct>=</Punct>{" "}
+      <Bracket>{"{"}</Bracket>
+    </Fragment>,
+    <Fragment key={3}>
+      {"  "}
+      <Property>manifesto</Property>
+      <Punct>:</Punct>{" "}
+      <Str>{`"We don't just write code; we build the factory."`}</Str>
+      <Punct>,</Punct>
+    </Fragment>,
+    <Fragment key={4}>
+      {"  "}
+      <Property>coreInfrastructure</Property>
+      <Punct>:</Punct> <Bracket>[</Bracket>
+    </Fragment>,
+    <Fragment key={5}>
+      {"    "}
+      <Str>{`"Multi-agent ecosystems"`}</Str>
+      <Punct>,</Punct>
+    </Fragment>,
+    <Fragment key={6}>
+      {"    "}
+      <Str>{`"Automated workflows"`}</Str>
+      <Punct>,</Punct>
+    </Fragment>,
+    <Fragment key={7}>
+      {"    "}
+      <Str>{`"Scalable backends"`}</Str>
+    </Fragment>,
+    <Fragment key={8}>
+      {"  "}
+      <Bracket>{"]"}</Bracket>
+      <Punct>,</Punct>
+    </Fragment>,
+    <Fragment key={9}>
+      {"  "}
+      <Property>methodology</Property>
+      <Punct>:</Punct>{" "}
+      <Fn onActivate={onExecutePipeline}>executePipeline()</Fn>
+      <Punct>,</Punct>
+    </Fragment>,
+    <Fragment key={10}>
+      {"  "}
+      <Property>inProduction</Property>
+      <Punct>:</Punct> <Bracket>[</Bracket>
+    </Fragment>,
+    <Fragment key={11}>
+      {"    "}
+      <Str>{`"Repdaily"`}</Str>
+      <Punct>,</Punct>
+    </Fragment>,
+    <Fragment key={12}>
+      {"    "}
+      <Str>{`"ReadyGo"`}</Str>
+      <Punct>,</Punct>
+    </Fragment>,
+    <Fragment key={13}>
+      {"    "}
+      <Str>{`"Contentic"`}</Str>
+    </Fragment>,
+    <Fragment key={14}>
+      {"  "}
+      <Bracket>{"]"}</Bracket>
+      <Punct>,</Punct>
+    </Fragment>,
+    <Fragment key={15}>
+      {"  "}
+      <Property>velocity</Property>
+      <Punct>:</Punct> <Str>{`"Production-ready. Fast."`}</Str>
+    </Fragment>,
+    <Fragment key={16}>
+      <Bracket>{"}"}</Bracket>
+      <Punct>;</Punct>
+    </Fragment>,
   ];
 }
 
@@ -132,9 +148,6 @@ function FactorySidecar({ rebootSignal }: { rebootSignal: number }) {
 }
 
 export default function AboutPage() {
-  const { x, y, isReady } = useMousePosition();
-  const reduceMotion = useReducedMotion();
-  const [viewport, setViewport] = useState({ width: 1, height: 1 });
   const [rebootSignal, setRebootSignal] = useState(0);
 
   const rebootPipeline = useCallback(() => {
@@ -143,40 +156,8 @@ export default function AboutPage() {
 
   const lines = codeLines(rebootPipeline);
 
-  useEffect(() => {
-    const syncViewport = () => {
-      setViewport({ width: window.innerWidth, height: window.innerHeight });
-    };
-
-    syncViewport();
-    window.addEventListener("resize", syncViewport);
-
-    return () => {
-      window.removeEventListener("resize", syncViewport);
-    };
-  }, []);
-
-  const nx = isReady ? (x / viewport.width) * 2 - 1 : 0;
-  const ny = isReady ? (y / viewport.height) * 2 - 1 : 0;
-
   return (
-    <main className="relative h-screen min-h-screen w-full overflow-hidden bg-[#E6E6FA] text-[#111111]">
-      <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-40">
-        <PhyllotaxisBloom
-          className="h-[min(100vw,100vh)] w-[min(100vw,100vh)] origin-center text-[#BFBFE1]"
-          animate={
-            reduceMotion
-              ? { x: 0, y: 0, rotate: 0 }
-              : {
-                  x: -nx * PARALLAX_DISTANCE,
-                  y: -ny * PARALLAX_DISTANCE,
-                  rotate: -nx * PARALLAX_ROTATE,
-                }
-          }
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        />
-      </div>
-
+    <main className="bg-bg-canvas relative h-screen min-h-screen w-full overflow-hidden text-syn-property">
       <div className="font-jetbrains relative z-10 flex h-full min-h-screen w-full flex-col pt-20">
         <h1 className="sr-only">A little more about us and what we do.</h1>
         <p className="sr-only">
@@ -189,14 +170,14 @@ export default function AboutPage() {
             className="flex min-h-0 min-w-0 flex-col overflow-auto"
             aria-label="TODO_HQ TypeScript source"
           >
-            <div className="flex shrink-0 items-center justify-between border-b border-[rgba(10,0,230,0.15)] px-6 py-2">
-              <span className="text-xs text-[#0A00E6]">TODO_HQ.ts</span>
-              <span className="text-xs text-blue-900/30">TypeScript</span>
+            <div className="flex shrink-0 items-center justify-between border-b border-border-ide px-6 py-2">
+              <span className="text-syn-keyword text-xs">TODO_HQ.ts</span>
+              <span className="text-syn-comment text-xs">TypeScript</span>
             </div>
             <div className="flex min-h-0 flex-1 text-xs leading-5 lg:text-sm lg:leading-6">
               <div
                 aria-hidden="true"
-                className="flex w-8 shrink-0 flex-col border-r border-[rgba(10,0,230,0.15)] py-4 text-right text-blue-900/30 select-none lg:w-10"
+                className="text-syn-number flex w-8 shrink-0 flex-col border-r border-border-ide py-4 text-right select-none lg:w-10"
               >
                 {lines.map((_, index) => (
                   <span
@@ -219,7 +200,7 @@ export default function AboutPage() {
             </div>
           </section>
           <aside
-            className="flex min-h-0 flex-col border-t border-[#0000FF]/15 lg:border-t-0 lg:border-l"
+            className="flex min-h-0 flex-col border-t border-border-ide lg:border-t-0 lg:border-l"
             aria-label="Factory sidecar"
           >
             <FactorySidecar rebootSignal={rebootSignal} />

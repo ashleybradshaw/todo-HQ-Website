@@ -36,7 +36,7 @@ const PROJECTS: readonly Project[] = [
 
 export default function WorkPage() {
   return (
-    <main className="relative min-h-screen overflow-x-hidden bg-[#DDDDFF] px-6 pt-28 pb-16 text-[#0B0CB4]">
+    <main className="relative min-h-screen overflow-x-hidden bg-background px-6 pt-28 pb-16 text-foreground transition-[background-color,color] duration-[400ms] ease-in-out">
       <JsonLd data={organizationGraph()} />
       <div className="relative z-10 mx-auto max-w-[1336px]">
         <div className="max-w-[592px]">

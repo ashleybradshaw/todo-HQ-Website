@@ -157,7 +157,7 @@ export function FactoryDashboard() {
   const lines = codeLines(rebootPipeline);
 
   return (
-    <main className="bg-bg-canvas relative h-screen min-h-screen w-full overflow-hidden text-syn-property">
+    <main className="bg-bg-canvas text-syn-property relative h-screen min-h-screen w-full overflow-hidden transition-[background-color,color] duration-[400ms] ease-in-out">
       <div className="font-jetbrains relative z-10 flex h-full min-h-screen w-full flex-col pt-20">
         <h1 className="sr-only">
           {"//TODO Engineering factory dashboard"}

@@ -32,7 +32,7 @@ const STANDARDS = [
 
 export default function AboutPage() {
   return (
-    <main className="relative min-h-screen overflow-x-hidden bg-[#DDDDFF] px-6 pt-28 pb-16 text-[#0B0CB4]">
+    <main className="relative min-h-screen overflow-x-hidden bg-background px-6 pt-28 pb-16 text-foreground transition-[background-color,color] duration-[400ms] ease-in-out">
       <JsonLd data={organizationGraph()} />
       <div className="relative z-10 mx-auto max-w-[1336px]">
         <p className="font-jetbrains text-base leading-5 font-bold">About;</p>
@@ -49,7 +49,7 @@ export default function AboutPage() {
           technology companies.
         </p>
 
-        <section className="mt-16 border-t border-[rgba(10,0,230,0.15)] pt-10">
+        <section className="mt-16 border-t border-border-ide pt-10">
           <h2 className="font-jetbrains text-base leading-5 font-bold">
             Engineering standards
           </h2>
@@ -57,7 +57,7 @@ export default function AboutPage() {
             {STANDARDS.map((standard) => (
               <li
                 key={standard.label}
-                className="border border-[rgba(10,0,230,0.15)] p-6"
+                className="border-border-ide border p-6"
               >
                 <p className="font-jetbrains text-sm font-bold">
                   {standard.label}
@@ -71,7 +71,7 @@ export default function AboutPage() {
           </ul>
         </section>
 
-        <section className="mt-16 border-t border-[rgba(10,0,230,0.15)] pt-10">
+        <section className="mt-16 border-t border-border-ide pt-10">
           <h2 className="font-jetbrains text-base leading-5 font-bold">
             The factory
           </h2>

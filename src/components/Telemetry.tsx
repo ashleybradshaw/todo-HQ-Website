@@ -32,7 +32,7 @@ function Pipe({ tick }: { tick: number }) {
         return (
           <span
             key={index}
-            className="w-px bg-[#0A00E6] transition-[height] duration-300 ease-out motion-reduce:h-[7px] motion-reduce:transition-none"
+            className="w-px bg-foreground transition-[height] duration-300 ease-out motion-reduce:h-[7px] motion-reduce:transition-none"
             style={{ height }}
           />
         );
@@ -62,25 +62,25 @@ export function Telemetry({
 
   return (
     <section
-      className="shrink-0 border-t border-[#0000FF]/15"
+      className="shrink-0 border-t border-border-ide"
       aria-label="Factory telemetry"
     >
-      <div className="flex items-center justify-between border-b border-[#0000FF]/15 px-3 py-2">
-        <p className="font-jetbrains text-xs text-[#0A00E6]">SYS // TELEMETRY</p>
+      <div className="flex items-center justify-between border-b border-border-ide px-3 py-2">
+        <p className="font-jetbrains text-foreground text-xs">SYS // TELEMETRY</p>
         <Pipe tick={tick} />
       </div>
       <dl className="font-jetbrains grid grid-cols-[1fr_auto] items-center text-xs leading-5">
         {rows.map((row) => (
           <div
             key={row.key}
-            className="col-span-2 grid grid-cols-subgrid items-center border-b border-[#0000FF]/15 px-3 py-2 last:border-b-0"
+            className="col-span-2 grid grid-cols-subgrid items-center border-b border-border-ide px-3 py-2 last:border-b-0"
           >
-            <dt className="text-blue-900/50">{row.key}</dt>
+            <dt className="text-foreground/50">{row.key}</dt>
             <dd
               className={
                 "numeric" in row
-                  ? "tabular-nums text-[#111111]"
-                  : "flex items-center justify-end gap-1.5 text-[#111111]"
+                  ? "text-foreground tabular-nums"
+                  : "text-foreground flex items-center justify-end gap-1.5"
               }
             >
               {"status" in row ? <StatusDot /> : null}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { JetBrains_Mono, Unbounded } from "next/font/google";
 import { Navigation } from "@/components/Navigation";
 import { NoiseOverlay } from "@/components/NoiseOverlay";
+import { SprayProvider } from "@/components/SprayProvider";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
@@ -64,9 +65,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${unbounded.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-[#4545FF] text-[#DDDDFF]">
-        <NoiseOverlay />
-        <Navigation />
-        {children}
+        <SprayProvider>
+          <NoiseOverlay />
+          <Navigation />
+          {children}
+        </SprayProvider>
       </body>
     </html>
   );

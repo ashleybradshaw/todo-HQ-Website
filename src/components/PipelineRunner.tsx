@@ -89,7 +89,7 @@ function LogSkeleton() {
           className={cn(
             "h-3.5 rounded-[1px]",
             width,
-            "animate-shimmer bg-[length:200%_100%] bg-gradient-to-r from-[#0000FF]/5 via-[#0000FF]/15 to-[#0000FF]/5 motion-reduce:animate-none",
+            "animate-shimmer bg-[length:200%_100%] bg-gradient-to-r from-foreground/5 via-foreground/15 to-foreground/5 motion-reduce:animate-none",
           )}
         />
       ))}
@@ -237,18 +237,18 @@ export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
 
   return (
     <section
-      className="flex min-h-0 flex-1 flex-col bg-[#E6E6FA] text-[#0000FF]"
+      className="bg-bg-canvas text-foreground flex min-h-0 flex-1 flex-col transition-[background-color,color] duration-[400ms] ease-in-out"
       aria-label="Factory pipeline"
     >
-      <div className="flex shrink-0 items-center justify-between border-b border-[rgba(10,0,230,0.15)] px-3 py-2">
-        <p className="font-jetbrains text-xs text-[#0000FF]">pipeline.log</p>
+      <div className="flex shrink-0 items-center justify-between border-b border-border-ide px-3 py-2">
+        <p className="font-jetbrains text-foreground text-xs">pipeline.log</p>
         <p className="font-jetbrains text-xs tabular-nums">
           {isLoading ? (
             <span className="text-syn-number">
               [ AGENT_COMPILING... ]
             </span>
           ) : (
-            <span className="text-[#0000FF]/40">
+            <span className="text-foreground/40">
               {rebooting ? "REBOOT" : pinned ? "PINNED" : "LIVE"}
               {" · "}
               {String(activeIndex + 1).padStart(2, "0")}/
@@ -263,7 +263,7 @@ export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
           {rebooting ? (
             <motion.div
               key={`reboot-${rebootSignal}`}
-              className="font-jetbrains mb-3 space-y-1 border-b border-[rgba(10,0,230,0.15)] pb-3 text-xs leading-4 text-[#0000FF]"
+              className="font-jetbrains text-foreground mb-3 space-y-1 border-b border-border-ide pb-3 text-xs leading-4"
               initial={reduceMotion ? false : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={reduceMotion ? undefined : { opacity: 0 }}
@@ -301,7 +301,7 @@ export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
             return (
               <li
                 key={stage.id}
-                className="border-b border-[rgba(10,0,230,0.15)] last:border-b-0"
+                className="border-b border-border-ide last:border-b-0"
               >
                 <button
                   type="button"
@@ -310,7 +310,7 @@ export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
                   onClick={() => selectStage(index)}
                   className={cn(
                     "flex w-full cursor-pointer items-baseline gap-2 bg-transparent py-2 text-left text-xs leading-4 lg:text-[13px] lg:leading-5",
-                    active ? "text-[#0000FF]" : "text-[#0000FF]/40",
+                    active ? "text-foreground" : "text-foreground/40",
                   )}
                 >
                   <span className="w-3 shrink-0" aria-hidden="true">
@@ -335,7 +335,7 @@ export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
                   className="overflow-hidden"
                 >
                   <div
-                    className="space-y-1 pb-2 pl-5 text-xs leading-4 text-[#0000FF]"
+                    className="text-foreground space-y-1 pb-2 pl-5 text-xs leading-4"
                     aria-hidden={!active}
                     aria-busy={active && isLoading}
                   >

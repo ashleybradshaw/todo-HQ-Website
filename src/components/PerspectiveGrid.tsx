@@ -9,7 +9,7 @@ export function PerspectiveGrid() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 z-0 overflow-hidden text-[#DDDDFF]"
+      className="pointer-events-none absolute inset-0 z-0 overflow-hidden text-foreground"
     >
       <motion.div
         className="absolute top-1/2 left-1/2 h-[140%] w-[140%] opacity-15"

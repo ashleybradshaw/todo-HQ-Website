@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { LogoNav } from "@/components/LogoNav";
+import { SprayButton } from "@/components/SprayButton";
 import { cn } from "@/lib/cn";
 
 const LINKS = [
@@ -18,6 +19,7 @@ export function Navigation() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuPath, setMenuPath] = useState(pathname);
   const menuId = useId();
+  const innerSite = pathname !== "/" && pathname !== "/intro";
 
   if (menuPath !== pathname) {
     setMenuPath(pathname);
@@ -46,13 +48,13 @@ export function Navigation() {
   }, [menuOpen]);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-30 bg-[#E6E6FA] text-[#0000FF]">
+    <header className="fixed inset-x-0 top-0 z-30 bg-bg-canvas text-foreground transition-[background-color,color,border-color] duration-[400ms] ease-in-out">
       <AnimatePresence>
         {menuOpen ? (
           <motion.div
             key="mobile-nav"
             id={menuId}
-            className="fixed inset-0 flex flex-col items-center justify-center bg-[#E6E6FA] md:hidden"
+            className="bg-bg-canvas fixed inset-0 flex flex-col items-center justify-center md:hidden"
             role="dialog"
             aria-modal="true"
             aria-label="Menu"
@@ -72,24 +74,25 @@ export function Navigation() {
                   onClick={() => setMenuOpen(false)}
                 />
               ))}
+              {innerSite ? <SprayButton /> : null}
             </nav>
           </motion.div>
         ) : null}
       </AnimatePresence>
 
-      <div className="relative z-10 flex items-center justify-between border-b border-[rgba(10,0,230,0.15)] px-6 py-4">
+      <div className="relative z-10 flex items-center gap-3 border-b border-border-ide px-6 py-4 pr-24 md:pr-6">
         <Link
           href="/home"
           aria-label="//TODO Engineering"
-          className="relative z-10"
+          className="relative z-10 min-w-0"
           onClick={() => setMenuOpen(false)}
         >
-          {pathname === "/" || pathname === "/intro" ? null : (
-            <LogoNav className="h-7 w-auto" />
-          )}
+          {innerSite ? (
+            <LogoNav className="h-7 w-auto max-w-[11rem]" />
+          ) : null}
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex" aria-label="Primary">
+        <nav className="ml-auto hidden items-center gap-8 md:flex" aria-label="Primary">
           {LINKS.map((link) => (
             <NavLink
               key={link.href}
@@ -98,18 +101,22 @@ export function Navigation() {
               pathname={pathname}
             />
           ))}
+          {innerSite ? <SprayButton /> : null}
         </nav>
 
-        <button
-          type="button"
-          className="relative z-10 cursor-pointer bg-transparent p-1 md:hidden"
-          aria-expanded={menuOpen}
-          aria-controls={menuId}
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
-          onClick={() => setMenuOpen((open) => !open)}
-        >
-          <MenuIcon open={menuOpen} />
-        </button>
+        <div className="absolute top-1/2 right-5 z-20 flex shrink-0 -translate-y-1/2 items-center gap-2 md:hidden">
+          {innerSite ? <SprayButton compact /> : null}
+          <button
+            type="button"
+            className="shrink-0 cursor-pointer bg-transparent p-1"
+            aria-expanded={menuOpen}
+            aria-controls={menuId}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <MenuIcon open={menuOpen} />
+          </button>
+        </div>
       </div>
     </header>
   );

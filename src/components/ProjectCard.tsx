@@ -37,7 +37,7 @@ export function ProjectCard({ project }: { project: Project }) {
       ) : null}
       <div
         className={cn(
-          "flex flex-col items-start gap-2.5 rounded-[4px] bg-[#E7E7FF] px-14 pt-7 pb-12 text-[#0B0CB4]",
+          "flex flex-col items-start gap-2.5 rounded-[4px] bg-foreground/10 px-14 pt-7 pb-12 text-foreground transition-[background-color,color] duration-[400ms] ease-in-out",
           !loaded && "invisible",
         )}
       >

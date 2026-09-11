@@ -2,12 +2,12 @@
 @config "../../tailwind.config.ts";
 
 :root {
-  --background: #4545ff;
-  --foreground: #ddddff;
+  --background: #e6e6fa;
+  --foreground: #0000ff;
   --bg-canvas: #e6e6fa;
-  --border-ide: rgba(0, 0, 255, 0.12);
-  --syn-keyword: #4545ff;
-  --syn-property: #0f172a;
+  --border-ide: rgba(0, 0, 255, 0.15);
+  --syn-keyword: #0000ff;
+  --syn-property: #0000ff;
   --syn-string: #059669;
   --syn-number: #d97706;
   --syn-comment: rgba(0, 0, 255, 0.45);
@@ -47,6 +47,67 @@
 body {
   background: #4545ff;
   color: #ddddff;
+}
+
+.spray-shine-wash,
+.spray-shine-edge {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  background-image: linear-gradient(
+    -75deg,
+    transparent 28%,
+    var(--spray-shine) 50%,
+    transparent 72%
+  );
+  background-size: 220% 100%;
+  background-repeat: no-repeat;
+  animation: spray-shine-sweep 2.3s linear infinite;
+}
+
+.spray-shine-wash {
+  --spray-shine: color-mix(in srgb, currentColor 22%, transparent);
+  mix-blend-mode: overlay;
+}
+
+.spray-shine-edge {
+  --spray-shine: color-mix(in srgb, currentColor 72%, transparent);
+  padding: 1px;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+}
+
+@keyframes spray-shine-sweep {
+  0% {
+    background-position: 120% 0;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  48% {
+    background-position: -20% 0;
+    opacity: 0;
+  }
+  100% {
+    background-position: -20% 0;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spray-shine-wash,
+  .spray-shine-edge {
+    animation: none;
+    opacity: 0;
+  }
 }
 
 .noise-overlay-grain {

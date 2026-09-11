@@ -2,137 +2,12 @@
 
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { motion, useAnimation } from "framer-motion";
-import { LogoAnimated } from "@/components/LogoAnimated";
 import { PerspectiveGrid } from "@/components/PerspectiveGrid";
 import { PhyllotaxisBloom } from "@/components/PhyllotaxisBloom";
 import { cn } from "@/lib/cn";
+import { initRsvpAudio, playBeep } from "@/lib/rsvp-audio";
 
-type Phase = "idle" | "countdown" | "reading" | "done";
-
-function createAudioContext() {
-  const Ctor =
-    window.AudioContext ||
-    (window as Window & { webkitAudioContext?: typeof AudioContext })
-      .webkitAudioContext;
-
-  if (!Ctor) {
-    throw new Error("Web Audio is not available");
-  }
-
-  try {
-    return new Ctor({ latencyHint: "interactive" });
-  } catch {
-    return new Ctor();
-  }
-}
-
-class RSVPSynth {
-  private context: AudioContext;
-  private unlocking: Promise<void> | null = null;
-
-  constructor() {
-    this.context = createAudioContext();
-    void this.unlock();
-  }
-
-  playBeep(frequency: number) {
-    if (this.context.state === "running") {
-      this.emitBeep(frequency);
-      return;
-    }
-
-    void this.unlock().then(() => {
-      if (this.context.state === "running") {
-        this.emitBeep(frequency);
-      }
-    });
-  }
-
-  close() {
-    this.unlocking = null;
-
-    if (this.context.state !== "closed") {
-      void this.context.close();
-    }
-  }
-
-  private unlock() {
-    if (this.context.state === "closed") {
-      this.context = createAudioContext();
-      this.unlocking = null;
-    }
-
-    if (this.context.state === "running") {
-      this.unlocking = null;
-      return Promise.resolve();
-    }
-
-    this.unlocking ??= this.context.resume().then(
-      () => {
-        this.unlocking = null;
-      },
-      () => {
-        this.unlocking = null;
-      },
-    );
-
-    return this.unlocking;
-  }
-
-  private emitBeep(frequency: number) {
-    const { context } = this;
-
-    if (context.state !== "running") {
-      return;
-    }
-
-    const now = context.currentTime;
-    const duration = 0.14;
-
-    const oscillator = context.createOscillator();
-    const filter = context.createBiquadFilter();
-    const amp = context.createGain();
-
-    oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(frequency, now);
-    oscillator.frequency.exponentialRampToValueAtTime(
-      Math.max(frequency * 0.5, 50),
-      now + duration,
-    );
-
-    filter.type = "lowpass";
-    filter.frequency.setValueAtTime(280, now);
-    filter.Q.setValueAtTime(0.5, now);
-
-    amp.gain.setValueAtTime(0.16, now);
-    amp.gain.linearRampToValueAtTime(0.001, now + duration);
-
-    oscillator.connect(filter);
-    filter.connect(amp);
-    amp.connect(context.destination);
-
-    oscillator.onended = () => {
-      oscillator.disconnect();
-      filter.disconnect();
-      amp.disconnect();
-    };
-
-    oscillator.start(now);
-    oscillator.stop(now + duration);
-  }
-}
-
-function playBeep(
-  synth: RSVPSynth | null,
-  enabled: boolean,
-  frequency: number,
-) {
-  if (!synth || !enabled) {
-    return;
-  }
-
-  synth.playBeep(frequency);
-}
+type Phase = "countdown" | "reading" | "done";
 
 const rsvpSequence = [
   { text: "Most teams", ms: 380 },
@@ -230,23 +105,13 @@ function Centered({
 }
 
 export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
-  const [phase, setPhase] = useState<Phase>("idle");
+  const [phase, setPhase] = useState<Phase>("countdown");
   const [count, setCount] = useState(3);
   const [wordIndex, setWordIndex] = useState(0);
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [bypassReading, setBypassReading] = useState(false);
-  const audioRef = useRef<RSVPSynth | null>(null);
-  const soundEnabledRef = useRef(soundEnabled);
   const bloomControls = useAnimation();
 
   useEffect(() => {
-    soundEnabledRef.current = soundEnabled;
-  }, [soundEnabled]);
-
-  useEffect(() => {
-    return () => {
-      audioRef.current?.close();
-    };
+    initRsvpAudio();
   }, []);
 
   useEffect(() => {
@@ -266,11 +131,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
         return;
       }
 
-      playBeep(
-        audioRef.current,
-        soundEnabledRef.current,
-        value === 1 ? 140 : 190,
-      );
+      playBeep(value === 1 ? 140 : 190);
       setCount(value);
     }, COUNTDOWN_MS);
 
@@ -311,12 +172,8 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
 
   const word = rsvpSequence[wordIndex].text;
   const exiting = phase === "done";
-  const showIdle = phase === "idle" || (exiting && bypassReading);
-  const showSequence = (phase === "reading" || exiting) && !bypassReading;
-  const showBloom =
-    phase === "countdown" ||
-    phase === "reading" ||
-    (exiting && !bypassReading);
+  const showSequence = phase === "reading" || exiting;
+  const showBloom = phase === "countdown" || phase === "reading" || exiting;
 
   return (
     <div
@@ -342,59 +199,6 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
           animate={{ opacity: exiting ? 0 : 1 }}
           transition={{ duration: 0.3, ease: "easeIn" }}
         >
-          {showIdle ? (
-            <div className="flex h-full w-full flex-col items-center justify-center px-6">
-              <div className="flex flex-col items-center">
-                <div className="flex items-center justify-center py-2.5">
-                  <LogoAnimated className="h-[35px] w-auto text-[#0B0CB4]" />
-                </div>
-                <p className={`${WORD_CLASS} py-5 text-center text-[40px] leading-12`}>
-                  First time?
-                </p>
-                <div className="font-jetbrains flex items-center justify-center py-2.5 text-base leading-5 font-bold">
-                  <button
-                    type="button"
-                    className="min-h-11 cursor-pointer bg-transparent px-1 py-2.5"
-                    onClick={() => {
-                      const synth = new RSVPSynth();
-                      audioRef.current = synth;
-                      playBeep(synth, soundEnabled, 180);
-                      setCount(3);
-                      setPhase("countdown");
-                    }}
-                  >
-                    [Yes]
-                  </button>
-                  <span>&nbsp;-&nbsp;</span>
-                  <button
-                    type="button"
-                    className="min-h-11 cursor-pointer bg-transparent px-1 py-2.5"
-                    onClick={() => {
-                      setBypassReading(true);
-                      setPhase("done");
-                    }}
-                  >
-                    [No]
-                  </button>
-                </div>
-                <button
-                  type="button"
-                  className="font-jetbrains min-h-11 cursor-pointer bg-transparent py-2.5 text-base leading-5 font-bold"
-                  aria-pressed={soundEnabled}
-                  onClick={() => {
-                    setSoundEnabled((enabled) => {
-                      const next = !enabled;
-                      soundEnabledRef.current = next;
-                      return next;
-                    });
-                  }}
-                >
-                  {`[ Sound: ${soundEnabled ? "ON" : "OFF"} ]`}
-                </button>
-              </div>
-            </div>
-          ) : null}
-
           {showBloom ? (
             <div className="pointer-events-none absolute inset-0 z-[1] flex items-center justify-center opacity-15">
               <PhyllotaxisBloom

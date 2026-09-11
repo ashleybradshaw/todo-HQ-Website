@@ -1,4 +1,15 @@
+import type { Metadata } from "next";
+import { JsonLd } from "@/components/JsonLd";
 import { ProjectCard, type Project } from "@/components/ProjectCard";
+import { organizationGraph } from "@/lib/schema";
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Work",
+  description:
+    "Case studies from the //TODO Engineering factory — autonomous agent workflows and production apps including Repdaily, ReadyGo, and Contentic.",
+  path: "/work",
+});
 
 const PROJECTS: readonly Project[] = [
   {
@@ -26,6 +37,7 @@ const PROJECTS: readonly Project[] = [
 export default function WorkPage() {
   return (
     <main className="relative min-h-screen overflow-x-hidden bg-[#DDDDFF] px-6 pt-28 pb-16 text-[#0B0CB4]">
+      <JsonLd data={organizationGraph()} />
       <div className="relative z-10 mx-auto max-w-[1336px]">
         <div className="max-w-[592px]">
           <h1 className="font-jetbrains text-base leading-5 font-bold">

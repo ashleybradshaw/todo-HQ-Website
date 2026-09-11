@@ -79,12 +79,12 @@ export function Navigation() {
 
       <div className="relative z-10 flex items-center justify-between border-b border-[rgba(10,0,230,0.15)] px-6 py-4">
         <Link
-          href="/about"
+          href="/home"
           aria-label="//TODO Engineering"
           className="relative z-10"
           onClick={() => setMenuOpen(false)}
         >
-          {pathname === "/" ? null : (
+          {pathname === "/" || pathname === "/intro" ? null : (
             <LogoAnimated className="h-7 w-auto" />
           )}
         </Link>

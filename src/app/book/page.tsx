@@ -1,8 +1,20 @@
+import type { Metadata } from "next";
+import { JsonLd } from "@/components/JsonLd";
 import { PerspectiveGrid } from "@/components/PerspectiveGrid";
+import { organizationGraph } from "@/lib/schema";
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Book Team",
+  description:
+    "Book //TODO Engineering for enterprise AI development, autonomous agents, and production SaaS architecture. Consultation and client onboarding.",
+  path: "/book",
+});
 
 export default function BookPage() {
   return (
     <main className="relative min-h-screen overflow-hidden px-6 pt-28 pb-16">
+      <JsonLd data={organizationGraph()} />
       <PerspectiveGrid />
       <div className="relative z-10 mx-auto max-w-2xl">
         <p className="font-jetbrains text-sm text-[#DDDDFF]">Book Team</p>

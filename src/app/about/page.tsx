@@ -1,211 +1,98 @@
-"use client";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { JsonLd } from "@/components/JsonLd";
+import { organizationGraph } from "@/lib/schema";
+import { pageMetadata } from "@/lib/seo";
+import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
 
-import { Fragment, useCallback, useState, type ReactNode } from "react";
-import { useFactoryStream } from "@/hooks/useFactoryStream";
-import { PipelineRunner } from "@/components/PipelineRunner";
-import { Telemetry } from "@/components/Telemetry";
+export const metadata: Metadata = pageMetadata({
+  title: "About",
+  description:
+    "The manifesto and engineering standards behind //TODO Engineering — an internal software factory for autonomous agents, multi-agent ecosystems, and production SaaS architecture.",
+  path: "/about",
+});
 
-function Comment({ children }: { children: ReactNode }) {
-  return <span className="text-syn-comment italic">{children}</span>;
-}
-
-function Keyword({ children }: { children: ReactNode }) {
-  return <span className="text-syn-keyword font-bold">{children}</span>;
-}
-
-function Property({ children }: { children: ReactNode }) {
-  return <span className="text-syn-property">{children}</span>;
-}
-
-function Str({ children }: { children: ReactNode }) {
-  return <span className="text-syn-string">{children}</span>;
-}
-
-function Bracket({ children }: { children: ReactNode }) {
-  return <span className="text-syn-bracket">{children}</span>;
-}
-
-function Punct({ children }: { children: ReactNode }) {
-  return <span className="text-syn-property">{children}</span>;
-}
-
-function Fn({
-  children,
-  onActivate,
-}: {
-  children: ReactNode;
-  onActivate: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onActivate}
-      onMouseEnter={onActivate}
-      aria-label="Restart factory pipeline"
-      className="text-syn-keyword cursor-pointer bg-transparent p-0 font-jetbrains hover:underline focus-visible:underline"
-    >
-      {children}
-    </button>
-  );
-}
-
-function codeLines(onExecutePipeline: () => void): ReactNode[] {
-  return [
-    <Fragment key={1}>
-      <Comment>{`/** A little more about us and what we do. */`}</Comment>
-    </Fragment>,
-    <Fragment key={2}>
-      <Keyword>export const</Keyword> TODO_HQ <Punct>=</Punct>{" "}
-      <Bracket>{"{"}</Bracket>
-    </Fragment>,
-    <Fragment key={3}>
-      {"  "}
-      <Property>manifesto</Property>
-      <Punct>:</Punct>{" "}
-      <Str>{`"We don't just write code; we build the factory."`}</Str>
-      <Punct>,</Punct>
-    </Fragment>,
-    <Fragment key={4}>
-      {"  "}
-      <Property>coreInfrastructure</Property>
-      <Punct>:</Punct> <Bracket>[</Bracket>
-    </Fragment>,
-    <Fragment key={5}>
-      {"    "}
-      <Str>{`"Multi-agent ecosystems"`}</Str>
-      <Punct>,</Punct>
-    </Fragment>,
-    <Fragment key={6}>
-      {"    "}
-      <Str>{`"Automated workflows"`}</Str>
-      <Punct>,</Punct>
-    </Fragment>,
-    <Fragment key={7}>
-      {"    "}
-      <Str>{`"Scalable backends"`}</Str>
-    </Fragment>,
-    <Fragment key={8}>
-      {"  "}
-      <Bracket>{"]"}</Bracket>
-      <Punct>,</Punct>
-    </Fragment>,
-    <Fragment key={9}>
-      {"  "}
-      <Property>methodology</Property>
-      <Punct>:</Punct>{" "}
-      <Fn onActivate={onExecutePipeline}>executePipeline()</Fn>
-      <Punct>,</Punct>
-    </Fragment>,
-    <Fragment key={10}>
-      {"  "}
-      <Property>inProduction</Property>
-      <Punct>:</Punct> <Bracket>[</Bracket>
-    </Fragment>,
-    <Fragment key={11}>
-      {"    "}
-      <Str>{`"Repdaily"`}</Str>
-      <Punct>,</Punct>
-    </Fragment>,
-    <Fragment key={12}>
-      {"    "}
-      <Str>{`"ReadyGo"`}</Str>
-      <Punct>,</Punct>
-    </Fragment>,
-    <Fragment key={13}>
-      {"    "}
-      <Str>{`"Contentic"`}</Str>
-    </Fragment>,
-    <Fragment key={14}>
-      {"  "}
-      <Bracket>{"]"}</Bracket>
-      <Punct>,</Punct>
-    </Fragment>,
-    <Fragment key={15}>
-      {"  "}
-      <Property>velocity</Property>
-      <Punct>:</Punct> <Str>{`"Production-ready. Fast."`}</Str>
-    </Fragment>,
-    <Fragment key={16}>
-      <Bracket>{"}"}</Bracket>
-      <Punct>;</Punct>
-    </Fragment>,
-  ];
-}
-
-function FactorySidecar({ rebootSignal }: { rebootSignal: number }) {
-  const feed = useFactoryStream();
-
-  return (
-    <>
-      <PipelineRunner rebootSignal={rebootSignal} />
-      <Telemetry
-        agents={feed.agents}
-        sprint={feed.sprint}
-        tick={feed.tick}
-      />
-    </>
-  );
-}
+const STANDARDS = [
+  {
+    label: "01",
+    title: "Internal software factory",
+    body: "Repeatable process, not one-off freelance. The same production system that ships our own apps is the system we run for clients.",
+  },
+  {
+    label: "02",
+    title: "Multi-agent systems",
+    body: "AI workflow architecture is a core capability: autonomous agents, orchestrated pipelines, and human-in-the-loop gates where the work demands it.",
+  },
+  {
+    label: "03",
+    title: "Production, not prototypes",
+    body: "We design, build, and ship applications that hold up in production — backends included. Velocity without a disposable architecture.",
+  },
+] as const;
 
 export default function AboutPage() {
-  const [rebootSignal, setRebootSignal] = useState(0);
-
-  const rebootPipeline = useCallback(() => {
-    setRebootSignal((current) => current + 1);
-  }, []);
-
-  const lines = codeLines(rebootPipeline);
-
   return (
-    <main className="bg-bg-canvas relative h-screen min-h-screen w-full overflow-hidden text-syn-property">
-      <div className="font-jetbrains relative z-10 flex h-full min-h-screen w-full flex-col pt-20">
-        <h1 className="sr-only">A little more about us and what we do.</h1>
-        <p className="sr-only">
-          The team behind //TODO runs an internal software factory: source in
-          TODO_HQ.ts, executePipeline() as methodology, a multi-agent team, then
-          Repdaily, ReadyGo, and Contentic in production.
+    <main className="relative min-h-screen overflow-x-hidden bg-[#DDDDFF] px-6 pt-28 pb-16 text-[#0B0CB4]">
+      <JsonLd data={organizationGraph()} />
+      <div className="relative z-10 mx-auto max-w-[1336px]">
+        <p className="font-jetbrains text-base leading-5 font-bold">About;</p>
+        <h1 className="font-unbounded mt-4 max-w-[20ch] text-4xl font-bold tracking-tight md:text-6xl">
+          Most teams just write code. We build the entire factory.
+        </h1>
+        <p className="mt-6 max-w-2xl text-lg leading-relaxed">
+          {SITE_DESCRIPTION}
         </p>
-        <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_minmax(14rem,42%)] overflow-hidden lg:grid-cols-[70%_30%] lg:grid-rows-1">
-          <section
-            className="flex min-h-0 min-w-0 flex-col overflow-auto"
-            aria-label="TODO_HQ TypeScript source"
-          >
-            <div className="flex shrink-0 items-center justify-between border-b border-border-ide px-6 py-2">
-              <span className="text-syn-keyword text-xs">TODO_HQ.ts</span>
-              <span className="text-syn-comment text-xs">TypeScript</span>
-            </div>
-            <div className="flex min-h-0 flex-1 text-xs leading-5 lg:text-sm lg:leading-6">
-              <div
-                aria-hidden="true"
-                className="text-syn-number flex w-8 shrink-0 flex-col border-r border-border-ide py-4 text-right select-none lg:w-10"
+        <p className="mt-4 max-w-2xl text-lg leading-relaxed">
+          The team behind {SITE_NAME} designs, codes, and ships production-ready
+          applications, autonomous agentic workflows, multi-agent ecosystems,
+          and scalable backends for enterprises, SaaS platforms, and high-growth
+          technology companies.
+        </p>
+
+        <section className="mt-16 border-t border-[rgba(10,0,230,0.15)] pt-10">
+          <h2 className="font-jetbrains text-base leading-5 font-bold">
+            Engineering standards
+          </h2>
+          <ul className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-3">
+            {STANDARDS.map((standard) => (
+              <li
+                key={standard.label}
+                className="border border-[rgba(10,0,230,0.15)] p-6"
               >
-                {lines.map((_, index) => (
-                  <span
-                    key={index}
-                    className="pr-2 leading-5 lg:pr-3 lg:leading-6"
-                  >
-                    {index + 1}
-                  </span>
-                ))}
-              </div>
-              <pre className="min-w-0 flex-1 py-4">
-                <code className="font-jetbrains">
-                  {lines.map((line, index) => (
-                    <div key={index} className="pr-6 pl-4 whitespace-pre-wrap">
-                      {line}
-                    </div>
-                  ))}
-                </code>
-              </pre>
-            </div>
-          </section>
-          <aside
-            className="flex min-h-0 flex-col border-t border-border-ide lg:border-t-0 lg:border-l"
-            aria-label="Factory sidecar"
-          >
-            <FactorySidecar rebootSignal={rebootSignal} />
-          </aside>
-        </div>
+                <p className="font-jetbrains text-sm font-bold">
+                  {standard.label}
+                </p>
+                <h3 className="font-unbounded mt-3 text-xl font-bold tracking-tight">
+                  {standard.title}
+                </h3>
+                <p className="mt-3 leading-relaxed">{standard.body}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="mt-16 border-t border-[rgba(10,0,230,0.15)] pt-10">
+          <h2 className="font-jetbrains text-base leading-5 font-bold">
+            The factory
+          </h2>
+          <p className="mt-4 max-w-2xl leading-relaxed">
+            Proof is in production: <strong>Repdaily</strong>,{" "}
+            <strong>ReadyGo</strong>, and <strong>Contentic</strong>. The same
+            roster, the same pipeline, available to technical founders and
+            product leads who need the work to ship.
+          </p>
+          <div className="font-jetbrains mt-8 flex flex-wrap gap-6 text-base font-bold">
+            <Link href="/work" className="underline">
+              [ Work ]
+            </Link>
+            <Link href="/book" className="underline">
+              [ Book Team ]
+            </Link>
+            <Link href="/home" className="underline">
+              [ Factory ]
+            </Link>
+          </div>
+        </section>
       </div>
     </main>
   );

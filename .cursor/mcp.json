@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "/bin/zsh",
+      "args": ["-lc", "npx -y @playwright/mcp@latest"]
+    }
+  }
+}

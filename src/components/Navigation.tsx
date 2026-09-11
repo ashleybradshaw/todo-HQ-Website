@@ -80,7 +80,7 @@ export function Navigation() {
         ) : null}
       </AnimatePresence>
 
-      <div className="relative z-10 flex items-center gap-3 border-b border-border-ide px-6 py-4 pr-24 md:pr-6">
+      <div className="relative z-10 flex items-center gap-3 border-b border-border-ide px-6 py-4 pr-28 md:pr-6">
         <Link
           href="/home"
           aria-label="//TODO Engineering"
@@ -104,7 +104,7 @@ export function Navigation() {
           {innerSite ? <SprayButton /> : null}
         </nav>
 
-        <div className="absolute top-1/2 right-5 z-20 flex shrink-0 -translate-y-1/2 items-center gap-2 md:hidden">
+        <div className="absolute top-1/2 right-5 z-20 flex shrink-0 -translate-y-1/2 items-center gap-3 md:hidden">
           {innerSite ? <SprayButton compact /> : null}
           <button
             type="button"

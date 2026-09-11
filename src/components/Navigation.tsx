@@ -4,7 +4,7 @@ import { useEffect, useId, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { LogoAnimated } from "@/components/LogoAnimated";
+import { LogoNav } from "@/components/LogoNav";
 import { cn } from "@/lib/cn";
 
 const LINKS = [
@@ -85,7 +85,7 @@ export function Navigation() {
           onClick={() => setMenuOpen(false)}
         >
           {pathname === "/" || pathname === "/intro" ? null : (
-            <LogoAnimated className="h-7 w-auto" />
+            <LogoNav className="h-7 w-auto" />
           )}
         </Link>
 

@@ -1,0 +1,11 @@
+---
+description: Gateway idle lockup uses the GSAP LogoAnimated mark, never a static SVG substitute.
+globs: src/components/GatewayIdle.tsx
+alwaysApply: false
+---
+
+# Gateway logo
+
+The `/` idle screen (`GatewayIdle`) must render `LogoAnimated` — the GSAP draw-on plus eye wiggle.
+
+Do not replace it with `LogoStatic`. `LogoStatic` is path data for `LogoAnimated` and the nav mark, not the gateway lockup.

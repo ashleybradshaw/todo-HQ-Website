@@ -1,8 +1,11 @@
 {
   "mcpServers": {
     "playwright": {
-      "command": "/bin/zsh",
-      "args": ["-lc", "npx -y @playwright/mcp@latest"]
+      "command": "/Users/ashleybradshaw/.nvm/versions/node/v24.18.1/bin/npx",
+      "args": ["-y", "@playwright/mcp@latest"],
+      "env": {
+        "PATH": "/Users/ashleybradshaw/.nvm/versions/node/v24.18.1/bin:/usr/bin:/bin"
+      }
     }
   }
 }

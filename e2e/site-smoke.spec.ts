@@ -2,18 +2,34 @@ import { test, expect, type Page } from "@playwright/test";
 
 const SPRAY_NAME = "Spray a new accessible colour palette";
 const BRAND_BG = "#E6E6FA";
+const BRAND_FG = "#0000FF";
 
 async function visit(page: Page, path: string) {
   await page.goto(path, { waitUntil: "domcontentloaded" });
 }
 
-async function rootBackground(page: Page) {
-  return page.evaluate(() =>
-    getComputedStyle(document.documentElement)
-      .getPropertyValue("--background")
-      .trim()
-      .toUpperCase(),
+function expandHex(value: string) {
+  const normalized = value.trim().toUpperCase();
+  const short = /^#([0-9A-F])([0-9A-F])([0-9A-F])$/;
+  const match = normalized.match(short);
+  if (!match) {
+    return normalized;
+  }
+
+  return `#${match[1]}${match[1]}${match[2]}${match[2]}${match[3]}${match[3]}`;
+}
+
+async function rootToken(page: Page, token: string) {
+  const raw = await page.evaluate(
+    (name) =>
+      getComputedStyle(document.documentElement).getPropertyValue(name),
+    token,
   );
+  return expandHex(raw);
+}
+
+async function rootBackground(page: Page) {
+  return rootToken(page, "--background");
 }
 
 test.describe("site smoke", () => {
@@ -55,13 +71,8 @@ test.describe("site smoke", () => {
     await visit(page, "/home");
     await page.evaluate(() => localStorage.removeItem("todo-spray"));
     await page.reload({ waitUntil: "domcontentloaded" });
-    await expect
-      .poll(async () =>
-        page.evaluate(() =>
-          document.documentElement.style.getPropertyValue("--background"),
-        ),
-      )
-      .not.toBe("");
+    await expect.poll(async () => rootBackground(page)).toBe(BRAND_BG);
+    await expect.poll(async () => rootToken(page, "--foreground")).toBe(BRAND_FG);
 
     const spray = page.getByRole("navigation", { name: "Primary" }).getByRole(
       "button",

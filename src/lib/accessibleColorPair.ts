@@ -85,7 +85,7 @@ function randomHex(lightnessMin: number, lightnessMax: number) {
 }
 
 export const INNER_BRAND_PAIR: AccessibleColorPair = {
-  bg: "#E6E6FA",
+  bg: "#DDDDFF",
   text: "#0000FF",
 };
 

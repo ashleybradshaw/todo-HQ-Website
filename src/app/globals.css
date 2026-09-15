@@ -2,9 +2,9 @@
 @config "../../tailwind.config.ts";
 
 :root {
-  --background: #e6e6fa;
+  --background: #ddddff;
   --foreground: #0000ff;
-  --bg-canvas: #e6e6fa;
+  --bg-canvas: #ddddff;
   --border-ide: rgba(0, 0, 255, 0.15);
   --syn-keyword: #0000ff;
   --syn-property: #0000ff;

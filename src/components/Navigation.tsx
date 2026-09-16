@@ -11,6 +11,7 @@ import { cn } from "@/lib/cn";
 const LINKS = [
   { href: "/about", label: "About" },
   { href: "/work", label: "Work" },
+  { href: "/blog", label: "Blog" },
   { href: "/book", label: "Book Team" },
 ] as const;
 
@@ -135,7 +136,8 @@ function NavLink({
   className?: string;
   onClick?: () => void;
 }) {
-  const active = pathname === href;
+  const active =
+    pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
 
   return (
     <Link

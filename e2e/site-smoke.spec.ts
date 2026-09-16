@@ -63,6 +63,13 @@ test.describe("site smoke", () => {
     await expect(
       page.getByRole("heading", { name: /bring the factory to the problem/i }),
     ).toBeVisible();
+
+    await visit(page, "/blog");
+    await expect(page.getByRole("heading", { name: "blog.index" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "More" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: SPRAY_NAME }),
+    ).toBeVisible();
   });
 
   test("Spray changes inner tokens and gateway paints brand back", async ({

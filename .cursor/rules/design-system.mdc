@@ -7,7 +7,7 @@ alwaysApply: true
 
 All UI must follow this visual identity. Do not introduce competing palettes, decorative fonts, or theatrical motion.
 
-Landing (`/` and `/intro`) stays on electric blue. Inner routes (`/home`, `/about`, `/work`, `/book`) use the inverted house pair until the user presses Spray.
+Landing (`/` and `/intro`) stays on electric blue. Inner routes (`/home`, `/about`, `/work`, `/blog`, `/book`) use the inverted house pair until the user presses Spray.
 
 ## Palette
 

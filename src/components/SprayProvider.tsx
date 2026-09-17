@@ -16,6 +16,8 @@ import {
   isAccessibleColorPair,
   type AccessibleColorPair,
 } from "@/lib/accessibleColorPair";
+import { blogCategoryColors } from "@/lib/blogCategoryColors";
+import { BLOG_CATEGORIES, BLOG_CATEGORY_VARS } from "@/lib/blog-shared";
 
 const STORAGE_KEY = "todo-spray";
 
@@ -61,12 +63,24 @@ function applyInnerPair(pair: AccessibleColorPair) {
     "--border-ide",
     `color-mix(in srgb, ${pair.text} 15%, transparent)`,
   );
+  root.setProperty(
+    "--media-elev-shadow",
+    `color-mix(in srgb, ${pair.text} 16%, transparent)`,
+  );
+  root.setProperty(
+    "--media-elev-bloom",
+    `color-mix(in srgb, ${pair.text} 12%, transparent)`,
+  );
   root.setProperty("--syn-property", pair.text);
   root.setProperty("--syn-keyword", pair.text);
   root.setProperty(
     "--syn-comment",
     `color-mix(in srgb, ${pair.text} 45%, transparent)`,
   );
+  const categoryColors = blogCategoryColors(pair);
+  for (const category of BLOG_CATEGORIES) {
+    root.setProperty(BLOG_CATEGORY_VARS[category], categoryColors[category]);
+  }
 }
 
 export function SprayProvider({ children }: { children: ReactNode }) {

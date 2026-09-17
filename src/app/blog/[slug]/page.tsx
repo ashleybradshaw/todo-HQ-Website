@@ -69,7 +69,7 @@ export async function generateMetadata({
           url: image,
           width: BLOG_OG_WIDTH,
           height: BLOG_OG_HEIGHT,
-          alt: post.title,
+          alt: post.imageAlt ?? post.title,
         },
       ],
     },
@@ -83,17 +83,22 @@ export async function generateMetadata({
 
 function BlogHero({ post }: { post: BlogPost }) {
   const src = blogShareImageSrc(post);
+  const alt = post.imageAlt ?? post.title;
 
   return (
     <figure className="mt-10">
-      <div className="relative aspect-video w-full overflow-hidden border border-border-ide bg-background">
+      <div
+        id="blog-post-hero"
+        className="blog-post-hero relative w-full border border-border-ide bg-background"
+        style={{ aspectRatio: `${BLOG_OG_WIDTH} / ${BLOG_OG_HEIGHT}` }}
+      >
         <Image
           src={src}
-          alt=""
+          alt={alt}
           fill
           priority
           sizes="(min-width: 800px) 752px, calc(100vw - 48px)"
-          className="object-cover"
+          className="object-cover object-center"
         />
       </div>
     </figure>

@@ -31,6 +31,7 @@ export type BlogPost = {
   avatarSrc: string | null;
   heroSrc: string | null;
   ogImageSrc: string | null;
+  imageAlt: string | null;
 };
 
 const REQUIRED_FIELDS = [
@@ -240,6 +241,7 @@ function toPost(
     avatarSrc: writerAvatarSrc(writer.id),
     heroSrc: parseLocalWebp(data.hero, filePath, "hero"),
     ogImageSrc: parseLocalWebp(data.ogImage, filePath, "ogImage"),
+    imageAlt: data.imageAlt?.trim() ? data.imageAlt.trim() : null,
   };
 }
 
@@ -253,6 +255,8 @@ export function toBlogIndexPost(post: BlogPost): BlogIndexPost {
     featured: post.featured,
     writerName: post.writer.name,
     avatarSrc: post.avatarSrc,
+    imageSrc: post.heroSrc ?? post.ogImageSrc,
+    imageAlt: post.imageAlt,
   };
 }
 

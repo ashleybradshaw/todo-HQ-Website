@@ -6,12 +6,18 @@
   --foreground: #0000ff;
   --bg-canvas: #ddddff;
   --border-ide: rgba(0, 0, 255, 0.15);
+  --media-elev-shadow: color-mix(in srgb, #0000ff 16%, transparent);
+  --media-elev-bloom: color-mix(in srgb, #0000ff 12%, transparent);
   --syn-keyword: #0000ff;
   --syn-property: #0000ff;
   --syn-string: #059669;
   --syn-number: #d97706;
   --syn-comment: rgba(0, 0, 255, 0.45);
   --syn-bracket: #2563eb;
+  --blog-cat-projects: #89551a;
+  --blog-cat-leaps: #156f4a;
+  --blog-cat-agents: #8921ab;
+  --blog-cat-deep-cuts: #ab2154;
 }
 
 @theme inline {
@@ -47,6 +53,26 @@
 body {
   background: #4545ff;
   color: #ddddff;
+}
+
+/* Blog post hero — 4px factory radius, continuous where supported; spray-tied elev */
+.blog-post-hero {
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow:
+    0 1px 2px 0 var(--media-elev-shadow),
+    0 8px 22px -8px var(--media-elev-bloom),
+    0 0 32px -10px var(--media-elev-bloom);
+  transition:
+    background-color 400ms ease-in-out,
+    border-color 400ms ease-in-out,
+    box-shadow 400ms ease-in-out;
+}
+
+@supports (corner-shape: squircle) {
+  .blog-post-hero {
+    corner-shape: squircle;
+  }
 }
 
 .spray-shine-wash,
@@ -118,7 +144,14 @@ body {
   width: 200%;
   height: 200%;
   background-repeat: repeat;
-  animation: grain 0.5s steps(10) infinite;
+  opacity: var(--hq-grain-opacity, 0.15);
+  animation: grain 1.1s steps(10) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .noise-overlay-grain {
+    animation: none;
+  }
 }
 
 @keyframes grain {

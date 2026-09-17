@@ -59,7 +59,7 @@ test.describe("blog loop", () => {
     await expect(page).toHaveURL(/\/blog$/);
     await expect(page.getByRole("heading", { name: "blog.index" })).toBeVisible();
     await expect(page.getByText("NOTES", { exact: true })).toBeVisible();
-    await expect(page.locator("#blog-count")).toHaveText("9 notes");
+    await expect(page.locator("#blog-count")).toHaveText("10 notes");
     await expect(page.locator("#blog-notes-grid a")).toHaveCount(6);
     await expect(page.getByRole("button", { name: "More" })).toBeVisible();
     await expect(page.getByRole("link", { name: "View all" })).toHaveCount(0);
@@ -96,15 +96,58 @@ test.describe("blog loop", () => {
     await expect(page.getByRole("button", { name: "More" })).toHaveCount(0);
 
     await page.getByRole("button", { name: "Projects" }).click();
-    await expect(page.locator("#blog-count")).toHaveText("3 notes");
+    await expect(page.locator("#blog-count")).toHaveText("4 notes");
     await expect(page.locator("#blog-featured")).toContainText(
-      "The internal software factory",
+      "Our first time",
     );
-    await expect(page.locator("#blog-notes-grid a")).toHaveCount(2);
+    await expect(page.locator("#blog-notes-grid a")).toHaveCount(3);
 
     await page.getByRole("button", { name: "All" }).click();
-    await expect(page.locator("#blog-count")).toHaveText("9 notes");
+    await expect(page.locator("#blog-count")).toHaveText("10 notes");
     await expect(page.locator("#blog-notes-grid a")).toHaveCount(6);
+  });
+
+  test("category titles use distinct colours that follow Spray", async ({
+    page,
+  }) => {
+    await visit(page, "/blog");
+    await page.evaluate(() => localStorage.removeItem("todo-spray"));
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await waitForHydration(page);
+
+    const before = await page.evaluate(() => {
+      const style = getComputedStyle(document.documentElement);
+      return {
+        projects: style.getPropertyValue("--blog-cat-projects").trim(),
+        leaps: style.getPropertyValue("--blog-cat-leaps").trim(),
+        agents: style.getPropertyValue("--blog-cat-agents").trim(),
+        deepCuts: style.getPropertyValue("--blog-cat-deep-cuts").trim(),
+      };
+    });
+    expect(new Set(Object.values(before)).size).toBe(4);
+
+    const pillColor = await page
+      .locator('button[data-category="projects"]')
+      .evaluate((el) => getComputedStyle(el).color);
+    const badgeColor = await page
+      .locator('[data-category-label="projects"]')
+      .first()
+      .evaluate((el) => getComputedStyle(el).color);
+    expect(badgeColor).toBe(pillColor);
+
+    await page.getByRole("navigation", { name: "Primary" }).getByRole("button", {
+      name: "Spray a new accessible colour palette",
+    }).click();
+
+    await expect
+      .poll(async () =>
+        page.evaluate(() =>
+          getComputedStyle(document.documentElement)
+            .getPropertyValue("--blog-cat-projects")
+            .trim(),
+        ),
+      )
+      .not.toBe(before.projects);
   });
 
   test("More reveals the next page of notes", async ({ page }) => {
@@ -243,6 +286,29 @@ test.describe("blog loop", () => {
     await expect(card).toBeFocused();
   });
 
+  test("featured note holds a 1:1 center crop of the 2400×1260 master", async ({
+    page,
+  }) => {
+    await visit(page, "/blog");
+    const frame = page.locator("#blog-featured-frame");
+    await expect(frame).toBeVisible();
+    await expect(frame.locator("img")).toHaveAttribute(
+      "src",
+      /repdaily-our-first-time\.webp/,
+    );
+    const box = await frame.boundingBox();
+    expect(box).toBeTruthy();
+    expect(box!.width / box!.height).toBeCloseTo(1, 1);
+
+    const title = page.locator("#blog-featured h2");
+    await expect(title).toHaveText("Our first time");
+    await expect(title).toHaveCSS("display", "-webkit-box");
+    await expect(page.locator("#blog-featured h2 + p")).toHaveCSS(
+      "display",
+      "-webkit-box",
+    );
+  });
+
   test("/blog/all redirects to the notes index", async ({ page }) => {
     await page.goto("/blog/all", { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/blog$/);
@@ -379,14 +445,13 @@ test.describe("blog loop", () => {
     page,
   }) => {
     await visit(page, `/blog/${POSTS[0].slug}`);
-    const hero = page.locator("article figure").first();
+    const hero = page.locator("#blog-post-hero");
     await expect(hero.locator("img")).toBeVisible();
     await expect(hero.locator("img")).toHaveAttribute("src", /og-default/);
 
     const box = await hero.boundingBox();
     expect(box).not.toBeNull();
-    expect(box!.width / box!.height).toBeGreaterThan(1.6);
-    expect(box!.width / box!.height).toBeLessThan(1.9);
+    expect(box!.width / box!.height).toBeCloseTo(1200 / 630, 1);
 
     const og = page.locator('meta[property="og:image"]');
     await expect(og).toHaveAttribute("content", /\/blog\/og-default\.png/);
@@ -412,13 +477,12 @@ test.describe("blog loop", () => {
       article.getByRole("heading", { name: POSTS[0].title, level: 1 }),
     ).toBeVisible();
     await expect(article.locator("blockquote")).toBeVisible();
-    const hero = article.locator("figure").first();
+    const hero = page.locator("#blog-post-hero");
     await expect(hero.locator("img")).toBeVisible();
     await expect(hero.locator("img")).toHaveAttribute("src", /og-default/);
     const box = await hero.boundingBox();
     expect(box).not.toBeNull();
-    expect(box!.width / box!.height).toBeGreaterThan(1.6);
-    expect(box!.width / box!.height).toBeLessThan(1.9);
+    expect(box!.width / box!.height).toBeCloseTo(1200 / 630, 1);
     await expect(
       article.getByRole("link", { name: "Book Team" }),
     ).toBeVisible();

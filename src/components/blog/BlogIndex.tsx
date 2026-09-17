@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { BlogSandbox } from "@/components/blog/BlogSandbox";
 import { WriterAvatar } from "@/components/blog/WriterAvatar";
@@ -8,6 +9,9 @@ import { cn } from "@/lib/cn";
 import {
   BLOG_CATEGORIES,
   BLOG_CATEGORY_LABELS,
+  BLOG_CATEGORY_VARS,
+  BLOG_IMAGE_MASTER_HEIGHT,
+  BLOG_IMAGE_MASTER_WIDTH,
   BLOG_INDEX_PAGE_SIZE,
   formatBlogDate,
   pickFeaturedPost,
@@ -31,6 +35,51 @@ const pillClass =
 const moreClass =
   "inline-flex cursor-pointer items-center justify-center rounded-[4px] border border-current px-3 py-1.5 font-jetbrains text-xs font-bold tracking-wider transition-[opacity,color,background-color] duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
 
+function categoryTone(category: BlogCategory, filled: boolean) {
+  const token = `var(${BLOG_CATEGORY_VARS[category]})`;
+  if (filled) {
+    return {
+      color: "var(--background)",
+      backgroundColor: token,
+      borderColor: token,
+    };
+  }
+  return {
+    color: token,
+    borderColor: token,
+    backgroundColor: "transparent",
+  };
+}
+
+function FeaturedCover({ src }: { src: string | null }) {
+  return (
+    <div
+      id="blog-featured-frame"
+      className="relative aspect-square w-28 shrink-0 overflow-hidden border border-dashed border-current sm:w-36 md:w-40"
+      aria-hidden="true"
+    >
+      {src ? (
+        <Image
+          src={src}
+          alt=""
+          fill
+          sizes="160px"
+          className="object-cover object-center"
+        />
+      ) : (
+        <div className="flex h-full flex-col items-center justify-center gap-1 bg-background px-2 text-center">
+          <p className="font-jetbrains text-[10px] font-bold tracking-wider">
+            {BLOG_IMAGE_MASTER_WIDTH} × {BLOG_IMAGE_MASTER_HEIGHT}
+          </p>
+          <p className="font-jetbrains text-syn-comment text-[10px] tracking-wider">
+            1:1 center
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function filterPosts(posts: readonly BlogIndexPost[], filter: FilterId) {
   if (filter === "all") {
     return posts;
@@ -42,17 +91,28 @@ function WriterMeta({
   name,
   avatarSrc,
   date,
+  compact = false,
 }: {
   name: string;
   avatarSrc: string | null;
   date: string;
+  compact?: boolean;
 }) {
   return (
-    <div className="font-jetbrains flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+    <div
+      className={cn(
+        "font-jetbrains flex items-center gap-x-2 text-sm",
+        compact
+          ? "min-w-0 flex-nowrap overflow-hidden"
+          : "flex-wrap gap-y-1",
+      )}
+    >
       <WriterAvatar name={name} src={avatarSrc} size={24} />
-      <span>{name}</span>
+      <span className={compact ? "min-w-0 truncate" : undefined}>{name}</span>
       <span aria-hidden="true">·</span>
-      <time dateTime={date}>{formatBlogDate(date)}</time>
+      <time className={compact ? "shrink-0" : undefined} dateTime={date}>
+        {formatBlogDate(date)}
+      </time>
     </div>
   );
 }
@@ -100,13 +160,21 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
                     <button
                       type="button"
                       aria-pressed={active}
+                      data-category={item.id}
                       onClick={() => selectFilter(item.id)}
                       className={cn(
                         pillClass,
-                        active
-                          ? "border-foreground bg-foreground text-background"
-                          : "border-current bg-transparent hover:opacity-80",
+                        item.id === "all"
+                          ? active
+                            ? "border-foreground bg-foreground text-background"
+                            : "border-current bg-transparent hover:opacity-80"
+                          : "hover:opacity-80",
                       )}
+                      style={
+                        item.id === "all"
+                          ? undefined
+                          : categoryTone(item.id, active)
+                      }
                     >
                       {item.label}
                     </button>
@@ -131,15 +199,30 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
             >
               <Link
                 href={`/blog/${featured.slug}`}
-                className="block p-6 transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none"
+                className="flex flex-col p-4 transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none sm:p-5"
               >
-                <h2 className="font-unbounded text-2xl font-bold tracking-tight text-balance md:text-3xl">
-                  {featured.title}
-                </h2>
-                <p className="mt-3 max-w-2xl leading-relaxed">
-                  {featured.excerpt}
-                </p>
-                <div className="mt-5">
+                <div className="flex items-start gap-4 sm:gap-5">
+                  <FeaturedCover src={featured.imageSrc} />
+                  <div className="flex h-28 min-w-0 flex-1 flex-col justify-center overflow-hidden sm:h-36 sm:justify-between md:h-40">
+                    <div className="min-h-0">
+                      <h2 className="font-unbounded line-clamp-2 text-base font-bold tracking-tight sm:text-lg md:text-xl">
+                        {featured.title}
+                      </h2>
+                      <p className="mt-1.5 line-clamp-2 leading-snug">
+                        {featured.excerpt}
+                      </p>
+                    </div>
+                    <div className="mt-2 hidden min-w-0 shrink-0 sm:block">
+                      <WriterMeta
+                        name={featured.writerName}
+                        avatarSrc={featured.avatarSrc}
+                        date={featured.date}
+                        compact
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 sm:hidden">
                   <WriterMeta
                     name={featured.writerName}
                     avatarSrc={featured.avatarSrc}
@@ -164,7 +247,11 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
                     data-category={post.category}
                     className="flex h-full flex-col border border-border-ide p-5 transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none"
                   >
-                    <p className="font-jetbrains inline-flex w-fit rounded-[4px] border border-current px-2 py-0.5 text-xs font-bold tracking-wider">
+                    <p
+                      data-category-label={post.category}
+                      className="font-jetbrains inline-flex w-fit rounded-[4px] border px-2 py-0.5 text-xs font-bold tracking-wider"
+                      style={categoryTone(post.category, false)}
+                    >
                       {BLOG_CATEGORY_LABELS[post.category]}
                     </p>
                     <h2 className="font-unbounded mt-3 text-xl font-bold tracking-tight text-balance">

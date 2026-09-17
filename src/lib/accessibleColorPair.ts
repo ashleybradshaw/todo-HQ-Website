@@ -22,6 +22,37 @@ function hexToRgb(hex: string) {
   };
 }
 
+export function hexToHsl(hex: string) {
+  const { r, g, b } = hexToRgb(hex);
+  const red = r / 255;
+  const green = g / 255;
+  const blue = b / 255;
+  const max = Math.max(red, green, blue);
+  const min = Math.min(red, green, blue);
+  const lightness = (max + min) / 2;
+  let hue = 0;
+  let saturation = 0;
+
+  if (max !== min) {
+    const delta = max - min;
+    saturation =
+      lightness > 0.5 ? delta / (2 - max - min) : delta / (max + min);
+    if (max === red) {
+      hue = ((green - blue) / delta + (green < blue ? 6 : 0)) * 60;
+    } else if (max === green) {
+      hue = ((blue - red) / delta + 2) * 60;
+    } else {
+      hue = ((red - green) / delta + 4) * 60;
+    }
+  }
+
+  return {
+    h: hue,
+    s: saturation * 100,
+    l: lightness * 100,
+  };
+}
+
 function relativeLuminance(hex: string) {
   const { r, g, b } = hexToRgb(hex);
   return (
@@ -98,6 +129,44 @@ export function isAccessibleColorPair(
 
   const pair = value as AccessibleColorPair;
   return HEX_PAIR.test(pair.bg) && HEX_PAIR.test(pair.text);
+}
+
+export function fitHueAgainstBackground(
+  background: string,
+  hue: number,
+  saturation: number,
+  preferredLightness: number,
+) {
+  let best = hslToHex(hue, saturation, preferredLightness);
+  let bestScore = Number.NEGATIVE_INFINITY;
+
+  for (let lightness = 4; lightness <= 96; lightness += 1) {
+    const hex = hslToHex(hue, saturation, lightness);
+    const contrast = contrastRatio(hex, background);
+    if (contrast < WCAG_AA_CONTRAST) {
+      continue;
+    }
+    const score = 1000 - Math.abs(lightness - preferredLightness);
+    if (score > bestScore) {
+      best = hex;
+      bestScore = score;
+    }
+  }
+
+  if (bestScore > Number.NEGATIVE_INFINITY) {
+    return best;
+  }
+
+  let maxContrast = contrastRatio(best, background);
+  for (let lightness = 4; lightness <= 96; lightness += 1) {
+    const hex = hslToHex(hue, saturation, lightness);
+    const contrast = contrastRatio(hex, background);
+    if (contrast > maxContrast) {
+      best = hex;
+      maxContrast = contrast;
+    }
+  }
+  return best;
 }
 
 export function getRandomAccessiblePair(): AccessibleColorPair {

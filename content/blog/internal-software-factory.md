@@ -7,7 +7,6 @@ emoji: "🏭"
 slug: "internal-software-factory"
 excerpt: "Repeatable process, not one-off freelance — how we design, code, and ship from the same production system."
 category: projects
-featured: true
 ---
 
 Most teams treat each engagement as a fresh start. We do not. The same pipeline that ships our own apps is the pipeline we run for technical founders and product leads.

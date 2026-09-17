@@ -16,6 +16,10 @@ export const BLOG_CATEGORY_LABELS: Record<BlogCategory, string> = {
 
 export const BLOG_INDEX_PAGE_SIZE = 6;
 
+export const BLOG_OG_DEFAULT_SRC = "/blog/og-default.png";
+export const BLOG_OG_WIDTH = 1200;
+export const BLOG_OG_HEIGHT = 630;
+
 export type BlogIndexPost = {
   slug: string;
   title: string;

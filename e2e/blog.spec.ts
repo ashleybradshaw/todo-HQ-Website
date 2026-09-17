@@ -78,7 +78,11 @@ test.describe("blog loop", () => {
       await expect(page.getByText(post.author, { exact: true }).first()).toBeVisible();
       await expect(page.getByText(/min read/)).toBeVisible();
       await expect(page.locator("time").first()).toBeVisible();
-      await page.locator("article").getByRole("link", { name: "‹ Blog" }).click();
+      await page
+        .locator("article")
+        .getByRole("navigation", { name: "Breadcrumb" })
+        .getByRole("link", { name: "Blog" })
+        .click();
       await expect(page).toHaveURL(/\/blog$/, { timeout: 20_000 });
     }
   });
@@ -311,12 +315,22 @@ test.describe("blog loop", () => {
     await visit(page, `/blog/${POSTS[0].slug}`);
     const article = page.locator("article");
 
-    await expect(article.getByRole("link", { name: "‹ Blog" })).toBeVisible();
+    const crumb = article.getByRole("navigation", { name: "Breadcrumb" });
+    await expect(crumb.getByRole("link", { name: "Blog" })).toHaveAttribute(
+      "href",
+      "/blog",
+    );
+    await expect(crumb).toContainText(POSTS[0].title);
     await expect(
       article.getByRole("heading", { name: POSTS[0].title, level: 1 }),
     ).toBeVisible();
     await expect(article.getByText("Growth Editor, //TODO").first()).toBeVisible();
-    await expect(article.locator("figure").first()).toBeVisible();
+    const hero = article.locator("figure").first();
+    await expect(hero).toBeVisible();
+    await expect(hero.locator("img")).toHaveAttribute(
+      "src",
+      /og-default/,
+    );
     await expect(article.locator("blockquote")).toBeVisible();
     await expect(
       article.getByText(
@@ -335,22 +349,24 @@ test.describe("blog loop", () => {
       const top = (el: Element | null) =>
         el ? el.getBoundingClientRect().top : Number.POSITIVE_INFINITY;
       return {
-        back: top(root.querySelector('a[href="/blog"]')),
+        crumb: top(root.querySelector("#blog-breadcrumb")),
         title: top(root.querySelector("h1")),
         byline: top(root.querySelector("time")),
         hero: top(root.querySelector("figure")),
         quote: top(root.querySelector("blockquote")),
         nod: top(root.querySelector("#blog-writer-nod")),
+        share: top(root.querySelector("#blog-post-feedback")),
         book: top(root.querySelector("#blog-book-band")),
       };
     });
 
-    expect(tops.back).toBeLessThan(tops.title);
+    expect(tops.crumb).toBeLessThan(tops.title);
     expect(tops.title).toBeLessThan(tops.byline);
     expect(tops.byline).toBeLessThan(tops.hero);
     expect(tops.hero).toBeLessThan(tops.quote);
     expect(tops.quote).toBeLessThan(tops.nod);
-    expect(tops.nod).toBeLessThan(tops.book);
+    expect(tops.nod).toBeLessThan(tops.share);
+    expect(tops.share).toBeLessThan(tops.book);
 
     const bodyWidth = await page
       .locator("#blog-article-body")
@@ -359,16 +375,50 @@ test.describe("blog loop", () => {
     expect(bodyWidth).toBeLessThanOrEqual(720);
   });
 
+  test("article without hero uses the default OG image in the slot and head", async ({
+    page,
+  }) => {
+    await visit(page, `/blog/${POSTS[0].slug}`);
+    const hero = page.locator("article figure").first();
+    await expect(hero.locator("img")).toBeVisible();
+    await expect(hero.locator("img")).toHaveAttribute("src", /og-default/);
+
+    const box = await hero.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.width / box!.height).toBeGreaterThan(1.6);
+    expect(box!.width / box!.height).toBeLessThan(1.9);
+
+    const og = page.locator('meta[property="og:image"]');
+    await expect(og).toHaveAttribute("content", /\/blog\/og-default\.png/);
+    await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+      "content",
+      /\/blog\/og-default\.png/,
+    );
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+      "content",
+      "summary_large_image",
+    );
+  });
+
   test("article page stays readable at a mobile width", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await visit(page, `/blog/${POSTS[0].slug}`);
     const article = page.locator("article");
 
-    await expect(article.getByRole("link", { name: "‹ Blog" })).toBeVisible();
+    await expect(
+      article.getByRole("navigation", { name: "Breadcrumb" }),
+    ).toContainText(POSTS[0].title);
     await expect(
       article.getByRole("heading", { name: POSTS[0].title, level: 1 }),
     ).toBeVisible();
     await expect(article.locator("blockquote")).toBeVisible();
+    const hero = article.locator("figure").first();
+    await expect(hero.locator("img")).toBeVisible();
+    await expect(hero.locator("img")).toHaveAttribute("src", /og-default/);
+    const box = await hero.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.width / box!.height).toBeGreaterThan(1.6);
+    expect(box!.width / box!.height).toBeLessThan(1.9);
     await expect(
       article.getByRole("link", { name: "Book Team" }),
     ).toBeVisible();

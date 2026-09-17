@@ -6,18 +6,26 @@ import { WriterAvatar } from "@/components/blog/WriterAvatar";
 import { JsonLd } from "@/components/JsonLd";
 import {
   blogPostingGraph,
+  blogShareImageSrc,
   getAllPosts,
   getPostBySlug,
   moreByWriter,
   type BlogPost,
 } from "@/lib/blog";
-import { formatBlogDate } from "@/lib/blog-shared";
+import {
+  BLOG_OG_HEIGHT,
+  BLOG_OG_WIDTH,
+  formatBlogDate,
+} from "@/lib/blog-shared";
 import { pageMetadata } from "@/lib/seo";
 import { BlogPostFeedback } from "./BlogPostFeedback";
 
 type BlogPostParams = {
   params: Promise<{ slug: string }>;
 };
+
+const crumbClass =
+  "underline transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
 
 const controlClass =
   "inline-flex cursor-pointer items-center justify-center rounded-[4px] border border-current px-3 py-1.5 font-jetbrains text-xs font-bold tracking-wider uppercase transition-[opacity,color,background-color] duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
@@ -43,37 +51,51 @@ export async function generateMetadata({
     });
   }
 
+  const base = pageMetadata({
+    title: post.title,
+    description: post.excerpt,
+    path: `/blog/${post.slug}`,
+  });
+  const image = blogShareImageSrc(post);
+
   return {
-    ...pageMetadata({
-      title: post.title,
-      description: post.excerpt,
-      path: `/blog/${post.slug}`,
-    }),
+    ...base,
     authors: [{ name: post.writer.name }],
+    openGraph: {
+      ...base.openGraph,
+      type: "article",
+      images: [
+        {
+          url: image,
+          width: BLOG_OG_WIDTH,
+          height: BLOG_OG_HEIGHT,
+          alt: post.title,
+        },
+      ],
+    },
+    twitter: {
+      ...base.twitter,
+      card: "summary_large_image",
+      images: [image],
+    },
   };
 }
 
 function BlogHero({ post }: { post: BlogPost }) {
-  if (post.heroSrc) {
-    return (
-      <figure className="mt-10">
-        <div className="relative aspect-video w-full overflow-hidden border border-border-ide">
-          <Image
-            src={post.heroSrc}
-            alt=""
-            fill
-            priority
-            sizes="(min-width: 800px) 752px, calc(100vw - 48px)"
-            className="object-cover"
-          />
-        </div>
-      </figure>
-    );
-  }
+  const src = blogShareImageSrc(post);
 
   return (
-    <figure className="mt-10" aria-hidden="true">
-      <div className="aspect-video w-full border border-border-ide bg-[linear-gradient(to_right,var(--border-ide)_1px,transparent_1px),linear-gradient(to_bottom,var(--border-ide)_1px,transparent_1px)] bg-[size:24px_24px] bg-background" />
+    <figure className="mt-10">
+      <div className="relative aspect-video w-full overflow-hidden border border-border-ide bg-background">
+        <Image
+          src={src}
+          alt=""
+          fill
+          priority
+          sizes="(min-width: 800px) 752px, calc(100vw - 48px)"
+          className="object-cover"
+        />
+      </div>
     </figure>
   );
 }
@@ -168,14 +190,23 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
     <div className="mx-auto w-full max-w-[800px] px-6 pt-28 pb-16">
       <JsonLd data={blogPostingGraph(post)} />
       <article>
-        <p className="font-jetbrains text-sm font-bold">
-          <Link
-            href="/blog"
-            className="underline transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none"
-          >
-            ‹ Blog
-          </Link>
-        </p>
+        <nav
+          id="blog-breadcrumb"
+          aria-label="Breadcrumb"
+          className="font-jetbrains text-sm"
+        >
+          <ol className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <li>
+              <Link href="/blog" className={crumbClass}>
+                Blog
+              </Link>
+            </li>
+            <li aria-hidden="true">→</li>
+            <li className="min-w-0 text-pretty" aria-current="page">
+              {post.title}
+            </li>
+          </ol>
+        </nav>
         <h1 className="font-unbounded mt-10 text-center text-3xl font-bold tracking-tight text-balance sm:text-4xl">
           {post.title}
         </h1>
@@ -201,8 +232,8 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
         />
         <div className="mx-auto w-full max-w-[688px]">
           <WriterNod post={post} more={more} />
-          <BlogBookBand />
           <BlogPostFeedback slug={post.slug} title={post.title} />
+          <BlogBookBand />
         </div>
       </article>
     </div>

@@ -136,7 +136,7 @@ export function BlogPostFeedback({
   );
 
   return (
-    <div className="mt-12 border-t border-border-ide pt-8">
+    <div id="blog-post-feedback" className="mt-12 border-t border-border-ide pt-8">
       <section aria-labelledby={`${statusId}-share`}>
         <h2
           id={`${statusId}-share`}

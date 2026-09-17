@@ -5,6 +5,7 @@ import { cache } from "react";
 import { getWriter, type GhostWriter } from "../../content/blog/writers";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import {
+  BLOG_OG_DEFAULT_SRC,
   isBlogCategory,
   type BlogCategory,
   type BlogIndexPost,
@@ -280,13 +281,21 @@ export function moreByWriter(posts: readonly BlogPost[], current: BlogPost) {
   );
 }
 
+export function blogShareImageSrc(
+  post: Pick<BlogPost, "ogImageSrc" | "heroSrc">,
+) {
+  return post.ogImageSrc ?? post.heroSrc ?? BLOG_OG_DEFAULT_SRC;
+}
+
 export function blogPostingGraph(post: BlogPost) {
+  const image = `${SITE_URL}${blogShareImageSrc(post)}`;
   return {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: post.title,
     description: post.excerpt,
     datePublished: post.date,
+    image,
     author: {
       "@type": "Person",
       name: post.writer.name,

@@ -55,7 +55,7 @@ export function Navigation() {
           <motion.div
             key="mobile-nav"
             id={menuId}
-            className="bg-bg-canvas fixed inset-0 flex flex-col items-center justify-center md:hidden"
+            className="bg-bg-canvas fixed inset-0 flex flex-col items-center justify-center lg:hidden"
             role="dialog"
             aria-modal="true"
             aria-label="Menu"
@@ -81,7 +81,7 @@ export function Navigation() {
         ) : null}
       </AnimatePresence>
 
-      <div className="relative z-10 flex items-center gap-3 border-b border-border-ide px-6 py-4 pr-28 md:pr-6">
+      <div className="relative z-10 flex items-center gap-3 border-b border-border-ide px-6 py-4 pr-28 lg:pr-6">
         <Link
           href="/home"
           aria-label="//TODO Engineering"
@@ -93,7 +93,7 @@ export function Navigation() {
           ) : null}
         </Link>
 
-        <nav className="ml-auto hidden items-center gap-8 md:flex" aria-label="Primary">
+        <nav className="ml-auto hidden items-center gap-8 lg:flex" aria-label="Primary">
           {LINKS.map((link) => (
             <NavLink
               key={link.href}
@@ -105,11 +105,17 @@ export function Navigation() {
           {innerSite ? <SprayButton /> : null}
         </nav>
 
-        <div className="absolute top-1/2 right-5 z-20 flex shrink-0 -translate-y-1/2 items-center gap-3 md:hidden">
+        <div className="absolute top-1/2 right-7 z-20 flex shrink-0 -translate-y-1/2 items-center gap-3 lg:hidden">
           {innerSite ? <SprayButton compact /> : null}
           <button
             type="button"
-            className="shrink-0 cursor-pointer bg-transparent p-1"
+            className={cn(
+              "inline-flex size-8 shrink-0 cursor-pointer items-center justify-center overflow-visible rounded-[4px] bg-transparent text-foreground",
+              "transition-[background-color,transform,color] duration-200 ease-out",
+              "hover:bg-foreground/5 active:scale-[0.99] active:bg-foreground/10",
+              "focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none",
+              "motion-reduce:active:scale-100",
+            )}
             aria-expanded={menuOpen}
             aria-controls={menuId}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -156,6 +162,7 @@ function NavLink({
 }
 
 function MenuIcon({ open }: { open: boolean }) {
+  // 24px glyph to match Spray compact; open state meets at mid-Y then ±45° inside the viewBox.
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -163,23 +170,34 @@ function MenuIcon({ open }: { open: boolean }) {
       width="24"
       height="24"
       fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
       aria-hidden="true"
       focusable="false"
+      className="size-6 overflow-visible"
     >
-      {open ? (
-        <>
-          <path d="M5 5 L19 19" />
-          <path d="M19 5 L5 19" />
-        </>
-      ) : (
-        <>
-          <path d="M4 7 H20" />
-          <path d="M4 12 H20" />
-          <path d="M4 17 H20" />
-        </>
-      )}
+      <path
+        d="M5 8 H19"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+        className={cn(
+          "origin-center transition-transform duration-200 ease-out motion-reduce:transition-none",
+          open && "translate-y-1 rotate-45",
+        )}
+        style={{ transformBox: "fill-box" }}
+      />
+      <path
+        d="M5 16 H19"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+        className={cn(
+          "origin-center transition-transform duration-200 ease-out motion-reduce:transition-none",
+          open && "-translate-y-1 -rotate-45",
+        )}
+        style={{ transformBox: "fill-box" }}
+      />
     </svg>
   );
 }

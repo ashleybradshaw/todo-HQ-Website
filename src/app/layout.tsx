@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { JetBrains_Mono, Unbounded } from "next/font/google";
 import { Navigation } from "@/components/Navigation";
 import { NoiseOverlay } from "@/components/NoiseOverlay";
+import { SectionTransitionGate } from "@/components/SectionTransitionGate";
 import { SprayProvider } from "@/components/SprayProvider";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
@@ -68,7 +69,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SprayProvider>
           <NoiseOverlay />
           <Navigation />
-          {children}
+          <SectionTransitionGate>{children}</SectionTransitionGate>
         </SprayProvider>
       </body>
     </html>

@@ -144,7 +144,7 @@ body {
   width: 200%;
   height: 200%;
   background-repeat: repeat;
-  opacity: var(--hq-grain-opacity, 0.15);
+  opacity: var(--hq-grain-opacity, 0.151);
   animation: grain 1.1s steps(10) infinite;
 }
 
@@ -186,4 +186,61 @@ body {
   90% {
     transform: translate(-1%, -5%);
   }
+}
+
+/* SectionTransitionGate — SVG stroke-flood + drill fade (no GSAP) */
+html.is-section-transitioning,
+html.is-section-transitioning body {
+  overflow: hidden !important;
+}
+
+html.is-section-transitioning a {
+  pointer-events: none;
+}
+
+.st-content {
+  opacity: 1;
+}
+
+.st-content--fade {
+  animation: st-fade-in var(--st-fade-ms, 160ms) ease-out;
+}
+
+@keyframes st-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.st-flood {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.st-flood--active {
+  visibility: visible;
+}
+
+.st-flood-svg {
+  width: 100%;
+  height: 100%;
+  transform: scale(1.3);
+  transform-origin: center center;
+}
+
+.st-flood-path {
+  fill: none;
+  stroke: var(--st-flood-stroke, #0000ff);
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }

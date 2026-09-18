@@ -1,10 +1,10 @@
 import type { CSSProperties } from "react";
 
 const GRAIN_DENSITY = 1;
-const GRAIN_WIDTH_PX = 1;
-const GRAIN_HEIGHT_PX = 1;
-// G2: opacity 0.15, grain 1.1s — FutureCorp visibility without muddying type
-const GRAIN_OPACITY = 0.15;
+const GRAIN_WIDTH_PX = 2;
+const GRAIN_HEIGHT_PX = 2;
+// G2.2: 2px grit (RunRobRun-style chunk); opacity stays 0.151
+const GRAIN_OPACITY = 0.151;
 
 const GRAIN_IMAGE = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${GRAIN_WIDTH_PX}' height='${GRAIN_HEIGHT_PX}'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='${GRAIN_DENSITY}' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 

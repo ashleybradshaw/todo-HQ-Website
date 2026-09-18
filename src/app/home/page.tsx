@@ -7,7 +7,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata({
   title: "Factory",
   description:
-    "The //TODO Engineering factory dashboard — multi-agent systems, automated workflows, and scalable backends shipping Repdaily, ReadyGo, and Contentic.",
+    "The //TODO Engineering factory — pipeline from intake to ship for CTOs, non-tech founders, and CMS ops. AGI and LP flows, executePipeline(), shipping Repdaily, ReadyGo, and Contentic.",
   path: "/home",
 });
 

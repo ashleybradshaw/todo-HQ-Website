@@ -9,7 +9,7 @@
   --media-elev-shadow: color-mix(in srgb, #0000ff 16%, transparent);
   --media-elev-bloom: color-mix(in srgb, #0000ff 12%, transparent);
   --syn-keyword: #0000ff;
-  --syn-property: #0000ff;
+  --syn-property: color-mix(in srgb, #0000ff 68%, #ddddff);
   --syn-string: #059669;
   --syn-number: #d97706;
   --syn-comment: rgba(0, 0, 255, 0.45);

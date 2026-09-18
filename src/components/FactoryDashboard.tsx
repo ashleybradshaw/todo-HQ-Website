@@ -5,6 +5,12 @@ import { useFactoryStream } from "@/hooks/useFactoryStream";
 import { PipelineRunner } from "@/components/PipelineRunner";
 import { Telemetry } from "@/components/Telemetry";
 
+/** 0-based index of the methodology / executePipeline() line in codeLines. */
+const EXECUTE_PIPELINE_LINE = 18;
+
+const ACTIVE_LINE_BG =
+  "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)]";
+
 function Comment({ children }: { children: ReactNode }) {
   return <span className="text-syn-comment italic">{children}</span>;
 }
@@ -52,7 +58,7 @@ function Fn({
 function codeLines(onExecutePipeline: () => void): ReactNode[] {
   return [
     <Fragment key={1}>
-      <Comment>{`/** Internal software factory. Source of record. */`}</Comment>
+      <Comment>{`/** Internal software factory. Source of record. TEST COPY — rewrite later. */`}</Comment>
     </Fragment>,
     <Fragment key={2}>
       <Keyword>export const</Keyword> TODO_HQ <Punct>=</Punct>{" "}
@@ -67,22 +73,22 @@ function codeLines(onExecutePipeline: () => void): ReactNode[] {
     </Fragment>,
     <Fragment key={4}>
       {"  "}
-      <Property>coreInfrastructure</Property>
+      <Property>whoWeShipFor</Property>
       <Punct>:</Punct> <Bracket>[</Bracket>
     </Fragment>,
     <Fragment key={5}>
       {"    "}
-      <Str>{`"Multi-agent ecosystems"`}</Str>
+      <Str>{`"CTOs who need the stack shipped this quarter"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
     <Fragment key={6}>
       {"    "}
-      <Str>{`"Automated workflows"`}</Str>
+      <Str>{`"Non-tech founders with an idea, not an eng org"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
     <Fragment key={7}>
       {"    "}
-      <Str>{`"Scalable backends"`}</Str>
+      <Str>{`"CMS / content contracts that need ops, not just pages"`}</Str>
     </Fragment>,
     <Fragment key={8}>
       {"  "}
@@ -91,41 +97,94 @@ function codeLines(onExecutePipeline: () => void): ReactNode[] {
     </Fragment>,
     <Fragment key={9}>
       {"  "}
+      <Property>pipeline</Property>
+      <Punct>:</Punct> <Bracket>[</Bracket>
+    </Fragment>,
+    <Fragment key={10}>
+      {"    "}
+      <Str>{`"intake"`}</Str>
+      <Punct>,</Punct>
+    </Fragment>,
+    <Fragment key={11}>
+      {"    "}
+      <Str>{`"review"`}</Str>
+      <Punct>,</Punct>
+    </Fragment>,
+    <Fragment key={12}>
+      {"    "}
+      <Str>{`"agiFlow"`}</Str>
+      <Punct>,</Punct>
+    </Fragment>,
+    <Fragment key={13}>
+      {"    "}
+      <Str>{`"lpPipeline"`}</Str>
+      <Punct>,</Punct>
+    </Fragment>,
+    <Fragment key={14}>
+      {"    "}
+      <Str>{`"analysis"`}</Str>
+      <Punct>,</Punct>
+    </Fragment>,
+    <Fragment key={15}>
+      {"    "}
+      <Str>{`"ship"`}</Str>
+    </Fragment>,
+    <Fragment key={16}>
+      {"  "}
+      <Bracket>{"]"}</Bracket>
+      <Punct>,</Punct>
+    </Fragment>,
+    <Fragment key={17}>
+      {"  "}
+      <Property>agiFlow</Property>
+      <Punct>:</Punct>{" "}
+      <Str>{`"Brief → research agents → draft → human gate → ship."`}</Str>
+      <Punct>,</Punct>
+    </Fragment>,
+    <Fragment key={18}>
+      {"  "}
+      <Property>lpPipeline</Property>
+      <Punct>:</Punct>{" "}
+      <Str>{`"Offer → layout → copy pass → QA → launch."`}</Str>
+      <Punct>,</Punct>
+    </Fragment>,
+    <Fragment key={19}>
+      {"  "}
       <Property>methodology</Property>
       <Punct>:</Punct>{" "}
       <Fn onActivate={onExecutePipeline}>executePipeline()</Fn>
       <Punct>,</Punct>
     </Fragment>,
-    <Fragment key={10}>
+    <Fragment key={20}>
       {"  "}
       <Property>inProduction</Property>
       <Punct>:</Punct> <Bracket>[</Bracket>
     </Fragment>,
-    <Fragment key={11}>
+    <Fragment key={21}>
       {"    "}
       <Str>{`"Repdaily"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
-    <Fragment key={12}>
+    <Fragment key={22}>
       {"    "}
       <Str>{`"ReadyGo"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
-    <Fragment key={13}>
+    <Fragment key={23}>
       {"    "}
       <Str>{`"Contentic"`}</Str>
     </Fragment>,
-    <Fragment key={14}>
+    <Fragment key={24}>
       {"  "}
       <Bracket>{"]"}</Bracket>
       <Punct>,</Punct>
     </Fragment>,
-    <Fragment key={15}>
+    <Fragment key={25}>
       {"  "}
       <Property>velocity</Property>
       <Punct>:</Punct> <Str>{`"Production-ready. Fast."`}</Str>
     </Fragment>,
-    <Fragment key={16}>
+    <Fragment key={26}>
       <Bracket>{"}"}</Bracket>
       <Punct>;</Punct>
     </Fragment>,
@@ -163,20 +222,34 @@ export function FactoryDashboard() {
           {"//TODO Engineering factory dashboard"}
         </h1>
         <p className="sr-only">
-          The team behind //TODO runs an internal software factory: source in
-          TODO_HQ.ts, executePipeline() as methodology, multi-agent systems,
-          then Repdaily, ReadyGo, and Contentic in production.
+          The team behind //TODO runs an internal software factory for CTOs,
+          non-tech founders, and CMS ops contracts. Pipeline: intake, review,
+          agiFlow, lpPipeline, analysis, ship. Methodology is executePipeline()
+          — AGI brief-to-ship and LP offer-to-launch — with Repdaily, ReadyGo,
+          and Contentic in production.
         </p>
         <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_minmax(14rem,42%)] overflow-hidden lg:grid-cols-[70%_30%] lg:grid-rows-1">
           <section
-            className="flex min-h-0 min-w-0 flex-col overflow-auto"
+            className="flex min-h-0 min-w-0 flex-col overflow-hidden"
             aria-label="TODO_HQ TypeScript source"
           >
-            <div className="flex shrink-0 items-center justify-between border-b border-border-ide px-6 py-2">
-              <span className="text-syn-keyword text-xs">TODO_HQ.ts</span>
-              <span className="text-syn-comment text-xs">TypeScript</span>
+            <div
+              className="flex shrink-0 items-stretch border-b border-border-ide"
+              aria-hidden="true"
+            >
+              <span
+                className={`border-border-ide text-syn-keyword border-b-2 px-4 py-2 text-xs ${ACTIVE_LINE_BG}`}
+              >
+                TODO_HQ.ts
+              </span>
+              <span className="text-syn-comment px-4 py-2 text-xs opacity-50 select-none">
+                pipeline.run
+              </span>
+              <span className="text-syn-comment px-4 py-2 text-xs opacity-50 select-none">
+                telemetry.json
+              </span>
             </div>
-            <div className="flex min-h-0 flex-1 text-xs leading-5 lg:text-sm lg:leading-6">
+            <div className="flex min-h-0 flex-1 overflow-auto text-xs leading-5 lg:text-sm lg:leading-6">
               <div
                 aria-hidden="true"
                 className="text-syn-number flex w-8 shrink-0 flex-col border-r border-border-ide py-4 text-right select-none lg:w-10"
@@ -184,7 +257,9 @@ export function FactoryDashboard() {
                 {lines.map((_, index) => (
                   <span
                     key={index}
-                    className="pr-2 leading-5 lg:pr-3 lg:leading-6"
+                    className={`pr-2 leading-5 lg:pr-3 lg:leading-6 ${
+                      index === EXECUTE_PIPELINE_LINE ? ACTIVE_LINE_BG : ""
+                    }`}
                   >
                     {index + 1}
                   </span>
@@ -193,12 +268,20 @@ export function FactoryDashboard() {
               <pre className="min-w-0 flex-1 py-4">
                 <code className="font-jetbrains">
                   {lines.map((line, index) => (
-                    <div key={index} className="pr-6 pl-4 whitespace-pre-wrap">
+                    <div
+                      key={index}
+                      className={`whitespace-pre pr-6 pl-4 ${
+                        index === EXECUTE_PIPELINE_LINE ? ACTIVE_LINE_BG : ""
+                      }`}
+                    >
                       {line}
                     </div>
                   ))}
                 </code>
               </pre>
+            </div>
+            <div className="border-border-ide text-syn-comment shrink-0 border-t px-4 py-1 text-[10px] tracking-wide lg:text-xs">
+              UTF-8 · LF · TypeScript · TEST COPY
             </div>
           </section>
           <aside

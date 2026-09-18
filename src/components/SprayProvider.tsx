@@ -71,8 +71,11 @@ function applyInnerPair(pair: AccessibleColorPair) {
     "--media-elev-bloom",
     `color-mix(in srgb, ${pair.text} 12%, transparent)`,
   );
-  root.setProperty("--syn-property", pair.text);
   root.setProperty("--syn-keyword", pair.text);
+  root.setProperty(
+    "--syn-property",
+    `color-mix(in srgb, ${pair.text} 68%, ${pair.bg})`,
+  );
   root.setProperty(
     "--syn-comment",
     `color-mix(in srgb, ${pair.text} 45%, transparent)`,

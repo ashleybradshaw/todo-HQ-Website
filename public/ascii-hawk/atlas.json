@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "cols": 400,
+  "rows": 225,
+  "frameCount": 140,
+  "fps": 14,
+  "charset": " .,:;-+*x%#@&$",
+  "pingPong": true,
+  "cellW": 1,
+  "cellH": 1.05
+}

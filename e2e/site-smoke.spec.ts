@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 
 const SPRAY_NAME = "Spray a new accessible colour palette";
 const BRAND_BG = "#DDDDFF";
-const BRAND_FG = "#0000FF";
+const BRAND_FG = "#4545FF";
 
 async function visit(page: Page, path: string) {
   await page.goto(path, { waitUntil: "domcontentloaded" });

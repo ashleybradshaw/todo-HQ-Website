@@ -89,7 +89,7 @@ export function Navigation() {
           onClick={() => setMenuOpen(false)}
         >
           {innerSite ? (
-            <LogoNav className="h-7 w-auto max-w-[11rem]" />
+            <LogoNav className="text-brand-logo h-7 w-auto max-w-[11rem]" />
           ) : null}
         </Link>
 

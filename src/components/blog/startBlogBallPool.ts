@@ -14,7 +14,7 @@ export type BallPoolHandle = {
 
 const WALL = 28;
 const HQ_BG = "#ddddff";
-const HQ_FG = "#0000ff";
+const HQ_FG = "#4545ff";
 
 function readHqColors() {
   const root = getComputedStyle(document.documentElement);

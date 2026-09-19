@@ -14,6 +14,7 @@ import {
   getRandomAccessiblePair,
   INNER_BRAND_PAIR,
   isAccessibleColorPair,
+  isInnerBrandPair,
   type AccessibleColorPair,
 } from "@/lib/accessibleColorPair";
 import { blogCategoryColors } from "@/lib/blogCategoryColors";
@@ -56,9 +57,13 @@ function writeStoredPair(pair: AccessibleColorPair) {
 
 function applyInnerPair(pair: AccessibleColorPair) {
   const root = document.documentElement.style;
+  const brand = isInnerBrandPair(pair);
+
   root.setProperty("--background", pair.bg);
   root.setProperty("--foreground", pair.text);
   root.setProperty("--bg-canvas", pair.bg);
+  // Brand lockup stays #0B0CB4 until Spray; sprayed routes ride pair.text.
+  root.setProperty("--brand-logo", brand ? "#0B0CB4" : pair.text);
   root.setProperty(
     "--border-ide",
     `color-mix(in srgb, ${pair.text} 15%, transparent)`,
@@ -80,6 +85,13 @@ function applyInnerPair(pair: AccessibleColorPair) {
     "--syn-comment",
     `color-mix(in srgb, ${pair.text} 45%, transparent)`,
   );
+  // Brand: mix toward logo blue; sprayed: mix toward canvas.
+  root.setProperty(
+    "--syn-bracket",
+    brand
+      ? `color-mix(in srgb, ${pair.text} 75%, #0B0CB4)`
+      : `color-mix(in srgb, ${pair.text} 80%, ${pair.bg})`,
+  );
   const categoryColors = blogCategoryColors(pair);
   for (const category of BLOG_CATEGORIES) {
     root.setProperty(BLOG_CATEGORY_VARS[category], categoryColors[category]);
@@ -89,14 +101,12 @@ function applyInnerPair(pair: AccessibleColorPair) {
 export function SprayProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const locked = isLockedPath(pathname);
-  const [pair, setPair] = useState<AccessibleColorPair>(INNER_BRAND_PAIR);
-
-  useLayoutEffect(() => {
-    const stored = readStoredPair();
-    if (stored) {
-      setPair(stored);
+  const [pair, setPair] = useState<AccessibleColorPair>(() => {
+    if (typeof window === "undefined") {
+      return INNER_BRAND_PAIR;
     }
-  }, []);
+    return readStoredPair() ?? INNER_BRAND_PAIR;
+  });
 
   useLayoutEffect(() => {
     applyInnerPair(locked ? INNER_BRAND_PAIR : pair);

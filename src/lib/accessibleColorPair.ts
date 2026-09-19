@@ -117,8 +117,15 @@ function randomHex(lightnessMin: number, lightnessMax: number) {
 
 export const INNER_BRAND_PAIR: AccessibleColorPair = {
   bg: "#DDDDFF",
-  text: "#0000FF",
+  text: "#4545FF",
 };
+
+export function isInnerBrandPair(pair: AccessibleColorPair) {
+  return (
+    pair.bg.toLowerCase() === INNER_BRAND_PAIR.bg.toLowerCase() &&
+    pair.text.toLowerCase() === INNER_BRAND_PAIR.text.toLowerCase()
+  );
+}
 
 export function isAccessibleColorPair(
   value: unknown,

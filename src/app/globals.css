@@ -2,18 +2,20 @@
 @config "../../tailwind.config.ts";
 
 :root {
+  /* Light IDE house defaults until Spray (C1) */
   --background: #ddddff;
-  --foreground: #0000ff;
+  --foreground: #4545ff;
   --bg-canvas: #ddddff;
-  --border-ide: rgba(0, 0, 255, 0.15);
-  --media-elev-shadow: color-mix(in srgb, #0000ff 16%, transparent);
-  --media-elev-bloom: color-mix(in srgb, #0000ff 12%, transparent);
-  --syn-keyword: #0000ff;
-  --syn-property: color-mix(in srgb, #0000ff 68%, #ddddff);
+  --brand-logo: #0b0cb4;
+  --border-ide: color-mix(in srgb, #4545ff 15%, transparent);
+  --media-elev-shadow: color-mix(in srgb, #4545ff 16%, transparent);
+  --media-elev-bloom: color-mix(in srgb, #4545ff 12%, transparent);
+  --syn-keyword: #4545ff;
+  --syn-property: color-mix(in srgb, #4545ff 68%, #ddddff);
   --syn-string: #059669;
   --syn-number: #d97706;
-  --syn-comment: rgba(0, 0, 255, 0.45);
-  --syn-bracket: #2563eb;
+  --syn-comment: color-mix(in srgb, #4545ff 45%, transparent);
+  --syn-bracket: color-mix(in srgb, #4545ff 82%, #0b0cb4);
   --blog-cat-projects: #89551a;
   --blog-cat-leaps: #156f4a;
   --blog-cat-agents: #8921ab;
@@ -24,6 +26,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-bg-canvas: var(--bg-canvas);
+  --color-brand-logo: var(--brand-logo);
   --color-border-ide: var(--border-ide);
   --color-syn-keyword: var(--syn-keyword);
   --color-syn-property: var(--syn-property);
@@ -240,7 +243,7 @@ html.is-section-transitioning a {
 
 .st-flood-path {
   fill: none;
-  stroke: var(--st-flood-stroke, #0000ff);
+  stroke: var(--st-flood-stroke, #4545ff);
   stroke-linecap: round;
   stroke-linejoin: round;
 }

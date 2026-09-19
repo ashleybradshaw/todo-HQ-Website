@@ -17,7 +17,8 @@ Landing (`/` and `/intro`) stays on electric blue. Inner routes (`/home`, `/abou
 | Landing text | `#DDDDFF` | Gateway and RSVP copy |
 | Logo (gateway) | `#0B0CB4` | Idle lockup on the landing only |
 | Inner background | `#DDDDFF` | Unsprayed factory pages |
-| Inner text | `#0000FF` | Unsprayed factory copy and chrome |
+| Inner text | `#4545FF` | Unsprayed factory copy and chrome |
+| Logo (inner, unsprayed) | `#0B0CB4` | Nav lockup until Spray (`--brand-logo`) |
 | Line numbers | `#D97706` | Factory gutter (`--syn-number`) |
 
 Do not paint inner routes with landing electric blue as the unsprayed default. Spray is the only switch off the inverted pair.
@@ -30,7 +31,7 @@ Do not paint inner routes with landing electric blue as the unsprayed default. S
 <div className="bg-[#4545FF] text-[#DDDDFF]">
 
 // ✅ GOOD — unsprayed inner
-<div className="bg-[#DDDDFF] text-[#0000FF]">
+<div className="bg-[#DDDDFF] text-[#4545FF]">
 ```
 
 ## Grid
@@ -38,14 +39,14 @@ Do not paint inner routes with landing electric blue as the unsprayed default. S
 Use a 1px high-contrast structural grid. Borders and dividers on inner pages:
 
 ```
-rgba(0, 0, 255, 0.15)
+color-mix(in srgb, #4545FF 15%, transparent)
 ```
 
 Treat layout as an engineering drawing: visible edges, aligned columns, no soft drop shadows or glassmorphism.
 
 ```tsx
 // ✅ GOOD
-<div className="border border-[rgba(0,0,255,0.15)]">
+<div className="border border-[color-mix(in_srgb,#4545FF_15%,transparent)]">
 ```
 
 ## Typography

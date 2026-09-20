@@ -40,16 +40,7 @@ export function ContactPane() {
         </p>
       </div>
 
-      <div
-        className="ide-boot-line flex flex-col gap-3 sm:flex-row sm:items-center"
-        style={lineStyle(5)}
-      >
-        <a
-          href={`mailto:${CONTACT_EMAIL}`}
-          className="font-jetbrains inline-flex min-h-11 items-center justify-center border border-border-ide px-4 py-2 text-xs text-foreground transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]"
-        >
-          Email team
-        </a>
+      <div className="ide-boot-line" style={lineStyle(5)}>
         <Link
           href="/book"
           className="font-jetbrains inline-flex min-h-11 items-center justify-center border border-border-ide bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] px-4 py-2 text-xs text-syn-keyword transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]"

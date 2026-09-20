@@ -1,3 +1,5 @@
+import { MirageSpinner } from "@/components/ide/MirageSpinner";
+
 const PIPE_BARS = 8;
 
 function StatusDot() {
@@ -66,7 +68,12 @@ export function Telemetry({
       aria-label="Factory telemetry"
     >
       <div className="flex items-center justify-between border-b border-border-ide px-3 py-2">
-        <p className="font-jetbrains text-foreground text-xs">SYS // TELEMETRY</p>
+        <div className="flex items-center gap-2">
+          <MirageSpinner />
+          <p className="font-jetbrains text-foreground text-xs">
+            SYS // TELEMETRY
+          </p>
+        </div>
         <Pipe tick={tick} />
       </div>
       <dl className="font-jetbrains grid grid-cols-[1fr_auto] items-center text-xs leading-5">

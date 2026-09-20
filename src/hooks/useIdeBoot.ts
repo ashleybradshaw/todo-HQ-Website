@@ -49,8 +49,6 @@ export function useIdeBoot(): IdeBootPhase {
         return;
       }
 
-      setPhase("frame");
-
       timers.push(
         window.setTimeout(() => {
           if (!cancelled) setPhase("tabs");

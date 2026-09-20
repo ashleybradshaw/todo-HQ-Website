@@ -14,7 +14,7 @@ const TABS: readonly { id: IdeTabId; label: string; panelId: string }[] = [
   { id: "contact", label: "contact.ts", panelId: "ide-panel-contact" },
 ];
 
-const ACTIVE_LINE_BG =
+const ACTIVE_TAB_BG =
   "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)]";
 
 type IdeTabBarProps = {
@@ -25,11 +25,14 @@ type IdeTabBarProps = {
 export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const focusTab = useCallback((index: number) => {
-    const next = ((index % TABS.length) + TABS.length) % TABS.length;
-    refs.current[next]?.focus();
-    onChange(TABS[next].id);
-  }, [onChange]);
+  const focusTab = useCallback(
+    (index: number) => {
+      const next = ((index % TABS.length) + TABS.length) % TABS.length;
+      refs.current[next]?.focus();
+      onChange(TABS[next].id);
+    },
+    [onChange],
+  );
 
   const onKeyDown = useCallback(
     (event: KeyboardEvent<HTMLDivElement>) => {
@@ -77,7 +80,7 @@ export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
             onClick={() => onChange(tab.id)}
             className={`font-jetbrains min-h-11 border-b-2 px-4 py-3 text-xs transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--foreground)] ${
               selected
-                ? `border-border-ide text-syn-keyword ${ACTIVE_LINE_BG}`
+                ? `border-border-ide text-syn-keyword ${ACTIVE_TAB_BG}`
                 : "border-transparent text-syn-comment opacity-50 hover:opacity-80"
             }`}
           >
@@ -88,5 +91,3 @@ export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
     </div>
   );
 }
-
-export { TABS as IDE_TABS };

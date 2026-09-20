@@ -250,6 +250,31 @@ function TodoPane({
   );
 }
 
+function IdePanel({
+  tab,
+  activeTab,
+  className,
+  children,
+}: {
+  tab: IdeTabId;
+  activeTab: IdeTabId;
+  className: string;
+  children: ReactNode;
+}) {
+  const active = activeTab === tab;
+  return (
+    <div
+      id={`ide-panel-${tab}`}
+      role="tabpanel"
+      aria-labelledby={`ide-tab-${tab}`}
+      hidden={!active}
+      className={active ? className : undefined}
+    >
+      {active ? children : null}
+    </div>
+  );
+}
+
 function IdeBootFrame({ phase }: { phase: IdeBootPhase }) {
   if (phase === "done") return null;
 
@@ -328,47 +353,29 @@ export function FactoryDashboard() {
           >
             <IdeTabBar activeTab={activeTab} onChange={setActiveTab} />
 
-            <div
-              id="ide-panel-todo"
-              role="tabpanel"
-              aria-labelledby="ide-tab-todo"
-              hidden={activeTab !== "todo"}
-              className={
-                activeTab === "todo"
-                  ? "flex min-h-0 flex-1 flex-col lg:overflow-hidden"
-                  : undefined
-              }
+            <IdePanel
+              tab="todo"
+              activeTab={activeTab}
+              className="flex min-h-0 flex-1 flex-col lg:overflow-hidden"
             >
-              {activeTab === "todo" ? <TodoPane lines={lines} /> : null}
-            </div>
+              <TodoPane lines={lines} />
+            </IdePanel>
 
-            <div
-              id="ide-panel-offer"
-              role="tabpanel"
-              aria-labelledby="ide-tab-offer"
-              hidden={activeTab !== "offer"}
-              className={
-                activeTab === "offer"
-                  ? "min-h-0 flex-1 overflow-auto"
-                  : undefined
-              }
+            <IdePanel
+              tab="offer"
+              activeTab={activeTab}
+              className="min-h-0 flex-1 overflow-auto"
             >
-              {activeTab === "offer" ? <OfferPane /> : null}
-            </div>
+              <OfferPane />
+            </IdePanel>
 
-            <div
-              id="ide-panel-contact"
-              role="tabpanel"
-              aria-labelledby="ide-tab-contact"
-              hidden={activeTab !== "contact"}
-              className={
-                activeTab === "contact"
-                  ? "min-h-0 flex-1 overflow-auto"
-                  : undefined
-              }
+            <IdePanel
+              tab="contact"
+              activeTab={activeTab}
+              className="min-h-0 flex-1 overflow-auto"
             >
-              {activeTab === "contact" ? <ContactPane /> : null}
-            </div>
+              <ContactPane />
+            </IdePanel>
 
             <div className="border-border-ide text-syn-comment shrink-0 border-t px-4 py-1 text-[10px] tracking-wide lg:text-xs">
               {STATUS_BY_TAB[activeTab]}

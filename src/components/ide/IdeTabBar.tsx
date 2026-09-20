@@ -6,12 +6,12 @@ import {
   type KeyboardEvent,
 } from "react";
 
-export type IdeTabId = "todo" | "offer" | "contact";
+export type IdeTabId = "todo" | "offer" | "discovery";
 
 const TABS: readonly { id: IdeTabId; label: string; panelId: string }[] = [
   { id: "todo", label: "TODO_HQ.ts", panelId: "ide-panel-todo" },
   { id: "offer", label: "offer.md", panelId: "ide-panel-offer" },
-  { id: "contact", label: "contact.ts", panelId: "ide-panel-contact" },
+  { id: "discovery", label: "discovery.ts", panelId: "ide-panel-discovery" },
 ];
 
 const ACTIVE_TAB_BG =

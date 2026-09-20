@@ -31,11 +31,11 @@ function markBooted(): void {
 }
 
 /**
- * Once-per-session IDE assemble. SSR + first paint use `frame` (content hidden)
- * so hydration matches; timers then jump to `done` or run the sequence.
+ * SSR defaults to `done` so `/home` LCP is not an empty canvas.
+ * First visit (no session flag) assembles after mount; reduced-motion stays settled.
  */
 export function useIdeBoot(): IdeBootPhase {
-  const [phase, setPhase] = useState<IdeBootPhase>("frame");
+  const [phase, setPhase] = useState<IdeBootPhase>("done");
 
   useEffect(() => {
     const timers: number[] = [];
@@ -49,6 +49,7 @@ export function useIdeBoot(): IdeBootPhase {
         return;
       }
 
+      setPhase("frame");
       timers.push(
         window.setTimeout(() => {
           if (!cancelled) setPhase("tabs");
@@ -68,7 +69,6 @@ export function useIdeBoot(): IdeBootPhase {
       );
     };
 
-    // Defer past effect body so setState is not synchronous-in-effect.
     timers.push(window.setTimeout(run, 0));
 
     return () => {

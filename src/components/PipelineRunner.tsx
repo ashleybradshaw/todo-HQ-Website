@@ -14,6 +14,11 @@ const COMPILE_MS = 300;
 
 const SKELETON_BAR_WIDTHS = ["w-[92%]", "w-[68%]", "w-[84%]", "w-[54%]"] as const;
 
+/** Tallest stage body (exec: 4 lines). Fixed slot = no push/pull on Telemetry below. */
+const DETAIL_SLOT = "5.25rem";
+/** Header × 5 + detail slot + padding — log viewport stays constant. */
+const LOG_VIEWPORT = "17.5rem";
+
 const REBOOT_LOGS = [
   "> REBOOTING FACTORY PIPELINE...",
   "> flushing stage buffers...",
@@ -237,7 +242,7 @@ export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
 
   return (
     <section
-      className="bg-bg-canvas text-foreground flex min-h-0 flex-1 flex-col transition-[background-color,color] duration-[400ms] ease-in-out"
+      className="bg-bg-canvas text-foreground flex shrink-0 flex-col transition-[background-color,color] duration-[400ms] ease-in-out"
       aria-label="Factory pipeline"
     >
       <div className="flex shrink-0 items-center justify-between border-b border-border-ide px-3 py-2">
@@ -258,7 +263,10 @@ export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
         </p>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
+      <div
+        className="overflow-y-auto px-3 py-3"
+        style={{ height: LOG_VIEWPORT }}
+      >
         <AnimatePresence>
           {rebooting ? (
             <motion.div
@@ -325,7 +333,7 @@ export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
                   initial={false}
                   animate={
                     active
-                      ? { height: "auto", opacity: 1 }
+                      ? { height: DETAIL_SLOT, opacity: 1 }
                       : { height: 0, opacity: 0 }
                   }
                   transition={{
@@ -335,7 +343,8 @@ export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
                   className="overflow-hidden"
                 >
                   <div
-                    className="text-foreground space-y-1 pb-2 pl-5 text-xs leading-4"
+                    className="text-foreground space-y-1 overflow-hidden pb-2 pl-5 text-xs leading-4"
+                    style={{ height: DETAIL_SLOT }}
                     aria-hidden={!active}
                     aria-busy={active && isLoading}
                   >

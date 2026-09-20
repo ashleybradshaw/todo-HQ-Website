@@ -3,6 +3,8 @@ import { JetBrains_Mono, Unbounded } from "next/font/google";
 import { Navigation } from "@/components/Navigation";
 import { NoiseOverlay } from "@/components/NoiseOverlay";
 import { SectionTransitionGate } from "@/components/SectionTransitionGate";
+import { SiteFooterBar } from "@/components/SiteFooterBar";
+import { SiteFooterGate } from "@/components/SiteFooterGate";
 import { SprayProvider } from "@/components/SprayProvider";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
@@ -70,6 +72,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <NoiseOverlay />
           <Navigation />
           <SectionTransitionGate>{children}</SectionTransitionGate>
+          <SiteFooterGate>
+            <SiteFooterBar />
+          </SiteFooterGate>
         </SprayProvider>
       </body>
     </html>

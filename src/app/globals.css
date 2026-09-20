@@ -430,3 +430,27 @@ html.is-section-transitioning a {
     transform: translateX(calc(var(--mirage-size) * 0.5)) scale(1);
   }
 }
+
+/* Discovery mailto — one soft color nudge after pane is open ~3s */
+@keyframes discovery-mailto-nudge {
+  0%,
+  100% {
+    color: var(--syn-string);
+    text-decoration-color: color-mix(in srgb, var(--foreground) 35%, transparent);
+  }
+  45%,
+  55% {
+    color: var(--foreground);
+    text-decoration-color: color-mix(in srgb, var(--foreground) 72%, transparent);
+  }
+}
+
+.discovery-mailto-nudge {
+  animation: discovery-mailto-nudge 1.1s ease-in-out 3s 1 both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .discovery-mailto-nudge {
+    animation: none;
+  }
+}

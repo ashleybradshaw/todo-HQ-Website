@@ -13,19 +13,19 @@ import { PipelineRunner } from "@/components/PipelineRunner";
 import { Telemetry } from "@/components/Telemetry";
 import { IdeTabBar, type IdeTabId } from "@/components/ide/IdeTabBar";
 import { OfferPane } from "@/components/ide/OfferPane";
-import { ContactPane } from "@/components/ide/ContactPane";
+import { DiscoveryPane } from "@/components/ide/DiscoveryPane";
 import { IdeProjectCards } from "@/components/ide/IdeProjectCards";
 
 /** 0-based index of the methodology / executePipeline() line in codeLines. */
-const EXECUTE_PIPELINE_LINE = 18;
+const EXECUTE_PIPELINE_LINE = 24;
 
 const ACTIVE_LINE_BG =
   "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)]";
 
 const STATUS_BY_TAB: Record<IdeTabId, string> = {
-  todo: "UTF-8 · LF · TypeScript · TEST COPY",
-  offer: "UTF-8 · LF · Markdown · TEST COPY",
-  contact: "UTF-8 · LF · TypeScript · TEST COPY",
+  todo: "UTF-8 · LF · TypeScript · Soft sell · TEST COPY",
+  offer: "UTF-8 · LF · Markdown · Soft sell · TEST COPY",
+  discovery: "UTF-8 · LF · TypeScript · Soft sell · TEST COPY",
 };
 
 function Comment({ children }: { children: ReactNode }) {
@@ -33,23 +33,23 @@ function Comment({ children }: { children: ReactNode }) {
 }
 
 function Keyword({ children }: { children: ReactNode }) {
-  return <span className="text-syn-keyword font-bold">{children}</span>;
+  return <span className="text-syn-keyword/80">{children}</span>;
 }
 
 function Property({ children }: { children: ReactNode }) {
-  return <span className="text-syn-property">{children}</span>;
+  return <span className="text-syn-property/70">{children}</span>;
 }
 
 function Str({ children }: { children: ReactNode }) {
-  return <span className="text-syn-string">{children}</span>;
+  return <span className="text-syn-string font-medium">{children}</span>;
 }
 
 function Bracket({ children }: { children: ReactNode }) {
-  return <span className="text-syn-bracket">{children}</span>;
+  return <span className="text-syn-bracket/70">{children}</span>;
 }
 
 function Punct({ children }: { children: ReactNode }) {
-  return <span className="text-syn-property">{children}</span>;
+  return <span className="text-syn-property/60">{children}</span>;
 }
 
 function Fn({
@@ -65,7 +65,7 @@ function Fn({
       onClick={onActivate}
       onMouseEnter={onActivate}
       aria-label="Restart factory pipeline"
-      className="text-syn-keyword cursor-pointer bg-transparent p-0 font-jetbrains hover:underline focus-visible:underline"
+      className="text-syn-string cursor-pointer bg-transparent p-0 font-jetbrains font-medium hover:underline focus-visible:underline"
     >
       {children}
     </button>
@@ -74,134 +74,168 @@ function Fn({
 
 function codeLines(onExecutePipeline: () => void): ReactNode[] {
   return [
-    <Fragment key={1}>
-      <Comment>{`/** Internal software factory. Source of record. TEST COPY — rewrite later. */`}</Comment>
+    <Fragment key={0}>
+      <Comment>{`/** //TODO Design & Engineering — factory overview. Soft sell. TEST COPY. */`}</Comment>
     </Fragment>,
-    <Fragment key={2}>
-      <Keyword>export const</Keyword> TODO_HQ <Punct>=</Punct>{" "}
+    <Fragment key={1}>
+      <Keyword>export const</Keyword>{" "}
+      <span className="text-syn-property/70">TODO_HQ</span> <Punct>=</Punct>{" "}
       <Bracket>{"{"}</Bracket>
     </Fragment>,
-    <Fragment key={3}>
+    <Fragment key={2}>
       {"  "}
-      <Property>manifesto</Property>
-      <Punct>:</Punct>{" "}
-      <Str>{`"Most teams just write code. We build the entire factory."`}</Str>
+      <Property>whoWeAre</Property>
+      <Punct>:</Punct>
+    </Fragment>,
+    <Fragment key={3}>
+      {"    "}
+      <Str>{`"We're //TODO — design and engineering that builds the factory, not just the tickets."`}</Str>
       <Punct>,</Punct>
     </Fragment>,
     <Fragment key={4}>
       {"  "}
-      <Property>whoWeShipFor</Property>
-      <Punct>:</Punct> <Bracket>[</Bracket>
+      <Property>whatWeDoBest</Property>
+      <Punct>:</Punct>
     </Fragment>,
     <Fragment key={5}>
       {"    "}
-      <Str>{`"CTOs who need the stack shipped this quarter"`}</Str>
+      <Str>{`"End-to-end AI and LM workflows that hold a full digital ecosystem together."`}</Str>
       <Punct>,</Punct>
     </Fragment>,
     <Fragment key={6}>
-      {"    "}
-      <Str>{`"Non-tech founders with an idea, not an eng org"`}</Str>
-      <Punct>,</Punct>
+      {"  "}
+      <Property>whoWeShipFor</Property>
+      <Punct>:</Punct> <Bracket>[</Bracket>
     </Fragment>,
     <Fragment key={7}>
       {"    "}
-      <Str>{`"CMS / content contracts that need ops, not just pages"`}</Str>
+      <Str>{`"Enterprise teams shipping major system solutions — globally"`}</Str>
+      <Punct>,</Punct>
     </Fragment>,
     <Fragment key={8}>
+      {"    "}
+      <Str>{`"Non-tech founders and investor groups taking MVPs to scale"`}</Str>
+    </Fragment>,
+    <Fragment key={9}>
       {"  "}
       <Bracket>{"]"}</Bracket>
       <Punct>,</Punct>
     </Fragment>,
-    <Fragment key={9}>
-      {"  "}
-      <Property>pipeline</Property>
-      <Punct>:</Punct> <Bracket>[</Bracket>
-    </Fragment>,
     <Fragment key={10}>
-      {"    "}
-      <Str>{`"intake"`}</Str>
-      <Punct>,</Punct>
+      {"  "}
+      <Property>howWeWork</Property>
+      <Punct>:</Punct> <Bracket>[</Bracket>
     </Fragment>,
     <Fragment key={11}>
       {"    "}
-      <Str>{`"review"`}</Str>
+      <Str>{`"With you, inside your stack"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
     <Fragment key={12}>
       {"    "}
-      <Str>{`"agiFlow"`}</Str>
-      <Punct>,</Punct>
+      <Str>{`"Or for you, as a tight delivery cell"`}</Str>
     </Fragment>,
     <Fragment key={13}>
-      {"    "}
-      <Str>{`"lpPipeline"`}</Str>
-      <Punct>,</Punct>
-    </Fragment>,
-    <Fragment key={14}>
-      {"    "}
-      <Str>{`"analysis"`}</Str>
-      <Punct>,</Punct>
-    </Fragment>,
-    <Fragment key={15}>
-      {"    "}
-      <Str>{`"ship"`}</Str>
-    </Fragment>,
-    <Fragment key={16}>
       {"  "}
       <Bracket>{"]"}</Bracket>
       <Punct>,</Punct>
     </Fragment>,
+    <Fragment key={14}>
+      {"  "}
+      <Property>pipeline</Property>
+      <Punct>:</Punct> <Bracket>[</Bracket>
+    </Fragment>,
+    <Fragment key={15}>
+      {"    "}
+      <Str>{`"intake"`}</Str>
+      <Punct>,</Punct>
+    </Fragment>,
+    <Fragment key={16}>
+      {"    "}
+      <Str>{`"review"`}</Str>
+      <Punct>,</Punct>
+    </Fragment>,
     <Fragment key={17}>
+      {"    "}
+      <Str>{`"agiFlow"`}</Str>
+      <Punct>,</Punct>
+    </Fragment>,
+    <Fragment key={18}>
+      {"    "}
+      <Str>{`"lpPipeline"`}</Str>
+      <Punct>,</Punct>
+    </Fragment>,
+    <Fragment key={19}>
+      {"    "}
+      <Str>{`"analysis"`}</Str>
+      <Punct>,</Punct>
+    </Fragment>,
+    <Fragment key={20}>
+      {"    "}
+      <Str>{`"ship"`}</Str>
+    </Fragment>,
+    <Fragment key={21}>
+      {"  "}
+      <Bracket>{"]"}</Bracket>
+      <Punct>,</Punct>
+    </Fragment>,
+    <Fragment key={22}>
       {"  "}
       <Property>agiFlow</Property>
       <Punct>:</Punct>{" "}
       <Str>{`"Brief → research agents → draft → human gate → ship."`}</Str>
       <Punct>,</Punct>
     </Fragment>,
-    <Fragment key={18}>
+    <Fragment key={23}>
       {"  "}
       <Property>lpPipeline</Property>
       <Punct>:</Punct>{" "}
       <Str>{`"Offer → layout → copy pass → QA → launch."`}</Str>
       <Punct>,</Punct>
     </Fragment>,
-    <Fragment key={19}>
+    <Fragment key={24}>
       {"  "}
       <Property>methodology</Property>
       <Punct>:</Punct>{" "}
       <Fn onActivate={onExecutePipeline}>executePipeline()</Fn>
       <Punct>,</Punct>
     </Fragment>,
-    <Fragment key={20}>
+    <Fragment key={25}>
       {"  "}
       <Property>inProduction</Property>
       <Punct>:</Punct> <Bracket>[</Bracket>
     </Fragment>,
-    <Fragment key={21}>
+    <Fragment key={26}>
       {"    "}
       <Str>{`"Repdaily"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
-    <Fragment key={22}>
+    <Fragment key={27}>
       {"    "}
       <Str>{`"ReadyGo"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
-    <Fragment key={23}>
+    <Fragment key={28}>
       {"    "}
-      <Str>{`"Contentic"`}</Str>
+      <Str>{`"ErgTrainer"`}</Str>
+      <Punct>,</Punct>
     </Fragment>,
-    <Fragment key={24}>
+    <Fragment key={29}>
+      {"    "}
+      <Str>{`"The Tower"`}</Str>
+    </Fragment>,
+    <Fragment key={30}>
       {"  "}
       <Bracket>{"]"}</Bracket>
       <Punct>,</Punct>
     </Fragment>,
-    <Fragment key={25}>
+    <Fragment key={31}>
       {"  "}
-      <Property>velocity</Property>
-      <Punct>:</Punct> <Str>{`"Production-ready. Fast."`}</Str>
+      <Property>promise</Property>
+      <Punct>:</Punct>{" "}
+      <Str>{`"Future-proof your AI implementation — without the theatre."`}</Str>
     </Fragment>,
-    <Fragment key={26}>
+    <Fragment key={32}>
       <Bracket>{"}"}</Bracket>
       <Punct>;</Punct>
     </Fragment>,
@@ -214,15 +248,15 @@ function TodoPane({
   lines: ReactNode[];
 }) {
   return (
-    <div className="flex min-h-0 flex-1 overflow-auto text-xs leading-5 lg:text-sm lg:leading-6">
+    <div className="flex min-h-0 flex-1 overflow-auto text-xs leading-6 lg:text-sm lg:leading-7">
       <div
         aria-hidden="true"
-        className="text-syn-number flex w-8 shrink-0 flex-col border-r border-border-ide py-4 text-right select-none lg:w-10"
+        className="text-syn-number/70 flex w-8 shrink-0 flex-col border-r border-border-ide py-4 text-right select-none lg:w-10"
       >
         {lines.map((_, index) => (
           <span
             key={index}
-            className={`ide-boot-line pr-2 leading-5 lg:pr-3 lg:leading-6 ${
+            className={`ide-boot-line pr-2 leading-6 lg:pr-3 lg:leading-7 ${
               index === EXECUTE_PIPELINE_LINE ? ACTIVE_LINE_BG : ""
             }`}
             style={{ "--i": index } as CSSProperties}
@@ -236,7 +270,7 @@ function TodoPane({
           {lines.map((line, index) => (
             <div
               key={index}
-              className={`ide-boot-line whitespace-pre pr-6 pl-4 ${
+              className={`ide-boot-line whitespace-pre-wrap pr-6 pl-4 ${
                 index === EXECUTE_PIPELINE_LINE ? ACTIVE_LINE_BG : ""
               }`}
               style={{ "--i": index } as CSSProperties}
@@ -270,7 +304,7 @@ function IdePanel({
       hidden={!active}
       className={active ? className : undefined}
     >
-      {active ? children : null}
+      {children}
     </div>
   );
 }
@@ -306,11 +340,7 @@ function FactorySidecar({ rebootSignal }: { rebootSignal: number }) {
   return (
     <>
       <PipelineRunner rebootSignal={rebootSignal} />
-      <Telemetry
-        agents={feed.agents}
-        sprint={feed.sprint}
-        tick={feed.tick}
-      />
+      <Telemetry agents={feed.agents} sprint={feed.sprint} />
       <IdeProjectCards />
     </>
   );
@@ -328,21 +358,21 @@ export function FactoryDashboard() {
   const lines = codeLines(rebootPipeline);
 
   return (
-    <main className="bg-bg-canvas text-syn-property relative min-h-screen w-full transition-[background-color,color] duration-[400ms] ease-in-out lg:h-[100dvh] lg:overflow-hidden">
-      <div className="font-jetbrains relative z-10 flex min-h-screen w-full flex-col pt-20 lg:h-full lg:min-h-0">
+    <main className="bg-bg-canvas text-syn-property relative min-h-screen w-full transition-[background-color,color] duration-[400ms] ease-in-out">
+      <div className="font-jetbrains relative z-10 flex min-h-[calc(100dvh-5rem)] w-full flex-col pt-20">
         <h1 className="sr-only">
-          {"//TODO Engineering factory dashboard"}
+          {"//TODO Design & Engineering factory dashboard"}
         </h1>
         <p className="sr-only">
-          The team behind //TODO runs an internal software factory for CTOs,
-          non-tech founders, and CMS ops contracts. Pipeline: intake, review,
-          agiFlow, lpPipeline, analysis, ship. Methodology is executePipeline()
-          — AGI brief-to-ship and LP offer-to-launch — with Repdaily, ReadyGo,
-          and Contentic in production.
+          {"//TODO Design & Engineering builds the factory, not just the tickets — "}
+          end-to-end AI and LM workflows for enterprise teams and non-tech
+          founders. Pipeline: intake, review, agiFlow, lpPipeline, analysis,
+          ship. Methodology is executePipeline() — with Repdaily, ReadyGo,
+          ErgTrainer, and The Tower in production.
         </p>
 
         <div
-          className="ide-boot-stage relative grid flex-1 grid-cols-1 auto-rows-auto lg:min-h-0 lg:grid-cols-[70%_30%] lg:grid-rows-1 lg:overflow-hidden"
+          className="ide-boot-stage relative grid min-h-[calc(100dvh-5rem)] flex-1 grid-cols-1 auto-rows-auto lg:grid-cols-[70%_30%] lg:grid-rows-1"
           data-ide-boot={bootPhase}
         >
           <IdeBootFrame phase={bootPhase} />
@@ -370,11 +400,11 @@ export function FactoryDashboard() {
             </IdePanel>
 
             <IdePanel
-              tab="contact"
+              tab="discovery"
               activeTab={activeTab}
               className="min-h-0 flex-1 overflow-auto"
             >
-              <ContactPane />
+              <DiscoveryPane />
             </IdePanel>
 
             <div className="border-border-ide text-syn-comment shrink-0 border-t px-4 py-1 text-[10px] tracking-wide lg:text-xs">

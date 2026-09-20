@@ -4,16 +4,38 @@ const PROJECTS = [
   {
     name: "Repdaily",
     blurb: "Camera-based fitness tracking — in production.",
+    logoSrc: "/logos/repdaily.svg",
   },
   {
     name: "ReadyGo",
     blurb: "Pre-activity planning for runners and cyclists.",
+    logoSrc: "/logos/readygo.svg",
   },
   {
     name: "Contentic",
     blurb: "CMS ops and content pipelines at factory speed.",
+    logoSrc: "/logos/contentic.svg",
   },
 ] as const;
+
+function ProjectLogo({ src }: { src: string }) {
+  return (
+    <span
+      className="bg-foreground size-5 shrink-0 lg:size-6"
+      style={{
+        maskImage: `url(${src})`,
+        WebkitMaskImage: `url(${src})`,
+        maskSize: "contain",
+        WebkitMaskSize: "contain",
+        maskRepeat: "no-repeat",
+        WebkitMaskRepeat: "no-repeat",
+        maskPosition: "center",
+        WebkitMaskPosition: "center",
+      }}
+      aria-hidden="true"
+    />
+  );
+}
 
 export function IdeProjectCards() {
   return (
@@ -30,16 +52,19 @@ export function IdeProjectCards() {
         {PROJECTS.map((project) => (
           <li
             key={project.name}
-            className="border border-border-ide rounded-[4px] px-3 py-2"
+            className="border border-border-ide rounded-[4px] px-3 py-2 transition-opacity hover:opacity-80"
           >
             <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="font-jetbrains text-syn-keyword text-xs">
-                  {project.name}
-                </p>
-                <p className="font-jetbrains text-syn-comment mt-0.5 text-[10px] leading-4 lg:text-xs">
-                  {project.blurb}
-                </p>
+              <div className="flex min-w-0 items-start gap-2.5">
+                <ProjectLogo src={project.logoSrc} />
+                <div className="min-w-0">
+                  <p className="font-jetbrains text-syn-keyword text-xs">
+                    {project.name}
+                  </p>
+                  <p className="font-jetbrains text-syn-comment mt-0.5 text-[10px] leading-4 lg:text-xs">
+                    {project.blurb}
+                  </p>
+                </div>
               </div>
               <Link
                 href="/work"

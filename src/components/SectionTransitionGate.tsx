@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -12,67 +13,15 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
 
 type Mode = "section" | "drill" | "none";
-type Phase = "idle" | "covering" | "covered" | "revealing" | "fading";
+/** Section nav: out → swap → in. Drill / reduced: fade-in only. */
+type Phase = "idle" | "out" | "swap" | "in" | "fading";
 
-const COVER_MS = 850;
-const COVER_FADE_MS = 350;
-const HOLD_MS = 50;
-const REVEAL_MS = 850;
-const REVEAL_FADE_MS = 350;
-const REVEAL_FADE_DELAY_MS = 550;
-const FADE_MS = 160;
-const REDUCED_FADE_MS = 100;
-const FAILSAFE_MS = 2800;
-const STROKE_THIN = 2;
-const STROKE_FLOOD = 320;
-const STROKE_FALLBACK = "#4545ff";
-
-const FLOOD_PATH =
-  "M13.4746 291.27C13.4746 291.27 100.646 -18.6724 255.617 16.8418C410.588 52.356 61.0296 431.197 233.017 546.326C431.659 679.299 444.494 21.0125 652.73 100.784C860.967 180.556 468.663 430.709 617.216 546.326C765.769 661.944 819.097 48.2722 988.501 120.156C1174.21 198.957 809.424 543.841 988.501 636.726C1189.37 740.915 1301.67 149.213 1301.67 149.213";
-
-function channelToLinear(channel: number) {
-  const value = channel / 255;
-  return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
-}
-
-function parseCssColor(raw: string): { r: number; g: number; b: number } | null {
-  const value = raw.trim();
-  const hex = /^#([0-9a-fA-F]{6})$/.exec(value);
-  if (hex) {
-    const n = Number.parseInt(hex[1], 16);
-    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
-  }
-  const rgb = /^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i.exec(value);
-  if (rgb) {
-    return {
-      r: Number(rgb[1]),
-      g: Number(rgb[2]),
-      b: Number(rgb[3]),
-    };
-  }
-  return null;
-}
-
-function relativeLuminance(rgb: { r: number; g: number; b: number }) {
-  return (
-    0.2126 * channelToLinear(rgb.r) +
-    0.7152 * channelToLinear(rgb.g) +
-    0.0722 * channelToLinear(rgb.b)
-  );
-}
-
-/** Darker of live --background / --foreground for a subtle flood (not a light splash). */
-function darkerThemeStroke(): string {
-  const styles = getComputedStyle(document.documentElement);
-  const bgRaw = styles.getPropertyValue("--background").trim();
-  const fgRaw = styles.getPropertyValue("--foreground").trim();
-  const bg = parseCssColor(bgRaw);
-  const fg = parseCssColor(fgRaw);
-  if (!bg || !fg) {
-    return STROKE_FALLBACK;
-  }
-  return relativeLuminance(bg) <= relativeLuminance(fg) ? bgRaw : fgRaw;
-}
+const FADE_OUT_MS = 100;
+const FADE_IN_MS = 120;
+const REDUCED_MS = 80;
+const FAILSAFE_MS = 800;
+const EASE_OUT = "cubic-bezier(0.22, 1, 0.36, 1)";
+const BLUR_MAX = "2px";
 
 function sectionOf(path: string): string {
   if (path === "/" || path === "/intro") {
@@ -138,13 +87,35 @@ function pathFromAnchor(anchor: HTMLAnchorElement): string | null {
   return url.pathname;
 }
 
-function easeInOut(t: number): number {
-  return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+function cancelAnimations(anims: Animation[]) {
+  for (const anim of anims) {
+    try {
+      anim.cancel();
+    } catch {
+      /* already finished */
+    }
+  }
+}
+
+const BRIDGE_FALLBACK = "color-mix(in srgb, #4545FF 32%, #DDDDFF 68%)";
+
+/** Resolve --page-bridge (or any CSS color) to a concrete rgb() for freeze. */
+function freezePageBridge(): string {
+  const styles = getComputedStyle(document.documentElement);
+  const raw =
+    styles.getPropertyValue("--page-bridge").trim() || BRIDGE_FALLBACK;
+  const probe = document.createElement("div");
+  probe.style.cssText = `position:absolute;left:-9999px;top:0;background-color:${raw}`;
+  document.body.appendChild(probe);
+  const resolved = getComputedStyle(probe).backgroundColor;
+  document.body.removeChild(probe);
+  return resolved && resolved !== "rgba(0, 0, 0, 0)" ? resolved : raw;
 }
 
 /**
- * Section-root SVG stroke-flood (AnimMaster svg-page-transition, rAF + CSS attrs).
- * Blog drills: fast opacity fade. No GSAP/DrawSVG.
+ * Primary section nav: CTA-style content fade (~220ms). No veils / flood / GSAP.
+ * Blog drills: same short fade-in. Gateway + first paint skip.
+ * Mid-tone --page-bridge under shell covers body house-blue during opacity gap.
  */
 export function SectionTransitionGate({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -153,161 +124,131 @@ export function SectionTransitionGate({ children }: { children: ReactNode }) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [pendingHref, setPendingHref] = useState<string | null>(null);
   const [fadeOn, setFadeOn] = useState(false);
-  const [fadeMs, setFadeMs] = useState(FADE_MS);
-  const [floodStroke, setFloodStroke] = useState(STROKE_FALLBACK);
+  const [fadeMs, setFadeMs] = useState(FADE_IN_MS);
+  const [bridgeColor, setBridgeColor] = useState<string | null>(null);
 
   const prevPathRef = useRef(pathname);
   const phaseRef = useRef<Phase>("idle");
   const pushedRef = useRef(false);
-  const floodNavRef = useRef(false);
-  const pathRef = useRef<SVGPathElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const pathLenRef = useRef(0);
+  const gatedNavRef = useRef(false);
+  const contentRef = useRef<HTMLDivElement>(null);
   const animGenRef = useRef(0);
-  const rafRef = useRef(0);
+  const activeAnimsRef = useRef<Animation[]>([]);
 
-  phaseRef.current = phase;
+  useEffect(() => {
+    phaseRef.current = phase;
+  }, [phase]);
 
-  const teardown = () => {
-    animGenRef.current += 1;
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = 0;
-    }
-    pushedRef.current = false;
-    floodNavRef.current = false;
-    setPendingHref(null);
-    setFloodStroke(STROKE_FALLBACK);
-    setPhase("idle");
-    document.documentElement.classList.remove("is-section-transitioning");
-    const path = pathRef.current;
-    const overlay = overlayRef.current;
-    if (overlay) {
-      overlay.style.opacity = "0";
-    }
-    if (path && pathLenRef.current > 0) {
-      path.style.setProperty("--st-flood-stroke", STROKE_FALLBACK);
-      path.setAttribute("stroke-dashoffset", `${pathLenRef.current}`);
-      path.setAttribute("stroke-width", `${STROKE_THIN}`);
-    }
-  };
-
-  const ensurePathLength = () => {
-    const path = pathRef.current;
-    if (!path) {
-      return 0;
-    }
-    if (pathLenRef.current > 0) {
-      return pathLenRef.current;
-    }
-    const length = path.getTotalLength();
-    if (length > 0) {
-      pathLenRef.current = length;
-      path.setAttribute("stroke-dasharray", `${length}`);
-      path.setAttribute("stroke-dashoffset", `${length}`);
-      path.setAttribute("stroke-width", `${STROKE_THIN}`);
-    }
-    return length;
-  };
-
-  useLayoutEffect(() => {
-    ensurePathLength();
+  const resetShell = useCallback(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    el.style.opacity = "";
+    el.style.filter = "";
   }, []);
 
-  const runCover = (onDone: () => void) => {
-    const path = pathRef.current;
-    const overlay = overlayRef.current;
-    const length = ensurePathLength();
-    if (!path || !overlay || length <= 0) {
-      onDone();
-      return;
-    }
+  const teardown = useCallback(() => {
+    animGenRef.current += 1;
+    cancelAnimations(activeAnimsRef.current);
+    activeAnimsRef.current = [];
+    pushedRef.current = false;
+    gatedNavRef.current = false;
+    setPendingHref(null);
+    setBridgeColor(null);
+    setPhase("idle");
+    document.documentElement.classList.remove("is-section-transitioning");
+    resetShell();
+  }, [resetShell]);
 
-    const gen = ++animGenRef.current;
-    const start = performance.now();
-    const stroke = darkerThemeStroke();
-    setFloodStroke(stroke);
-    path.style.setProperty("--st-flood-stroke", stroke);
+  const armBridge = useCallback(() => {
+    setBridgeColor(freezePageBridge());
+  }, []);
 
-    path.setAttribute("stroke-dasharray", `${length}`);
-    path.setAttribute("stroke-dashoffset", `${length}`);
-    path.setAttribute("stroke-width", `${STROKE_THIN}`);
-    overlay.style.opacity = "0";
-
-    const tick = (now: number) => {
-      if (gen !== animGenRef.current) {
+  const runFadeOut = useCallback(
+    (onDone: () => void) => {
+      const el = contentRef.current;
+      if (!el) {
+        onDone();
         return;
       }
-      const elapsed = now - start;
-      const drawT = easeInOut(Math.min(1, elapsed / COVER_MS));
-      const fadeT = easeInOut(Math.min(1, elapsed / COVER_FADE_MS));
 
-      path.setAttribute("stroke-dashoffset", `${length * (1 - drawT)}`);
-      path.setAttribute(
-        "stroke-width",
-        `${STROKE_THIN + (STROKE_FLOOD - STROKE_THIN) * drawT}`,
+      const gen = ++animGenRef.current;
+      cancelAnimations(activeAnimsRef.current);
+      activeAnimsRef.current = [];
+
+      const reduced = prefersReducedMotion();
+      const duration = reduced ? REDUCED_MS : FADE_OUT_MS;
+      const from = { opacity: "1", filter: "blur(0px)" };
+      const to = reduced
+        ? { opacity: "0", filter: "blur(0px)" }
+        : { opacity: "0", filter: `blur(${BLUR_MAX})` };
+
+      el.style.opacity = "1";
+      el.style.filter = "blur(0px)";
+
+      const anim = el.animate([from, to], {
+        duration,
+        easing: EASE_OUT,
+        fill: "forwards",
+      });
+      activeAnimsRef.current.push(anim);
+
+      anim.finished.then(
+        () => {
+          if (gen !== animGenRef.current) return;
+          el.style.opacity = "0";
+          el.style.filter = reduced ? "blur(0px)" : `blur(${BLUR_MAX})`;
+          onDone();
+        },
+        () => {
+          /* cancelled */
+        },
       );
-      overlay.style.opacity = `${fadeT}`;
+    },
+    [],
+  );
 
-      if (elapsed < COVER_MS) {
-        rafRef.current = requestAnimationFrame(tick);
+  const runFadeIn = useCallback(
+    (onDone: () => void) => {
+      const el = contentRef.current;
+      if (!el) {
+        onDone();
         return;
       }
 
-      path.setAttribute("stroke-dashoffset", "0");
-      path.setAttribute("stroke-width", `${STROKE_FLOOD}`);
-      overlay.style.opacity = "1";
-      onDone();
-    };
+      const gen = ++animGenRef.current;
+      cancelAnimations(activeAnimsRef.current);
+      activeAnimsRef.current = [];
 
-    rafRef.current = requestAnimationFrame(tick);
-  };
+      const reduced = prefersReducedMotion();
+      const duration = reduced ? REDUCED_MS : FADE_IN_MS;
+      const from = reduced
+        ? { opacity: "0", filter: "blur(0px)" }
+        : { opacity: "0", filter: `blur(${BLUR_MAX})` };
+      const to = { opacity: "1", filter: "blur(0px)" };
 
-  const runReveal = (onDone: () => void) => {
-    const path = pathRef.current;
-    const overlay = overlayRef.current;
-    const length = pathLenRef.current || ensurePathLength();
-    if (!path || !overlay || length <= 0) {
-      onDone();
-      return;
-    }
+      el.style.opacity = "0";
+      el.style.filter = from.filter;
 
-    const gen = ++animGenRef.current;
-    const start = performance.now();
+      const anim = el.animate([from, to], {
+        duration,
+        easing: EASE_OUT,
+        fill: "forwards",
+      });
+      activeAnimsRef.current.push(anim);
 
-    path.setAttribute("stroke-dashoffset", "0");
-    path.setAttribute("stroke-width", `${STROKE_FLOOD}`);
-    overlay.style.opacity = "1";
-
-    const tick = (now: number) => {
-      if (gen !== animGenRef.current) {
-        return;
-      }
-      const elapsed = now - start;
-      const collapseT = easeInOut(Math.min(1, elapsed / REVEAL_MS));
-      path.setAttribute("stroke-dashoffset", `${-length * collapseT}`);
-      path.setAttribute(
-        "stroke-width",
-        `${STROKE_FLOOD + (STROKE_THIN - STROKE_FLOOD) * collapseT}`,
+      anim.finished.then(
+        () => {
+          if (gen !== animGenRef.current) return;
+          resetShell();
+          onDone();
+        },
+        () => {
+          /* cancelled */
+        },
       );
-
-      if (elapsed >= REVEAL_FADE_DELAY_MS) {
-        const fadeElapsed = elapsed - REVEAL_FADE_DELAY_MS;
-        const fadeT = easeInOut(Math.min(1, fadeElapsed / REVEAL_FADE_MS));
-        overlay.style.opacity = `${1 - fadeT}`;
-      }
-
-      if (elapsed < REVEAL_MS) {
-        rafRef.current = requestAnimationFrame(tick);
-        return;
-      }
-
-      overlay.style.opacity = "0";
-      onDone();
-    };
-
-    rafRef.current = requestAnimationFrame(tick);
-  };
+    },
+    [resetShell],
+  );
 
   useEffect(() => {
     const onClickCapture = (event: MouseEvent) => {
@@ -338,83 +279,74 @@ export function SectionTransitionGate({ children }: { children: ReactNode }) {
         return;
       }
 
-      event.preventDefault();
-      router.prefetch(nextPath);
-      setPendingHref(nextPath);
-
       const current = phaseRef.current;
       if (current !== "idle" && current !== "fading") {
-        if (!pushedRef.current) {
-          floodNavRef.current = true;
-          pushedRef.current = true;
-          router.push(nextPath);
-        }
+        event.preventDefault();
         return;
       }
 
+      event.preventDefault();
+      router.prefetch(nextPath);
+      setPendingHref(nextPath);
       document.documentElement.classList.add("is-section-transitioning");
       pushedRef.current = false;
-      floodNavRef.current = true;
-      setPhase("covering");
+      gatedNavRef.current = true;
+      armBridge();
+      setPhase("out");
     };
 
     document.addEventListener("click", onClickCapture, true);
     return () => document.removeEventListener("click", onClickCapture, true);
-  }, [pathname, router]);
+  }, [pathname, router, armBridge]);
 
   useLayoutEffect(() => {
-    if (phase !== "covering") {
+    if (phase !== "out") {
       return;
     }
 
     let cancelled = false;
-    runCover(() => {
-      if (cancelled) {
-        return;
-      }
-      window.setTimeout(() => {
-        if (!cancelled) {
-          setPhase("covered");
-        }
-      }, HOLD_MS);
+    runFadeOut(() => {
+      if (cancelled) return;
+      setPhase("swap");
     });
 
     return () => {
       cancelled = true;
       animGenRef.current += 1;
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-        rafRef.current = 0;
-      }
+      cancelAnimations(activeAnimsRef.current);
+      activeAnimsRef.current = [];
     };
-  }, [phase]);
+  }, [phase, runFadeOut]);
 
   useLayoutEffect(() => {
-    if (phase !== "covered" || !pendingHref || pushedRef.current) {
+    if (phase !== "swap" || !pendingHref || pushedRef.current) {
       return;
     }
     pushedRef.current = true;
-    floodNavRef.current = true;
+    gatedNavRef.current = true;
     router.push(pendingHref);
   }, [phase, pendingHref, router]);
 
   useLayoutEffect(() => {
-    if (phase !== "covered" || !pendingHref) {
+    if (phase !== "swap" || !pendingHref) {
       return;
     }
     if (pathname !== pendingHref) {
       return;
     }
-    setPhase("revealing");
+    const id = window.setTimeout(() => {
+      setPhase("in");
+    }, 0);
+    return () => window.clearTimeout(id);
   }, [phase, pendingHref, pathname]);
 
   useLayoutEffect(() => {
-    if (phase !== "revealing") {
+    if (phase !== "in") {
       return;
     }
 
     let cancelled = false;
-    runReveal(() => {
+    runFadeIn(() => {
       if (!cancelled) {
         prevPathRef.current = pathname;
         teardown();
@@ -424,12 +356,10 @@ export function SectionTransitionGate({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
       animGenRef.current += 1;
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-        rafRef.current = 0;
-      }
+      cancelAnimations(activeAnimsRef.current);
+      activeAnimsRef.current = [];
     };
-  }, [phase, pathname]);
+  }, [phase, pathname, teardown, runFadeIn]);
 
   useLayoutEffect(() => {
     const from = prevPathRef.current;
@@ -439,14 +369,14 @@ export function SectionTransitionGate({ children }: { children: ReactNode }) {
     }
 
     if (
-      floodNavRef.current &&
-      (phase === "covered" || phase === "revealing" || phase === "covering")
+      gatedNavRef.current &&
+      (phase === "out" || phase === "swap" || phase === "in")
     ) {
       return;
     }
 
-    if (floodNavRef.current) {
-      floodNavRef.current = false;
+    if (gatedNavRef.current) {
+      gatedNavRef.current = false;
       prevPathRef.current = to;
       return;
     }
@@ -459,12 +389,11 @@ export function SectionTransitionGate({ children }: { children: ReactNode }) {
     }
 
     const reduced = prefersReducedMotion();
-    setFadeMs(
-      mode === "section" || reduced ? REDUCED_FADE_MS : FADE_MS,
-    );
+    setFadeMs(reduced ? REDUCED_MS : FADE_IN_MS);
     setFadeOn(false);
+    armBridge();
     setPhase("fading");
-  }, [pathname, phase]);
+  }, [pathname, phase, armBridge]);
 
   useLayoutEffect(() => {
     if (phase !== "fading" || fadeOn) {
@@ -482,6 +411,7 @@ export function SectionTransitionGate({ children }: { children: ReactNode }) {
     }
     const t = window.setTimeout(() => {
       setFadeOn(false);
+      setBridgeColor(null);
       setPhase("idle");
     }, fadeMs);
     return () => window.clearTimeout(t);
@@ -493,7 +423,7 @@ export function SectionTransitionGate({ children }: { children: ReactNode }) {
     }
     const t = window.setTimeout(() => {
       if (pendingHref && !pushedRef.current) {
-        floodNavRef.current = true;
+        gatedNavRef.current = true;
         pushedRef.current = true;
         router.push(pendingHref);
       }
@@ -501,21 +431,27 @@ export function SectionTransitionGate({ children }: { children: ReactNode }) {
       teardown();
     }, FAILSAFE_MS);
     return () => window.clearTimeout(t);
-  }, [phase, pendingHref, router, pathname]);
+  }, [phase, pendingHref, router, pathname, teardown]);
 
   useEffect(() => {
     return () => {
       animGenRef.current += 1;
+      cancelAnimations(activeAnimsRef.current);
       document.documentElement.classList.remove("is-section-transitioning");
     };
   }, []);
 
-  const floodActive =
-    phase === "covering" || phase === "covered" || phase === "revealing";
-
   return (
     <>
+      {bridgeColor ? (
+        <div
+          className="st-page-bridge"
+          style={{ backgroundColor: bridgeColor }}
+          aria-hidden
+        />
+      ) : null}
       <div
+        ref={contentRef}
         className={cn("st-content", fadeOn && "st-content--fade")}
         style={
           {
@@ -524,39 +460,6 @@ export function SectionTransitionGate({ children }: { children: ReactNode }) {
         }
       >
         {children}
-      </div>
-      <div
-        ref={overlayRef}
-        className={cn("st-flood", floodActive && "st-flood--active")}
-        aria-hidden
-        aria-busy={floodActive}
-        style={{ opacity: 0 }}
-      >
-        <svg
-          className="st-flood-svg"
-          width="100%"
-          height="100%"
-          viewBox="0 0 1316 664"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          preserveAspectRatio="xMidYMid slice"
-          aria-hidden
-        >
-          <path
-            ref={pathRef}
-            className="st-flood-path"
-            d={FLOOD_PATH}
-            fill="none"
-            strokeWidth={STROKE_THIN}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={
-              {
-                "--st-flood-stroke": floodStroke,
-              } as CSSProperties
-            }
-          />
-        </svg>
       </div>
     </>
   );

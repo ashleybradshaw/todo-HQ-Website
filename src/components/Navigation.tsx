@@ -49,7 +49,7 @@ export function Navigation() {
   }, [menuOpen]);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-30 bg-bg-canvas text-foreground transition-[background-color,color,border-color] duration-[400ms] ease-in-out">
+    <header className="fixed inset-x-0 top-0 z-50 bg-bg-canvas text-foreground transition-[background-color,color,border-color] duration-[400ms] ease-in-out">
       <AnimatePresence>
         {menuOpen ? (
           <motion.div

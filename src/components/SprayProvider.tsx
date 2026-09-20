@@ -92,6 +92,10 @@ function applyInnerPair(pair: AccessibleColorPair) {
       ? `color-mix(in srgb, ${pair.text} 75%, #0B0CB4)`
       : `color-mix(in srgb, ${pair.text} 80%, ${pair.bg})`,
   );
+  root.setProperty(
+    "--page-bridge",
+    `color-mix(in srgb, ${pair.text} 32%, ${pair.bg} 68%)`,
+  );
   const categoryColors = blogCategoryColors(pair);
   for (const category of BLOG_CATEGORIES) {
     root.setProperty(BLOG_CATEGORY_VARS[category], categoryColors[category]);

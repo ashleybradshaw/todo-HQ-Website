@@ -8,14 +8,31 @@ import {
 
 export type IdeTabId = "todo" | "offer" | "discovery";
 
-const TABS: readonly { id: IdeTabId; label: string; panelId: string }[] = [
-  { id: "todo", label: "TODO_HQ.ts", panelId: "ide-panel-todo" },
-  { id: "offer", label: "offer.md", panelId: "ide-panel-offer" },
-  { id: "discovery", label: "discovery.ts", panelId: "ide-panel-discovery" },
+const TABS: readonly {
+  id: IdeTabId;
+  label: string;
+  panelId: string;
+  accent: string;
+}[] = [
+  {
+    id: "todo",
+    label: "TODO_HQ.ts",
+    panelId: "ide-panel-todo",
+    accent: "var(--foreground)",
+  },
+  {
+    id: "offer",
+    label: "offer.md",
+    panelId: "ide-panel-offer",
+    accent: "var(--blog-cat-agents)",
+  },
+  {
+    id: "discovery",
+    label: "discovery.ts",
+    panelId: "ide-panel-discovery",
+    accent: "var(--syn-string)",
+  },
 ];
-
-const ACTIVE_TAB_BG =
-  "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)]";
 
 type IdeTabBarProps = {
   activeTab: IdeTabId;
@@ -65,6 +82,10 @@ export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
     >
       {TABS.map((tab, index) => {
         const selected = tab.id === activeTab;
+        const wash = selected ? 16 : 8;
+        const washMid = selected ? 5 : 2;
+        const edge = selected ? 34 : 22;
+
         return (
           <button
             key={tab.id}
@@ -78,11 +99,23 @@ export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
             aria-controls={tab.panelId}
             tabIndex={selected ? 0 : -1}
             onClick={() => onChange(tab.id)}
-            className={`font-jetbrains min-h-11 border-b-2 px-4 py-3 text-xs transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--foreground)] ${
+            className={`font-jetbrains relative -mb-px min-h-11 border border-b-0 px-4 py-3 text-xs transition-[background,border-color,opacity,color] duration-[400ms] ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--foreground)] ${
               selected
-                ? `border-border-ide text-syn-keyword ${ACTIVE_TAB_BG}`
-                : "border-transparent text-syn-comment opacity-50 hover:opacity-80"
+                ? "z-[1] rounded-t-[4px] text-syn-keyword"
+                : "rounded-t-[4px] border-transparent text-syn-comment opacity-55 hover:opacity-85"
             }`}
+            style={
+              selected
+                ? {
+                    borderColor: `color-mix(in srgb, ${tab.accent} ${edge}%, transparent)`,
+                    backgroundImage: `linear-gradient(105deg, color-mix(in srgb, ${tab.accent} ${wash}%, transparent) 0%, color-mix(in srgb, ${tab.accent} ${washMid}%, transparent) 55%, transparent 100%)`,
+                    backgroundColor: "var(--bg-canvas)",
+                  }
+                : {
+                    borderColor: "transparent",
+                    backgroundImage: `linear-gradient(105deg, color-mix(in srgb, ${tab.accent} ${wash}%, transparent) 0%, color-mix(in srgb, ${tab.accent} ${washMid}%, transparent) 55%, transparent 100%)`,
+                  }
+            }
           >
             {tab.label}
           </button>

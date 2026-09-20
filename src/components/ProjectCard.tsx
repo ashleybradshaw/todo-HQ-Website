@@ -1,17 +1,12 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { ProjectCardSkeleton } from "@/components/ProjectCardSkeleton";
 import { cn } from "@/lib/cn";
+import type { Project } from "@/lib/projects";
 
-export type Project = {
-  name: string;
-  description: string;
-  imageSrc: string;
-  imageAlt: string;
-  imageWidth: number;
-  imageHeight: number;
-};
+export type { Project };
 
 export function ProjectCard({ project }: { project: Project }) {
   const [loaded, setLoaded] = useState(false);
@@ -62,9 +57,12 @@ export function ProjectCard({ project }: { project: Project }) {
             {project.description}
           </p>
         </div>
-        <span className="font-unbounded w-max text-base leading-6 font-bold tracking-[-0.01em] uppercase [text-decoration:underline_1px_wavy] [text-underline-position:from-font]">
+        <Link
+          href={`/work/${project.slug}`}
+          className="font-unbounded w-max text-base leading-6 font-bold tracking-[-0.01em] uppercase [text-decoration:underline_1px_wavy] [text-underline-position:from-font] transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]"
+        >
           Open Project
-        </span>
+        </Link>
       </div>
     </article>
   );

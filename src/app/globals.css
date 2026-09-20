@@ -227,6 +227,13 @@ html.is-section-transitioning a {
   inset: 0;
   z-index: 35; /* below nav z-50 and .st-content; above body */
   pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.st-page-bridge--active {
+  visibility: visible;
+  opacity: 1;
 }
 
 /* HQ Home IDE — once-per-session boot assemble */

@@ -125,13 +125,13 @@ export function SectionTransitionGate({ children }: { children: ReactNode }) {
   const [pendingHref, setPendingHref] = useState<string | null>(null);
   const [fadeOn, setFadeOn] = useState(false);
   const [fadeMs, setFadeMs] = useState(FADE_IN_MS);
-  const [bridgeColor, setBridgeColor] = useState<string | null>(null);
 
   const prevPathRef = useRef(pathname);
   const phaseRef = useRef<Phase>("idle");
   const pushedRef = useRef(false);
   const gatedNavRef = useRef(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const bridgeRef = useRef<HTMLDivElement>(null);
   const animGenRef = useRef(0);
   const activeAnimsRef = useRef<Animation[]>([]);
 
@@ -146,6 +146,28 @@ export function SectionTransitionGate({ children }: { children: ReactNode }) {
     el.style.filter = "";
   }, []);
 
+  /**
+   * Freeze colour and force bridge visible in this frame via the live DOM node.
+   * No React setState — avoids one blue frame before paint and effect lint.
+   */
+  const paintBridgeNow = useCallback(() => {
+    const color = freezePageBridge();
+    const el = bridgeRef.current;
+    if (el) {
+      el.style.backgroundColor = color;
+      el.classList.add("st-page-bridge--active");
+    }
+    return color;
+  }, []);
+
+  const clearBridge = useCallback(() => {
+    const el = bridgeRef.current;
+    if (el) {
+      el.classList.remove("st-page-bridge--active");
+      el.style.backgroundColor = "";
+    }
+  }, []);
+
   const teardown = useCallback(() => {
     animGenRef.current += 1;
     cancelAnimations(activeAnimsRef.current);
@@ -153,15 +175,11 @@ export function SectionTransitionGate({ children }: { children: ReactNode }) {
     pushedRef.current = false;
     gatedNavRef.current = false;
     setPendingHref(null);
-    setBridgeColor(null);
+    clearBridge();
     setPhase("idle");
     document.documentElement.classList.remove("is-section-transitioning");
     resetShell();
-  }, [resetShell]);
-
-  const armBridge = useCallback(() => {
-    setBridgeColor(freezePageBridge());
-  }, []);
+  }, [clearBridge, resetShell]);
 
   const runFadeOut = useCallback(
     (onDone: () => void) => {
@@ -291,18 +309,21 @@ export function SectionTransitionGate({ children }: { children: ReactNode }) {
       document.documentElement.classList.add("is-section-transitioning");
       pushedRef.current = false;
       gatedNavRef.current = true;
-      armBridge();
+      paintBridgeNow();
       setPhase("out");
     };
 
     document.addEventListener("click", onClickCapture, true);
     return () => document.removeEventListener("click", onClickCapture, true);
-  }, [pathname, router, armBridge]);
+  }, [pathname, router, paintBridgeNow]);
 
   useLayoutEffect(() => {
     if (phase !== "out") {
       return;
     }
+
+    // Same-frame guarantee: freeze + show bridge on the live node before fade.
+    paintBridgeNow();
 
     let cancelled = false;
     runFadeOut(() => {
@@ -316,7 +337,7 @@ export function SectionTransitionGate({ children }: { children: ReactNode }) {
       cancelAnimations(activeAnimsRef.current);
       activeAnimsRef.current = [];
     };
-  }, [phase, runFadeOut]);
+  }, [phase, runFadeOut, paintBridgeNow]);
 
   useLayoutEffect(() => {
     if (phase !== "swap" || !pendingHref || pushedRef.current) {
@@ -391,19 +412,20 @@ export function SectionTransitionGate({ children }: { children: ReactNode }) {
     const reduced = prefersReducedMotion();
     setFadeMs(reduced ? REDUCED_MS : FADE_IN_MS);
     setFadeOn(false);
-    armBridge();
+    paintBridgeNow();
     setPhase("fading");
-  }, [pathname, phase, armBridge]);
+  }, [pathname, phase, paintBridgeNow]);
 
   useLayoutEffect(() => {
     if (phase !== "fading" || fadeOn) {
       return;
     }
+    paintBridgeNow();
     const id = requestAnimationFrame(() => {
       setFadeOn(true);
     });
     return () => cancelAnimationFrame(id);
-  }, [phase, fadeOn]);
+  }, [phase, fadeOn, paintBridgeNow]);
 
   useEffect(() => {
     if (phase !== "fading" || !fadeOn) {
@@ -411,11 +433,11 @@ export function SectionTransitionGate({ children }: { children: ReactNode }) {
     }
     const t = window.setTimeout(() => {
       setFadeOn(false);
-      setBridgeColor(null);
+      clearBridge();
       setPhase("idle");
     }, fadeMs);
     return () => window.clearTimeout(t);
-  }, [phase, fadeOn, fadeMs]);
+  }, [phase, fadeOn, fadeMs, clearBridge]);
 
   useEffect(() => {
     if (phase === "idle" || phase === "fading") {
@@ -443,13 +465,7 @@ export function SectionTransitionGate({ children }: { children: ReactNode }) {
 
   return (
     <>
-      {bridgeColor ? (
-        <div
-          className="st-page-bridge"
-          style={{ backgroundColor: bridgeColor }}
-          aria-hidden
-        />
-      ) : null}
+      <div ref={bridgeRef} className="st-page-bridge" aria-hidden />
       <div
         ref={contentRef}
         className={cn("st-content", fadeOn && "st-content--fade")}

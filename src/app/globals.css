@@ -247,3 +247,111 @@ html.is-section-transitioning a {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+
+/* HQ Home IDE — once-per-session boot assemble */
+@keyframes ide-boot-frame-draw {
+  from {
+    stroke-dashoffset: 100;
+    opacity: 1;
+  }
+  70% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes ide-boot-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ide-boot-line-in {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.ide-boot-frame-rect {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+
+.ide-boot-stage[data-ide-boot="frame"] .ide-boot-frame-rect {
+  animation: ide-boot-frame-draw 500ms ease-out forwards;
+}
+
+.ide-boot-stage[data-ide-boot="tabs"] .ide-boot-frame-rect,
+.ide-boot-stage[data-ide-boot="content"] .ide-boot-frame-rect {
+  stroke-dashoffset: 0;
+  opacity: 0;
+}
+
+.ide-boot-stage[data-ide-boot="frame"] .ide-boot-tabs,
+.ide-boot-stage[data-ide-boot="frame"] .ide-boot-editor > :not(.ide-boot-tabs):not(.ide-boot-frame),
+.ide-boot-stage[data-ide-boot="frame"] .ide-boot-sidecar {
+  opacity: 0;
+}
+
+.ide-boot-stage[data-ide-boot="tabs"] .ide-boot-tabs {
+  animation: ide-boot-fade-up 200ms ease-out forwards;
+}
+
+.ide-boot-stage[data-ide-boot="tabs"] .ide-boot-editor > :not(.ide-boot-tabs),
+.ide-boot-stage[data-ide-boot="tabs"] .ide-boot-sidecar {
+  opacity: 0;
+}
+
+.ide-boot-stage[data-ide-boot="content"] .ide-boot-tabs {
+  opacity: 1;
+  transform: none;
+}
+
+.ide-boot-stage[data-ide-boot="content"] .ide-boot-line {
+  opacity: 0;
+  animation: ide-boot-line-in 320ms ease-out forwards;
+  animation-delay: calc(var(--i, 0) * 22ms);
+}
+
+.ide-boot-stage[data-ide-boot="content"] .ide-boot-sidecar {
+  opacity: 0;
+  animation: ide-boot-fade-up 400ms ease-out 450ms forwards;
+}
+
+.ide-boot-stage[data-ide-boot="done"] .ide-boot-tabs,
+.ide-boot-stage[data-ide-boot="done"] .ide-boot-line,
+.ide-boot-stage[data-ide-boot="done"] .ide-boot-sidecar {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ide-boot-frame,
+  .ide-boot-frame-rect {
+    display: none;
+    animation: none !important;
+  }
+
+  .ide-boot-stage .ide-boot-tabs,
+  .ide-boot-stage .ide-boot-line,
+  .ide-boot-stage .ide-boot-sidecar,
+  .ide-boot-stage[data-ide-boot] .ide-boot-editor > :not(.ide-boot-tabs) {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}

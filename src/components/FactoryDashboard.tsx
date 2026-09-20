@@ -1,15 +1,32 @@
 "use client";
 
-import { Fragment, useCallback, useState, type ReactNode } from "react";
+import {
+  Fragment,
+  useCallback,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import { useFactoryStream } from "@/hooks/useFactoryStream";
+import { useIdeBoot, type IdeBootPhase } from "@/hooks/useIdeBoot";
 import { PipelineRunner } from "@/components/PipelineRunner";
 import { Telemetry } from "@/components/Telemetry";
+import { IdeTabBar, type IdeTabId } from "@/components/ide/IdeTabBar";
+import { OfferPane } from "@/components/ide/OfferPane";
+import { ContactPane } from "@/components/ide/ContactPane";
+import { IdeProjectCards } from "@/components/ide/IdeProjectCards";
 
 /** 0-based index of the methodology / executePipeline() line in codeLines. */
 const EXECUTE_PIPELINE_LINE = 18;
 
 const ACTIVE_LINE_BG =
   "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)]";
+
+const STATUS_BY_TAB: Record<IdeTabId, string> = {
+  todo: "UTF-8 · LF · TypeScript · TEST COPY",
+  offer: "UTF-8 · LF · Markdown · TEST COPY",
+  contact: "UTF-8 · LF · TypeScript · TEST COPY",
+};
 
 function Comment({ children }: { children: ReactNode }) {
   return <span className="text-syn-comment italic">{children}</span>;
@@ -191,6 +208,73 @@ function codeLines(onExecutePipeline: () => void): ReactNode[] {
   ];
 }
 
+function TodoPane({
+  lines,
+}: {
+  lines: ReactNode[];
+}) {
+  return (
+    <div className="flex min-h-0 flex-1 overflow-auto text-xs leading-5 lg:text-sm lg:leading-6">
+      <div
+        aria-hidden="true"
+        className="text-syn-number flex w-8 shrink-0 flex-col border-r border-border-ide py-4 text-right select-none lg:w-10"
+      >
+        {lines.map((_, index) => (
+          <span
+            key={index}
+            className={`ide-boot-line pr-2 leading-5 lg:pr-3 lg:leading-6 ${
+              index === EXECUTE_PIPELINE_LINE ? ACTIVE_LINE_BG : ""
+            }`}
+            style={{ "--i": index } as CSSProperties}
+          >
+            {index + 1}
+          </span>
+        ))}
+      </div>
+      <pre className="min-w-0 flex-1 py-4">
+        <code className="font-jetbrains">
+          {lines.map((line, index) => (
+            <div
+              key={index}
+              className={`ide-boot-line whitespace-pre pr-6 pl-4 ${
+                index === EXECUTE_PIPELINE_LINE ? ACTIVE_LINE_BG : ""
+              }`}
+              style={{ "--i": index } as CSSProperties}
+            >
+              {line}
+            </div>
+          ))}
+        </code>
+      </pre>
+    </div>
+  );
+}
+
+function IdeBootFrame({ phase }: { phase: IdeBootPhase }) {
+  if (phase === "done") return null;
+
+  return (
+    <svg
+      className="ide-boot-frame pointer-events-none absolute inset-0 z-20 h-full w-full"
+      aria-hidden="true"
+      viewBox="0 0 100 100"
+      preserveAspectRatio="none"
+    >
+      <rect
+        className="ide-boot-frame-rect"
+        x="0.35"
+        y="0.35"
+        width="99.3"
+        height="99.3"
+        pathLength={100}
+        fill="none"
+        stroke="var(--foreground)"
+        strokeWidth="0.35"
+      />
+    </svg>
+  );
+}
+
 function FactorySidecar({ rebootSignal }: { rebootSignal: number }) {
   const feed = useFactoryStream();
 
@@ -202,12 +286,15 @@ function FactorySidecar({ rebootSignal }: { rebootSignal: number }) {
         sprint={feed.sprint}
         tick={feed.tick}
       />
+      <IdeProjectCards />
     </>
   );
 }
 
 export function FactoryDashboard() {
   const [rebootSignal, setRebootSignal] = useState(0);
+  const [activeTab, setActiveTab] = useState<IdeTabId>("todo");
+  const bootPhase = useIdeBoot();
 
   const rebootPipeline = useCallback(() => {
     setRebootSignal((current) => current + 1);
@@ -216,8 +303,8 @@ export function FactoryDashboard() {
   const lines = codeLines(rebootPipeline);
 
   return (
-    <main className="bg-bg-canvas text-syn-property relative h-screen min-h-screen w-full overflow-hidden transition-[background-color,color] duration-[400ms] ease-in-out">
-      <div className="font-jetbrains relative z-10 flex h-full min-h-screen w-full flex-col pt-20">
+    <main className="bg-bg-canvas text-syn-property relative min-h-screen w-full transition-[background-color,color] duration-[400ms] ease-in-out lg:h-[100dvh] lg:overflow-hidden">
+      <div className="font-jetbrains relative z-10 flex min-h-screen w-full flex-col pt-20 lg:h-full lg:min-h-0">
         <h1 className="sr-only">
           {"//TODO Engineering factory dashboard"}
         </h1>
@@ -228,64 +315,68 @@ export function FactoryDashboard() {
           — AGI brief-to-ship and LP offer-to-launch — with Repdaily, ReadyGo,
           and Contentic in production.
         </p>
-        <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_minmax(14rem,42%)] overflow-hidden lg:grid-cols-[70%_30%] lg:grid-rows-1">
+
+        <div
+          className="ide-boot-stage relative grid flex-1 grid-cols-1 auto-rows-auto lg:min-h-0 lg:grid-cols-[70%_30%] lg:grid-rows-1 lg:overflow-hidden"
+          data-ide-boot={bootPhase}
+        >
+          <IdeBootFrame phase={bootPhase} />
+
           <section
-            className="flex min-h-0 min-w-0 flex-col overflow-hidden"
-            aria-label="TODO_HQ TypeScript source"
+            className="ide-boot-editor relative flex min-w-0 flex-col border-b border-border-ide lg:min-h-0 lg:overflow-hidden lg:border-b-0"
+            aria-label="IDE editor"
           >
+            <IdeTabBar activeTab={activeTab} onChange={setActiveTab} />
+
             <div
-              className="flex shrink-0 items-stretch border-b border-border-ide"
-              aria-hidden="true"
+              id="ide-panel-todo"
+              role="tabpanel"
+              aria-labelledby="ide-tab-todo"
+              hidden={activeTab !== "todo"}
+              className={
+                activeTab === "todo"
+                  ? "flex min-h-0 flex-1 flex-col lg:overflow-hidden"
+                  : undefined
+              }
             >
-              <span
-                className={`border-border-ide text-syn-keyword border-b-2 px-4 py-2 text-xs ${ACTIVE_LINE_BG}`}
-              >
-                TODO_HQ.ts
-              </span>
-              <span className="text-syn-comment px-4 py-2 text-xs opacity-50 select-none">
-                pipeline.run
-              </span>
-              <span className="text-syn-comment px-4 py-2 text-xs opacity-50 select-none">
-                telemetry.json
-              </span>
+              {activeTab === "todo" ? <TodoPane lines={lines} /> : null}
             </div>
-            <div className="flex min-h-0 flex-1 overflow-auto text-xs leading-5 lg:text-sm lg:leading-6">
-              <div
-                aria-hidden="true"
-                className="text-syn-number flex w-8 shrink-0 flex-col border-r border-border-ide py-4 text-right select-none lg:w-10"
-              >
-                {lines.map((_, index) => (
-                  <span
-                    key={index}
-                    className={`pr-2 leading-5 lg:pr-3 lg:leading-6 ${
-                      index === EXECUTE_PIPELINE_LINE ? ACTIVE_LINE_BG : ""
-                    }`}
-                  >
-                    {index + 1}
-                  </span>
-                ))}
-              </div>
-              <pre className="min-w-0 flex-1 py-4">
-                <code className="font-jetbrains">
-                  {lines.map((line, index) => (
-                    <div
-                      key={index}
-                      className={`whitespace-pre pr-6 pl-4 ${
-                        index === EXECUTE_PIPELINE_LINE ? ACTIVE_LINE_BG : ""
-                      }`}
-                    >
-                      {line}
-                    </div>
-                  ))}
-                </code>
-              </pre>
+
+            <div
+              id="ide-panel-offer"
+              role="tabpanel"
+              aria-labelledby="ide-tab-offer"
+              hidden={activeTab !== "offer"}
+              className={
+                activeTab === "offer"
+                  ? "min-h-0 flex-1 overflow-auto"
+                  : undefined
+              }
+            >
+              {activeTab === "offer" ? <OfferPane /> : null}
             </div>
+
+            <div
+              id="ide-panel-contact"
+              role="tabpanel"
+              aria-labelledby="ide-tab-contact"
+              hidden={activeTab !== "contact"}
+              className={
+                activeTab === "contact"
+                  ? "min-h-0 flex-1 overflow-auto"
+                  : undefined
+              }
+            >
+              {activeTab === "contact" ? <ContactPane /> : null}
+            </div>
+
             <div className="border-border-ide text-syn-comment shrink-0 border-t px-4 py-1 text-[10px] tracking-wide lg:text-xs">
-              UTF-8 · LF · TypeScript · TEST COPY
+              {STATUS_BY_TAB[activeTab]}
             </div>
           </section>
+
           <aside
-            className="flex min-h-0 flex-col border-t border-border-ide lg:border-t-0 lg:border-l"
+            className="ide-boot-sidecar flex flex-col border-border-ide lg:min-h-0 lg:overflow-auto lg:border-l"
             aria-label="Factory sidecar"
           >
             <FactorySidecar rebootSignal={rebootSignal} />

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PageShell } from "@/components/PageShell";
 import { ProjectCard } from "@/components/ProjectCard";
 import { workPage } from "@/content/pages/work";
-import { PROJECTS } from "@/lib/projects";
+import { getListedProjects } from "@/lib/projects";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -12,6 +12,8 @@ export const metadata: Metadata = pageMetadata({
 });
 
 export default function WorkPage() {
+  const projects = getListedProjects();
+
   return (
     <PageShell
       wide
@@ -24,7 +26,7 @@ export default function WorkPage() {
       }
     >
       <ul className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-2">
-        {PROJECTS.map((project) => (
+        {projects.map((project) => (
           <li key={project.slug}>
             <ProjectCard project={project} />
           </li>

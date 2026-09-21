@@ -1,12 +1,12 @@
 import type { MetadataRoute } from "next";
 import { getAllPosts } from "@/lib/blog";
-import { getProjectSlugs } from "@/lib/projects";
+import { getListedProjectSlugs } from "@/lib/projects";
 import { SITE_URL } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const lastModified = new Date();
   const posts = await getAllPosts();
-  const workSlugs = getProjectSlugs();
+  const workSlugs = getListedProjectSlugs();
 
   return [
     { url: SITE_URL, lastModified, changeFrequency: "weekly", priority: 1 },

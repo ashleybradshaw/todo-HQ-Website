@@ -44,6 +44,7 @@ export async function generateMetadata({
     title: `${project.name} · Work`,
     description: project.description,
     path: `/work/${project.slug}`,
+    index: project.listed,
   });
 }
 

@@ -23,6 +23,11 @@ export type Project = {
   imageAlt: string;
   imageWidth: number;
   imageHeight: number;
+  /**
+   * Public Work roster. `false` = layout-stress detail only
+   * (reachable by URL, omitted from /work index + sitemap).
+   */
+  listed: boolean;
   scope: readonly string[];
   stack: readonly string[];
   outcome: string;
@@ -75,14 +80,15 @@ function media(
 }
 
 /**
- * Placeholder roster for the work-detail scaffold.
- * All four entries use stand-in media until a real shoot lands.
- * Contentic is layout stress only — not on the public roster yet.
+ * Work projects: public roster + layout-stress detail pages.
+ * Index / sitemap use `listed: true` only. All slugs stay in
+ * generateStaticParams so stress URLs keep rendering for QA.
  */
 export const PROJECTS: readonly Project[] = [
   {
     slug: "readygo",
     name: "ReadyGo",
+    listed: true,
     description:
       "Pre-activity planning for runners and cyclists — conditions, effort, and kit settled before the session starts, shipped through the //TODO factory roster.",
     imageSrc: "/work/readygo.jpg",
@@ -112,6 +118,7 @@ export const PROJECTS: readonly Project[] = [
   {
     slug: "repdaily",
     name: "RepDaily",
+    listed: true,
     description:
       "Camera-based fitness tracking for product teams — reps, progression, and a training calendar from the phone, designed and shipped in the //TODO factory.",
     imageSrc: "/work/repdaily.jpg",
@@ -143,6 +150,7 @@ export const PROJECTS: readonly Project[] = [
     // Not a marketing commitment; remove or hold before a public roster pass.
     slug: "contentic",
     name: "Contentic",
+    listed: false,
     description:
       "Content operations for a production pipeline — intake, review, and publish in one surface. A layout study for this page only, not a roster commitment.",
     imageSrc: "/work/placeholders/landscape.svg",
@@ -172,6 +180,7 @@ export const PROJECTS: readonly Project[] = [
     // Obvious layout mock. Not a shipped product.
     slug: "northstar",
     name: "Northstar",
+    listed: false,
     description:
       "Planning surface for scope, status, and handoff across one factory build. A layout study for this page only — not a shipped //TODO Engineering product.",
     imageSrc: "/work/placeholders/landscape.svg",
@@ -203,6 +212,16 @@ export function getProject(slug: string): Project | undefined {
   return PROJECTS.find((project) => project.slug === slug);
 }
 
+/** All detail slugs (public + layout-stress) for static params. */
 export function getProjectSlugs(): string[] {
   return PROJECTS.map((project) => project.slug);
+}
+
+/** Public Work roster — index cards and sitemap. */
+export function getListedProjects(): readonly Project[] {
+  return PROJECTS.filter((project) => project.listed);
+}
+
+export function getListedProjectSlugs(): string[] {
+  return getListedProjects().map((project) => project.slug);
 }

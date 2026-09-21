@@ -15,12 +15,21 @@ const LINKS = [
   { href: "/book", label: "Book Team" },
 ] as const;
 
+function isGatewayPath(pathname: string) {
+  return pathname === "/" || pathname === "/intro";
+}
+
+function isIdeLandingPath(pathname: string) {
+  return pathname === "/home";
+}
+
 export function Navigation() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuPath, setMenuPath] = useState(pathname);
   const menuId = useId();
-  const innerSite = pathname !== "/" && pathname !== "/intro";
+  const gateway = isGatewayPath(pathname);
+  const ideLanding = isIdeLandingPath(pathname);
 
   if (menuPath !== pathname) {
     setMenuPath(pathname);
@@ -47,6 +56,27 @@ export function Navigation() {
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [menuOpen]);
+
+  // Gateway + IDE home stay chrome-clean: no LogoNav link row / hamburger.
+  // /home still gets Spray; gateway does not.
+  if (gateway) {
+    return null;
+  }
+
+  if (ideLanding) {
+    return (
+      <div className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-end px-6 py-4 pr-7">
+        <div className="pointer-events-auto">
+          <span className="lg:hidden">
+            <SprayButton compact />
+          </span>
+          <span className="hidden lg:inline-flex">
+            <SprayButton />
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 bg-bg-canvas text-foreground transition-[background-color,color,border-color] duration-[400ms] ease-in-out">
@@ -75,7 +105,7 @@ export function Navigation() {
                   onClick={() => setMenuOpen(false)}
                 />
               ))}
-              {innerSite ? <SprayButton /> : null}
+              <SprayButton />
             </nav>
           </motion.div>
         ) : null}
@@ -88,9 +118,7 @@ export function Navigation() {
           className="relative z-10 min-w-0"
           onClick={() => setMenuOpen(false)}
         >
-          {innerSite ? (
-            <LogoNav className="text-brand-logo h-7 w-auto max-w-[11rem]" />
-          ) : null}
+          <LogoNav className="text-brand-logo h-7 w-auto max-w-[11rem]" />
         </Link>
 
         <nav className="ml-auto hidden items-center gap-8 lg:flex" aria-label="Primary">
@@ -102,11 +130,11 @@ export function Navigation() {
               pathname={pathname}
             />
           ))}
-          {innerSite ? <SprayButton /> : null}
+          <SprayButton />
         </nav>
 
         <div className="absolute top-1/2 right-7 z-20 flex shrink-0 -translate-y-1/2 items-center gap-3 lg:hidden">
-          {innerSite ? <SprayButton compact /> : null}
+          <SprayButton compact />
           <button
             type="button"
             className={cn(

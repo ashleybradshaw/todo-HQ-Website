@@ -38,6 +38,10 @@ test.describe("site smoke", () => {
     await expect(
       page.getByRole("button", { name: SPRAY_NAME }),
     ).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Open menu" })).toHaveCount(0);
+    await expect(page.getByRole("navigation", { name: "Primary" })).toHaveCount(
+      0,
+    );
   });
 
   test("inner factory routes load and expose Spray", async ({ page }) => {
@@ -45,6 +49,10 @@ test.describe("site smoke", () => {
     await expect(
       page.getByRole("button", { name: SPRAY_NAME }),
     ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Open menu" })).toHaveCount(0);
+    await expect(page.getByRole("navigation", { name: "Primary" })).toHaveCount(
+      0,
+    );
 
     await visit(page, "/about");
     await expect(
@@ -53,6 +61,7 @@ test.describe("site smoke", () => {
     await expect(
       page.getByRole("button", { name: SPRAY_NAME }),
     ).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Primary" })).toBeVisible();
 
     await visit(page, "/work");
     await expect(
@@ -81,10 +90,7 @@ test.describe("site smoke", () => {
     await expect.poll(async () => rootBackground(page)).toBe(BRAND_BG);
     await expect.poll(async () => rootToken(page, "--foreground")).toBe(BRAND_FG);
 
-    const spray = page.getByRole("navigation", { name: "Primary" }).getByRole(
-      "button",
-      { name: SPRAY_NAME },
-    );
+    const spray = page.getByRole("button", { name: SPRAY_NAME });
     await expect(spray).toBeVisible();
     await spray.click();
 

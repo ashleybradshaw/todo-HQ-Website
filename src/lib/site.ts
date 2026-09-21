@@ -3,6 +3,8 @@ export const SITE_URL =
 
 export const SITE_NAME = "//TODO Engineering";
 
+export const CONTACT_EMAIL = "team@todo.engineering";
+
 export const SITE_DESCRIPTION =
   "//TODO Engineering is an elite AI, software engineering, and backend development factory. We design, code, and ship production-ready applications, autonomous agentic workflows, multi-agent ecosystems, and scalable backends for enterprises, SaaS platforms, and high-growth technology companies.";
 

@@ -1,6 +1,5 @@
 import Link from "next/link";
-
-const CONTACT_EMAIL = "team@todo.engineering";
+import { CONTACT_EMAIL } from "@/lib/site";
 
 const bookClass =
   "font-jetbrains inline-flex h-11 w-full min-h-11 shrink-0 items-center justify-center rounded-[4px] border border-border-ide bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] px-4 py-2 text-xs text-syn-keyword transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)] sm:w-[11.75rem]";

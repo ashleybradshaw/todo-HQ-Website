@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { BookContactForm } from "@/components/BookContactForm";
 import { JsonLd } from "@/components/JsonLd";
+import { PageShell } from "@/components/PageShell";
 import { PerspectiveGrid } from "@/components/PerspectiveGrid";
 import { organizationGraph } from "@/lib/schema";
 import { pageMetadata } from "@/lib/seo";
@@ -11,22 +13,42 @@ export const metadata: Metadata = pageMetadata({
   path: "/book",
 });
 
-export default function BookPage() {
+type BookPageProps = {
+  searchParams: Promise<{ type?: string | string[] }>;
+};
+
+function resolveBookingType(
+  type: string | string[] | undefined,
+): string | undefined {
+  const value = Array.isArray(type) ? type[0] : type;
+  if (value === "coffee" || value === "hard-talk") {
+    return value;
+  }
+  return undefined;
+}
+
+export default async function BookPage({ searchParams }: BookPageProps) {
+  const params = await searchParams;
+  const bookingType = resolveBookingType(params.type);
+
   return (
-    <main className="relative min-h-screen overflow-hidden bg-background px-6 pt-28 pb-16 text-foreground transition-[background-color,color] duration-[400ms] ease-in-out">
+    <>
       <JsonLd data={organizationGraph()} />
-      <PerspectiveGrid />
-      <div className="relative z-10 mx-auto max-w-2xl">
-        <p className="font-jetbrains text-sm">Book Team</p>
-        <h1 className="font-unbounded mt-4 text-4xl font-bold tracking-tight">
-          Bring the factory to the problem.
-        </h1>
-        <p className="mt-6 max-w-xl text-lg leading-relaxed">
-          {
-            "//TODO Engineering works with technical founders and product leads who need AI workflow architecture or a full-stack application in production. Tell us what has to ship."
-          }
-        </p>
-      </div>
-    </main>
+      <PageShell
+        eyebrow="BOOK //"
+        title="Bring the factory to the problem."
+        overflow="hidden"
+        background={<PerspectiveGrid />}
+        lede={
+          <p className="max-w-xl">
+            {
+              "//TODO Engineering works with technical founders and product leads who need AI workflow architecture or a full-stack application in production. Tell us what has to ship."
+            }
+          </p>
+        }
+      >
+        <BookContactForm bookingType={bookingType} />
+      </PageShell>
+    </>
   );
 }

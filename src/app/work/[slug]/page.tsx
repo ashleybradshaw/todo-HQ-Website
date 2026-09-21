@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/JsonLd";
+import { PageShell } from "@/components/PageShell";
 import {
   getProject,
   getProjectSlugs,
@@ -68,14 +69,13 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
   }
 
   return (
-    <main className="relative min-h-screen overflow-x-hidden bg-background px-6 pt-28 pb-16 text-foreground transition-[background-color,color] duration-[400ms] ease-in-out">
+    <>
       <JsonLd data={projectJsonLd(project)} />
-      <div className="relative z-10 mx-auto max-w-[720px]">
-        <p className="font-jetbrains text-syn-comment text-xs tracking-wide uppercase">
-          CASE // {project.slug}
-        </p>
-        <div className="border-border-ide mt-3 border-t" />
-
+      <PageShell
+        eyebrow={`CASE // ${project.slug}`}
+        title={project.name}
+        titleStyle="mono"
+      >
         <div className="border-border-ide mt-6 aspect-[16/9] w-full overflow-hidden rounded-[4px] border">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -86,10 +86,6 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
             className="h-full w-full object-cover"
           />
         </div>
-
-        <h1 className="font-jetbrains mt-6 text-[28px] leading-9 font-bold tracking-[-0.01em] uppercase">
-          {project.name}
-        </h1>
 
         <div className="mt-4 flex flex-col gap-3">
           {project.summary.map((paragraph) => (
@@ -130,7 +126,7 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
             ← Back to work
           </Link>
         </div>
-      </div>
-    </main>
+      </PageShell>
+    </>
   );
 }

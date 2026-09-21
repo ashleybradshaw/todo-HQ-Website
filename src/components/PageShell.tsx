@@ -39,7 +39,7 @@ export function PageShell({
         )}
       >
         {eyebrow ? (
-          <p className="font-jetbrains text-xs tracking-wide uppercase">
+          <p className="font-jetbrains text-xs font-bold tracking-wide uppercase">
             {eyebrow}
           </p>
         ) : null}

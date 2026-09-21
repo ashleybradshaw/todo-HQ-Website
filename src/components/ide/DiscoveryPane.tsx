@@ -45,7 +45,7 @@ export function DiscoveryPane() {
           <span className="text-syn-property/70">email: </span>
           <a
             href={`mailto:${CONTACT_EMAIL}`}
-            className={`${mailtoClass} discovery-mailto-nudge`}
+            className={`${mailtoClass} text-accent-swap`}
           >
             {`"${CONTACT_EMAIL}"`}
           </a>

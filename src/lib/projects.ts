@@ -17,15 +17,15 @@ export const PROJECTS: readonly Project[] = [
     slug: "readygo",
     name: "ReadyGo",
     description:
-      "A pre-activity planning app for runners and cyclists. Designed and shipped using a fully integrated AI workflow stack to bypass sequential handoffs.",
+      "Pre-activity planning for runners and cyclists — conditions, effort, and kit before the session starts.",
     imageSrc: "/work/readygo.jpg",
     imageAlt:
       "ReadyGo still: a cyclist and a runner on a mountain road under the line Take it out on the road.",
     imageWidth: 1400,
     imageHeight: 756,
     summary: [
-      "ReadyGo helps runners and cyclists plan the session before they hit the road — conditions, effort, and kit without a stack of half-finished notes.",
-      "We designed and shipped it through the //TODO factory: intake, multi-agent implementation, and production handoff without sequential design→eng theatre.",
+      "ReadyGo helps endurance athletes plan the session before they hit the road — without a stack of half-finished notes.",
+      "Designed and shipped through the //TODO factory: intake, multi-agent implementation, and production handoff.",
     ],
     stack: ["Swift", "Node.js", "PostgreSQL", "Vercel"],
     outcome: "In production — pre-activity planning for endurance athletes.",
@@ -34,15 +34,15 @@ export const PROJECTS: readonly Project[] = [
     slug: "repdaily",
     name: "RepDaily",
     description:
-      "A camera-based fitness tracking app. Designed, prototyped, and shipped using an advanced AI-assisted engineering workflow.",
+      "Camera-based fitness tracking — reps, progression, and calendar from the phone camera.",
     imageSrc: "/work/repdaily.jpg",
     imageAlt:
       "RepDaily production interface on a phone, showing workout progression and a January training calendar.",
     imageWidth: 1400,
     imageHeight: 787,
     summary: [
-      "RepDaily turns the phone camera into a training log — reps, progression, and calendar without a clipboard between sets.",
-      "Shipped end-to-end in the factory: scoped intake, agent stations for implementation and verification, then a clean production release.",
+      "RepDaily turns the phone camera into a training log — no clipboard between sets.",
+      "Shipped end-to-end in the factory: scoped intake, agent stations with verification gates, then a clean production release.",
     ],
     stack: ["Swift", "Node.js", "PostgreSQL", "Redis"],
     outcome: "In production — camera-based fitness tracking on iOS.",

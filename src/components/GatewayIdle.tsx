@@ -51,7 +51,7 @@ export function GatewayIdle() {
       ) : (
         <HawkAsciiField onFallback={() => setHawkFailed(true)} />
       )}
-      <div className="relative z-10 flex h-full w-full flex-col items-center justify-center px-6">
+      <div className="relative z-10 flex h-full w-full flex-col items-center justify-end px-6 pb-[min(18vh,8rem)]">
         <div className="flex flex-col items-center">
           <div className="flex items-center justify-center py-2.5">
             {/* Idle lockup is LogoAnimated (GSAP draw + eye wiggle), not LogoStatic. */}

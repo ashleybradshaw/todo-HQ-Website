@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { bookPage } from "@/content/pages/book";
 import { CONTACT_EMAIL } from "@/lib/site";
 
 const fieldClass =
@@ -12,15 +13,13 @@ const mailtoClass =
   "font-jetbrains text-syn-string underline decoration-[color-mix(in_srgb,var(--foreground)_35%,transparent)] underline-offset-2 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
 
 const submitClass =
-  "font-jetbrains inline-flex min-h-11 cursor-pointer items-center justify-center rounded-[4px] border border-border-ide bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] px-4 py-2 text-xs text-syn-keyword transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50";
+  "font-jetbrains inline-flex min-h-11 cursor-pointer items-center justify-center rounded-[4px] border border-border-ide bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] px-4 py-2 text-xs font-bold text-syn-keyword transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50";
+
+const { form } = bookPage;
 
 function messagePrefill(type?: string): string {
-  if (type === "coffee") {
-    return "Coffee talk (15 min) — chemistry check. Looking to see if this is a fit.";
-  }
-  if (type === "hard-talk") {
-    return "Hard talk (60 min) — dig into the real issue and scope the fix. What has to ship:";
-  }
+  if (type === "coffee") return form.coffeePrefill;
+  if (type === "hard-talk") return form.hardTalkPrefill;
   return "";
 }
 
@@ -49,9 +48,7 @@ export function BookContactForm({
     }
 
     const subject = encodeURIComponent(
-      trimmedCompany
-        ? `Book //TODO — ${trimmedCompany}`
-        : `Book //TODO — ${trimmedName}`,
+      `${form.subjectPrefix} ${trimmedCompany || trimmedName}`,
     );
     const body = encodeURIComponent(
       [
@@ -59,7 +56,7 @@ export function BookContactForm({
         `Email: ${trimmedEmail}`,
         trimmedCompany ? `Company: ${trimmedCompany}` : null,
         "",
-        "What has to ship:",
+        form.bodyHeading,
         trimmedMessage,
       ]
         .filter((line) => line !== null)
@@ -69,7 +66,6 @@ export function BookContactForm({
     const href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
     try {
       window.location.href = href;
-      // If the client blocks compose, surface the fallback link.
       window.setTimeout(() => setComposeHint(true), 1200);
     } catch {
       setComposeHint(true);
@@ -79,17 +75,18 @@ export function BookContactForm({
   return (
     <div className="mt-12 border-t border-border-ide pt-10">
       <p className="font-jetbrains text-xs tracking-wide uppercase">
-        Contact strip
+        {form.stripLabel}
       </p>
-      <p className="mt-3 max-w-xl text-base leading-relaxed">
-        Short form — opens your mail client with the details filled in. Or email
-        the team directly.
-      </p>
+      <p className="mt-3 max-w-xl text-base leading-relaxed">{form.stripIntro}</p>
 
-      <form className="mt-8 flex max-w-xl flex-col gap-5" onSubmit={onSubmit} noValidate>
+      <form
+        className="mt-8 flex max-w-xl flex-col gap-5"
+        onSubmit={onSubmit}
+        noValidate
+      >
         <div className="flex flex-col gap-2">
           <label htmlFor="book-name" className={labelClass}>
-            Name
+            {form.nameLabel}
           </label>
           <input
             id="book-name"
@@ -105,7 +102,7 @@ export function BookContactForm({
 
         <div className="flex flex-col gap-2">
           <label htmlFor="book-email" className={labelClass}>
-            Email
+            {form.emailLabel}
           </label>
           <input
             id="book-email"
@@ -121,9 +118,9 @@ export function BookContactForm({
 
         <div className="flex flex-col gap-2">
           <label htmlFor="book-company" className={labelClass}>
-            Company{" "}
+            {form.companyLabel}{" "}
             <span className="text-syn-comment normal-case tracking-normal">
-              (optional)
+              {form.companyOptional}
             </span>
           </label>
           <input
@@ -139,7 +136,7 @@ export function BookContactForm({
 
         <div className="flex flex-col gap-2">
           <label htmlFor="book-message" className={labelClass}>
-            What has to ship
+            {form.messageLabel}
           </label>
           <textarea
             id="book-message"
@@ -154,16 +151,19 @@ export function BookContactForm({
 
         <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
           <button type="submit" className={submitClass}>
-            Open mail draft →
+            {form.submitLabel}
           </button>
-          <a href={`mailto:${CONTACT_EMAIL}`} className={`${mailtoClass} discovery-mailto-nudge`}>
+          <a
+            href={`mailto:${CONTACT_EMAIL}`}
+            className={`${mailtoClass} text-accent-swap`}
+          >
             {CONTACT_EMAIL}
           </a>
         </div>
 
         {composeHint ? (
           <p className="font-jetbrains text-syn-comment text-xs" role="status">
-            If nothing opened, use the email link above.
+            {form.composeHint}
           </p>
         ) : null}
       </form>

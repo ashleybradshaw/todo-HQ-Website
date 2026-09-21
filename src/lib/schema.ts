@@ -1,4 +1,9 @@
-import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
+import {
+  CONTACT_EMAIL,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_URL,
+} from "@/lib/site";
 
 export function serializeJsonLd(data: unknown) {
   return JSON.stringify(data).replace(/</g, "\\u003c");
@@ -27,7 +32,7 @@ export function organizationGraph() {
         "@id": `${SITE_URL}/#service`,
         name: `${SITE_NAME} software factory`,
         url: SITE_URL,
-        image: `${SITE_URL}/favicon.ico`,
+        image: `${SITE_URL}/opengraph-image`,
         provider: { "@id": `${SITE_URL}/#organization` },
         description: SITE_DESCRIPTION,
         serviceType: [
@@ -41,12 +46,12 @@ export function organizationGraph() {
         audience: {
           "@type": "Audience",
           audienceType:
-            "Technical founders, product leads, and hiring managers evaluating AI workflow architecture",
+            "Product leads, engineering leads, and technical founders evaluating AI workflow architecture",
         },
       },
       {
         "@type": "SoftwareApplication",
-        name: "Repdaily",
+        name: "RepDaily",
         applicationCategory: "HealthApplication",
         operatingSystem: "iOS, Android, Web",
         description:
@@ -69,5 +74,18 @@ export function organizationGraph() {
           "Production content operations software from the //TODO factory roster.",
       },
     ],
+  };
+}
+
+export function contactPageGraph() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    name: `Book ${SITE_NAME}`,
+    url: `${SITE_URL}/book`,
+    description:
+      "Contact //TODO Engineering about AI workflow architecture or production application work.",
+    email: CONTACT_EMAIL,
+    isPartOf: { "@id": `${SITE_URL}/#organization` },
   };
 }

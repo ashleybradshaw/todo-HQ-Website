@@ -91,6 +91,14 @@ function pickIdleStyle(previous: IdleStyle | null): IdleStyle {
   return gsap.utils.random(pool);
 }
 
+/** Desktop fine-pointer only — keep wordmark letters visible on touch / small viewports. */
+function allowsIdleCollapse() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  return !window.matchMedia("(pointer: coarse), (max-width: 1023px)").matches;
+}
+
 type LogoNavProps = {
   className?: string;
 };
@@ -149,7 +157,7 @@ export function LogoNav({ className }: LogoNavProps) {
       };
 
       const collapse = (delay = 0, style: IdleStyle = "slide") => {
-        if (hovering.current || letters.length === 0) {
+        if (!allowsIdleCollapse() || hovering.current || letters.length === 0) {
           return;
         }
 
@@ -265,7 +273,7 @@ export function LogoNav({ className }: LogoNavProps) {
             timeline.add(playEyeWiggle(eyes), ">-0.12");
           }
 
-          if (thenCollapse) {
+          if (thenCollapse && allowsIdleCollapse()) {
             timeline.add(() => {
               if (!hovering.current) {
                 collapse(0, style);
@@ -277,7 +285,7 @@ export function LogoNav({ className }: LogoNavProps) {
 
       const scheduleIdle = () => {
         stopIdle();
-        if (reduceMotion || !introDone.current) {
+        if (reduceMotion || !introDone.current || !allowsIdleCollapse()) {
           return;
         }
 
@@ -330,8 +338,10 @@ export function LogoNav({ className }: LogoNavProps) {
           defaults: { ease: "power2.out" },
           onComplete: () => {
             introDone.current = true;
-            collapse(0);
-            scheduleIdle();
+            if (allowsIdleCollapse()) {
+              collapse(0);
+              scheduleIdle();
+            }
           },
         });
 
@@ -393,7 +403,7 @@ export function LogoNav({ className }: LogoNavProps) {
         }
 
         hovering.current = false;
-        if (introDone.current && !reduceMotion) {
+        if (introDone.current && !reduceMotion && allowsIdleCollapse()) {
           collapse(0.12);
         }
       });

@@ -6,7 +6,7 @@ import Link from "next/link";
  */
 const PROJECTS = [
   {
-    name: "Repdaily",
+    name: "RepDaily",
     blurb: "Camera-based fitness tracking — in production.",
     logoSrc: "/logos/repdaily.svg",
     accent: "var(--foreground)",

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { GatewayIdle } from "@/components/GatewayIdle";
-import { JsonLd } from "@/components/JsonLd";
-import { organizationGraph } from "@/lib/schema";
 import { pageMetadata } from "@/lib/seo";
 import { OFFERING_SUMMARY, SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
 
@@ -14,7 +13,6 @@ export const metadata: Metadata = pageMetadata({
 export default function GatewayPage() {
   return (
     <main className="relative min-h-screen bg-[#4545FF] text-[#DDDDFF]">
-      <JsonLd data={organizationGraph()} />
       <article className="sr-only">
         <h1>{SITE_NAME} enterprise AI engineering factory</h1>
         <p>{SITE_DESCRIPTION}</p>
@@ -24,26 +22,26 @@ export default function GatewayPage() {
           <li>Production-ready application design, code, and ship</li>
           <li>Autonomous agentic workflows and multi-agent ecosystems</li>
           <li>Scalable backend engineering for SaaS and enterprise</li>
-          <li>Active roster: Repdaily, ReadyGo, and Contentic</li>
+          <li>Active roster: RepDaily, ReadyGo, and Contentic</li>
         </ul>
         <nav aria-label="Primary destinations">
-          <a href="/intro">Start the intro sequence</a>
-          <a href="/home">Open the factory dashboard</a>
-          <a href="/about">Read the manifesto</a>
-          <a href="/work">View production work</a>
-          <a href="/book">Book the team</a>
+          <Link href="/intro">Start the intro sequence</Link>
+          <Link href="/home">Open the factory dashboard</Link>
+          <Link href="/about">Read the manifesto</Link>
+          <Link href="/work">View production work</Link>
+          <Link href="/book">Book the team</Link>
         </nav>
       </article>
       <noscript>
         <p>{SITE_DESCRIPTION}</p>
         <p>
-          <a href="/home">Continue to the factory</a>
+          <Link href="/home">Continue to the factory</Link>
           {" · "}
-          <a href="/about">About</a>
+          <Link href="/about">About</Link>
           {" · "}
-          <a href="/work">Work</a>
+          <Link href="/work">Work</Link>
           {" · "}
-          <a href="/book">Book Team</a>
+          <Link href="/book">Book Team</Link>
         </p>
       </noscript>
       <GatewayIdle />

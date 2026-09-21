@@ -151,7 +151,7 @@ function NavLink({
       aria-current={active ? "page" : undefined}
       onClick={onClick}
       className={cn(
-        "font-jetbrains text-base hover:underline",
+        "font-jetbrains text-base hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]",
         active && "underline",
         className,
       )}

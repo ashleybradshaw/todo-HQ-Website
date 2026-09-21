@@ -64,7 +64,7 @@ Never set body copy in mono. Never set labels or controls in a rounded/display f
 // ✅ GOOD
 <button className="font-mono">Submit</button>
 <p className="font-sans">We build software factories.</p>
-<span className="font-mono text-sm">Repdaily · in production</span>
+<span className="font-mono text-sm">RepDaily · in production</span>
 ```
 
 ## Motion

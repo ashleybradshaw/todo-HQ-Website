@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { BlogIndex } from "@/components/blog/BlogIndex";
-import { JsonLd } from "@/components/JsonLd";
 import { getAllPosts, toBlogIndexPost } from "@/lib/blog";
-import { organizationGraph } from "@/lib/schema";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -15,10 +13,5 @@ export const metadata: Metadata = pageMetadata({
 export default async function BlogLandingPage() {
   const posts = (await getAllPosts()).map(toBlogIndexPost);
 
-  return (
-    <>
-      <JsonLd data={organizationGraph()} />
-      <BlogIndex posts={posts} />
-    </>
-  );
+  return <BlogIndex posts={posts} />;
 }

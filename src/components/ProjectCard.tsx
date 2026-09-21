@@ -59,7 +59,7 @@ export function ProjectCard({ project }: { project: Project }) {
         </div>
         <Link
           href={`/work/${project.slug}`}
-          className="font-unbounded w-max text-base leading-6 font-bold tracking-[-0.01em] uppercase [text-decoration:underline_1px_wavy] [text-underline-position:from-font] transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]"
+          className="font-unbounded w-max cursor-pointer text-base leading-6 font-bold tracking-[-0.01em] uppercase underline-offset-2 [text-decoration:underline_1px_wavy] [text-decoration-color:color-mix(in_srgb,var(--foreground)_55%,transparent)] [text-underline-position:from-font] transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]"
         >
           Open Project
         </Link>

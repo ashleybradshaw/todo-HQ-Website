@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Unbounded } from "next/font/google";
+import { JsonLd } from "@/components/JsonLd";
 import { Navigation } from "@/components/Navigation";
 import { NoiseOverlay } from "@/components/NoiseOverlay";
 import { SectionTransitionGate } from "@/components/SectionTransitionGate";
 import { SiteFooterBar } from "@/components/SiteFooterBar";
 import { SiteFooterGate } from "@/components/SiteFooterGate";
 import { SprayProvider } from "@/components/SprayProvider";
+import { organizationGraph } from "@/lib/schema";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
@@ -51,7 +53,7 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: `${SITE_NAME} — Enterprise AI Engineering Factory`,
     description: SITE_DESCRIPTION,
   },
@@ -68,6 +70,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${unbounded.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-[#4545FF] text-[#DDDDFF]">
+        <JsonLd data={organizationGraph()} />
         <SprayProvider>
           <NoiseOverlay />
           <Navigation />

@@ -59,7 +59,7 @@ const linkClass =
   "font-jetbrains text-xs underline decoration-[color-mix(in_srgb,var(--foreground)_35%,transparent)] underline-offset-2 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
 
 const ctaClass =
-  "font-jetbrains inline-flex min-h-11 items-center justify-center rounded-[4px] border border-border-ide bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] px-4 py-2 text-xs text-syn-keyword transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
+  "font-jetbrains inline-flex min-h-11 items-center justify-center rounded-[4px] border border-border-ide bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] px-4 py-2 text-xs font-bold text-syn-keyword transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
 
 export default async function WorkProjectPage({ params }: WorkProjectParams) {
   const { slug } = await params;
@@ -91,7 +91,7 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
           {project.summary.map((paragraph) => (
             <p
               key={paragraph.slice(0, 24)}
-              className="font-sans text-base leading-7 text-syn-property"
+              className="font-sans text-base leading-7 text-foreground"
             >
               {paragraph}
             </p>

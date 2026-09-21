@@ -83,7 +83,7 @@ function applyInnerPair(pair: AccessibleColorPair) {
   );
   root.setProperty(
     "--syn-comment",
-    `color-mix(in srgb, ${pair.text} 45%, transparent)`,
+    `color-mix(in srgb, ${pair.text} 72%, transparent)`,
   );
   // Brand: mix toward logo blue; sprayed: mix toward canvas.
   root.setProperty(

@@ -207,7 +207,7 @@ function codeLines(onExecutePipeline: () => void): ReactNode[] {
     </Fragment>,
     <Fragment key={26}>
       {"    "}
-      <Str>{`"Repdaily"`}</Str>
+      <Str>{`"RepDaily"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
     <Fragment key={27}>
@@ -367,7 +367,7 @@ export function FactoryDashboard() {
           {"//TODO Design & Engineering builds the factory, not just the tickets — "}
           end-to-end AI and LM workflows for enterprise teams and non-tech
           founders. Pipeline: intake, review, agiFlow, lpPipeline, analysis,
-          ship. Methodology is executePipeline() — with Repdaily, ReadyGo,
+          ship. Methodology is executePipeline() — with RepDaily, ReadyGo,
           ErgTrainer, and The Tower in production.
         </p>
 

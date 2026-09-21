@@ -28,7 +28,7 @@ export const GHOST_WRITERS: readonly GhostWriter[] = [
     name: "Sam Okonkwo",
     role: "Product Stories",
     about:
-      "Writes product narratives from the roster already in production: Repdaily, ReadyGo, and Contentic.",
+      "Writes product narratives from the roster already in production: RepDaily, ReadyGo, and Contentic.",
   },
   {
     id: "grow-03",

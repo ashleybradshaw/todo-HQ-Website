@@ -3,13 +3,13 @@ import { BookContactForm } from "@/components/BookContactForm";
 import { JsonLd } from "@/components/JsonLd";
 import { PageShell } from "@/components/PageShell";
 import { PerspectiveGrid } from "@/components/PerspectiveGrid";
-import { organizationGraph } from "@/lib/schema";
+import { bookPage } from "@/content/pages/book";
+import { contactPageGraph } from "@/lib/schema";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "Book Team",
-  description:
-    "Book //TODO Engineering for enterprise AI development, autonomous agents, and production SaaS architecture. Consultation and client onboarding.",
+  description: bookPage.metaDescription,
   path: "/book",
 });
 
@@ -33,19 +33,13 @@ export default async function BookPage({ searchParams }: BookPageProps) {
 
   return (
     <>
-      <JsonLd data={organizationGraph()} />
+      <JsonLd data={contactPageGraph()} />
       <PageShell
-        eyebrow="BOOK //"
-        title="Bring the factory to the problem."
+        eyebrow={bookPage.eyebrow}
+        title={bookPage.title}
         overflow="hidden"
         background={<PerspectiveGrid />}
-        lede={
-          <p className="max-w-xl">
-            {
-              "//TODO Engineering works with technical founders and product leads who need AI workflow architecture or a full-stack application in production. Tell us what has to ship."
-            }
-          </p>
-        }
+        lede={<p className="max-w-xl">{bookPage.lede}</p>}
       >
         <BookContactForm bookingType={bookingType} />
       </PageShell>

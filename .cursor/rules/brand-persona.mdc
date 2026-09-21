@@ -23,8 +23,8 @@ All user-facing copy, metadata, alt text, and marketing language speaks as the s
 
 Write for:
 
+- Product leads and engineering leads (primary)
 - Technical founders
-- Product leads
 - Hiring managers evaluating AI workflow architecture or full-stack application development
 
 Assume a technical reader. Be precise. Skip hype, founder-origin stories, and personality-led bios.
@@ -35,11 +35,11 @@ Lead with how the work is done:
 
 1. **Internal software factory** — repeatable process, not one-off freelance.
 2. **Multi-agent systems** — AI workflow architecture as a core capability.
-3. **Active app roster** — proof in production: **Repdaily**, **ReadyGo**, **Contentic**.
+3. **Active app roster** — proof in production: **RepDaily**, **ReadyGo**, **Contentic**. Home IDE also names **ErgTrainer** and **The Tower**.
 
-When listing work, name these three products. Do not invent additional flagship apps.
+When listing flagship Work cards, use RepDaily and ReadyGo (Contentic held off cards). Do not invent additional Work-card apps.
 
 ```txt
 ❌ BAD: A boutique studio passionate about beautiful products.
-✅ GOOD: //TODO Engineering operates an internal software factory — multi-agent systems and full-stack apps, including Repdaily, ReadyGo, and Contentic.
+✅ GOOD: //TODO Engineering operates an internal software factory — multi-agent systems and full-stack apps, including RepDaily, ReadyGo, and Contentic.
 ```

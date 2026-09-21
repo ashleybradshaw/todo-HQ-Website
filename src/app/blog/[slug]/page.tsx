@@ -64,6 +64,8 @@ export async function generateMetadata({
     openGraph: {
       ...base.openGraph,
       type: "article",
+      publishedTime: `${post.date}T00:00:00.000Z`,
+      authors: [post.writer.name],
       images: [
         {
           url: image,
@@ -169,7 +171,7 @@ function BlogBookBand() {
       </h2>
       <p className="mt-3 text-base leading-6">
         {
-          "//TODO Engineering runs the same production system for technical founders and product leads who need AI workflow architecture or a full-stack application to ship — including Repdaily, ReadyGo, and Contentic."
+          "//TODO Engineering runs the same production system for technical founders and product leads who need AI workflow architecture or a full-stack application to ship — including RepDaily, ReadyGo, and Contentic."
         }
       </p>
       <p className="mt-6">

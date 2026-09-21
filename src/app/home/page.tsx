@@ -1,21 +1,14 @@
 import type { Metadata } from "next";
 import { FactoryDashboard } from "@/components/FactoryDashboard";
-import { JsonLd } from "@/components/JsonLd";
-import { organizationGraph } from "@/lib/schema";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "Factory",
   description:
-    "The //TODO Engineering factory — pipeline from intake to ship for CTOs, non-tech founders, and CMS ops. AGI and LP flows, executePipeline(), shipping Repdaily, ReadyGo, and Contentic.",
+    "The //TODO Engineering factory — pipeline from intake to ship for product and engineering leads. AGI and LP flows, executePipeline(), shipping RepDaily, ReadyGo, ErgTrainer, and The Tower.",
   path: "/home",
 });
 
 export default function HomePage() {
-  return (
-    <>
-      <JsonLd data={organizationGraph()} />
-      <FactoryDashboard />
-    </>
-  );
+  return <FactoryDashboard />;
 }

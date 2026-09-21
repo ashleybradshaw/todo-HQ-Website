@@ -3,11 +3,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/JsonLd";
 import { PageShell } from "@/components/PageShell";
+import { BrowserFrame } from "@/components/work/BrowserFrame";
+import { ProjectGlyphField } from "@/components/work/ProjectGlyphField";
 import {
   getProject,
   getProjectSlugs,
   type Project,
+  type ProjectMediaOffset,
+  type ProjectMediaWidth,
 } from "@/lib/projects";
+import { cn } from "@/lib/cn";
 import { pageMetadata } from "@/lib/seo";
 import { SITE_URL } from "@/lib/site";
 
@@ -36,7 +41,7 @@ export async function generateMetadata({
   }
 
   return pageMetadata({
-    title: project.name,
+    title: `${project.name} · Work`,
     description: project.description,
     path: `/work/${project.slug}`,
   });
@@ -49,11 +54,20 @@ function projectJsonLd(project: Project) {
     name: project.name,
     description: project.description,
     url: `${SITE_URL}/work/${project.slug}`,
-    image: `${SITE_URL}${project.imageSrc}`,
-    applicationCategory: "LifestyleApplication",
-    operatingSystem: "iOS, Android, Web",
   };
 }
+
+const WIDTH_CLASS: Record<ProjectMediaWidth, string> = {
+  hero: "w-full max-w-[1000px]",
+  support: "w-full max-w-[760px]",
+  tall: "w-full max-w-[520px]",
+};
+
+const OFFSET_CLASS: Record<ProjectMediaOffset, string> = {
+  left: "mr-auto",
+  center: "mx-auto",
+  right: "ml-auto",
+};
 
 const linkClass =
   "font-jetbrains text-xs underline decoration-[color-mix(in_srgb,var(--foreground)_35%,transparent)] underline-offset-2 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
@@ -72,35 +86,18 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
     <>
       <JsonLd data={projectJsonLd(project)} />
       <PageShell
-        eyebrow={`CASE // ${project.slug}`}
+        wide
+        headerClassName="max-w-[760px]"
+        eyebrow="WORK //"
         title={project.name}
-        titleStyle="mono"
+        background={<ProjectGlyphField />}
+        lede={
+          <p className="font-sans text-base leading-7">{project.description}</p>
+        }
       >
-        <div className="border-border-ide mt-6 aspect-[16/9] w-full overflow-hidden rounded-[4px] border">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={project.imageSrc}
-            alt={project.imageAlt}
-            width={project.imageWidth}
-            height={project.imageHeight}
-            className="h-full w-full object-cover"
-          />
-        </div>
-
-        <div className="mt-4 flex flex-col gap-3">
-          {project.summary.map((paragraph) => (
-            <p
-              key={paragraph.slice(0, 24)}
-              className="font-sans text-base leading-7 text-foreground"
-            >
-              {paragraph}
-            </p>
-          ))}
-        </div>
-
-        {project.stack && project.stack.length > 0 ? (
+        <div className="max-w-[760px]">
           <ul
-            className="mt-6 flex flex-wrap gap-2"
+            className="mt-8 flex flex-wrap gap-2"
             aria-label={`${project.name} stack`}
           >
             {project.stack.map((item) => (
@@ -112,18 +109,40 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
               </li>
             ))}
           </ul>
-        ) : null}
 
-        <p className="font-jetbrains text-syn-string mt-6 text-xs">
-          {project.outcome}
-        </p>
+          <ul className="mt-8 list-disc space-y-2 pl-5 font-sans text-base leading-7">
+            {project.scope.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
 
-        <div className="border-border-ide mt-8 flex flex-wrap items-center gap-4 border-t pt-6">
+          <p className="font-jetbrains text-syn-string mt-8 text-xs">
+            {project.outcome}
+          </p>
+        </div>
+
+        <section
+          className="mt-16 flex flex-col gap-12"
+          aria-label={`${project.name} stills`}
+        >
+          {project.media.map((item) => (
+            <BrowserFrame
+              key={item.id}
+              src={item.src}
+              alt={item.alt}
+              caption={item.caption}
+              aspect={item.aspect}
+              className={cn(WIDTH_CLASS[item.width], OFFSET_CLASS[item.offset])}
+            />
+          ))}
+        </section>
+
+        <div className="border-border-ide mt-16 flex max-w-[760px] flex-wrap items-center gap-4 border-t pt-6">
           <Link href="/book" className={ctaClass}>
             Book team
           </Link>
           <Link href="/work" className={linkClass}>
-            ← Back to work
+            ← Work
           </Link>
         </div>
       </PageShell>

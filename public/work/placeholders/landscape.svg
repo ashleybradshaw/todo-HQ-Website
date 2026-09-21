@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" fill="none">
+  <!-- Keep in sync with PlaceholderStill.tsx. currentColor tracks Spray when inlined. -->
+  <rect width="1600" height="900" fill="currentColor" fill-opacity="0.06"/>
+  <rect x="72" y="64" width="1456" height="772" fill="none" stroke="currentColor" stroke-opacity="0.28" stroke-width="2"/>
+  <path d="M72 560H1528" stroke="currentColor" stroke-opacity="0.4" stroke-width="2"/>
+  <rect x="120" y="620" width="460" height="20" fill="currentColor" fill-opacity="0.5"/>
+  <rect x="120" y="660" width="300" height="12" fill="currentColor" fill-opacity="0.22"/>
+  <rect x="1080" y="140" width="340" height="280" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-opacity="0.35" stroke-width="2"/>
+</svg>

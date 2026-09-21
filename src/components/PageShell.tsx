@@ -6,12 +6,14 @@ export type PageShellProps = {
   title: string;
   lede?: ReactNode;
   children?: ReactNode;
-  /** Work index ≈1336; About / Book / project ≈800 */
+  /** Work index and project detail ≈1336; About / Book ≈800 */
   wide?: boolean;
   /** display = Unbounded marketing H1; mono = jetbrains case title */
   titleStyle?: "display" | "mono";
   overflow?: "x-hidden" | "hidden";
   background?: ReactNode;
+  /** Caps eyebrow, title, and lede. Children keep the shell width. */
+  headerClassName?: string;
 };
 
 export function PageShell({
@@ -23,6 +25,7 @@ export function PageShell({
   titleStyle = "display",
   overflow = "x-hidden",
   background,
+  headerClassName,
 }: PageShellProps) {
   return (
     <main
@@ -38,26 +41,28 @@ export function PageShell({
           wide ? "max-w-[1336px]" : "max-w-[800px]",
         )}
       >
-        {eyebrow ? (
-          <p className="font-jetbrains text-xs font-bold tracking-wide uppercase">
-            {eyebrow}
-          </p>
-        ) : null}
-        {eyebrow ? <div className="border-border-ide mt-3 border-t" /> : null}
-        <h1
-          className={cn(
-            titleStyle === "mono"
-              ? "font-jetbrains mt-4 text-[28px] leading-9 font-bold tracking-[-0.01em] uppercase"
-              : "font-unbounded mt-4 text-4xl font-bold tracking-tight md:text-6xl",
-          )}
-        >
-          {title}
-        </h1>
-        {lede ? (
-          <div className="mt-6 text-lg leading-relaxed [&_p]:max-w-2xl">
-            {lede}
-          </div>
-        ) : null}
+        <div className={cn(headerClassName)}>
+          {eyebrow ? (
+            <p className="font-jetbrains text-xs font-bold tracking-wide uppercase">
+              {eyebrow}
+            </p>
+          ) : null}
+          {eyebrow ? <div className="border-border-ide mt-3 border-t" /> : null}
+          <h1
+            className={cn(
+              titleStyle === "mono"
+                ? "font-jetbrains mt-4 text-[28px] leading-9 font-bold tracking-[-0.01em] uppercase"
+                : "font-unbounded mt-4 text-4xl font-bold tracking-tight md:text-6xl",
+            )}
+          >
+            {title}
+          </h1>
+          {lede ? (
+            <div className="mt-6 text-lg leading-relaxed [&_p]:max-w-2xl">
+              {lede}
+            </div>
+          ) : null}
+        </div>
         {children}
       </div>
     </main>

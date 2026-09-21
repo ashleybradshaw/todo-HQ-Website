@@ -3,13 +3,15 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ProjectCardSkeleton } from "@/components/ProjectCardSkeleton";
+import { PlaceholderStill } from "@/components/work/PlaceholderStill";
 import { cn } from "@/lib/cn";
 import type { Project } from "@/lib/projects";
 
 export type { Project };
 
 export function ProjectCard({ project }: { project: Project }) {
-  const [loaded, setLoaded] = useState(false);
+  const placeholder = project.imageSrc.endsWith(".svg");
+  const [loaded, setLoaded] = useState(placeholder);
   const imageRef = useRef<HTMLImageElement>(null);
 
   useLayoutEffect(() => {
@@ -37,17 +39,27 @@ export function ProjectCard({ project }: { project: Project }) {
         )}
       >
         <div className="aspect-[547/271] w-full shrink-0 overflow-hidden rounded-[4px]">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            ref={imageRef}
-            src={project.imageSrc}
-            alt={project.imageAlt}
-            width={project.imageWidth}
-            height={project.imageHeight}
-            className="h-full w-full object-cover"
-            onLoad={() => setLoaded(true)}
-            onError={() => setLoaded(true)}
-          />
+          {placeholder ? (
+            <div
+              role="img"
+              aria-label={project.imageAlt}
+              className="h-full w-full text-foreground"
+            >
+              <PlaceholderStill aspect="landscape" fit="slice" />
+            </div>
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              ref={imageRef}
+              src={project.imageSrc}
+              alt={project.imageAlt}
+              width={project.imageWidth}
+              height={project.imageHeight}
+              className="h-full w-full object-cover"
+              onLoad={() => setLoaded(true)}
+              onError={() => setLoaded(true)}
+            />
+          )}
         </div>
         <div className="flex w-full flex-col items-start">
           <h2 className="font-jetbrains w-full text-[28px] leading-9 font-bold tracking-[-0.01em] uppercase">

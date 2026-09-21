@@ -143,11 +143,11 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
         <div className="flex items-center justify-between border-b border-border-ide px-6 py-2">
           <h1
             id="blog-index-heading"
-            className="font-jetbrains text-syn-keyword text-xs"
+            className="type-label text-syn-keyword"
           >
             blog.index
           </h1>
-          <p className="font-jetbrains text-syn-comment text-xs">NOTES</p>
+          <p className="type-label text-syn-comment font-normal">NOTES</p>
         </div>
 
         <div className="flex flex-col gap-6 p-6">

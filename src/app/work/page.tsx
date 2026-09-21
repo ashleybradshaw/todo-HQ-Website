@@ -16,14 +16,10 @@ export default function WorkPage() {
 
   return (
     <PageShell
-      wide
+      variant="index"
       eyebrow={workPage.eyebrow}
       title={workPage.title}
-      lede={
-        <p className="font-jetbrains max-w-[592px] text-sm leading-[18px] tracking-[-0.01em]">
-          {workPage.lede}
-        </p>
-      }
+      lede={<p className="type-body-sm max-w-[592px]">{workPage.lede}</p>}
     >
       <ul className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-2">
         {projects.map((project) => (

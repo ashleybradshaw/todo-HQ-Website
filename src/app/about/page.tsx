@@ -16,6 +16,7 @@ const ctaClass =
 export default function AboutPage() {
   return (
     <PageShell
+      variant="essay"
       eyebrow={aboutPage.eyebrow}
       title={aboutPage.title}
       lede={
@@ -26,30 +27,22 @@ export default function AboutPage() {
       }
     >
       <section className="mt-16 border-t border-border-ide pt-10">
-        <h2 className="font-jetbrains text-base leading-5 font-bold">
-          {aboutPage.standardsHeading}
-        </h2>
+        <h2 className="type-heading">{aboutPage.standardsHeading}</h2>
         <ul className="mt-8 grid grid-cols-1 gap-6">
           {aboutPage.standards.map((standard) => (
             <li key={standard.label} className="border-border-ide border p-6">
-              <p className="font-jetbrains text-sm font-bold">{standard.label}</p>
-              <h3 className="font-unbounded mt-3 text-xl font-bold tracking-tight">
-                {standard.title}
-              </h3>
-              <p className="mt-3 leading-relaxed">{standard.body}</p>
+              <p className="type-meta font-bold">{standard.label}</p>
+              <h3 className="type-subhead mt-3">{standard.title}</h3>
+              <p className="type-body mt-3">{standard.body}</p>
             </li>
           ))}
         </ul>
       </section>
 
       <section className="mt-16 border-t border-border-ide pt-10">
-        <h2 className="font-jetbrains text-base leading-5 font-bold">
-          {aboutPage.factoryHeading}
-        </h2>
-        <p className="mt-4 max-w-2xl leading-relaxed">
-          {aboutPage.factoryProof}
-        </p>
-        <div className="font-jetbrains mt-8 flex flex-wrap gap-6 text-base font-bold">
+        <h2 className="type-heading">{aboutPage.factoryHeading}</h2>
+        <p className="type-body mt-4">{aboutPage.factoryProof}</p>
+        <div className="type-body mt-8 flex flex-wrap gap-6 font-bold">
           {aboutPage.ctas.map((cta) => (
             <Link
               key={cta.href}

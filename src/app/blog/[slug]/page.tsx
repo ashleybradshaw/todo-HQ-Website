@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { WriterAvatar } from "@/components/blog/WriterAvatar";
 import { JsonLd } from "@/components/JsonLd";
 import {
@@ -24,11 +25,8 @@ type BlogPostParams = {
   params: Promise<{ slug: string }>;
 };
 
-const crumbClass =
-  "underline transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
-
 const controlClass =
-  "inline-flex cursor-pointer items-center justify-center rounded-[4px] border border-current px-3 py-1.5 font-jetbrains text-xs font-bold tracking-wider uppercase transition-[opacity,color,background-color] duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
+  "type-label inline-flex cursor-pointer items-center justify-center rounded-[4px] border border-current px-3 py-1.5 transition-[opacity,color,background-color] duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
 
 export const dynamicParams = false;
 
@@ -123,31 +121,26 @@ function WriterNod({
           size={64}
         />
         <div>
-          <h2
-            id="blog-writer-nod"
-            className="font-jetbrains text-base font-bold"
-          >
+          <h2 id="blog-writer-nod" className="type-body font-bold">
             {post.writer.name}
           </h2>
-          <p className="font-jetbrains mt-1 text-sm">{post.writer.role}</p>
-          <p className="mt-3 text-base leading-6">{post.writer.about}</p>
+          <p className="type-meta mt-1">{post.writer.role}</p>
+          <p className="type-body mt-3">{post.writer.about}</p>
         </div>
       </div>
       {more.length > 0 ? (
         <div className="mt-8">
-          <h3 className="font-jetbrains text-sm font-bold">
-            More by {post.writer.name}
-          </h3>
+          <h3 className="type-meta font-bold">More by {post.writer.name}</h3>
           <ul className="mt-3 space-y-2">
             {more.map((item) => (
               <li key={item.slug}>
                 <Link
                   href={`/blog/${item.slug}`}
-                  className="underline transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none"
+                  className="type-body underline transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none"
                 >
                   {item.title}
                 </Link>
-                <span className="font-jetbrains text-sm">
+                <span className="type-meta">
                   {" · "}
                   <time dateTime={item.date}>{formatBlogDate(item.date)}</time>
                 </span>
@@ -166,10 +159,10 @@ function BlogBookBand() {
       className="mt-12 border border-border-ide p-6"
       aria-labelledby="blog-book-band"
     >
-      <h2 id="blog-book-band" className="font-unbounded text-xl font-bold tracking-tight">
+      <h2 id="blog-book-band" className="type-subhead">
         Book the factory
       </h2>
-      <p className="mt-3 text-base leading-6">
+      <p className="type-body mt-3">
         {
           "//TODO Engineering runs the same production system for technical founders and product leads who need AI workflow architecture or a full-stack application to ship — including RepDaily, ReadyGo, and Contentic."
         }
@@ -197,27 +190,15 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
     <div className="mx-auto w-full max-w-[800px] px-6 pt-28 pb-16">
       <JsonLd data={blogPostingGraph(post)} />
       <article>
-        <nav
+        <Breadcrumbs
           id="blog-breadcrumb"
-          aria-label="Breadcrumb"
-          className="font-jetbrains text-sm"
-        >
-          <ol className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-            <li>
-              <Link href="/blog" className={crumbClass}>
-                Blog
-              </Link>
-            </li>
-            <li aria-hidden="true">→</li>
-            <li className="min-w-0 text-pretty" aria-current="page">
-              {post.title}
-            </li>
-          </ol>
-        </nav>
-        <h1 className="font-unbounded mt-10 text-center text-3xl font-bold tracking-tight text-balance sm:text-4xl">
+          parent={{ href: "/blog", label: "Blog" }}
+          current={post.title}
+        />
+        <h1 className="type-title mt-10 text-center text-balance tracking-tight">
           {post.title}
         </h1>
-        <div className="font-jetbrains mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm">
+        <div className="type-meta mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
           <WriterAvatar
             name={post.writer.name}
             src={post.avatarSrc}
@@ -234,7 +215,7 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
         <BlogHero post={post} />
         <div
           id="blog-article-body"
-          className="mx-auto mt-10 w-full max-w-[688px] text-base leading-6 [&>blockquote]:mt-6 [&>blockquote]:ml-6 [&>blockquote]:border-l [&>blockquote]:border-border-ide [&>blockquote]:pl-4 [&>blockquote]:font-medium [&>blockquote]:leading-6 [&>blockquote>p]:mt-0 [&>code]:font-jetbrains [&>code]:text-[0.95em] [&>h2]:font-unbounded [&>h2]:mt-10 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:tracking-tight [&>h3]:font-unbounded [&>h3]:mt-8 [&>h3]:text-xl [&>h3]:font-bold [&>p]:mt-4 [&>p]:leading-6 [&>p:first-child]:mt-0 [&>ul]:mt-4 [&>ul]:list-disc [&>ul]:space-y-2 [&>ul]:pl-5"
+          className="type-body mx-auto mt-10 w-full max-w-[688px] [&>blockquote]:mt-6 [&>blockquote]:ml-6 [&>blockquote]:border-l [&>blockquote]:border-border-ide [&>blockquote]:pl-4 [&>blockquote]:font-medium [&>blockquote>p]:mt-0 [&>code]:type-code [&>h2]:type-heading [&>h2]:mt-10 [&>h3]:type-subhead [&>h3]:mt-8 [&>p]:mt-4 [&>p:first-child]:mt-0 [&>ul]:mt-4 [&>ul]:list-disc [&>ul]:space-y-2 [&>ul]:pl-5"
           dangerouslySetInnerHTML={{ __html: post.html }}
         />
         <div className="mx-auto w-full max-w-[688px]">

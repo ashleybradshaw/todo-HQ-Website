@@ -35,11 +35,12 @@ export default async function BookPage({ searchParams }: BookPageProps) {
     <>
       <JsonLd data={contactPageGraph()} />
       <PageShell
+        variant="essay"
         eyebrow={bookPage.eyebrow}
         title={bookPage.title}
         overflow="hidden"
         background={<PerspectiveGrid />}
-        lede={<p className="max-w-xl">{bookPage.lede}</p>}
+        lede={<p>{bookPage.lede}</p>}
       >
         <BookContactForm bookingType={bookingType} />
       </PageShell>

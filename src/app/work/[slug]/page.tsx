@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
 import { PageShell } from "@/components/PageShell";
 import { BrowserFrame } from "@/components/work/BrowserFrame";
@@ -60,9 +61,9 @@ function projectJsonLd(project: Project) {
 }
 
 /**
- * Hybrid media ladder (md+). Widths are % of the essay column (not vw).
- * Mobile: full-width, no side offset. Zigzag insets by side + rung.
- * Tall @ ml/mr 36% + w 28% is optically centered — prefer tall+center.
+ * B2.1 zigzag ladder — PARKED (T3 Essay lead).
+ * Revive by applying ladderClass(item.width, item.offset) on BrowserFrame
+ * and switching PageShell back to variant="essayMedia".
  */
 function ladderClass(
   width: ProjectMediaWidth,
@@ -98,11 +99,17 @@ function ladderClass(
   return cn(size, inset);
 }
 
+// Retain helper for revive; T3 Essay stack does not call it.
+void ladderClass;
+
+/** T3 Essay drill — centred stack in the 688 copy column (no zigzag). */
+const ESSAY_FRAME = "w-full max-w-[688px] mx-auto";
+
 const linkClass =
-  "font-jetbrains text-xs underline decoration-[color-mix(in_srgb,var(--foreground)_35%,transparent)] underline-offset-2 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
+  "type-label font-normal normal-case tracking-normal underline decoration-[color-mix(in_srgb,var(--foreground)_35%,transparent)] underline-offset-2 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
 
 const ctaClass =
-  "font-jetbrains inline-flex min-h-11 items-center justify-center rounded-[4px] border border-border-ide bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] px-4 py-2 text-xs font-bold text-syn-keyword transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
+  "type-label inline-flex min-h-11 items-center justify-center rounded-[4px] border border-border-ide bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] px-4 py-2 text-syn-keyword transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
 
 export default async function WorkProjectPage({ params }: WorkProjectParams) {
   const { slug } = await params;
@@ -115,39 +122,44 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
     <>
       <JsonLd data={projectJsonLd(project)} />
       <PageShell
-        wide
-        headerClassName="max-w-[760px]"
-        eyebrow="WORK //"
+        variant="essay"
         title={project.name}
+        titleClassName="type-title mt-10 text-center text-balance tracking-tight"
         background={<ProjectGlyphField />}
+        breadcrumbs={
+          <Breadcrumbs
+            parent={{ href: "/work", label: "Work" }}
+            current={project.name}
+          />
+        }
       >
-        {/* Micro-study enters with section bridge fade — readable before frames. */}
-        <div className="mt-5 max-w-[760px]">
-          <p className="font-sans text-base leading-7 text-foreground">
+        {/* Micro-study — blog-article Essay rhythm (centred header + column). */}
+        <div className="mt-6">
+          <p className="type-body mx-auto max-w-[688px] text-center text-foreground">
             {project.description}
           </p>
 
           <ul
-            className="mt-5 flex flex-wrap gap-1.5"
+            className="mt-5 flex flex-wrap justify-center gap-1.5"
             aria-label={`${project.name} stack`}
           >
             {project.stack.map((item) => (
               <li
                 key={item}
-                className="font-jetbrains border-border-ide text-syn-comment rounded-[4px] border px-2 py-0.5 text-[10px] tracking-wide uppercase"
+                className="type-label border-border-ide text-syn-comment rounded-[4px] border px-2 py-0.5"
               >
                 {item}
               </li>
             ))}
           </ul>
 
-          <ul className="mt-6 list-disc space-y-1.5 pl-5 font-sans text-base leading-7 text-foreground">
+          <ul className="type-body mx-auto mt-6 max-w-[688px] list-disc space-y-1.5 pl-5 text-foreground">
             {project.scope.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
 
-          <p className="font-jetbrains text-syn-string mt-5 text-[11px] leading-4 opacity-90">
+          <p className="type-meta text-syn-string mx-auto mt-5 max-w-[688px] opacity-90">
             {project.outcome}
           </p>
         </div>
@@ -159,7 +171,7 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
           {project.media.map((item, index) => (
             <div
               key={item.id}
-              className="work-frame-enter min-w-0"
+              className={cn("work-frame-enter min-w-0", ESSAY_FRAME)}
               style={{ "--work-frame-i": index } as CSSProperties}
             >
               <BrowserFrame
@@ -167,13 +179,13 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
                 alt={item.alt}
                 caption={item.caption}
                 aspect={item.aspect}
-                className={ladderClass(item.width, item.offset)}
+                className="w-full"
               />
             </div>
           ))}
         </section>
 
-        <div className="border-border-ide mt-12 flex max-w-[760px] flex-wrap items-center gap-4 border-t pt-6">
+        <div className="border-border-ide mx-auto mt-12 flex max-w-[688px] flex-wrap items-center gap-4 border-t pt-6">
           <Link href="/book" className={ctaClass}>
             Book team
           </Link>

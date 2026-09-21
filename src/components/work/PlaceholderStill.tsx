@@ -2,7 +2,7 @@ import type { ProjectMediaAspect } from "@/lib/projects";
 
 /**
  * Spray-safe stand-in still. Fills use currentColor so they track --foreground.
- * Keep in sync with public/work/placeholders/{landscape,portrait,square}.svg.
+ * Used whenever a project media/card src is under /work/placeholders/ (sentinel path).
  */
 
 type PlaceholderStillProps = {

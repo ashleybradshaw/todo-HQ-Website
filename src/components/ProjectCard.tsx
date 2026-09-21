@@ -7,10 +7,8 @@ import { PlaceholderStill } from "@/components/work/PlaceholderStill";
 import { cn } from "@/lib/cn";
 import type { Project } from "@/lib/projects";
 
-export type { Project };
-
 export function ProjectCard({ project }: { project: Project }) {
-  const placeholder = project.imageSrc.endsWith(".svg");
+  const placeholder = project.imageSrc.startsWith("/work/placeholders/");
   const [loaded, setLoaded] = useState(placeholder);
   const imageRef = useRef<HTMLImageElement>(null);
 

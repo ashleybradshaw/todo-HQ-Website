@@ -69,6 +69,7 @@ function media(
     const n = String(index + 1).padStart(2, "0");
     return {
       id: `${slug}-${n}`,
+      // Sentinel — BrowserFrame swaps to PlaceholderStill; no public file.
       src: `/work/placeholders/${slot.aspect}.svg`,
       alt: placeholderAlt(name, slot.caption),
       aspect: slot.aspect,
@@ -106,12 +107,12 @@ export const PROJECTS: readonly Project[] = [
     outcome: "In production — pre-activity planning for endurance athletes.",
     media: media("readygo", "ReadyGo", [
       { aspect: "landscape", caption: "Route brief", width: "hero", offset: "left" },
-      { aspect: "square", caption: "Conditions", width: "support", offset: "center" },
-      { aspect: "portrait", caption: "Effort", width: "tall", offset: "right" },
+      { aspect: "square", caption: "Conditions", width: "support", offset: "right" },
+      { aspect: "portrait", caption: "Effort", width: "support", offset: "left" },
       { aspect: "landscape", caption: "Kit list", width: "support", offset: "right" },
       { aspect: "square", caption: "Start line", width: "tall", offset: "center" },
       { aspect: "portrait", caption: "Split plan", width: "support", offset: "left" },
-      { aspect: "landscape", caption: "Session card", width: "hero", offset: "center" },
+      { aspect: "landscape", caption: "Session card", width: "hero", offset: "right" },
       { aspect: "square", caption: "Handoff", width: "support", offset: "left" },
     ]),
   },
@@ -135,14 +136,14 @@ export const PROJECTS: readonly Project[] = [
     stack: ["Swift", "Node.js", "PostgreSQL", "Redis"],
     outcome: "In production — camera-based fitness tracking on iOS.",
     media: media("repdaily", "RepDaily", [
-      { aspect: "landscape", caption: "Session log", width: "hero", offset: "center" },
-      { aspect: "portrait", caption: "Set detail", width: "tall", offset: "left" },
+      { aspect: "landscape", caption: "Session log", width: "hero", offset: "right" },
+      { aspect: "portrait", caption: "Set detail", width: "support", offset: "left" },
       { aspect: "square", caption: "Rep count", width: "support", offset: "right" },
-      { aspect: "landscape", caption: "Week view", width: "support", offset: "center" },
-      { aspect: "portrait", caption: "Form check", width: "support", offset: "right" },
-      { aspect: "square", caption: "Calendar", width: "tall", offset: "left" },
+      { aspect: "landscape", caption: "Week view", width: "support", offset: "left" },
+      { aspect: "portrait", caption: "Form check", width: "tall", offset: "center" },
+      { aspect: "square", caption: "Calendar", width: "support", offset: "right" },
       { aspect: "landscape", caption: "Progression", width: "hero", offset: "left" },
-      { aspect: "square", caption: "Handoff", width: "support", offset: "center" },
+      { aspect: "square", caption: "Handoff", width: "support", offset: "right" },
     ]),
   },
   {
@@ -153,7 +154,7 @@ export const PROJECTS: readonly Project[] = [
     listed: false,
     description:
       "Content operations for a production pipeline — intake, review, and publish in one surface. A layout study for this page only, not a roster commitment.",
-    imageSrc: "/work/placeholders/landscape.svg",
+    imageSrc: "/work/placeholders/landscape.svg", // sentinel → PlaceholderStill
     imageAlt: "Contentic — index placeholder",
     imageWidth: 1600,
     imageHeight: 900,
@@ -166,14 +167,14 @@ export const PROJECTS: readonly Project[] = [
     stack: ["TypeScript", "Node.js", "PostgreSQL"],
     outcome: "Layout study — not a roster or marketing commitment.",
     media: media("contentic", "Contentic", [
-      { aspect: "portrait", caption: "Intake queue", width: "tall", offset: "center" },
-      { aspect: "landscape", caption: "Draft board", width: "hero", offset: "right" },
+      { aspect: "portrait", caption: "Intake queue", width: "hero", offset: "left" },
+      { aspect: "landscape", caption: "Draft board", width: "support", offset: "right" },
       { aspect: "square", caption: "Review pass", width: "support", offset: "left" },
-      { aspect: "landscape", caption: "Publish set", width: "support", offset: "left" },
-      { aspect: "portrait", caption: "Asset tray", width: "support", offset: "center" },
-      { aspect: "square", caption: "Status", width: "tall", offset: "right" },
-      { aspect: "landscape", caption: "Pipeline", width: "hero", offset: "center" },
-      { aspect: "square", caption: "Handoff", width: "support", offset: "right" },
+      { aspect: "landscape", caption: "Publish set", width: "support", offset: "right" },
+      { aspect: "portrait", caption: "Asset tray", width: "tall", offset: "center" },
+      { aspect: "square", caption: "Status", width: "support", offset: "left" },
+      { aspect: "landscape", caption: "Pipeline", width: "hero", offset: "right" },
+      { aspect: "square", caption: "Handoff", width: "support", offset: "left" },
     ]),
   },
   {
@@ -183,7 +184,7 @@ export const PROJECTS: readonly Project[] = [
     listed: false,
     description:
       "Planning surface for scope, status, and handoff across one factory build. A layout study for this page only — not a shipped //TODO Engineering product.",
-    imageSrc: "/work/placeholders/landscape.svg",
+    imageSrc: "/work/placeholders/landscape.svg", // sentinel → PlaceholderStill
     imageAlt: "Northstar — index placeholder",
     imageWidth: 1600,
     imageHeight: 900,
@@ -196,14 +197,14 @@ export const PROJECTS: readonly Project[] = [
     stack: ["TypeScript", "Node.js", "Redis"],
     outcome: "Layout study — not a shipped product.",
     media: media("northstar", "Northstar", [
-      { aspect: "square", caption: "Scope map", width: "support", offset: "left" },
-      { aspect: "landscape", caption: "Status", width: "hero", offset: "center" },
-      { aspect: "portrait", caption: "Milestone", width: "tall", offset: "right" },
+      { aspect: "square", caption: "Scope map", width: "hero", offset: "right" },
+      { aspect: "landscape", caption: "Status", width: "support", offset: "left" },
+      { aspect: "portrait", caption: "Milestone", width: "support", offset: "right" },
       { aspect: "square", caption: "Owner row", width: "tall", offset: "center" },
-      { aspect: "landscape", caption: "Handoff", width: "support", offset: "right" },
-      { aspect: "portrait", caption: "Risk", width: "support", offset: "left" },
-      { aspect: "square", caption: "Notes", width: "support", offset: "right" },
-      { aspect: "landscape", caption: "Release", width: "hero", offset: "left" },
+      { aspect: "landscape", caption: "Handoff", width: "support", offset: "left" },
+      { aspect: "portrait", caption: "Risk", width: "support", offset: "right" },
+      { aspect: "square", caption: "Notes", width: "support", offset: "left" },
+      { aspect: "landscape", caption: "Release", width: "hero", offset: "right" },
     ]),
   },
 ] as const;

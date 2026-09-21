@@ -18,9 +18,8 @@ export type BrowserFrameProps = {
 
 /**
  * Faux-browser chrome for a project still.
- * Placeholder SVGs are inlined so currentColor tracks Spray — an external
- * SVG in <img> cannot inherit page tokens.
- * Raster stills use <img>. A later pass can swap that slot for <video>
+ * Paths under /work/placeholders/ render PlaceholderStill (inline currentColor).
+ * Other src values use <img>. A later pass can swap that slot for <video>
  * with no autoplay, and a static frame under prefers-reduced-motion.
  */
 export function BrowserFrame({

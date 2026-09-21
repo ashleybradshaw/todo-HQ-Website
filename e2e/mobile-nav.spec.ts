@@ -11,8 +11,7 @@ test.use({
 test("mobile Spray and menu have at least 12px between them", async ({
   page,
 }) => {
-  // Gap check on an inner PageShell route — /home is chrome-clean (Spray only).
-  await page.goto("/about", { waitUntil: "domcontentloaded" });
+  await page.goto("/home", { waitUntil: "domcontentloaded" });
 
   const spray = page.getByRole("button", { name: SPRAY_NAME });
   const menu = page.getByRole("button", { name: "Open menu" });
@@ -30,12 +29,10 @@ test("mobile Spray and menu have at least 12px between them", async ({
   expect(gap).toBeGreaterThanOrEqual(12);
 });
 
-test("IDE home has Spray and no hamburger", async ({ page }) => {
-  await page.goto("/home", { waitUntil: "domcontentloaded" });
+test("gateway Ready? Yes/No landing has no nav", async ({ page }) => {
+  await page.goto("/", { waitUntil: "domcontentloaded" });
 
-  await expect(
-    page.getByRole("button", { name: SPRAY_NAME }),
-  ).toBeVisible();
+  await expect(page.getByRole("button", { name: SPRAY_NAME })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Open menu" })).toHaveCount(0);
   await expect(page.getByRole("navigation", { name: "Primary" })).toHaveCount(
     0,

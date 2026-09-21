@@ -19,17 +19,11 @@ function isGatewayPath(pathname: string) {
   return pathname === "/" || pathname === "/intro";
 }
 
-function isIdeLandingPath(pathname: string) {
-  return pathname === "/home";
-}
-
 export function Navigation() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuPath, setMenuPath] = useState(pathname);
   const menuId = useId();
-  const gateway = isGatewayPath(pathname);
-  const ideLanding = isIdeLandingPath(pathname);
 
   if (menuPath !== pathname) {
     setMenuPath(pathname);
@@ -57,25 +51,9 @@ export function Navigation() {
     };
   }, [menuOpen]);
 
-  // Gateway + IDE home stay chrome-clean: no LogoNav link row / hamburger.
-  // /home still gets Spray; gateway does not.
-  if (gateway) {
+  // Ready? Yes/No gateway only — /home keeps full nav with Spray.
+  if (isGatewayPath(pathname)) {
     return null;
-  }
-
-  if (ideLanding) {
-    return (
-      <div className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-end px-6 py-4 pr-7">
-        <div className="pointer-events-auto">
-          <span className="lg:hidden">
-            <SprayButton compact />
-          </span>
-          <span className="hidden lg:inline-flex">
-            <SprayButton />
-          </span>
-        </div>
-      </div>
-    );
   }
 
   return (

@@ -49,10 +49,10 @@ test.describe("site smoke", () => {
     await expect(
       page.getByRole("button", { name: SPRAY_NAME }),
     ).toBeVisible();
-    await expect(page.getByRole("button", { name: "Open menu" })).toHaveCount(0);
-    await expect(page.getByRole("navigation", { name: "Primary" })).toHaveCount(
-      0,
-    );
+    await expect(page.getByRole("navigation", { name: "Primary" })).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "//TODO Engineering" }),
+    ).toBeVisible();
 
     await visit(page, "/about");
     await expect(

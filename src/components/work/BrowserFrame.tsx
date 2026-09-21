@@ -35,17 +35,17 @@ export function BrowserFrame({
   return (
     <figure
       className={cn(
-        "border-border-ide overflow-hidden rounded-[4px] border bg-background",
+        "border-border-ide min-w-0 overflow-hidden rounded-[4px] border bg-background",
         className,
       )}
     >
-      <div className="border-border-ide flex items-center gap-2.5 border-b px-3 py-2">
-        <span className="flex shrink-0 gap-1.5" aria-hidden="true">
-          <span className="bg-foreground/35 size-1.5 rounded-full" />
-          <span className="bg-foreground/35 size-1.5 rounded-full" />
-          <span className="bg-foreground/35 size-1.5 rounded-full" />
+      <div className="border-border-ide flex min-w-0 items-center gap-2 border-b px-2.5 py-1.5">
+        <span className="flex shrink-0 gap-1" aria-hidden="true">
+          <span className="bg-foreground/25 size-1.5 rounded-full" />
+          <span className="bg-foreground/25 size-1.5 rounded-full" />
+          <span className="bg-foreground/25 size-1.5 rounded-full" />
         </span>
-        <figcaption className="font-jetbrains truncate text-[10px] tracking-wide uppercase">
+        <figcaption className="font-jetbrains text-syn-comment min-w-0 flex-1 truncate text-[10px] tracking-wide uppercase">
           {caption}
         </figcaption>
       </div>

@@ -92,38 +92,40 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
         eyebrow="WORK //"
         title={project.name}
         background={<ProjectGlyphField />}
-        lede={
-          <p className="font-sans text-base leading-7">{project.description}</p>
-        }
       >
-        <div className="max-w-[760px]">
+        {/* Micro-study: title (shell) → lede → stack → scope → outcome */}
+        <div className="mt-5 max-w-[760px]">
+          <p className="font-sans text-base leading-7 text-foreground">
+            {project.description}
+          </p>
+
           <ul
-            className="mt-8 flex flex-wrap gap-2"
+            className="mt-5 flex flex-wrap gap-1.5"
             aria-label={`${project.name} stack`}
           >
             {project.stack.map((item) => (
               <li
                 key={item}
-                className="font-jetbrains border-border-ide rounded-[4px] border px-2.5 py-1 text-[10px] tracking-wide uppercase"
+                className="font-jetbrains border-border-ide text-syn-comment rounded-[4px] border px-2 py-0.5 text-[10px] tracking-wide uppercase"
               >
                 {item}
               </li>
             ))}
           </ul>
 
-          <ul className="mt-8 list-disc space-y-2 pl-5 font-sans text-base leading-7">
+          <ul className="mt-6 list-disc space-y-1.5 pl-5 font-sans text-base leading-7 text-foreground">
             {project.scope.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
 
-          <p className="font-jetbrains text-syn-string mt-8 text-xs">
+          <p className="font-jetbrains text-syn-string mt-5 text-[11px] leading-4 opacity-90">
             {project.outcome}
           </p>
         </div>
 
         <section
-          className="mt-16 flex flex-col gap-12"
+          className="mt-12 flex min-w-0 flex-col gap-8"
           aria-label={`${project.name} stills`}
         >
           {project.media.map((item) => (
@@ -138,7 +140,7 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
           ))}
         </section>
 
-        <div className="border-border-ide mt-16 flex max-w-[760px] flex-wrap items-center gap-4 border-t pt-6">
+        <div className="border-border-ide mt-12 flex max-w-[760px] flex-wrap items-center gap-4 border-t pt-6">
           <Link href="/book" className={ctaClass}>
             Book team
           </Link>

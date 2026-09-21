@@ -454,31 +454,31 @@ html.is-section-transitioning a {
   }
 }
 
-/* Work detail atmosphere. Opacity stays very low so frames stay primary. */
+/* Work detail atmosphere. Sparse + low opacity so type/media stay primary. */
 .project-glyph-field {
   background-image:
     linear-gradient(var(--foreground), var(--foreground)),
     linear-gradient(var(--foreground), var(--foreground)),
-    radial-gradient(circle, var(--foreground) 0.55px, transparent 0.7px);
+    radial-gradient(circle, var(--foreground) 0.5px, transparent 0.65px);
   background-repeat: repeat;
   background-size:
-    1px 5px,
-    5px 1px,
-    48px 48px;
+    1px 4px,
+    4px 1px,
+    56px 56px;
   background-position:
-    24px 21px,
-    22px 23px,
+    28px 26px,
+    26px 28px,
     0 0;
-  opacity: 0.065;
-  animation: project-glyph-drift 96s linear infinite;
+  opacity: 0.05;
+  animation: project-glyph-drift 110s linear infinite;
 }
 
 @keyframes project-glyph-drift {
   to {
     background-position:
-      24px 69px,
-      22px 71px,
-      0 48px;
+      28px 82px,
+      26px 84px,
+      0 56px;
   }
 }
 

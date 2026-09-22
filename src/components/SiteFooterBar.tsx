@@ -34,7 +34,7 @@ export function SiteFooterBar() {
         </p>
         <FooterClock />
         <Link href="/book" className={linkClass}>
-          BOOK TEAM
+          WORK TOGETHER
         </Link>
         <Link href="/privacy" className={linkClass}>
           HOW WE USE YOUR DATA – PRIVACY POLICY

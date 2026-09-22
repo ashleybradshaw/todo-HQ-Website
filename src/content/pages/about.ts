@@ -8,6 +8,77 @@ export const STAT_MOCKS = [
   { figure: "50+", label: "Production handoffs", source: "// roster + clients" },
 ] as const;
 
+/** Simulated floor telemetry — panel titled // FLOOR SIM; not real analytics. */
+export const LIVE_FLOOR_SIM = [
+  {
+    id: "api-min",
+    label: "api/min",
+    min: 120,
+    max: 480,
+    step: 12,
+    format: "int",
+  },
+  {
+    id: "agents-on",
+    label: "agents on",
+    min: 4,
+    max: 18,
+    step: 1,
+    format: "int",
+  },
+  {
+    id: "mcp-calls",
+    label: "mcp calls",
+    min: 80,
+    max: 320,
+    step: 8,
+    format: "int",
+  },
+  {
+    id: "tokens",
+    label: "tokens",
+    min: 120_000,
+    max: 980_000,
+    step: 12_000,
+    format: "compact",
+  },
+  {
+    id: "tools-hot",
+    label: "tools hot",
+    min: 2,
+    max: 14,
+    step: 1,
+    format: "int",
+  },
+  {
+    id: "shipped",
+    label: "shipped",
+    min: 1,
+    max: 9,
+    step: 1,
+    format: "int",
+  },
+  {
+    id: "queue",
+    label: "queue",
+    min: 0,
+    max: 24,
+    step: 1,
+    format: "int",
+  },
+  {
+    id: "gate-passes",
+    label: "gate passes",
+    min: 6,
+    max: 42,
+    step: 2,
+    format: "int",
+  },
+] as const;
+
+export type LiveFloorMetric = (typeof LIVE_FLOOR_SIM)[number];
+export type LiveFloorFormat = LiveFloorMetric["format"];
+
 export const aboutPage = {
   eyebrow: "// About",
   title: "Most teams just write code. We build the entire factory.",

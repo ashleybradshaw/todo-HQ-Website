@@ -21,7 +21,6 @@ export function NoiseOverlay() {
           /* DIAGNOSIS — dial back after Ashley skim */
           "--hq-grain-size": `${GRAIN_SIZE_PX}px`,
           "--hq-grain-opacity": GRAIN_OPACITY,
-          "--hq-grain-density": GRAIN_DENSITY,
           "--hq-grain-duration": GRAIN_DURATION,
         } as CSSProperties
       }

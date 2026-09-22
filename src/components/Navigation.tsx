@@ -51,7 +51,7 @@ export function Navigation() {
     };
   }, [menuOpen]);
 
-  // Ready? Yes/No gateway only — /home keeps full nav with Spray.
+  // Ready? Yes/No gateway — chrome-clean (no nav, no Spray).
   if (isGatewayPath(pathname)) {
     return null;
   }

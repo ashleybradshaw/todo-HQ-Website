@@ -2,20 +2,20 @@
 @config "../../tailwind.config.ts";
 
 :root {
-  /* Light IDE house defaults until Spray (C1) */
-  --background: #ddddff;
-  --foreground: #4545ff;
-  --bg-canvas: #ddddff;
-  --brand-logo: #0b0cb4;
-  --border-ide: color-mix(in srgb, #4545ff 15%, transparent);
-  --media-elev-shadow: color-mix(in srgb, #4545ff 16%, transparent);
-  --media-elev-bloom: color-mix(in srgb, #4545ff 12%, transparent);
-  --syn-keyword: #4545ff;
-  --syn-property: color-mix(in srgb, #4545ff 68%, #ddddff);
+  /* Light IDE house defaults until Spray — match INNER_BRAND_PAIR exactly */
+  --background: #DDDDFF;
+  --foreground: #4545FF;
+  --bg-canvas: #DDDDFF;
+  --brand-logo: #0B0CB4;
+  --border-ide: color-mix(in srgb, #4545FF 15%, transparent);
+  --media-elev-shadow: color-mix(in srgb, #4545FF 16%, transparent);
+  --media-elev-bloom: color-mix(in srgb, #4545FF 12%, transparent);
+  --syn-keyword: #4545FF;
+  --syn-property: color-mix(in srgb, #4545FF 68%, #DDDDFF);
   --syn-string: #059669;
-  --syn-number: #d97706;
-  --syn-comment: color-mix(in srgb, #4545ff 72%, transparent);
-  --syn-bracket: color-mix(in srgb, #4545ff 82%, #0b0cb4);
+  --syn-number: #D97706;
+  --syn-comment: color-mix(in srgb, #4545FF 72%, transparent);
+  --syn-bracket: color-mix(in srgb, #4545FF 82%, #0B0CB4);
   --blog-cat-projects: #89551a;
   --blog-cat-leaps: #156f4a;
   --blog-cat-agents: #8921ab;

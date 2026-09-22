@@ -4,58 +4,33 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
-import { usePathname } from "next/navigation";
 import {
+  fitHueAgainstBackground,
   getRandomAccessiblePair,
   INNER_BRAND_PAIR,
-  isAccessibleColorPair,
   isInnerBrandPair,
   type AccessibleColorPair,
 } from "@/lib/accessibleColorPair";
 import { blogCategoryColors } from "@/lib/blogCategoryColors";
 import { BLOG_CATEGORIES, BLOG_CATEGORY_VARS } from "@/lib/blog-shared";
 
-const STORAGE_KEY = "todo-spray";
+/** Legacy Spray persistence key — cleared once; no longer read or written. */
+const LEGACY_STORAGE_KEY = "todo-spray";
 
 type SprayContextValue = {
   pair: AccessibleColorPair;
-  locked: boolean;
   randomize: () => void;
 };
 
 const SprayContext = createContext<SprayContextValue | null>(null);
 
-function isLockedPath(pathname: string) {
-  return pathname === "/" || pathname === "/intro";
-}
-
-function readStoredPair(): AccessibleColorPair | null {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      return null;
-    }
-    const parsed: unknown = JSON.parse(raw);
-    return isAccessibleColorPair(parsed) ? parsed : null;
-  } catch {
-    return null;
-  }
-}
-
-function writeStoredPair(pair: AccessibleColorPair) {
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(pair));
-  } catch {
-    // Private mode or quota — in-memory pair still applies.
-  }
-}
-
-function applyInnerPair(pair: AccessibleColorPair) {
+function applyPair(pair: AccessibleColorPair) {
   const root = document.documentElement.style;
   const brand = isInnerBrandPair(pair);
 
@@ -81,6 +56,15 @@ function applyInnerPair(pair: AccessibleColorPair) {
     "--syn-property",
     `color-mix(in srgb, ${pair.text} 68%, ${pair.bg})`,
   );
+  // Semantic accents derived from the pair (not hard-coded hues).
+  root.setProperty(
+    "--syn-string",
+    fitHueAgainstBackground(pair.bg, 160, 70, brand ? 35 : 55),
+  );
+  root.setProperty(
+    "--syn-number",
+    fitHueAgainstBackground(pair.bg, 35, 80, brand ? 45 : 60),
+  );
   root.setProperty(
     "--syn-comment",
     `color-mix(in srgb, ${pair.text} 72%, transparent)`,
@@ -103,29 +87,25 @@ function applyInnerPair(pair: AccessibleColorPair) {
 }
 
 export function SprayProvider({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
-  const locked = isLockedPath(pathname);
-  const [pair, setPair] = useState<AccessibleColorPair>(() => {
-    if (typeof window === "undefined") {
-      return INNER_BRAND_PAIR;
+  const [pair, setPair] = useState<AccessibleColorPair>(INNER_BRAND_PAIR);
+
+  useEffect(() => {
+    try {
+      window.localStorage.removeItem(LEGACY_STORAGE_KEY);
+    } catch {
+      // Private mode — ignore.
     }
-    return readStoredPair() ?? INNER_BRAND_PAIR;
-  });
-
-  useLayoutEffect(() => {
-    applyInnerPair(locked ? INNER_BRAND_PAIR : pair);
-  }, [locked, pair]);
-
-  const randomize = useCallback(() => {
-    const next = getRandomAccessiblePair();
-    setPair(next);
-    writeStoredPair(next);
   }, []);
 
-  const value = useMemo(
-    () => ({ pair, locked, randomize }),
-    [locked, pair, randomize],
-  );
+  useLayoutEffect(() => {
+    applyPair(pair);
+  }, [pair]);
+
+  const randomize = useCallback(() => {
+    setPair(getRandomAccessiblePair());
+  }, []);
+
+  const value = useMemo(() => ({ pair, randomize }), [pair, randomize]);
 
   return (
     <SprayContext.Provider value={value}>{children}</SprayContext.Provider>

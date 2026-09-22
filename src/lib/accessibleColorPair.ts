@@ -4,7 +4,11 @@ export type AccessibleColorPair = {
 };
 
 const WCAG_AA_CONTRAST = 4.5;
-const MAX_ATTEMPTS = 80;
+/** Prefer AAA when a candidate appears within the attempt budget. */
+const WCAG_AAA_PREFER = 7;
+/** Approximate floor for color-mix muted roles (comment / property) on bg. */
+const MUTED_MIN_CONTRAST = 3;
+const MAX_ATTEMPTS = 120;
 const HEX_PAIR = /^#([0-9a-fA-F]{6})$/;
 
 function channelToLinear(channel: number) {
@@ -62,7 +66,7 @@ function relativeLuminance(hex: string) {
   );
 }
 
-function contrastRatio(first: string, second: string) {
+export function contrastRatio(first: string, second: string) {
   const a = relativeLuminance(first);
   const b = relativeLuminance(second);
   const lighter = Math.max(a, b);
@@ -105,6 +109,15 @@ function hslToHex(hue: number, saturation: number, lightness: number) {
   }
 
   return `#${toHex((r + m) * 255)}${toHex((g + m) * 255)}${toHex((b + m) * 255)}`;
+}
+
+/** Approximate `color-mix(in srgb, fg p%, bg)` in sRGB. */
+function mixHex(foreground: string, background: string, foregroundWeight: number) {
+  const fg = hexToRgb(foreground);
+  const bg = hexToRgb(background);
+  const t = Math.min(1, Math.max(0, foregroundWeight));
+  const u = 1 - t;
+  return `#${toHex(fg.r * t + bg.r * u)}${toHex(fg.g * t + bg.g * u)}${toHex(fg.b * t + bg.b * u)}`;
 }
 
 function randomHex(lightnessMin: number, lightnessMax: number) {
@@ -176,14 +189,36 @@ export function fitHueAgainstBackground(
   return best;
 }
 
+function pairPassesMutedRoles(bg: string, text: string) {
+  // Mirrors SprayProvider mixes: comment ~72% fg, property ~68% fg on bg.
+  const comment = mixHex(text, bg, 0.72);
+  const property = mixHex(text, bg, 0.68);
+  return (
+    contrastRatio(comment, bg) >= MUTED_MIN_CONTRAST &&
+    contrastRatio(property, bg) >= MUTED_MIN_CONTRAST
+  );
+}
+
 export function getRandomAccessiblePair(): AccessibleColorPair {
+  let aaFallback: AccessibleColorPair | null = null;
+
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
     const bg = randomHex(8, 92);
     const text = randomHex(4, 96);
-    if (contrastRatio(bg, text) >= WCAG_AA_CONTRAST) {
+    const body = contrastRatio(bg, text);
+    if (body < WCAG_AA_CONTRAST) {
+      continue;
+    }
+    if (!pairPassesMutedRoles(bg, text)) {
+      continue;
+    }
+    if (body >= WCAG_AAA_PREFER) {
       return { bg, text };
+    }
+    if (!aaFallback) {
+      aaFallback = { bg, text };
     }
   }
 
-  return INNER_BRAND_PAIR;
+  return aaFallback ?? INNER_BRAND_PAIR;
 }

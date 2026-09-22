@@ -81,12 +81,10 @@ test.describe("site smoke", () => {
     ).toBeVisible();
   });
 
-  test("Spray changes inner tokens and gateway paints brand back", async ({
+  test("Spray persists across client nav and resets on hard refresh", async ({
     page,
   }) => {
     await visit(page, "/home");
-    await page.evaluate(() => localStorage.removeItem("todo-spray"));
-    await page.reload({ waitUntil: "domcontentloaded" });
     await expect.poll(async () => rootBackground(page)).toBe(BRAND_BG);
     await expect.poll(async () => rootToken(page, "--foreground")).toBe(BRAND_FG);
 
@@ -94,13 +92,30 @@ test.describe("site smoke", () => {
     await expect(spray).toBeVisible();
     await spray.click();
 
+    const sprayedBg = await rootBackground(page);
+    expect(sprayedBg).not.toBe(BRAND_BG);
     await expect
-      .poll(async () => page.evaluate(() => localStorage.getItem("todo-spray")))
-      .toBeTruthy();
+      .poll(async () =>
+        page.evaluate(() => localStorage.getItem("todo-spray")),
+      )
+      .toBeNull();
 
-    expect(await rootBackground(page)).not.toBe(BRAND_BG);
+    // Client nav keeps React Spray state (full goto would remount).
+    await page
+      .getByRole("navigation", { name: "Primary" })
+      .getByRole("link", { name: "About" })
+      .click();
+    await expect(page).toHaveURL(/\/about/);
+    await expect.poll(async () => rootBackground(page)).toBe(sprayedBg);
 
-    await visit(page, "/");
+    await page
+      .getByRole("navigation", { name: "Primary" })
+      .getByRole("link", { name: "Work" })
+      .click();
+    await expect(page).toHaveURL(/\/work/);
+    await expect.poll(async () => rootBackground(page)).toBe(sprayedBg);
+
+    await page.reload({ waitUntil: "domcontentloaded" });
     await expect.poll(async () => rootBackground(page)).toBe(BRAND_BG);
   });
 });

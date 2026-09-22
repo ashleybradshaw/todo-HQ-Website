@@ -39,9 +39,9 @@ test.describe("site smoke", () => {
       page.getByRole("button", { name: SPRAY_NAME }),
     ).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Open menu" })).toHaveCount(0);
-    await expect(page.getByRole("navigation", { name: "Primary" })).toHaveCount(
-      0,
-    );
+    await expect(
+      page.getByRole("navigation", { name: "Primary", exact: true }),
+    ).toHaveCount(0);
   });
 
   test("inner factory routes load and expose Spray", async ({ page }) => {
@@ -49,7 +49,7 @@ test.describe("site smoke", () => {
     await expect(
       page.getByRole("button", { name: SPRAY_NAME }),
     ).toBeVisible();
-    await expect(page.getByRole("navigation", { name: "Primary" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Open menu" })).toBeVisible();
     await expect(
       page.getByRole("link", { name: "//TODO Engineering" }),
     ).toBeVisible();
@@ -61,7 +61,7 @@ test.describe("site smoke", () => {
     await expect(
       page.getByRole("button", { name: SPRAY_NAME }),
     ).toBeVisible();
-    await expect(page.getByRole("navigation", { name: "Primary" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Open menu" })).toBeVisible();
 
     await visit(page, "/work");
     await expect(
@@ -92,8 +92,10 @@ test.describe("site smoke", () => {
     await expect(spray).toBeVisible();
     await spray.click();
 
+    await expect
+      .poll(async () => rootBackground(page))
+      .not.toBe(BRAND_BG);
     const sprayedBg = await rootBackground(page);
-    expect(sprayedBg).not.toBe(BRAND_BG);
     await expect
       .poll(async () =>
         page.evaluate(() => localStorage.getItem("todo-spray")),
@@ -101,15 +103,17 @@ test.describe("site smoke", () => {
       .toBeNull();
 
     // Client nav keeps React Spray state (full goto would remount).
+    await page.getByRole("button", { name: "Open menu" }).click();
     await page
-      .getByRole("navigation", { name: "Primary" })
+      .getByRole("navigation", { name: "Primary", exact: true })
       .getByRole("link", { name: "About" })
       .click();
     await expect(page).toHaveURL(/\/about/);
     await expect.poll(async () => rootBackground(page)).toBe(sprayedBg);
 
+    await page.getByRole("button", { name: "Open menu" }).click();
     await page
-      .getByRole("navigation", { name: "Primary" })
+      .getByRole("navigation", { name: "Primary", exact: true })
       .getByRole("link", { name: "Work" })
       .click();
     await expect(page).toHaveURL(/\/work/);

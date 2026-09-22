@@ -238,6 +238,30 @@ body {
   }
 }
 
+/* Good Fella SiteNav — overlay link stagger (CSS only) */
+@keyframes nav-stagger-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.nav-stagger {
+  animation: nav-stagger-in 0.4s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-stagger {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .noise-overlay-grain {
   pointer-events: none;
   position: absolute;

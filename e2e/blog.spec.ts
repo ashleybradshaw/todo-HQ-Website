@@ -53,7 +53,8 @@ test.describe("blog loop", () => {
   }) => {
     test.setTimeout(90_000);
     await visit(page, "/home");
-    await page.getByRole("navigation", { name: "Primary" }).getByRole("link", {
+    await page.getByRole("button", { name: "Open menu" }).click();
+    await page.getByRole("navigation", { name: "Primary", exact: true }).getByRole("link", {
       name: "Blog",
     }).click();
     await expect(page).toHaveURL(/\/blog$/);
@@ -135,7 +136,7 @@ test.describe("blog loop", () => {
       .evaluate((el) => getComputedStyle(el).color);
     expect(badgeColor).toBe(pillColor);
 
-    await page.getByRole("navigation", { name: "Primary" }).getByRole("button", {
+    await page.getByRole("button", {
       name: "Spray a new accessible colour palette",
     }).click();
 
@@ -186,7 +187,7 @@ test.describe("blog loop", () => {
     const tank = page.locator("#blog-sandbox .aspect-video");
     const before = await tank.evaluate((el) => getComputedStyle(el).backgroundColor);
 
-    await page.getByRole("navigation", { name: "Primary" }).getByRole("button", {
+    await page.getByRole("button", {
       name: "Spray a new accessible colour palette",
     }).click();
 
@@ -209,7 +210,7 @@ test.describe("blog loop", () => {
       .locator("canvas")
       .evaluate((el) => getComputedStyle(el).backgroundColor);
 
-    await page.getByRole("navigation", { name: "Primary" }).getByRole("button", {
+    await page.getByRole("button", {
       name: "Spray a new accessible colour palette",
     }).click();
 

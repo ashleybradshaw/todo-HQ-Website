@@ -34,7 +34,7 @@ test("gateway Ready? Yes/No landing has no nav", async ({ page }) => {
 
   await expect(page.getByRole("button", { name: SPRAY_NAME })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Open menu" })).toHaveCount(0);
-  await expect(page.getByRole("navigation", { name: "Primary" })).toHaveCount(
-    0,
-  );
+  await expect(
+    page.getByRole("navigation", { name: "Primary", exact: true }),
+  ).toHaveCount(0);
 });

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { AsciiScrollField } from "@/components/about/AsciiScrollField";
 import { ClientStrip } from "@/components/about/ClientStrip";
 import { OperatingRules } from "@/components/about/OperatingRules";
 import { OriginStory } from "@/components/about/OriginStory";
@@ -19,7 +18,6 @@ export default function AboutPage() {
   return (
     <PageShell
       variant="essay"
-      background={<AsciiScrollField />}
       eyebrow={aboutPage.eyebrow}
       eyebrowClassName="text-center"
       title={aboutPage.title}

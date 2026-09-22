@@ -1,7 +1,11 @@
 export const STAT_MOCKS = [
-  { figure: "$50B+", label: "Pipeline value" },
-  { figure: "500M+", label: "Requests through the floor" },
-  { figure: "50+", label: "Production handoffs" },
+  { figure: "$50B+", label: "Pipeline value", source: "// modeled capacity" },
+  {
+    figure: "500M+",
+    label: "Requests through the floor",
+    source: "// production traffic",
+  },
+  { figure: "50+", label: "Production handoffs", source: "// roster + clients" },
 ] as const;
 
 export const aboutPage = {

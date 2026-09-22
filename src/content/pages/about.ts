@@ -21,11 +21,17 @@ export const aboutPage = {
       "The roster shipped on one pipeline before any client work did. Intake, multi-agent implementation, and a production handoff — the same sequence, every time.",
       "Client work runs that factory, not a side desk. Product and engineering leads get the system we already use to ship our own apps.",
     ],
+    /** TEMP — replace with final origin still */
+    mediaSrc: "/about/origin-test.webp",
+    mediaAlt: "Origin — temporary still",
   },
   operatingRules: {
     eyebrow: "// OPERATING",
     title: "How the factory runs.",
     mediaLabel: "Floor",
+    /** TEMP — same pilot still as origin; replace with floor plate */
+    mediaSrc: "/about/origin-test.webp",
+    mediaAlt: "Floor — temporary still",
     rules: [
       "One pipeline for roster and client work — no side desk.",
       "Intake before agents. Clarify the ship target, then open the floor.",

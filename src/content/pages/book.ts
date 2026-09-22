@@ -1,5 +1,5 @@
 export const bookPage = {
-  eyebrow: "BOOK //",
+  eyebrow: "// Book",
   title: "Bring the factory to the problem.",
   metaDescription:
     "Book //TODO Engineering — tell product and engineering leads what has to ship. Mailto contact stub for consultation and onboarding.",

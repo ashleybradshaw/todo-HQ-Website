@@ -20,6 +20,8 @@ export type PageShellProps = {
   titleStyle?: "display" | "mono";
   /** Overrides default title token/alignment (e.g. Essay drill: type-title + center). */
   titleClassName?: string;
+  /** Extra class on the eyebrow label (e.g. text-center for Essay soft-align). */
+  eyebrowClassName?: string;
   overflow?: "x-hidden" | "hidden";
   background?: ReactNode;
   /** Caps eyebrow, title, and lede. Defaults by variant. */
@@ -59,6 +61,7 @@ export function PageShell({
   wide = false,
   titleStyle = "display",
   titleClassName,
+  eyebrowClassName,
   overflow = "x-hidden",
   background,
   headerClassName,
@@ -84,6 +87,7 @@ export function PageShell({
               className={cn(
                 "type-label",
                 breadcrumbs ? "mt-6" : undefined,
+                eyebrowClassName,
               )}
             >
               {eyebrow}

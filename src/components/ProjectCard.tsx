@@ -60,16 +60,14 @@ export function ProjectCard({ project }: { project: Project }) {
           )}
         </div>
         <div className="flex w-full flex-col items-start">
-          <h2 className="font-jetbrains w-full text-[28px] leading-9 font-bold tracking-[-0.01em] uppercase">
+          <h2 className="type-heading w-full tracking-tight">
             {project.name}
           </h2>
-          <p className="font-jetbrains w-full text-sm leading-6 tracking-[-0.01em]">
-            {project.description}
-          </p>
+          <p className="type-body-sm w-full">{project.description}</p>
         </div>
         <Link
           href={`/work/${project.slug}`}
-          className="font-unbounded w-max cursor-pointer text-base leading-6 font-bold tracking-[-0.01em] uppercase underline-offset-2 [text-decoration:underline_1px_wavy] [text-decoration-color:color-mix(in_srgb,var(--foreground)_55%,transparent)] [text-underline-position:from-font] transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]"
+          className="type-label w-max cursor-pointer underline-offset-2 [text-decoration:underline_1px_wavy] [text-decoration-color:color-mix(in_srgb,var(--foreground)_55%,transparent)] [text-underline-position:from-font] transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]"
         >
           Open Project
         </Link>

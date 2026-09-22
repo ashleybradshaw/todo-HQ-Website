@@ -57,7 +57,7 @@ test.describe("blog loop", () => {
       name: "Blog",
     }).click();
     await expect(page).toHaveURL(/\/blog$/);
-    await expect(page.getByRole("heading", { name: "blog.index" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /\/\/ Blog/i })).toBeVisible();
     await expect(page.getByText("NOTES", { exact: true })).toBeVisible();
     await expect(page.locator("#blog-count")).toHaveText("10 notes");
     await expect(page.locator("#blog-notes-grid a")).toHaveCount(6);
@@ -261,7 +261,7 @@ test.describe("blog loop", () => {
   test("mobile landing shows HQ chrome and menu", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await visit(page, "/blog");
-    await expect(page.getByRole("heading", { name: "blog.index" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /\/\/ Blog/i })).toBeVisible();
     await expect(page.getByRole("button", { name: "More" })).toBeVisible();
     await expect(page.getByRole("link", { name: "View all" })).toHaveCount(0);
     await expect(page.getByText(/Notes from the floor/)).toHaveCount(0);
@@ -312,7 +312,7 @@ test.describe("blog loop", () => {
   test("/blog/all redirects to the notes index", async ({ page }) => {
     await page.goto("/blog/all", { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/blog$/);
-    await expect(page.getByRole("heading", { name: "blog.index" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /\/\/ Blog/i })).toBeVisible();
   });
 
   test("copy link and rating thank-you lock on each stub", async ({

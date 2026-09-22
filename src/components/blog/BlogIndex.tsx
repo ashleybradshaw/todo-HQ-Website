@@ -30,10 +30,10 @@ const FILTERS: readonly { id: "all" | BlogCategory; label: string }[] = [
 type FilterId = (typeof FILTERS)[number]["id"];
 
 const pillClass =
-  "cursor-pointer rounded-[4px] border px-3 py-1.5 font-jetbrains text-xs font-bold tracking-wider transition-[color,background-color,border-color,opacity] duration-[400ms] ease-in-out focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
+  "type-label cursor-pointer rounded-[4px] border px-3 py-1.5 transition-[color,background-color,border-color,opacity] duration-[400ms] ease-in-out focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
 
 const moreClass =
-  "inline-flex cursor-pointer items-center justify-center rounded-[4px] border border-current px-3 py-1.5 font-jetbrains text-xs font-bold tracking-wider transition-[opacity,color,background-color] duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
+  "type-label inline-flex cursor-pointer items-center justify-center rounded-[4px] border border-current px-3 py-1.5 transition-[opacity,color,background-color] duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
 
 function categoryTone(category: BlogCategory, filled: boolean) {
   const token = `var(${BLOG_CATEGORY_VARS[category]})`;
@@ -68,12 +68,10 @@ function FeaturedCover({ src }: { src: string | null }) {
         />
       ) : (
         <div className="flex h-full flex-col items-center justify-center gap-1 bg-background px-2 text-center">
-          <p className="font-jetbrains text-[10px] font-bold tracking-wider">
+          <p className="type-label">
             {BLOG_IMAGE_MASTER_WIDTH} × {BLOG_IMAGE_MASTER_HEIGHT}
           </p>
-          <p className="font-jetbrains text-syn-comment text-[10px] tracking-wider">
-            1:1 center
-          </p>
+          <p className="type-label text-syn-comment font-normal">1:1 center</p>
         </div>
       )}
     </div>
@@ -101,7 +99,7 @@ function WriterMeta({
   return (
     <div
       className={cn(
-        "font-jetbrains flex items-center gap-x-2 text-sm",
+        "type-meta flex items-center gap-x-2",
         compact
           ? "min-w-0 flex-nowrap overflow-hidden"
           : "flex-wrap gap-y-1",
@@ -145,7 +143,7 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
             id="blog-index-heading"
             className="type-label text-syn-keyword"
           >
-            blog.index
+            {"// Blog"}
           </h1>
           <p className="type-label text-syn-comment font-normal">NOTES</p>
         </div>
@@ -186,7 +184,7 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
 
           <p
             id="blog-count"
-            className="font-jetbrains text-syn-comment text-sm"
+            className="type-meta text-syn-comment"
             aria-live="polite"
           >
             {filtered.length} notes
@@ -205,10 +203,10 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
                   <FeaturedCover src={featured.imageSrc} />
                   <div className="flex h-28 min-w-0 flex-1 flex-col justify-center overflow-hidden sm:h-36 sm:justify-between md:h-40">
                     <div className="min-h-0">
-                      <h2 className="font-unbounded line-clamp-2 text-base font-bold tracking-tight sm:text-lg md:text-xl">
+                      <h2 className="type-subhead line-clamp-2 tracking-tight">
                         {featured.title}
                       </h2>
-                      <p className="mt-1.5 line-clamp-2 leading-snug">
+                      <p className="type-body-sm mt-1.5 line-clamp-2">
                         {featured.excerpt}
                       </p>
                     </div>
@@ -249,15 +247,15 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
                   >
                     <p
                       data-category-label={post.category}
-                      className="font-jetbrains inline-flex w-fit rounded-[4px] border px-2 py-0.5 text-xs font-bold tracking-wider"
+                      className="type-label inline-flex w-fit rounded-[4px] border px-2 py-0.5"
                       style={categoryTone(post.category, false)}
                     >
                       {BLOG_CATEGORY_LABELS[post.category]}
                     </p>
-                    <h2 className="font-unbounded mt-3 text-xl font-bold tracking-tight text-balance">
+                    <h2 className="type-subhead mt-3 tracking-tight text-balance">
                       {post.title}
                     </h2>
-                    <p className="mt-3 flex-1 leading-relaxed">{post.excerpt}</p>
+                    <p className="type-body-sm mt-3 flex-1">{post.excerpt}</p>
                     <div className="mt-5">
                       <WriterMeta
                         name={post.writerName}
@@ -270,7 +268,7 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
               ))}
             </ul>
           ) : (
-            <p className="font-jetbrains text-syn-comment text-sm">
+            <p className="type-meta text-syn-comment">
               No notes in this filter.
             </p>
           )}

@@ -18,7 +18,10 @@ export default function AboutPage() {
     <PageShell
       variant="essay"
       eyebrow={aboutPage.eyebrow}
+      eyebrowClassName="text-center"
       title={aboutPage.title}
+      titleClassName="type-title text-center text-balance tracking-tight"
+      ledeClassName="text-center"
       lede={
         <>
           <p>{aboutPage.lede[0]}</p>

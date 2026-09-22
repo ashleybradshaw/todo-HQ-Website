@@ -1,5 +1,5 @@
 export const aboutPage = {
-  eyebrow: "ABOUT //",
+  eyebrow: "// About",
   title: "Most teams just write code. We build the entire factory.",
   metaDescription:
     "How //TODO Engineering operates an internal software factory — multi-agent systems, production handoff, and standards for product and engineering leads.",

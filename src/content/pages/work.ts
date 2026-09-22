@@ -1,5 +1,5 @@
 export const workPage = {
-  eyebrow: "WORK //",
+  eyebrow: "// Work",
   title: "The work",
   metaDescription:
     "Production apps from the //TODO Engineering factory — including RepDaily and ReadyGo. Case pages for product and engineering leads.",

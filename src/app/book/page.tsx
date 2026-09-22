@@ -37,7 +37,10 @@ export default async function BookPage({ searchParams }: BookPageProps) {
       <PageShell
         variant="essay"
         eyebrow={bookPage.eyebrow}
+        eyebrowClassName="text-center"
         title={bookPage.title}
+        titleClassName="type-title text-center text-balance tracking-tight"
+        ledeClassName="text-center"
         overflow="hidden"
         background={<PerspectiveGrid />}
         lede={<p>{bookPage.lede}</p>}

@@ -2,24 +2,173 @@ export const bookPage = {
   eyebrow: "// Book",
   title: "Bring the factory to the problem.",
   metaDescription:
-    "Book //TODO Engineering — tell product and engineering leads what has to ship. Mailto contact stub for consultation and onboarding.",
+    "Book //TODO Engineering — tell product and engineering leads what has to ship. Contact strip, project planner, and FAQ for coffee or hard talk.",
   lede: "//TODO Engineering works with product and engineering leads who need AI workflow architecture or a full-stack application in production. Tell us what has to ship.",
-  form: {
-    stripLabel: "Contact strip",
-    stripIntro:
-      "Short form — opens your mail client with the details filled in. Or email the team directly.",
+
+  howHeardOptions: [
+    { value: "referral", label: "Referral" },
+    { value: "linkedin", label: "LinkedIn" },
+    { value: "x", label: "X" },
+    { value: "roster", label: "Roster product" },
+    { value: "conference", label: "Conference" },
+    { value: "other", label: "Other" },
+  ] as const,
+
+  contact: {
+    eyebrow: "// Contact",
+    title: "Start with a short note.",
+    intro:
+      "Name, email, and what has to ship. Opens your mail client with a draft — or write the team directly.",
     nameLabel: "Name",
     emailLabel: "Email",
-    companyLabel: "Company",
-    companyOptional: "(optional)",
-    messageLabel: "What has to ship",
+    phoneLabel: "Phone",
+    phoneOptional: "(optional)",
+    howHeardLabel: "How did you hear about TODO?",
+    howHeardPlaceholder: "Select one",
+    messageLabel: "Message",
     submitLabel: "Open mail draft →",
     composeHint: "If nothing opened, use the email link above.",
-    bodyHeading: "What has to ship:",
     subjectPrefix: "Book //TODO —",
+    bodyHeading: "Message:",
+    mediaLabel: "Still · contact",
     coffeePrefill:
       "Coffee talk (15 min) — chemistry check. Looking to see if this is a fit.",
     hardTalkPrefill:
       "Hard talk (60 min) — dig into the real issue and scope the fix. What has to ship:",
+  },
+
+  planner: {
+    eyebrow: "// Project planner",
+    title: "Scope the next lap.",
+    intro:
+      "Four short steps. We turn the answers into a mail draft so the first conversation starts with a real brief.",
+    backLabel: "Back",
+    nextLabel: "Next →",
+    submitLabel: "Open planner draft →",
+    composeHint: "If nothing opened, copy the summary below or email the team directly.",
+    successLabel: "Draft ready",
+    subjectPrefix: "Planner //TODO —",
+    steps: [
+      {
+        id: "booking",
+        title: "What are you booking?",
+        hint: "Pick the door that fits. We can always retarget on the call.",
+        mediaLabel: "Still · step 1",
+      },
+      {
+        id: "scope",
+        title: "Scope signals",
+        hint: "Timeline, budget band, and what the floor needs to own.",
+        mediaLabel: "Still · step 2",
+      },
+      {
+        id: "brief",
+        title: "Brief",
+        hint: "Name the outcome. A brief helps — a file upload is not required.",
+        mediaLabel: "Still · step 3",
+      },
+      {
+        id: "contact",
+        title: "Contact",
+        hint: "Where we send the reply and how you found the factory.",
+        mediaLabel: "Still · step 4",
+      },
+    ] as const,
+    bookingOptions: [
+      { value: "coffee", label: "Coffee talk (15)" },
+      { value: "hard-talk", label: "Hard talk (60)" },
+      { value: "full-build", label: "Full build" },
+      { value: "agent-workflow", label: "Agent / workflow system" },
+      { value: "not-sure", label: "Not sure" },
+    ] as const,
+    timelineOptions: [
+      { value: "asap", label: "ASAP" },
+      { value: "this-quarter", label: "This quarter" },
+      { value: "exploring", label: "Exploring" },
+    ] as const,
+    budgetOptions: [
+      { value: "under-25k", label: "Under $25k" },
+      { value: "25-75k", label: "$25k–$75k" },
+      { value: "75-150k", label: "$75k–$150k" },
+      { value: "150k-plus", label: "$150k+" },
+      { value: "tbd", label: "Still sizing" },
+    ] as const,
+    needsOptions: [
+      { value: "product-ui", label: "Product UI" },
+      { value: "app", label: "App" },
+      { value: "agents", label: "Agents" },
+      { value: "backend", label: "Backend" },
+      { value: "other", label: "Other" },
+    ] as const,
+    briefLabel: "What has to ship",
+    briefPlaceholder: "Outcome, constraint, and the gate that cannot be faked.",
+    hasBriefLabel: "Got a brief?",
+    hasBriefYes: "Yes",
+    hasBriefNo: "Not yet",
+    dropzoneLabel: "Drop a brief here later",
+    dropzoneHint: "Placeholder only — no upload on this pass. Attach files in the mail draft.",
+    nameLabel: "Name",
+    emailLabel: "Email",
+    companyLabel: "Company",
+    companyOptional: "(optional)",
+    howHeardLabel: "How did you hear about TODO?",
+    howHeardPlaceholder: "Select one",
+  },
+
+  faq: {
+    eyebrow: "// FAQ",
+    title: "Answers before you book.",
+    jumpLabel: "Jump to contact",
+    jumpHref: "#contact",
+    items: [
+      {
+        id: "timelines",
+        question: "How fast can we start?",
+        answer:
+          "Coffee and hard talks book within a week when the calendar is open. Full builds start after intake — we name the first gate before agents touch the stack.",
+      },
+      {
+        id: "cost",
+        question: "How do you talk about cost?",
+        answer:
+          "We keep ranges honest. A budget band in the planner is enough for a first pass; we do not do price theater or surprise retainers.",
+      },
+      {
+        id: "remote",
+        question: "Do you work remote?",
+        answer:
+          "Yes. The factory runs remote by default. We meet when a gate needs faces in the room; otherwise the stations stay async.",
+      },
+      {
+        id: "payment",
+        question: "How does payment work?",
+        answer:
+          "Milestones tied to gates you can verify. Invoices track shipped work, not hours spent in a chatbot.",
+      },
+      {
+        id: "meetings",
+        question: "What do meetings look like?",
+        answer:
+          "Coffee is a chemistry check. Hard talk is a 60-minute dig into the real issue. Build work uses short gate reviews, not weekly status theater.",
+      },
+      {
+        id: "nda",
+        question: "Can we sign an NDA?",
+        answer:
+          "Yes when you need one. Send the paper with the first note and we route it before any sensitive brief leaves your side.",
+      },
+      {
+        id: "dont",
+        question: "What do you not take on?",
+        answer:
+          "One-off design polish with no ship path, endless discovery without a gate, and work that only exists as a pitch deck. We build systems that leave the floor.",
+      },
+      {
+        id: "ship",
+        question: "What does “ship” mean here?",
+        answer:
+          "A build that runs in production with real users on the other side of the glass — not a prototype parked in a staging folder.",
+      },
+    ] as const,
   },
 } as const;

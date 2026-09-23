@@ -11,6 +11,7 @@ import {
   PRIMARY_LINKS,
   isActivePath,
 } from "@/components/nav/nav-links";
+import { TypeComment } from "@/components/TypeComment";
 import { cn } from "@/lib/cn";
 
 type NavOverlayProps = {
@@ -110,9 +111,7 @@ export function NavOverlay({
         </nav>
 
         <div className="flex flex-col justify-center gap-6 border-t border-border-ide pt-8 lg:col-span-3 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-8">
-          <p className="font-jetbrains text-syn-comment text-xs tracking-wider uppercase">
-            Book
-          </p>
+          <TypeComment text="// Book" className="text-syn-comment" />
           <div className="flex flex-col gap-5">
             {BOOK_DUO.map((item, index) => (
               <Link

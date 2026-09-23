@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { BookContactForm } from "@/components/BookContactForm";
+import { BookContact } from "@/components/book/BookContact";
+import { BookFaq } from "@/components/book/BookFaq";
+import { BookPlanner } from "@/components/book/BookPlanner";
 import { JsonLd } from "@/components/JsonLd";
 import { PageShell } from "@/components/PageShell";
-import { PerspectiveGrid } from "@/components/PerspectiveGrid";
 import { bookPage } from "@/content/pages/book";
 import { contactPageGraph } from "@/lib/schema";
 import { pageMetadata } from "@/lib/seo";
@@ -41,11 +42,11 @@ export default async function BookPage({ searchParams }: BookPageProps) {
         title={bookPage.title}
         titleClassName="type-title text-center text-balance tracking-tight"
         ledeClassName="text-center"
-        overflow="hidden"
-        background={<PerspectiveGrid />}
         lede={<p>{bookPage.lede}</p>}
       >
-        <BookContactForm bookingType={bookingType} />
+        <BookContact bookingType={bookingType} />
+        <BookPlanner />
+        <BookFaq />
       </PageShell>
     </>
   );

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { BallPoolHandle } from "@/components/blog/startBlogBallPool";
 import { useSpray } from "@/components/SprayProvider";
+import { cn } from "@/lib/cn";
 
 type SandboxStatus = "standby" | "loading" | "live" | "error";
 
@@ -19,7 +20,13 @@ function getReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-export function BlogSandbox() {
+export function BlogSandbox({
+  fillHeight = false,
+  className,
+}: {
+  fillHeight?: boolean;
+  className?: string;
+} = {}) {
   const stageRef = useRef<HTMLDivElement>(null);
   const poolRef = useRef<BallPoolHandle | null>(null);
   const visibleRef = useRef(true);
@@ -144,10 +151,14 @@ export function BlogSandbox() {
   return (
     <section
       id="blog-sandbox"
-      className="border border-border-ide"
+      className={cn(
+        "border border-border-ide",
+        fillHeight && "flex min-h-0 flex-col md:h-full",
+        className,
+      )}
       aria-label="Sandbox playground"
     >
-      <div className="flex items-center justify-between border-b border-border-ide px-3 py-2">
+      <div className="flex shrink-0 items-center justify-between border-b border-border-ide px-3 py-2">
         <p className="font-jetbrains text-syn-keyword text-xs">
           sandbox.ballpool
         </p>
@@ -161,7 +172,15 @@ export function BlogSandbox() {
           {meta}
         </p>
       </div>
-      <div className="relative aspect-video w-full bg-background transition-[background-color] duration-[400ms] ease-in-out">
+      <div
+        data-blog-sandbox-stage
+        className={cn(
+          "relative w-full bg-background transition-[background-color] duration-[400ms] ease-in-out",
+          fillHeight
+            ? "aspect-video min-h-0 md:aspect-auto md:flex-1"
+            : "aspect-video",
+        )}
+      >
         <div ref={stageRef} className="absolute inset-0 overflow-hidden" />
         {showPlay ? (
           <div className="absolute inset-0 z-10 flex items-center justify-center">

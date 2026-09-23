@@ -251,6 +251,7 @@ export function toBlogIndexPost(post: BlogPost): BlogIndexPost {
     title: post.title,
     excerpt: post.excerpt,
     date: post.date,
+    readMinutes: post.readMinutes,
     category: post.category,
     featured: post.featured,
     writerName: post.writer.name,

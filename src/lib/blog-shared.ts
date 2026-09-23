@@ -41,6 +41,7 @@ export type BlogIndexPost = {
   title: string;
   excerpt: string;
   date: string;
+  readMinutes: number;
   category: BlogCategory;
   featured: boolean;
   writerName: string;

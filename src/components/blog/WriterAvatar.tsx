@@ -11,6 +11,12 @@ function initialsFromName(name: string) {
     .toUpperCase();
 }
 
+const AVATAR_SIZE = {
+  16: { px: "size-4", type: "text-[8px]" },
+  24: { px: "size-6", type: "text-[10px]" },
+  64: { px: "size-16", type: "text-lg" },
+} as const;
+
 export function WriterAvatar({
   name,
   src,
@@ -18,10 +24,9 @@ export function WriterAvatar({
 }: {
   name: string;
   src: string | null;
-  size: 24 | 64;
+  size: keyof typeof AVATAR_SIZE;
 }) {
-  const px = size === 24 ? "size-6" : "size-16";
-  const type = size === 24 ? "text-[10px]" : "text-lg";
+  const { px, type } = AVATAR_SIZE[size];
 
   if (src) {
     return (

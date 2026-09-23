@@ -3,18 +3,19 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { BlogMediaCraft } from "@/components/blog/BlogMediaCraft";
+import { BlogNoteCard, ReadMinutes, WriterMeta, categoryPillStyle } from "@/components/blog/BlogNoteCard";
+import { BlogPollTile } from "@/components/blog/BlogPollTile";
 import { BlogSandbox } from "@/components/blog/BlogSandbox";
-import { WriterAvatar } from "@/components/blog/WriterAvatar";
 import { TypeComment } from "@/components/TypeComment";
+import { getFeaturedPoll, getGridPolls, type BlogPoll } from "@/content/blog-polls";
 import { cn } from "@/lib/cn";
 import {
   BLOG_CATEGORIES,
   BLOG_CATEGORY_LABELS,
-  BLOG_CATEGORY_VARS,
   BLOG_IMAGE_MASTER_HEIGHT,
   BLOG_IMAGE_MASTER_WIDTH,
   BLOG_INDEX_PAGE_SIZE,
-  formatBlogDate,
   pickFeaturedPost,
   type BlogCategory,
   type BlogIndexPost,
@@ -36,43 +37,38 @@ const pillClass =
 const moreClass =
   "type-label inline-flex cursor-pointer items-center justify-center rounded-[4px] border border-current px-3 py-1.5 transition-[opacity,color,background-color] duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
 
-function categoryTone(category: BlogCategory, filled: boolean) {
-  const token = `var(${BLOG_CATEGORY_VARS[category]})`;
-  if (filled) {
-    return {
-      color: "var(--background)",
-      backgroundColor: token,
-      borderColor: token,
-    };
-  }
-  return {
-    color: token,
-    borderColor: token,
-    backgroundColor: "transparent",
-  };
-}
+type GridItem =
+  | { kind: "note"; post: BlogIndexPost }
+  | { kind: "poll"; poll: BlogPoll };
 
 function FeaturedCover({ src }: { src: string | null }) {
   return (
     <div
       id="blog-featured-frame"
-      className="relative aspect-square w-28 shrink-0 overflow-hidden border border-dashed border-current sm:w-36 md:w-40"
+      className={cn(
+        "relative aspect-video w-full overflow-hidden",
+        src
+          ? "blog-post-hero border border-border-ide"
+          : "border border-dashed border-current",
+      )}
       aria-hidden="true"
     >
       {src ? (
-        <Image
-          src={src}
-          alt=""
-          fill
-          sizes="160px"
-          className="object-cover object-center"
-        />
+        <BlogMediaCraft className="absolute inset-0" enabled>
+          <Image
+            src={src}
+            alt=""
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="object-cover object-center saturate-[0.8]"
+          />
+        </BlogMediaCraft>
       ) : (
         <div className="flex h-full flex-col items-center justify-center gap-1 bg-background px-2 text-center">
           <p className="type-label">
             {BLOG_IMAGE_MASTER_WIDTH} × {BLOG_IMAGE_MASTER_HEIGHT}
           </p>
-          <p className="type-label text-syn-comment font-normal">1:1 center</p>
+          <p className="type-label text-syn-comment font-normal">16:9</p>
         </div>
       )}
     </div>
@@ -86,34 +82,24 @@ function filterPosts(posts: readonly BlogIndexPost[], filter: FilterId) {
   return posts.filter((post) => post.category === filter);
 }
 
-function WriterMeta({
-  name,
-  avatarSrc,
-  date,
-  compact = false,
-}: {
-  name: string;
-  avatarSrc: string | null;
-  date: string;
-  compact?: boolean;
-}) {
-  return (
-    <div
-      className={cn(
-        "type-meta flex items-center gap-x-2",
-        compact
-          ? "min-w-0 flex-nowrap overflow-hidden"
-          : "flex-wrap gap-y-1",
-      )}
-    >
-      <WriterAvatar name={name} src={avatarSrc} size={24} />
-      <span className={compact ? "min-w-0 truncate" : undefined}>{name}</span>
-      <span aria-hidden="true">·</span>
-      <time className={compact ? "shrink-0" : undefined} dateTime={date}>
-        {formatBlogDate(date)}
-      </time>
-    </div>
-  );
+function mixNotesAndPolls(
+  notes: readonly BlogIndexPost[],
+  filter: FilterId,
+): GridItem[] {
+  const items: GridItem[] = [];
+  const gridPolls = getGridPolls();
+  notes.forEach((post, index) => {
+    items.push({ kind: "note", post });
+    if (filter === "all") {
+      const noteIndex = index + 1;
+      for (const poll of gridPolls) {
+        if (poll.afterNote === noteIndex) {
+          items.push({ kind: "poll", poll });
+        }
+      }
+    }
+  });
+  return items;
 }
 
 export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
@@ -125,8 +111,12 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
   const gridPosts = featured
     ? filtered.filter((post) => post.slug !== featured.slug)
     : filtered;
-  const visible = gridPosts.slice(0, visibleCount);
-  const hasMore = gridPosts.length > visibleCount;
+  const sibling = gridPosts[0];
+  const notePosts = sibling ? gridPosts.slice(1) : gridPosts;
+  const visibleNotes = notePosts.slice(0, visibleCount);
+  const mixed = mixNotesAndPolls(visibleNotes, filter);
+  const hasMore = notePosts.length > visibleCount;
+  const featuredPoll = filter === "all" ? getFeaturedPoll() : undefined;
 
   function selectFilter(next: FilterId) {
     setFilter(next);
@@ -172,7 +162,7 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
                       style={
                         item.id === "all"
                           ? undefined
-                          : categoryTone(item.id, active)
+                          : categoryPillStyle(item.id, active)
                       }
                     >
                       {item.label}
@@ -192,81 +182,82 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
           </p>
 
           {featured ? (
-            <article
-              id="blog-featured"
-              className="border border-border-ide"
+            <div
+              id="blog-featured-row"
+              className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_2fr] md:items-stretch"
             >
-              <Link
-                href={`/blog/${featured.slug}`}
-                className="flex flex-col p-4 transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none sm:p-5"
-              >
-                <div className="flex items-start gap-4 sm:gap-5">
+              <article id="blog-featured" className="min-w-0">
+                <Link
+                  href={`/blog/${featured.slug}`}
+                  className="blog-note-link flex h-full flex-col gap-4 border border-border-ide p-4 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none sm:p-5"
+                >
                   <FeaturedCover src={featured.imageSrc} />
-                  <div className="flex h-28 min-w-0 flex-1 flex-col justify-center overflow-hidden sm:h-36 sm:justify-between md:h-40">
-                    <div className="min-h-0">
-                      <h2 className="type-subhead line-clamp-2 tracking-tight">
-                        {featured.title}
-                      </h2>
-                      <p className="type-body-sm mt-1.5 line-clamp-2">
-                        {featured.excerpt}
-                      </p>
-                    </div>
-                    <div className="mt-2 hidden min-w-0 shrink-0 sm:block">
+                  <div className="flex min-w-0 flex-1 flex-col">
+                    <h2 className="type-subhead line-clamp-2 tracking-tight">
+                      {featured.title}
+                    </h2>
+                    <p className="type-body-sm mt-1.5 line-clamp-3">
+                      {featured.excerpt}
+                    </p>
+                    <div className="mt-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-2 pt-4">
                       <WriterMeta
                         name={featured.writerName}
                         avatarSrc={featured.avatarSrc}
                         date={featured.date}
                         compact
                       />
+                      <ReadMinutes minutes={featured.readMinutes} />
                     </div>
                   </div>
-                </div>
-                <div className="mt-3 sm:hidden">
-                  <WriterMeta
-                    name={featured.writerName}
-                    avatarSrc={featured.avatarSrc}
-                    date={featured.date}
-                  />
-                </div>
-              </Link>
-            </article>
+                </Link>
+              </article>
+              <BlogSandbox
+                fillHeight
+                className="min-h-0 md:h-full"
+              />
+            </div>
+          ) : (
+            <BlogSandbox />
+          )}
+
+          {featuredPoll || sibling ? (
+            <div
+              id="blog-sandbox-row"
+              className={cn(
+                "grid grid-cols-1 gap-4",
+                featuredPoll && sibling
+                  ? "md:grid-cols-2 md:items-stretch"
+                  : undefined,
+              )}
+            >
+              {featuredPoll ? (
+                <BlogPollTile
+                  poll={featuredPoll}
+                  className={sibling ? "md:h-full" : undefined}
+                />
+              ) : null}
+              {sibling ? (
+                <BlogNoteCard id="blog-sandbox-sibling" post={sibling} />
+              ) : null}
+            </div>
           ) : null}
 
-          <BlogSandbox />
-
-          {visible.length > 0 ? (
+          {mixed.length > 0 ? (
             <ul
               id="blog-notes-grid"
               className="grid grid-cols-1 gap-4 md:grid-cols-3"
             >
-              {visible.map((post) => (
-                <li key={post.slug} className="min-w-0">
-                  <Link
-                    href={`/blog/${post.slug}`}
-                    data-category={post.category}
-                    className="flex h-full flex-col border border-border-ide p-5 transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none"
-                  >
-                    <p
-                      data-category-label={post.category}
-                      className="type-label inline-flex w-fit rounded-[4px] border px-2 py-0.5"
-                      style={categoryTone(post.category, false)}
-                    >
-                      {BLOG_CATEGORY_LABELS[post.category]}
-                    </p>
-                    <h2 className="type-subhead mt-3 tracking-tight text-balance">
-                      {post.title}
-                    </h2>
-                    <p className="type-body-sm mt-3 flex-1">{post.excerpt}</p>
-                    <div className="mt-5">
-                      <WriterMeta
-                        name={post.writerName}
-                        avatarSrc={post.avatarSrc}
-                        date={post.date}
-                      />
-                    </div>
-                  </Link>
-                </li>
-              ))}
+              {mixed.map((item) =>
+                item.kind === "note" ? (
+                  <li key={`note:${item.post.slug}`} className="min-w-0">
+                    <BlogNoteCard post={item.post} />
+                  </li>
+                ) : (
+                  <li key={`poll:${item.poll.id}`} className="min-w-0">
+                    <BlogPollTile poll={item.poll} />
+                  </li>
+                ),
+              )}
             </ul>
           ) : (
             <p className="type-meta text-syn-comment">

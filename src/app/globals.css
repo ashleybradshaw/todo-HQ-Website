@@ -112,6 +112,14 @@
   font-feature-settings: "liga" 1, "calt" 1;
 }
 
+.type-caption {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  line-height: 14px;
+  font-variant-ligatures: contextual;
+  font-feature-settings: "liga" 1, "calt" 1;
+}
+
 .type-label {
   font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 12px;
@@ -179,6 +187,61 @@ body {
 @supports (corner-shape: squircle) {
   .blog-post-hero {
     corner-shape: squircle;
+  }
+}
+
+/* Blog index note / featured links — lift without soft shadows */
+.blog-note-link {
+  --blog-note-hover-fg: color-mix(in srgb, var(--foreground) 78%, white);
+  --blog-note-hover-border: color-mix(in srgb, var(--foreground) 38%, transparent);
+  --blog-note-hover-bg: color-mix(in srgb, var(--foreground) 5%, var(--background));
+  --blog-read-flash-end: color-mix(in srgb, var(--syn-comment) 55%, white);
+  color: var(--foreground);
+  transition:
+    transform 140ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 220ms ease-out,
+    border-color 220ms ease-out,
+    background-color 220ms ease-out;
+}
+
+.blog-note-link:hover {
+  transform: translateY(-4px);
+  color: var(--blog-note-hover-fg);
+  border-color: var(--blog-note-hover-border);
+  background-color: var(--blog-note-hover-bg);
+}
+
+.blog-note-link:hover .blog-read-minutes {
+  animation: blog-read-flash 420ms ease-out;
+}
+
+@keyframes blog-read-flash {
+  0% {
+    color: var(--syn-comment);
+  }
+  35% {
+    color: var(--syn-number);
+  }
+  100% {
+    color: var(--blog-read-flash-end);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blog-note-link {
+    transition:
+      color 220ms ease-out,
+      border-color 220ms ease-out,
+      background-color 220ms ease-out;
+  }
+
+  .blog-note-link:hover {
+    transform: none;
+  }
+
+  .blog-note-link:hover .blog-read-minutes {
+    animation: none;
+    color: var(--syn-number);
   }
 }
 

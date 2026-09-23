@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { BlogMediaCraft } from "@/components/blog/BlogMediaCraft";
+import { BlogReadingProgress } from "@/components/blog/BlogReadingProgress";
 import { WriterAvatar } from "@/components/blog/WriterAvatar";
 import { JsonLd } from "@/components/JsonLd";
 import { SiteCloser } from "@/components/SiteCloser";
@@ -90,14 +92,16 @@ function BlogHero({ post }: { post: BlogPost }) {
         className="blog-post-hero relative w-full border border-border-ide bg-background"
         style={{ aspectRatio: `${BLOG_OG_WIDTH} / ${BLOG_OG_HEIGHT}` }}
       >
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          priority
-          sizes="(min-width: 800px) 752px, calc(100vw - 48px)"
-          className="object-cover object-center"
-        />
+        <BlogMediaCraft className="absolute inset-0" enabled>
+          <Image
+            src={src}
+            alt={alt}
+            fill
+            priority
+            sizes="(min-width: 800px) 752px, calc(100vw - 48px)"
+            className="object-cover object-center saturate-[0.8]"
+          />
+        </BlogMediaCraft>
       </div>
     </figure>
   );
@@ -163,6 +167,7 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
 
   return (
     <>
+      <BlogReadingProgress />
       <div className="mx-auto w-full max-w-[800px] px-6 pt-28 pb-16">
         <JsonLd data={blogPostingGraph(post)} />
         <article>
@@ -174,11 +179,11 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
           <h1 className="type-title mt-10 text-center text-balance tracking-tight">
             {post.title}
           </h1>
-          <div className="type-meta mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
+          <div className="type-caption mt-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
             <WriterAvatar
               name={post.writer.name}
               src={post.avatarSrc}
-              size={24}
+              size={16}
             />
             <span>{post.writer.name}</span>
             <span aria-hidden="true">·</span>
@@ -186,7 +191,7 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
             <span aria-hidden="true">·</span>
             <time dateTime={post.date}>{formatBlogDate(post.date)}</time>
             <span aria-hidden="true">·</span>
-            <span>{post.readMinutes} min read</span>
+            <span className="text-syn-comment">{`// ${post.readMinutes}m`}</span>
           </div>
           <BlogHero post={post} />
           <div

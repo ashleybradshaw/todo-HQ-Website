@@ -11,7 +11,7 @@ export type BlogPoll = {
   /** Seeded baseline counts before this browser’s vote */
   seed: Record<string, number>;
   /**
-   * `featured` — beside the featured note (leaves the grid).
+   * `featured` — exclusive poll beside sandbox sibling (leaves the grid).
    * `grid` — mixed into the notes grid after `afterNote`.
    */
   slot: "featured" | "grid";
@@ -19,11 +19,9 @@ export type BlogPoll = {
   afterNote?: number;
 };
 
-export const BLOG_FEATURED_POLL_ID = "talk-next";
-
 export const BLOG_POLLS: readonly BlogPoll[] = [
   {
-    id: BLOG_FEATURED_POLL_ID,
+    id: "talk-next",
     question: "What should we talk about next?",
     mode: "single",
     slot: "featured",

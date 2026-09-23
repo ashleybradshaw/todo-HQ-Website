@@ -29,8 +29,8 @@ type BlogMediaCraftProps = {
 };
 
 /**
- * Blog image craft without AsciiReveal or colour overlay (overlay spoils
- * photography). Callers apply saturate ~0.8; this handles one-shot IO fade.
+ * Blog image craft: one-shot IO fade only. No colour overlay and no
+ * saturate filter — news photography stays clear; callers keep elev shadow.
  */
 export function BlogMediaCraft({
   children,

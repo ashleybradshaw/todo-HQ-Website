@@ -451,7 +451,24 @@ test.describe("blog loop", () => {
     await expect(page.getByRole("button", { name: "Copied" })).toHaveCount(0);
   });
 
-  test("article page follows HQ section order with writer pool and book band", async ({
+  test("Share stays hidden when navigator.share is missing", async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "share", {
+        configurable: true,
+        writable: true,
+        value: undefined,
+      });
+    });
+    await visit(page, `/blog/${POSTS[0].slug}`);
+    await expect(page.getByRole("button", { name: "Copy link" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Share", exact: true }),
+    ).toHaveCount(0);
+  });
+
+  test("article page follows HQ section order with writer band and book closer", async ({
     page,
   }) => {
     await visit(page, `/blog/${POSTS[0].slug}`);
@@ -467,38 +484,41 @@ test.describe("blog loop", () => {
       article.getByRole("heading", { name: POSTS[0].title, level: 1 }),
     ).toBeVisible();
     await expect(article.getByText("Growth Editor, //TODO").first()).toBeVisible();
-    const hero = article.locator("figure").first();
+    const hero = article.locator("#blog-post-hero");
     await expect(hero).toBeVisible();
     await expect(hero.locator("img")).toHaveAttribute(
       "src",
       /og-default/,
     );
     await expect(article.locator("blockquote")).toBeVisible();
+    await expect(article.locator("#blog-adjacent-nav")).toBeVisible();
+    await expect(article.locator("#blog-writer-band")).toBeVisible();
     await expect(
       article.getByText(
         "Edits factory notes for technical founders and product leads evaluating how the floor actually ships.",
       ),
     ).toBeVisible();
     await expect(
-      article.getByRole("heading", { name: "Book the factory", level: 2 }),
+      page.getByRole("region", { name: "Work together" }),
     ).toBeVisible();
     await expect(
-      article.getByRole("link", { name: "Book Team" }),
+      page.getByRole("link", { name: "Work Together" }),
     ).toHaveAttribute("href", "/book");
     await expect(page.getByText(/Ashley|Dan/)).toHaveCount(0);
 
-    const tops = await article.evaluate((root) => {
+    const tops = await page.evaluate(() => {
       const top = (el: Element | null) =>
         el ? el.getBoundingClientRect().top : Number.POSITIVE_INFINITY;
       return {
-        crumb: top(root.querySelector("#blog-breadcrumb")),
-        title: top(root.querySelector("h1")),
-        byline: top(root.querySelector("time")),
-        hero: top(root.querySelector("figure")),
-        quote: top(root.querySelector("blockquote")),
-        nod: top(root.querySelector("#blog-writer-nod")),
-        share: top(root.querySelector("#blog-post-feedback")),
-        book: top(root.querySelector("#blog-book-band")),
+        crumb: top(document.querySelector("#blog-breadcrumb")),
+        title: top(document.querySelector("article h1")),
+        byline: top(document.querySelector("article time")),
+        hero: top(document.querySelector("#blog-post-hero")),
+        quote: top(document.querySelector("#blog-article-body blockquote")),
+        adjacent: top(document.querySelector("#blog-adjacent-nav")),
+        writer: top(document.querySelector("#blog-writer-band")),
+        share: top(document.querySelector("#blog-post-feedback")),
+        book: top(document.querySelector('[aria-label="Work together"]')),
       };
     });
 
@@ -506,15 +526,50 @@ test.describe("blog loop", () => {
     expect(tops.title).toBeLessThan(tops.byline);
     expect(tops.byline).toBeLessThan(tops.hero);
     expect(tops.hero).toBeLessThan(tops.quote);
-    expect(tops.quote).toBeLessThan(tops.nod);
-    expect(tops.nod).toBeLessThan(tops.share);
+    expect(tops.quote).toBeLessThan(tops.adjacent);
+    expect(tops.adjacent).toBeLessThan(tops.writer);
+    expect(tops.writer).toBeLessThan(tops.share);
     expect(tops.share).toBeLessThan(tops.book);
 
-    const bodyWidth = await page
-      .locator("#blog-article-body")
-      .evaluate((el) => el.getBoundingClientRect().width);
+    const body = page.locator("#blog-article-body");
+    const bodyWidth = await body.evaluate((el) => el.getBoundingClientRect().width);
     expect(bodyWidth).toBeGreaterThanOrEqual(640);
     expect(bodyWidth).toBeLessThanOrEqual(720);
+    await expect(body).toHaveCSS("font-size", "19px");
+  });
+
+  test("pilot note renders craft blocks and larger prose", async ({ page }) => {
+    await visit(page, "/blog/repdaily-our-first-time");
+    const body = page.locator("#blog-article-body");
+    await expect(body.locator(".blog-note-callout")).toBeVisible();
+    await expect(body.locator(".blog-note-callout .type-label")).toHaveText(
+      "NOTE",
+    );
+    await expect(body.locator("figure.blog-article-figure img")).toHaveAttribute(
+      "src",
+      /repdaily-our-first-time\.webp/,
+    );
+    await expect(body.locator("hr.blog-article-rule")).toHaveCount(1);
+    await expect(body).toHaveClass(/type-prose/);
+  });
+
+  test("adjacent nav hides the missing end on newest and oldest notes", async ({
+    page,
+  }) => {
+    await visit(page, "/blog/repdaily-our-first-time");
+    const newest = page.locator("#blog-adjacent-nav");
+    await expect(newest.getByText("PREV", { exact: true })).toBeVisible();
+    await expect(newest.getByText("NEXT", { exact: true })).toHaveCount(0);
+
+    await visit(page, "/blog/production-handoff");
+    const oldest = page.locator("#blog-adjacent-nav");
+    await expect(oldest.getByText("NEXT", { exact: true })).toBeVisible();
+    await expect(oldest.getByText("PREV", { exact: true })).toHaveCount(0);
+
+    await visit(page, "/blog/multi-agent-systems");
+    const mid = page.locator("#blog-adjacent-nav");
+    await expect(mid.getByText("PREV", { exact: true })).toBeVisible();
+    await expect(mid.getByText("NEXT", { exact: true })).toBeVisible();
   });
 
   test("article without hero uses the default OG image in the slot and head", async ({
@@ -560,13 +615,13 @@ test.describe("blog loop", () => {
     expect(box).not.toBeNull();
     expect(box!.width / box!.height).toBeCloseTo(1200 / 630, 1);
     await expect(
-      article.getByRole("link", { name: "Book Team" }),
+      page.getByRole("link", { name: "Work Together" }),
     ).toBeVisible();
 
-    const bodyWidth = await page
-      .locator("#blog-article-body")
-      .evaluate((el) => el.getBoundingClientRect().width);
+    const body = page.locator("#blog-article-body");
+    const bodyWidth = await body.evaluate((el) => el.getBoundingClientRect().width);
     expect(bodyWidth).toBeGreaterThanOrEqual(280);
     expect(bodyWidth).toBeLessThanOrEqual(390);
+    await expect(body).toHaveCSS("font-size", "18px");
   });
 });

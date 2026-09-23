@@ -42,7 +42,16 @@ function readRating(slug: string): Rating | null {
 }
 
 function canNativeShare() {
-  return typeof navigator.share === "function";
+  return typeof navigator !== "undefined" && typeof navigator.share === "function";
+}
+
+function subscribeShareCapability(callback: () => void) {
+  queueMicrotask(callback);
+  return () => {};
+}
+
+function readShareCapability() {
+  return canNativeShare();
 }
 
 async function writeClipboard(text: string) {
@@ -86,6 +95,11 @@ export function BlogPostFeedback({
     () => readRating(slug),
     () => null,
   );
+  const canShare = useSyncExternalStore(
+    subscribeShareCapability,
+    readShareCapability,
+    () => false,
+  );
 
   useEffect(() => {
     return () => {
@@ -107,18 +121,17 @@ export function BlogPostFeedback({
 
   const share = useCallback(async () => {
     const url = canonicalPostUrl(slug);
-    if (canNativeShare()) {
-      try {
-        await navigator.share({ title, url, text: title });
+    if (!canNativeShare()) {
+      return;
+    }
+    try {
+      await navigator.share({ title, url, text: title });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
         return;
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") {
-          return;
-        }
       }
     }
-    await copyLink();
-  }, [copyLink, slug, title]);
+  }, [slug, title]);
 
   const vote = useCallback(
     (next: Rating) => {
@@ -136,7 +149,10 @@ export function BlogPostFeedback({
   );
 
   return (
-    <div id="blog-post-feedback" className="mt-12 border-t border-border-ide pt-8">
+    <div
+      id="blog-post-feedback"
+      className="mt-12 grid grid-cols-1 gap-8 border-t border-border-ide pt-8 sm:grid-cols-2 sm:gap-6"
+    >
       <section aria-labelledby={`${statusId}-share`}>
         <h2
           id={`${statusId}-share`}
@@ -144,7 +160,7 @@ export function BlogPostFeedback({
         >
           Share
         </h2>
-        <div className="mt-3 flex flex-wrap gap-3">
+        <div className="mt-3 flex flex-col items-start gap-3">
           <button
             type="button"
             className={controlClass}
@@ -154,22 +170,24 @@ export function BlogPostFeedback({
           >
             {copied ? "Copied" : "Copy link"}
           </button>
-          <button
-            type="button"
-            className={controlClass}
-            onClick={() => {
-              void share();
-            }}
-          >
-            Share
-          </button>
+          {canShare ? (
+            <button
+              type="button"
+              className={controlClass}
+              onClick={() => {
+                void share();
+              }}
+            >
+              Share
+            </button>
+          ) : null}
         </div>
         <p className="sr-only" aria-live="polite">
           {copied ? "Copied" : ""}
         </p>
       </section>
 
-      <section className="mt-8" aria-labelledby={`${statusId}-rate`}>
+      <section aria-labelledby={`${statusId}-rate`}>
         <h2
           id={`${statusId}-rate`}
           className="font-jetbrains text-sm font-bold"

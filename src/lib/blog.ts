@@ -108,6 +108,41 @@ function renderInline(text: string) {
     );
 }
 
+function isImageLine(line: string) {
+  return /^!\[[^\]]*]\([^)]+\)$/.test(line.trim());
+}
+
+function isRuleLine(line: string) {
+  return line.trim() === "---";
+}
+
+function isBlockStart(line: string) {
+  return (
+    !line.trim() ||
+    line.startsWith("#") ||
+    line.startsWith("- ") ||
+    line.startsWith(">") ||
+    isRuleLine(line) ||
+    isImageLine(line)
+  );
+}
+
+function renderFigure(line: string) {
+  const match = line.trim().match(/^!\[([^\]]*)]\(([^)]+)\)$/);
+  if (!match) {
+    return null;
+  }
+  const alt = match[1];
+  const src = match[2];
+  if (!LOCAL_WEBP.test(src) || src.includes("..")) {
+    return `<p>${renderInline(line.trim())}</p>`;
+  }
+  if (!publicAssetIfPresent(src)) {
+    return `<p>${renderInline(line.trim())}</p>`;
+  }
+  return `<figure class="blog-article-figure"><img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" loading="lazy" decoding="async" /></figure>`;
+}
+
 function markdownToHtml(markdown: string) {
   const lines = markdown.replaceAll("\r\n", "\n").split("\n");
   const html: string[] = [];
@@ -116,6 +151,21 @@ function markdownToHtml(markdown: string) {
   while (index < lines.length) {
     const line = lines[index];
     if (!line.trim()) {
+      index += 1;
+      continue;
+    }
+
+    if (isRuleLine(line)) {
+      html.push('<hr class="blog-article-rule" />');
+      index += 1;
+      continue;
+    }
+
+    if (isImageLine(line)) {
+      const figure = renderFigure(line);
+      if (figure) {
+        html.push(figure);
+      }
       index += 1;
       continue;
     }
@@ -150,20 +200,27 @@ function markdownToHtml(markdown: string) {
         quote.push(lines[index].replace(/^>\s?/, ""));
         index += 1;
       }
-      html.push(
-        `<blockquote><p>${renderInline(quote.join(" ").trim())}</p></blockquote>`,
-      );
+      const joined = quote.join(" ").trim();
+      if (/^NOTE\b/i.test(quote[0]?.trim() ?? "")) {
+        const body = quote
+          .map((part, partIndex) =>
+            partIndex === 0 ? part.replace(/^NOTE\b\s*/i, "").trim() : part.trim(),
+          )
+          .filter(Boolean)
+          .join(" ");
+        html.push(
+          `<aside class="blog-note-callout"><p class="type-label">NOTE</p><p>${renderInline(body)}</p></aside>`,
+        );
+      } else {
+        html.push(
+          `<blockquote><p>${renderInline(joined)}</p></blockquote>`,
+        );
+      }
       continue;
     }
 
     const paragraph: string[] = [];
-    while (
-      index < lines.length &&
-      lines[index].trim() &&
-      !lines[index].startsWith("#") &&
-      !lines[index].startsWith("- ") &&
-      !lines[index].startsWith(">")
-    ) {
+    while (index < lines.length && !isBlockStart(lines[index])) {
       paragraph.push(lines[index]);
       index += 1;
     }
@@ -284,6 +341,21 @@ export function moreByWriter(posts: readonly BlogPost[], current: BlogPost) {
   return posts.filter(
     (post) => post.writer.id === current.writer.id && post.slug !== current.slug,
   );
+}
+
+/** Newest-first list: next = newer (i-1), prev = older (i+1). */
+export function getAdjacentPosts(
+  posts: readonly BlogPost[],
+  current: BlogPost,
+): { prev: BlogPost | null; next: BlogPost | null } {
+  const index = posts.findIndex((post) => post.slug === current.slug);
+  if (index === -1) {
+    return { prev: null, next: null };
+  }
+  return {
+    next: index > 0 ? posts[index - 1] : null,
+    prev: index < posts.length - 1 ? posts[index + 1] : null,
+  };
 }
 
 export function blogShareImageSrc(

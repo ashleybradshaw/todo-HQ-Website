@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { BlogAdjacentNav } from "@/components/blog/BlogAdjacentNav";
 import { BlogMediaCraft } from "@/components/blog/BlogMediaCraft";
 import { ReadMinutes } from "@/components/blog/BlogNoteCard";
 import { BlogReadingProgress } from "@/components/blog/BlogReadingProgress";
+import { BlogWriterBand } from "@/components/blog/BlogWriterBand";
 import { WriterAvatar } from "@/components/blog/WriterAvatar";
 import { JsonLd } from "@/components/JsonLd";
 import { SiteCloser } from "@/components/SiteCloser";
 import {
   blogPostingGraph,
   blogShareImageSrc,
+  getAdjacentPosts,
   getAllPosts,
   getPostBySlug,
   moreByWriter,
@@ -100,59 +102,11 @@ function BlogHero({ post }: { post: BlogPost }) {
             fill
             priority
             sizes="(min-width: 800px) 752px, calc(100vw - 48px)"
-            className="object-cover object-center saturate-[0.8]"
+            className="object-cover object-center"
           />
         </BlogMediaCraft>
       </div>
     </figure>
-  );
-}
-
-function WriterNod({
-  post,
-  more,
-}: {
-  post: BlogPost;
-  more: readonly BlogPost[];
-}) {
-  return (
-    <section className="mt-16 border-t border-border-ide pt-8" aria-labelledby="blog-writer-nod">
-      <div className="flex gap-4">
-        <WriterAvatar
-          name={post.writer.name}
-          src={post.avatarSrc}
-          size={64}
-        />
-        <div>
-          <h2 id="blog-writer-nod" className="type-body font-bold">
-            {post.writer.name}
-          </h2>
-          <p className="type-meta mt-1">{post.writer.role}</p>
-          <p className="type-body mt-3">{post.writer.about}</p>
-        </div>
-      </div>
-      {more.length > 0 ? (
-        <div className="mt-8">
-          <h3 className="type-meta font-bold">More by {post.writer.name}</h3>
-          <ul className="mt-3 space-y-2">
-            {more.map((item) => (
-              <li key={item.slug}>
-                <Link
-                  href={`/blog/${item.slug}`}
-                  className="type-body underline transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none"
-                >
-                  {item.title}
-                </Link>
-                <span className="type-meta">
-                  {" · "}
-                  <time dateTime={item.date}>{formatBlogDate(item.date)}</time>
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-    </section>
   );
 }
 
@@ -165,6 +119,7 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
   }
 
   const more = moreByWriter(posts, post);
+  const { prev, next } = getAdjacentPosts(posts, post);
 
   return (
     <>
@@ -197,11 +152,12 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
           <BlogHero post={post} />
           <div
             id="blog-article-body"
-            className="type-body mx-auto mt-10 w-full max-w-[688px] [&>blockquote]:mt-6 [&>blockquote]:ml-6 [&>blockquote]:border-l [&>blockquote]:border-border-ide [&>blockquote]:pl-4 [&>blockquote]:font-medium [&>blockquote>p]:mt-0 [&>code]:type-code [&>h2]:type-heading [&>h2]:mt-10 [&>h3]:type-subhead [&>h3]:mt-8 [&>p]:mt-4 [&>p:first-child]:mt-0 [&>ul]:mt-4 [&>ul]:list-disc [&>ul]:space-y-2 [&>ul]:pl-5"
+            className="type-prose mx-auto mt-10 w-full max-w-[688px] [&>blockquote]:mt-6 [&>blockquote]:ml-6 [&>blockquote]:border-l [&>blockquote]:border-border-ide [&>blockquote]:pl-4 [&>blockquote]:font-medium [&>blockquote>p]:mt-0 [&>code]:type-code [&>h2]:type-heading [&>h2]:mt-10 [&>h3]:type-subhead [&>h3]:mt-8 [&>p]:mt-4 [&>p:first-child]:mt-0 [&>ul]:mt-4 [&>ul]:list-disc [&>ul]:space-y-2 [&>ul]:pl-5"
             dangerouslySetInnerHTML={{ __html: post.html }}
           />
           <div className="mx-auto w-full max-w-[688px]">
-            <WriterNod post={post} more={more} />
+            <BlogAdjacentNav prev={prev} next={next} />
+            <BlogWriterBand post={post} more={more} />
             <BlogPostFeedback slug={post.slug} title={post.title} />
           </div>
         </article>

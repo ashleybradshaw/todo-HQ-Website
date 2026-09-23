@@ -96,6 +96,21 @@
   font-feature-settings: "liga" 1, "calt" 1;
 }
 
+.type-prose {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 18px;
+  line-height: 30px;
+  font-variant-ligatures: contextual;
+  font-feature-settings: "liga" 1, "calt" 1;
+}
+
+@media (min-width: 768px) {
+  .type-prose {
+    font-size: 19px;
+    line-height: 32px;
+  }
+}
+
 .type-body-sm {
   font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 14px;
@@ -242,6 +257,80 @@ body {
   .blog-note-link:hover .blog-read-minutes {
     animation: none;
     color: var(--syn-number);
+  }
+}
+
+/* Article body craft blocks */
+.blog-article-rule {
+  margin-top: 2.5rem;
+  margin-bottom: 0;
+  border: 0;
+  border-top: 1px solid var(--border-ide);
+}
+
+.blog-article-figure {
+  margin-top: 2.5rem;
+  overflow: hidden;
+  border: 1px solid var(--border-ide);
+  border-radius: 4px;
+  background-color: var(--background);
+}
+
+.blog-article-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  object-position: center;
+}
+
+.blog-note-callout {
+  margin-top: 2.5rem;
+  border: 1px solid var(--border-ide);
+  padding: 1.25rem;
+}
+
+.blog-note-callout > .type-label {
+  margin: 0;
+}
+
+.blog-note-callout > p:not(.type-label) {
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+}
+
+/* Writer band — more-by chips (homepage project wash + tactile lift) */
+.blog-more-link {
+  color: var(--foreground);
+  transition:
+    transform 140ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 220ms ease-out,
+    border-color 220ms ease-out;
+}
+
+.blog-more-link:hover {
+  transform: translateY(-3px);
+  opacity: 0.92;
+}
+
+.blog-more-date {
+  transition:
+    transform 140ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 220ms ease-out,
+    background-color 220ms ease-out;
+}
+
+.blog-more-link:hover .blog-more-date {
+  transform: translateY(-1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blog-more-link:hover {
+    transform: none;
+  }
+
+  .blog-more-link:hover .blog-more-date {
+    transform: none;
   }
 }
 

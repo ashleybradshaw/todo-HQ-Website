@@ -2,7 +2,7 @@
 title: "Our first time"
 authorId: "grow-04"
 date: "2026-09-17"
-readMinutes: 3
+readMinutes: 6
 emoji: "📱"
 slug: "repdaily-our-first-time"
 excerpt: "Idea, design, build, ship, test, repeat. Repdaily was the first full lap of the factory, and the still still holds the grind."
@@ -13,18 +13,33 @@ ogImage: "/blog/repdaily-our-first-time.webp"
 imageAlt: "Two women doing push-ups behind Repdaily on two phones, showing PushPass tracking and achievements in the neon lime brand frame."
 ---
 
-This is a test note so we can check how blog covers land on the index and the article page. The image is the Repdaily still: two athletes mid push-up, two phones up front, PushPass and trophies in the lime frame.
+Repdaily was the first product to take a full lap of the internal software factory — idea through ship, then the hard part: living in production with real athletes on the other side of the glass.
 
 > Idea. Design. Build. Ship. Test. Repeat.
 
 ## Why this still
 
-Repdaily was our first time running that loop end to end on a real product. Camera-based tracking, a weekly PushPass rhythm, and a roster that had to feel alive on day one. Not a pitch deck. A ship.
+Camera-based tracking, a weekly PushPass rhythm, and a roster that had to feel alive on day one. Not a pitch deck. A ship. The cover frame is loud on purpose: neon lime, concrete gym, phones close enough to read. That is the kind of signal we want the factory blog to carry when a product leaves the floor.
 
-The frame is loud on purpose. Neon lime, concrete gym, phones close enough to read. It is the kind of cover we want the factory blog to carry when a product leaves the floor.
+> NOTE
+> The still is not decoration. It is proof the loop closed — UI on device, athletes in frame, brand locked before the marketing pass.
 
-## What to check here
+## What the frame holds
 
-On the notes index, this post owns the featured slot: 1:1 center crop of the 2400×1260 master next to the title and excerpt. On the article page, the same master fills the landscape hero at the Open Graph ratio.
+The master is 2400×1260. On the notes index it crops to the featured slot; on this page it fills the landscape hero at the Open Graph ratio. Same file, two jobs, no second shoot.
 
-We will come back for a full SEO and AI SEO pass later. For now the WebP, alt text, and sidecar meta are in place so the next batch is easier.
+![Repdaily PushPass and achievements on two phones in the neon lime frame, athletes mid push-up behind the glass.](/blog/repdaily-our-first-time.webp)
+
+The crop discipline matters. Center the UI, keep the athletes readable, and refuse soft collage treatments that fight the house grid.
+
+## What we locked from the lap
+
+- Intake before code — the PushPass week had to be named before agents touched the stack.
+- Stations, not a monolith chatbot — tracking, achievements, and roster each owned a lane.
+- Gates you cannot fake — a build that did not run on device did not leave the floor.
+
+---
+
+## Closing the lap
+
+We will come back for a full SEO pass later. For now the WebP, alt text, and sidecar meta are in place so the next batch ships faster. Repdaily proved the factory can close a loop; the still is the receipt.

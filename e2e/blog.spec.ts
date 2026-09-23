@@ -8,18 +8,23 @@ declare global {
 
 const POSTS = [
   {
-    slug: "internal-software-factory",
-    title: "The internal software factory",
+    slug: "design-engineer-evolution",
+    title: "The design engineer, evolving",
     author: "Riley Chen",
   },
   {
-    slug: "multi-agent-systems",
-    title: "Multi-agent systems we actually run",
-    author: "Jordan Hale",
+    slug: "tool-off-week",
+    title: "Tool-off week",
+    author: "Casey Moreau",
   },
   {
-    slug: "factory-roster",
-    title: "Proof is in the roster",
+    slug: "readygo-deep-dive",
+    title: "ReadyGo: the next lap",
+    author: "Avery Nishimura",
+  },
+  {
+    slug: "repdaily-our-first-time",
+    title: "Our first time",
     author: "Avery Nishimura",
   },
 ] as const;
@@ -60,15 +65,17 @@ test.describe("blog loop", () => {
     await expect(page).toHaveURL(/\/blog$/);
     await expect(page.getByRole("heading", { name: /\/\/ Blog/i })).toBeVisible();
     await expect(page.getByText("NOTES", { exact: true })).toBeVisible();
-    await expect(page.locator("#blog-count")).toHaveText("13 notes");
+    await expect(page.locator("#blog-count")).toHaveText("4 notes");
     await expect(page.locator("#blog-featured-row")).toBeVisible();
     await expect(page.locator("#blog-featured-row #blog-sandbox")).toBeVisible();
     await expect(page.locator("#blog-sandbox-row")).toBeVisible();
     await expect(page.locator("#blog-sandbox-sibling")).toBeVisible();
     await expect(page.locator('#blog-sandbox-row [data-blog-poll="talk-next"]')).toBeVisible();
-    await expect(page.locator("#blog-notes-grid a")).toHaveCount(6);
-    await expect(page.locator("[data-blog-poll]")).toHaveCount(2);
-    await expect(page.getByRole("button", { name: "More" })).toBeVisible();
+    // 4 total − featured − sandbox sibling = 2 note cards; page size covers the pool.
+    await expect(page.locator("#blog-notes-grid a")).toHaveCount(2);
+    // Featured poll only — grid poll inserts after note N that is past the 2-card pool.
+    await expect(page.locator("[data-blog-poll]")).toHaveCount(1);
+    await expect(page.getByRole("button", { name: "More" })).toHaveCount(0);
     await expect(page.getByText(/\/\/ \d+m/).first()).toBeVisible();
     await expect(page.getByRole("link", { name: "View all" })).toHaveCount(0);
     await expect(page.locator(".blog-orb, #blog-orbs-root")).toHaveCount(0);
@@ -98,27 +105,27 @@ test.describe("blog loop", () => {
   test("pills filter the grid and count", async ({ page }) => {
     await visit(page, "/blog");
     await page.getByRole("button", { name: "Deep Cuts" }).click();
-    await expect(page.locator("#blog-count")).toHaveText("3 notes");
+    await expect(page.locator("#blog-count")).toHaveText("1 notes");
     await expect(page.locator("#blog-featured")).toContainText("Tool-off week");
-    // Featured + sandbox sibling absorb two notes; one remains in the grid; polls hidden.
-    await expect(page.locator("#blog-notes-grid a")).toHaveCount(1);
-    await expect(page.locator("#blog-sandbox-sibling")).toBeVisible();
+    // Single note is featured; no sibling/grid; polls hidden.
+    await expect(page.locator("#blog-notes-grid")).toHaveCount(0);
+    await expect(page.locator("#blog-sandbox-sibling")).toHaveCount(0);
     await expect(page.locator("[data-blog-poll]")).toHaveCount(0);
     await expect(page.getByRole("button", { name: "More" })).toHaveCount(0);
 
     await page.getByRole("button", { name: "Projects" }).click();
-    await expect(page.locator("#blog-count")).toHaveText("5 notes");
+    await expect(page.locator("#blog-count")).toHaveText("2 notes");
     await expect(page.locator("#blog-featured")).toContainText(
       "Our first time",
     );
     await expect(page.locator("#blog-sandbox-sibling")).toBeVisible();
-    await expect(page.locator("#blog-notes-grid a")).toHaveCount(3);
+    await expect(page.locator("#blog-notes-grid")).toHaveCount(0);
     await expect(page.locator("[data-blog-poll]")).toHaveCount(0);
 
     await page.getByRole("button", { name: "All" }).click();
-    await expect(page.locator("#blog-count")).toHaveText("13 notes");
-    await expect(page.locator("#blog-notes-grid a")).toHaveCount(6);
-    await expect(page.locator("[data-blog-poll]")).toHaveCount(2);
+    await expect(page.locator("#blog-count")).toHaveText("4 notes");
+    await expect(page.locator("#blog-notes-grid a")).toHaveCount(2);
+    await expect(page.locator("[data-blog-poll]")).toHaveCount(1);
   });
 
   test("category titles use distinct colours that follow Spray", async ({
@@ -154,22 +161,24 @@ test.describe("blog loop", () => {
     }).click();
 
     await expect
-      .poll(async () =>
-        page.evaluate(() =>
-          getComputedStyle(document.documentElement)
-            .getPropertyValue("--blog-cat-projects")
-            .trim(),
-        ),
+      .poll(
+        async () =>
+          page.evaluate(() =>
+            getComputedStyle(document.documentElement)
+              .getPropertyValue("--blog-cat-projects")
+              .trim(),
+          ),
+        { timeout: 15_000 },
       )
       .not.toBe(before.projects);
   });
 
-  test("More reveals the next page of notes", async ({ page }) => {
+  test("More stays hidden when the note pool fits one page", async ({
+    page,
+  }) => {
     await visit(page, "/blog");
-    await expect(page.locator("#blog-notes-grid a")).toHaveCount(6);
-    await page.getByRole("button", { name: "More" }).click();
-    // 13 total − featured − sandbox sibling = 11 note cards in the grid pool.
-    await expect(page.locator("#blog-notes-grid a")).toHaveCount(11);
+    // 4 total − featured − sandbox sibling = 2 note cards (≤ page size).
+    await expect(page.locator("#blog-notes-grid a")).toHaveCount(2);
     await expect(page.getByRole("button", { name: "More" })).toHaveCount(0);
   });
 
@@ -190,7 +199,7 @@ test.describe("blog loop", () => {
     const poll = page.locator('[data-blog-poll="talk-next"]');
     await expect(poll).toBeVisible();
     await poll.getByRole("radio", { name: "AI" }).click();
-    await expect(poll.getByText(/%/)).toBeVisible();
+    await expect(poll.getByText(/%/).first()).toBeVisible();
     await expect(poll.getByRole("radio")).toHaveCount(0);
 
     const stored = await page.evaluate(() =>
@@ -201,7 +210,7 @@ test.describe("blog loop", () => {
     await page.reload({ waitUntil: "domcontentloaded" });
     await waitForHydration(page);
     await expect(
-      page.locator('[data-blog-poll="talk-next"]').getByText(/%/),
+      page.locator('[data-blog-poll="talk-next"]').getByText(/%/).first(),
     ).toBeVisible();
     await expect(
       page.locator('[data-blog-poll="talk-next"]').getByRole("radio"),
@@ -243,7 +252,7 @@ test.describe("blog loop", () => {
     await expect(sandbox.getByText("sandbox.ballpool")).toBeVisible();
     await expect(sandbox.getByText("STANDBY")).toBeVisible();
     await expect(sandbox.locator("canvas")).toHaveCount(0);
-    await expect(page.locator("#blog-notes-grid a")).toHaveCount(6);
+    await expect(page.locator("#blog-notes-grid a")).toHaveCount(2);
 
     await sandbox.getByRole("button", { name: "CLICK TO PLAY" }).click();
     await expect(sandbox.locator("canvas")).toBeVisible({ timeout: 15_000 });
@@ -251,7 +260,7 @@ test.describe("blog loop", () => {
     await expect(sandbox.getByRole("button", { name: "CLICK TO PLAY" })).toHaveCount(
       0,
     );
-    await expect(page.locator("#blog-notes-grid a")).toHaveCount(6);
+    await expect(page.locator("#blog-notes-grid a")).toHaveCount(2);
   });
 
   test("sandbox tank follows Spray tokens before play", async ({ page }) => {
@@ -322,13 +331,13 @@ test.describe("blog loop", () => {
       sandbox.getByRole("button", { name: "CLICK TO PLAY" }),
     ).toHaveCount(0);
     await expect(sandbox.locator("canvas")).toHaveCount(0);
-    await expect(page.locator("#blog-notes-grid a")).toHaveCount(6);
+    await expect(page.locator("#blog-notes-grid a")).toHaveCount(2);
   });
 
   test("desktop notes grid is 3 columns and mobile is 1", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await visit(page, "/blog");
-    await expect(page.locator("#blog-notes-grid a")).toHaveCount(6);
+    await expect(page.locator("#blog-notes-grid a")).toHaveCount(2);
     expect(await gridColumnCount(page)).toBe(3);
 
     await page.setViewportSize({ width: 390, height: 844 });
@@ -339,7 +348,7 @@ test.describe("blog loop", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await visit(page, "/blog");
     await expect(page.getByRole("heading", { name: /\/\/ Blog/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: "More" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "More" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "View all" })).toHaveCount(0);
     await expect(page.getByText(/Notes from the floor/)).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Open menu" })).toBeVisible();
@@ -349,7 +358,7 @@ test.describe("blog loop", () => {
     test.setTimeout(60_000);
     for (const post of POSTS) {
       await visit(page, "/blog");
-      await page.getByRole("link", { name: new RegExp(post.title) }).click();
+      await page.locator(`a[href="/blog/${post.slug}"]`).first().click();
       await expect(page).toHaveURL(new RegExp(`/blog/${post.slug}$`), {
         timeout: 15_000,
       });
@@ -379,10 +388,9 @@ test.describe("blog loop", () => {
 
     const title = page.locator("#blog-featured h2");
     await expect(title).toHaveText("Our first time");
-    await expect(title).toHaveCSS("display", "-webkit-box");
-    await expect(page.locator("#blog-featured h2 + p")).toHaveCSS(
-      "display",
-      "-webkit-box",
+    await expect(title).toHaveClass(/line-clamp-2/);
+    await expect(page.locator("#blog-featured h2 + p")).toHaveClass(
+      /line-clamp-3/,
     );
   });
 
@@ -491,7 +499,8 @@ test.describe("blog loop", () => {
       "src",
       /og-default/,
     );
-    await expect(article.locator("blockquote")).toBeVisible();
+    await expect(article.locator(".blog-note-callout")).toBeVisible();
+    await expect(article.getByText(/MOCK — outline only/)).toBeVisible();
     await expect(article.locator("#blog-adjacent-nav")).toBeVisible();
     await expect(article.locator("#blog-writer-band")).toBeVisible();
     await expect(
@@ -515,7 +524,7 @@ test.describe("blog loop", () => {
         title: top(document.querySelector("article h1")),
         byline: top(document.querySelector("article time")),
         hero: top(document.querySelector("#blog-post-hero")),
-        quote: top(document.querySelector("#blog-article-body blockquote")),
+        quote: top(document.querySelector("#blog-article-body .blog-note-callout")),
         adjacent: top(document.querySelector("#blog-adjacent-nav")),
         writer: top(document.querySelector("#blog-writer-band")),
         share: top(document.querySelector("#blog-post-feedback")),
@@ -563,12 +572,12 @@ test.describe("blog loop", () => {
     await expect(newest.getByText("PREV", { exact: true })).toBeVisible();
     await expect(newest.getByText("NEXT", { exact: true })).toHaveCount(0);
 
-    await visit(page, "/blog/production-handoff");
+    await visit(page, "/blog/repdaily-our-first-time");
     const oldest = page.locator("#blog-adjacent-nav");
     await expect(oldest.getByText("NEXT", { exact: true })).toBeVisible();
     await expect(oldest.getByText("PREV", { exact: true })).toHaveCount(0);
 
-    await visit(page, "/blog/multi-agent-systems");
+    await visit(page, "/blog/tool-off-week");
     const mid = page.locator("#blog-adjacent-nav");
     await expect(mid.getByText("PREV", { exact: true })).toBeVisible();
     await expect(mid.getByText("NEXT", { exact: true })).toBeVisible();
@@ -609,7 +618,7 @@ test.describe("blog loop", () => {
     await expect(
       article.getByRole("heading", { name: POSTS[0].title, level: 1 }),
     ).toBeVisible();
-    await expect(article.locator("blockquote")).toBeVisible();
+    await expect(article.locator(".blog-note-callout")).toBeVisible();
     const hero = page.locator("#blog-post-hero");
     await expect(hero.locator("img")).toBeVisible();
     await expect(hero.locator("img")).toHaveAttribute("src", /og-default/);

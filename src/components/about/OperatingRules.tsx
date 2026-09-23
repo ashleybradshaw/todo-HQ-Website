@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AsciiReveal } from "@/components/about/AsciiReveal";
 import { MirageSpinner } from "@/components/ide/MirageSpinner";
+import { TypeComment } from "@/components/TypeComment";
 import { aboutPage } from "@/content/pages/about";
 import { cn } from "@/lib/cn";
 
@@ -84,7 +85,7 @@ export function OperatingRules() {
 
   return (
     <section className="mt-16 border-t border-border-ide pt-10">
-      <p className="type-label">{operatingRules.eyebrow}</p>
+      <TypeComment text={operatingRules.eyebrow} />
       <h2 className="type-heading mt-3">{operatingRules.title}</h2>
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">

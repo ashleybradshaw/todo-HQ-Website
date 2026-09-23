@@ -104,8 +104,8 @@ export const aboutPage = {
     eyebrow: "// OPERATING",
     title: "How the factory runs.",
     mediaLabel: "Floor",
-    /** TEMP — same pilot still as origin; replace with floor plate */
-    mediaSrc: "/about/origin-test.webp",
+    /** TEMP — replace with final floor plate */
+    mediaSrc: "/about/floor-test.webp",
     mediaAlt: "Floor — temporary still",
     rules: [
       "One pipeline for roster and client work — no side desk.",
@@ -119,9 +119,12 @@ export const aboutPage = {
   },
   stats: STAT_MOCKS,
   workTogether: {
+    eyebrow: "// CLOSE",
     title: "Bring the factory to the next problem.",
+    subtitle: "Clear start. Quiet process. Paper when it matters.",
+    body: "We sign NDAs when you need them. A budget range in mind keeps scope honest — we don’t do price theater.",
     ctaLabel: "Work Together",
     ctaHref: "/book",
-    secondary: { href: "/work", label: "[ Work ]" },
+    secondary: { href: "/work", label: "See our work" },
   },
 } as const;

@@ -1,12 +1,11 @@
 "use client";
 
 import type { RefObject } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import { AsciiReveal } from "@/components/about/AsciiReveal";
 import {
   BOOK_DUO,
   PRIMARY_LINKS,
-  WORK_STILLS,
   isActivePath,
 } from "@/components/nav/nav-links";
 import { cn } from "@/lib/cn";
@@ -18,6 +17,24 @@ type NavOverlayProps = {
   onNavigate: () => void;
   firstLinkRef: RefObject<HTMLAnchorElement | null>;
 };
+
+function FoundersPlate({ className }: { className?: string }) {
+  return (
+    <div
+      aria-hidden="true"
+      className={cn("nav-stagger pointer-events-none", className)}
+      style={{
+        animationDelay: `${(PRIMARY_LINKS.length + BOOK_DUO.length) * 40}ms`,
+      }}
+    >
+      <AsciiReveal
+        src="/nav/founders.webp"
+        alt=""
+        className="rounded-[4px]"
+      />
+    </div>
+  );
+}
 
 export function NavOverlay({
   id,
@@ -89,7 +106,9 @@ export function NavOverlay({
                 className={cn(
                   "nav-stagger group block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]",
                 )}
-                style={{ animationDelay: `${(PRIMARY_LINKS.length + index) * 40}ms` }}
+                style={{
+                  animationDelay: `${(PRIMARY_LINKS.length + index) * 40}ms`,
+                }}
               >
                 <p className="font-jetbrains text-syn-keyword text-sm font-medium group-hover:underline">
                   {item.label}
@@ -100,34 +119,13 @@ export function NavOverlay({
               </Link>
             ))}
           </div>
+
+          {/* Mobile compact founders plate under Book */}
+          <FoundersPlate className="mt-2 w-full max-w-[240px] lg:hidden" />
         </div>
 
-        <div className="hidden lg:col-span-4 lg:flex lg:flex-col lg:justify-center lg:gap-4 lg:border-l lg:border-border-ide lg:pl-8">
-          {WORK_STILLS.map((still, index) => (
-            <Link
-              key={still.href}
-              href={still.href}
-              onClick={onNavigate}
-              className={cn(
-                "nav-stagger group relative block overflow-hidden rounded-[4px] border border-border-ide",
-                "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]",
-              )}
-              style={{
-                animationDelay: `${(PRIMARY_LINKS.length + BOOK_DUO.length + index) * 40}ms`,
-              }}
-            >
-              <Image
-                src={still.src}
-                alt={still.alt}
-                width={640}
-                height={400}
-                className="aspect-[16/10] h-auto w-full object-cover transition-opacity group-hover:opacity-90"
-              />
-              <span className="font-jetbrains absolute right-3 bottom-3 bg-bg-canvas/90 px-2 py-1 text-xs text-foreground backdrop-blur-sm">
-                {still.label}
-              </span>
-            </Link>
-          ))}
+        <div className="hidden lg:col-span-4 lg:flex lg:flex-col lg:justify-center lg:border-l lg:border-border-ide lg:pl-8">
+          <FoundersPlate className="w-full" />
         </div>
       </div>
     </div>

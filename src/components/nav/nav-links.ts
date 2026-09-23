@@ -18,21 +18,6 @@ export const BOOK_DUO = [
   },
 ] as const;
 
-export const WORK_STILLS = [
-  {
-    href: "/work/readygo",
-    src: "/work/readygo.jpg",
-    alt: "ReadyGo — work still",
-    label: "ReadyGo",
-  },
-  {
-    href: "/work/repdaily",
-    src: "/work/repdaily.jpg",
-    alt: "RepDaily — work still",
-    label: "RepDaily",
-  },
-] as const;
-
 export function isGatewayPath(pathname: string) {
   return pathname === "/" || pathname === "/intro";
 }

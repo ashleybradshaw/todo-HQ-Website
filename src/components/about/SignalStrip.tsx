@@ -7,6 +7,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { HelixSpinner } from "@/components/ide/HelixSpinner";
+import { TypeComment } from "@/components/TypeComment";
 import {
   LIVE_FLOOR_SIM,
   aboutPage,
@@ -221,7 +222,7 @@ function FloorSimPanel() {
     <div className="border border-border-ide bg-background p-5 sm:p-6">
       <div className="flex items-center justify-between gap-4 border-b border-border-ide pb-4">
         <div className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1">
-          <p className="type-label">{"// FLOOR SIM"}</p>
+          <TypeComment text="// FLOOR SIM" />
           <p className="type-label text-syn-string">LIVE</p>
         </div>
         <HelixSpinner
@@ -273,7 +274,10 @@ export function SignalStrip() {
               />
               <p className="type-body mt-3 text-foreground/80">{stat.label}</p>
               {stat.source ? (
-                <p className="type-label mt-2 text-syn-comment">{stat.source}</p>
+                <TypeComment
+                  text={stat.source}
+                  className="mt-2 text-syn-comment"
+                />
               ) : null}
             </div>
           ))}

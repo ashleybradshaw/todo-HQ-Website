@@ -298,7 +298,7 @@ export function AsciiReveal({
         alt={alt}
         decoding="async"
         className={cn(
-          "absolute inset-0 z-[1] h-full w-full object-cover saturate-[0.96] transition-opacity ease-out",
+          "absolute inset-0 z-[1] h-full w-full object-cover object-center saturate-[0.8] transition-opacity ease-out",
           imageVisible ? "opacity-100" : "opacity-0",
           "motion-reduce:opacity-100 motion-reduce:transition-none",
         )}

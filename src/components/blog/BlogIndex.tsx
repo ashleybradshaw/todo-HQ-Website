@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { BlogSandbox } from "@/components/blog/BlogSandbox";
 import { WriterAvatar } from "@/components/blog/WriterAvatar";
+import { TypeComment } from "@/components/TypeComment";
 import { cn } from "@/lib/cn";
 import {
   BLOG_CATEGORIES,
@@ -139,12 +140,12 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
         aria-labelledby="blog-index-heading"
       >
         <div className="flex items-center justify-between border-b border-border-ide px-6 py-2">
-          <h1
+          <TypeComment
+            as="h1"
             id="blog-index-heading"
-            className="type-label text-syn-keyword"
-          >
-            {"// Blog"}
-          </h1>
+            text="// Blog"
+            className="text-syn-keyword"
+          />
           <p className="type-label text-syn-comment font-normal">NOTES</p>
         </div>
 

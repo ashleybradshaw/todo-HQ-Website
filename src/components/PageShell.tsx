@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { TypeComment } from "@/components/TypeComment";
 import { cn } from "@/lib/cn";
 
 export type PageShellVariant = "index" | "essay" | "essayMedia";
@@ -83,15 +84,13 @@ export function PageShell({
         <div className={cn(copyMax, headerClassName)}>
           {breadcrumbs}
           {eyebrow ? (
-            <p
+            <TypeComment
+              text={eyebrow}
               className={cn(
-                "type-label",
                 breadcrumbs ? "mt-6" : undefined,
                 eyebrowClassName,
               )}
-            >
-              {eyebrow}
-            </p>
+            />
           ) : null}
           {eyebrow ? <div className="border-border-ide mt-3 border-t" /> : null}
           <h1

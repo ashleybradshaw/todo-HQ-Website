@@ -152,6 +152,11 @@
   }
 }
 
+html {
+  /* Match PageShell / SiteNav clearance (pt-28) so anchors aren’t under the fixed bar */
+  scroll-padding-top: 7rem;
+}
+
 body {
   background: #4545ff;
   color: #ddddff;

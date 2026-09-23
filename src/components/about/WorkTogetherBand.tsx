@@ -7,25 +7,21 @@ import { cn } from "@/lib/cn";
 /**
  * Book coffee chrome on invert band — tokens against --background (band text).
  * Spray remaps the pair; never paint with --foreground (band fill) on this surface.
+ * Opaque border/fill so CTAs stay readable under global NoiseOverlay grain (z-50).
  */
 const bandBtn =
   "font-jetbrains relative inline-flex min-h-11 shrink-0 items-center justify-center overflow-hidden rounded-[4px] border px-4 py-2 text-xs font-bold tracking-wider transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--background)]";
 
 const secondaryBtn = cn(
   bandBtn,
-  "border-[color-mix(in_srgb,var(--background)_28%,transparent)] bg-[color-mix(in_srgb,var(--background)_8%,transparent)] text-background",
+  "border-background bg-transparent text-background",
 );
 
-/** Primary: same band-text colour as secondary, stronger wash + Spray shimmer. */
+/** Primary: solid band-text fill so grain can’t muddy the label. */
 const primaryBtn = cn(
   bandBtn,
-  "border-[color-mix(in_srgb,var(--background)_40%,transparent)] text-background",
+  "border-background bg-background text-foreground",
 );
-
-const primaryFade = {
-  backgroundImage:
-    "linear-gradient(105deg, color-mix(in srgb, var(--background) 18%, transparent) 0%, color-mix(in srgb, var(--background) 7%, transparent) 55%, transparent 100%)",
-} as const;
 
 export function WorkTogetherBand() {
   const { workTogether } = aboutPage;
@@ -45,12 +41,8 @@ export function WorkTogetherBand() {
           <p className="type-body mt-4 max-w-[40rem] text-background/80">
             {workTogether.body}
           </p>
-          <div className="mt-8 flex flex-wrap items-center gap-3 sm:gap-4">
-            <Link
-              href={workTogether.ctaHref}
-              className={primaryBtn}
-              style={primaryFade}
-            >
+          <div className="relative z-[60] mt-8 flex flex-wrap items-center gap-3 sm:gap-4">
+            <Link href={workTogether.ctaHref} className={primaryBtn}>
               <span className="relative z-10">{workTogether.ctaLabel}</span>
               <span aria-hidden="true" className="spray-shine-wash" />
               <span aria-hidden="true" className="spray-shine-edge" />

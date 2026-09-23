@@ -259,7 +259,7 @@ export function SignalStrip() {
   return (
     <section
       aria-label="Factory floor ledger"
-      className="relative left-1/2 mt-16 w-screen -translate-x-1/2 border-y border-border-ide bg-background text-foreground"
+      className="relative left-1/2 mt-16 w-screen -translate-x-1/2 scroll-mt-28 border-y border-border-ide bg-background text-foreground"
     >
       <div className="mx-auto grid max-w-[1336px] grid-cols-1 gap-10 px-6 py-10 lg:grid-cols-12 lg:gap-12 lg:py-14">
         <div className="flex flex-col lg:col-span-5">

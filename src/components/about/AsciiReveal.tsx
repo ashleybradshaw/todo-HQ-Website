@@ -28,6 +28,8 @@ type AsciiRevealProps = {
   alt: string;
   className?: string;
   children?: ReactNode;
+  /** Nav founders — skip IO wait; scramble once layout has a real size. */
+  priority?: boolean;
 };
 
 function subscribeReducedMotion(onStoreChange: () => void) {
@@ -128,6 +130,7 @@ export function AsciiReveal({
   alt,
   className,
   children,
+  priority = false,
 }: AsciiRevealProps) {
   const reduceMotion = useSyncExternalStore(
     subscribeReducedMotion,
@@ -157,6 +160,16 @@ export function AsciiReveal({
     let fadeTimer = 0;
     let observer: IntersectionObserver | null = null;
     let cancelled = false;
+    let revealed = false;
+
+    const showPhoto = () => {
+      if (cancelled || revealed) {
+        return;
+      }
+      revealed = true;
+      setShowImage(true);
+      setCanvasGone(true);
+    };
 
     const teardownCanvas = () => {
       if (raf) {
@@ -169,6 +182,30 @@ export function AsciiReveal({
       setCanvasGone(true);
     };
 
+    /** Wait until the shell has painted size (skips display:none / pre-layout 0×0). */
+    const waitForLayout = (maxFrames = 45) =>
+      new Promise<DOMRectReadOnly | null>((resolve) => {
+        let frames = 0;
+        const tick = () => {
+          if (cancelled) {
+            resolve(null);
+            return;
+          }
+          const rect = shell.getBoundingClientRect();
+          if (rect.width >= 2 && rect.height >= 2) {
+            resolve(rect);
+            return;
+          }
+          frames += 1;
+          if (frames >= maxFrames) {
+            resolve(null);
+            return;
+          }
+          raf = requestAnimationFrame(tick);
+        };
+        raf = requestAnimationFrame(tick);
+      });
+
     const runReveal = async () => {
       if (startedRef.current || cancelled) {
         return;
@@ -179,8 +216,7 @@ export function AsciiReveal({
       const canvas = canvasRef.current;
       const img = imgRef.current;
       if (!canvas || !img) {
-        setShowImage(true);
-        setCanvasGone(true);
+        showPhoto();
         return;
       }
 
@@ -192,8 +228,7 @@ export function AsciiReveal({
           });
         }
       } catch {
-        setShowImage(true);
-        setCanvasGone(true);
+        showPhoto();
         return;
       }
 
@@ -201,7 +236,16 @@ export function AsciiReveal({
         return;
       }
 
-      const rect = shell.getBoundingClientRect();
+      const rect = await waitForLayout();
+      if (cancelled) {
+        return;
+      }
+      // Hidden twin or never laid out — show photo rather than a blank scramble.
+      if (!rect) {
+        showPhoto();
+        return;
+      }
+
       const width = Math.max(1, Math.round(rect.width));
       const height = Math.max(1, Math.round(rect.height));
       const rows = Math.max(12, Math.round((COLS * 5) / 4));
@@ -214,8 +258,7 @@ export function AsciiReveal({
 
       const ctx = canvas.getContext("2d");
       if (!ctx) {
-        setShowImage(true);
-        setCanvasGone(true);
+        showPhoto();
         return;
       }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -224,8 +267,7 @@ export function AsciiReveal({
       try {
         glyphs = sampleGlyphs(img, COLS, rows);
       } catch {
-        setShowImage(true);
-        setCanvasGone(true);
+        showPhoto();
         return;
       }
 
@@ -246,6 +288,10 @@ export function AsciiReveal({
         raf = 0;
         paint(false);
         settleTimer = window.setTimeout(() => {
+          if (cancelled) {
+            return;
+          }
+          revealed = true;
           setShowImage(true);
           fadeTimer = window.setTimeout(() => {
             teardownCanvas();
@@ -254,18 +300,24 @@ export function AsciiReveal({
       }, SCRAMBLE_MS);
     };
 
-    observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          void runReveal();
-        }
-      },
-      { root: null, rootMargin: "0px 0px -10% 0px", threshold: 0.2 },
-    );
-    observer.observe(shell);
+    if (priority) {
+      void runReveal();
+    } else {
+      observer = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            void runReveal();
+          }
+        },
+        { root: null, rootMargin: "0px 0px -10% 0px", threshold: 0.2 },
+      );
+      observer.observe(shell);
+    }
 
     return () => {
       cancelled = true;
+      // Strict Mode re-runs this effect on the same instance — allow a fresh start.
+      startedRef.current = false;
       observer?.disconnect();
       if (raf) {
         cancelAnimationFrame(raf);
@@ -274,7 +326,7 @@ export function AsciiReveal({
       window.clearTimeout(settleTimer);
       window.clearTimeout(fadeTimer);
     };
-  }, [reduceMotion]);
+  }, [reduceMotion, priority]);
 
   const fadeStyle = {
     ["--ascii-fade-ms" as string]: `${FADE_MS}ms`,
@@ -296,7 +348,9 @@ export function AsciiReveal({
         ref={imgRef}
         src={src}
         alt={alt}
-        decoding="async"
+        decoding={priority ? "sync" : "async"}
+        loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : undefined}
         className={cn(
           "absolute inset-0 z-[1] h-full w-full object-cover object-center saturate-[0.8] transition-opacity ease-out",
           imageVisible ? "opacity-100" : "opacity-0",

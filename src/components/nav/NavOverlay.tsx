@@ -1,6 +1,9 @@
 "use client";
 
-import type { RefObject } from "react";
+import {
+  useSyncExternalStore,
+  type RefObject,
+} from "react";
 import Link from "next/link";
 import { AsciiReveal } from "@/components/about/AsciiReveal";
 import {
@@ -18,6 +21,16 @@ type NavOverlayProps = {
   firstLinkRef: RefObject<HTMLAnchorElement | null>;
 };
 
+function subscribeLg(onChange: () => void) {
+  const media = window.matchMedia("(min-width: 1024px)");
+  media.addEventListener("change", onChange);
+  return () => media.removeEventListener("change", onChange);
+}
+
+function readLg() {
+  return window.matchMedia("(min-width: 1024px)").matches;
+}
+
 function FoundersPlate({ className }: { className?: string }) {
   return (
     <div
@@ -30,6 +43,7 @@ function FoundersPlate({ className }: { className?: string }) {
       <AsciiReveal
         src="/nav/founders.webp"
         alt=""
+        priority
         className="rounded-[4px]"
       />
     </div>
@@ -43,6 +57,8 @@ export function NavOverlay({
   onNavigate,
   firstLinkRef,
 }: NavOverlayProps) {
+  const isLg = useSyncExternalStore(subscribeLg, readLg, () => false);
+
   if (!open) {
     return null;
   }
@@ -120,13 +136,17 @@ export function NavOverlay({
             ))}
           </div>
 
-          {/* Mobile compact founders plate under Book */}
-          <FoundersPlate className="mt-2 w-full max-w-[240px] lg:hidden" />
+          {/* Mobile — single mount (no lg:hidden twin racing scramble at 0×0) */}
+          {!isLg ? (
+            <FoundersPlate className="mt-2 w-full max-w-[240px]" />
+          ) : null}
         </div>
 
-        <div className="hidden lg:col-span-4 lg:flex lg:flex-col lg:justify-center lg:border-l lg:border-border-ide lg:pl-8">
-          <FoundersPlate className="w-full" />
-        </div>
+        {isLg ? (
+          <div className="lg:col-span-4 lg:flex lg:flex-col lg:justify-center lg:border-l lg:border-border-ide lg:pl-8">
+            <FoundersPlate className="w-full" />
+          </div>
+        ) : null}
       </div>
     </div>
   );

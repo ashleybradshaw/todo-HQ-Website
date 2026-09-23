@@ -84,7 +84,7 @@ export function OperatingRules() {
   }, [activeIndex]);
 
   return (
-    <section className="mt-16 border-t border-border-ide pt-10">
+    <section className="mt-16 scroll-mt-28 border-t border-border-ide pt-10">
       <TypeComment text={operatingRules.eyebrow} />
       <h2 className="type-heading mt-3">{operatingRules.title}</h2>
 

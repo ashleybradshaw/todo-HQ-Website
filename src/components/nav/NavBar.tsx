@@ -107,12 +107,14 @@ function MenuButton({
     <button
       type="button"
       className={cn(
-        "font-jetbrains inline-flex h-8 shrink-0 cursor-pointer items-center justify-center overflow-visible rounded-[4px] bg-transparent text-foreground",
+        "font-jetbrains inline-flex shrink-0 cursor-pointer items-center justify-center overflow-visible rounded-[4px] bg-transparent text-foreground",
         "transition-[background-color,transform,color] duration-200 ease-out",
         "hover:bg-foreground/5 active:scale-[0.99] active:bg-foreground/10",
         "focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none",
         "motion-reduce:active:scale-100",
-        showLabel ? "gap-2 px-2 text-xs font-bold tracking-wider uppercase lg:px-3" : "size-8",
+        showLabel
+          ? "min-h-11 min-w-11 gap-2 px-2 text-xs font-bold tracking-wider uppercase lg:px-3"
+          : "size-11",
       )}
       aria-expanded={open}
       aria-controls={menuId}

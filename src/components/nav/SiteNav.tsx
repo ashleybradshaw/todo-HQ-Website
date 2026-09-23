@@ -69,6 +69,11 @@ export function SiteNav() {
   }
 
   useEffect(() => {
+    const img = new Image();
+    img.src = "/nav/founders.webp";
+  }, []);
+
+  useEffect(() => {
     if (!menuOpen) {
       if (wasOpenRef.current) {
         const toggle = headerRef.current?.querySelector<HTMLButtonElement>(

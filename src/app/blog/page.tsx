@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BlogIndex } from "@/components/blog/BlogIndex";
+import { SiteCloser } from "@/components/SiteCloser";
 import { getAllPosts, toBlogIndexPost } from "@/lib/blog";
 import { pageMetadata } from "@/lib/seo";
 
@@ -13,5 +14,10 @@ export const metadata: Metadata = pageMetadata({
 export default async function BlogLandingPage() {
   const posts = (await getAllPosts()).map(toBlogIndexPost);
 
-  return <BlogIndex posts={posts} />;
+  return (
+    <>
+      <BlogIndex posts={posts} />
+      <SiteCloser variant="full" />
+    </>
+  );
 }

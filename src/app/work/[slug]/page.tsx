@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
 import { PageShell } from "@/components/PageShell";
+import { SiteCloser } from "@/components/SiteCloser";
 import { BrowserFrame } from "@/components/work/BrowserFrame";
 import { ProjectGlyphField } from "@/components/work/ProjectGlyphField";
 import {
@@ -193,6 +194,7 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
             ← Work
           </Link>
         </div>
+        <SiteCloser variant="book" />
       </PageShell>
     </>
   );

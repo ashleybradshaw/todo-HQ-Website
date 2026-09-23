@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageShell } from "@/components/PageShell";
 import { ProjectCard } from "@/components/ProjectCard";
+import { SiteCloser } from "@/components/SiteCloser";
 import { workPage } from "@/content/pages/work";
 import { getListedProjects } from "@/lib/projects";
 import { pageMetadata } from "@/lib/seo";
@@ -28,6 +29,7 @@ export default function WorkPage() {
           </li>
         ))}
       </ul>
+      <SiteCloser variant="full" />
     </PageShell>
   );
 }

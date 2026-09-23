@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { BlogMediaCraft } from "@/components/blog/BlogMediaCraft";
+import { ReadMinutes } from "@/components/blog/BlogNoteCard";
 import { BlogReadingProgress } from "@/components/blog/BlogReadingProgress";
 import { WriterAvatar } from "@/components/blog/WriterAvatar";
 import { JsonLd } from "@/components/JsonLd";
@@ -191,7 +192,7 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
             <span aria-hidden="true">·</span>
             <time dateTime={post.date}>{formatBlogDate(post.date)}</time>
             <span aria-hidden="true">·</span>
-            <span className="text-syn-comment">{`// ${post.readMinutes}m`}</span>
+            <ReadMinutes minutes={post.readMinutes} />
           </div>
           <BlogHero post={post} />
           <div

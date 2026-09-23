@@ -57,7 +57,7 @@ export function WriterMeta({
 
 export function ReadMinutes({ minutes }: { minutes: number }) {
   return (
-    <span className="blog-read-minutes type-caption text-syn-comment shrink-0">
+    <span className="blog-read-minutes type-caption text-syn-comment shrink-0 font-bold">
       {`// ${minutes}m`}
     </span>
   );

@@ -32,6 +32,10 @@ export type BlogPost = {
   heroSrc: string | null;
   ogImageSrc: string | null;
   imageAlt: string | null;
+  /** Rewrite-queue only — never render in UI, OG, or JSON-LD. */
+  status: string | null;
+  /** Rewrite-queue only — never render in UI, OG, or JSON-LD. */
+  editor: string | null;
 };
 
 const REQUIRED_FIELDS = [
@@ -299,6 +303,8 @@ function toPost(
     heroSrc: parseLocalWebp(data.hero, filePath, "hero"),
     ogImageSrc: parseLocalWebp(data.ogImage, filePath, "ogImage"),
     imageAlt: data.imageAlt?.trim() ? data.imageAlt.trim() : null,
+    status: data.status?.trim() ? data.status.trim() : null,
+    editor: data.editor?.trim() ? data.editor.trim() : null,
   };
 }
 

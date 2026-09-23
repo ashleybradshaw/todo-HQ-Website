@@ -1,0 +1,22 @@
+{
+  "slug": "readygo-deep-dive",
+  "src": "/blog/readygo-deep-dive.webp",
+  "format": "webp",
+  "width": 2400,
+  "height": 1260,
+  "masterWidth": 2400,
+  "masterHeight": 1260,
+  "quality": 82,
+  "title": "ReadyGo Deep Dive",
+  "alt": "ReadyGo product still for the factory blog deep dive.",
+  "description": "Placeholder still for the ReadyGo deep-dive mock outline.",
+  "keywords": [
+    "ReadyGo",
+    "software factory",
+    "//TODO Engineering"
+  ],
+  "credit": "//TODO Engineering",
+  "project": "ReadyGo",
+  "cleaned": true,
+  "generatedAt": "2026-09-23T20:32:22.828Z"
+}

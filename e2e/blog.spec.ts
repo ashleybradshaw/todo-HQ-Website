@@ -60,7 +60,7 @@ test.describe("blog loop", () => {
     await expect(page).toHaveURL(/\/blog$/);
     await expect(page.getByRole("heading", { name: /\/\/ Blog/i })).toBeVisible();
     await expect(page.getByText("NOTES", { exact: true })).toBeVisible();
-    await expect(page.locator("#blog-count")).toHaveText("10 notes");
+    await expect(page.locator("#blog-count")).toHaveText("13 notes");
     await expect(page.locator("#blog-featured-row")).toBeVisible();
     await expect(page.locator("#blog-featured-row #blog-sandbox")).toBeVisible();
     await expect(page.locator("#blog-sandbox-row")).toBeVisible();
@@ -98,25 +98,25 @@ test.describe("blog loop", () => {
   test("pills filter the grid and count", async ({ page }) => {
     await visit(page, "/blog");
     await page.getByRole("button", { name: "Deep Cuts" }).click();
-    await expect(page.locator("#blog-count")).toHaveText("2 notes");
-    await expect(page.locator("#blog-featured")).toContainText("The house system");
-    // Featured + sandbox sibling absorb both notes; grid is empty and polls hidden.
-    await expect(page.locator("#blog-notes-grid")).toHaveCount(0);
+    await expect(page.locator("#blog-count")).toHaveText("3 notes");
+    await expect(page.locator("#blog-featured")).toContainText("Tool-off week");
+    // Featured + sandbox sibling absorb two notes; one remains in the grid; polls hidden.
+    await expect(page.locator("#blog-notes-grid a")).toHaveCount(1);
     await expect(page.locator("#blog-sandbox-sibling")).toBeVisible();
     await expect(page.locator("[data-blog-poll]")).toHaveCount(0);
     await expect(page.getByRole("button", { name: "More" })).toHaveCount(0);
 
     await page.getByRole("button", { name: "Projects" }).click();
-    await expect(page.locator("#blog-count")).toHaveText("4 notes");
+    await expect(page.locator("#blog-count")).toHaveText("5 notes");
     await expect(page.locator("#blog-featured")).toContainText(
       "Our first time",
     );
     await expect(page.locator("#blog-sandbox-sibling")).toBeVisible();
-    await expect(page.locator("#blog-notes-grid a")).toHaveCount(2);
+    await expect(page.locator("#blog-notes-grid a")).toHaveCount(3);
     await expect(page.locator("[data-blog-poll]")).toHaveCount(0);
 
     await page.getByRole("button", { name: "All" }).click();
-    await expect(page.locator("#blog-count")).toHaveText("10 notes");
+    await expect(page.locator("#blog-count")).toHaveText("13 notes");
     await expect(page.locator("#blog-notes-grid a")).toHaveCount(6);
     await expect(page.locator("[data-blog-poll]")).toHaveCount(2);
   });
@@ -168,7 +168,8 @@ test.describe("blog loop", () => {
     await visit(page, "/blog");
     await expect(page.locator("#blog-notes-grid a")).toHaveCount(6);
     await page.getByRole("button", { name: "More" }).click();
-    await expect(page.locator("#blog-notes-grid a")).toHaveCount(8);
+    // 13 total − featured − sandbox sibling = 11 note cards in the grid pool.
+    await expect(page.locator("#blog-notes-grid a")).toHaveCount(11);
     await expect(page.getByRole("button", { name: "More" })).toHaveCount(0);
   });
 
@@ -502,7 +503,7 @@ test.describe("blog loop", () => {
       page.getByRole("region", { name: "Work together" }),
     ).toBeVisible();
     await expect(
-      page.getByRole("link", { name: "Work Together" }),
+      page.getByRole("link", { name: "Work Together", exact: true }),
     ).toHaveAttribute("href", "/book");
     await expect(page.getByText(/Ashley|Dan/)).toHaveCount(0);
 
@@ -541,10 +542,11 @@ test.describe("blog loop", () => {
   test("pilot note renders craft blocks and larger prose", async ({ page }) => {
     await visit(page, "/blog/repdaily-our-first-time");
     const body = page.locator("#blog-article-body");
-    await expect(body.locator(".blog-note-callout")).toBeVisible();
-    await expect(body.locator(".blog-note-callout .type-label")).toHaveText(
+    await expect(body.locator(".blog-note-callout")).toHaveCount(2);
+    await expect(body.locator(".blog-note-callout .type-label").first()).toHaveText(
       "NOTE",
     );
+    await expect(body.getByText(/MOCK — outline only/)).toBeVisible();
     await expect(body.locator("figure.blog-article-figure img")).toHaveAttribute(
       "src",
       /repdaily-our-first-time\.webp/,
@@ -556,7 +558,7 @@ test.describe("blog loop", () => {
   test("adjacent nav hides the missing end on newest and oldest notes", async ({
     page,
   }) => {
-    await visit(page, "/blog/repdaily-our-first-time");
+    await visit(page, "/blog/design-engineer-evolution");
     const newest = page.locator("#blog-adjacent-nav");
     await expect(newest.getByText("PREV", { exact: true })).toBeVisible();
     await expect(newest.getByText("NEXT", { exact: true })).toHaveCount(0);
@@ -615,7 +617,7 @@ test.describe("blog loop", () => {
     expect(box).not.toBeNull();
     expect(box!.width / box!.height).toBeCloseTo(1200 / 630, 1);
     await expect(
-      page.getByRole("link", { name: "Work Together" }),
+      page.getByRole("link", { name: "Work Together", exact: true }),
     ).toBeVisible();
 
     const body = page.locator("#blog-article-body");

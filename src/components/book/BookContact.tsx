@@ -3,11 +3,19 @@
 import { useState, type FormEvent } from "react";
 import { TypeComment } from "@/components/TypeComment";
 import { bookPage } from "@/content/pages/book";
+import {
+  fieldErrorClass,
+  fieldOpenClass,
+  fieldQuietClass,
+  isValidEmail,
+  isValidMessage,
+  isValidName,
+} from "@/lib/book-form";
 import { cn } from "@/lib/cn";
 import { CONTACT_EMAIL } from "@/lib/site";
 
 const fieldClass =
-  "font-jetbrains min-h-11 w-full rounded-[4px] border border-border-ide bg-background px-3 py-2 text-sm text-foreground transition-[background-color,color,border-color] duration-[400ms] ease-in-out placeholder:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
+  "font-jetbrains min-h-11 w-full rounded-[4px] border border-border-ide bg-background px-3 py-2 text-sm text-foreground transition-[background-color,color,border-color,opacity] duration-[400ms] ease-in-out placeholder:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
 
 const labelClass = "type-label";
 
@@ -15,7 +23,7 @@ const mailtoClass =
   "font-jetbrains text-syn-string underline decoration-[color-mix(in_srgb,var(--foreground)_35%,transparent)] underline-offset-2 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
 
 const submitClass =
-  "font-jetbrains relative inline-flex min-h-11 cursor-pointer items-center justify-center overflow-hidden rounded-[4px] border border-current bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] px-4 py-2 text-xs font-bold tracking-wider text-syn-keyword transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50";
+  "font-jetbrains relative inline-flex min-h-11 cursor-pointer items-center justify-center overflow-hidden rounded-[4px] border border-current bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] px-4 py-2 text-xs font-bold tracking-wider text-syn-keyword transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:opacity-40";
 
 /** Same tactile lift as blog index / article cards (translateY on hover). */
 const liftTileClass =
@@ -29,6 +37,13 @@ function messagePrefill(type?: string): string {
   return "";
 }
 
+type Touched = {
+  name: boolean;
+  email: boolean;
+  howHeard: boolean;
+  message: boolean;
+};
+
 export function BookContact({ bookingType }: { bookingType?: string }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -37,10 +52,41 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
   const [howHeard, setHowHeard] = useState("");
   const [message, setMessage] = useState(() => messagePrefill(bookingType));
   const [composeHint, setComposeHint] = useState(false);
+  const [touched, setTouched] = useState<Touched>({
+    name: false,
+    email: false,
+    howHeard: false,
+    message: false,
+  });
+  const [showAllErrors, setShowAllErrors] = useState(false);
+
+  const nameOk = isValidName(name);
+  const emailOk = isValidEmail(email);
+  const howHeardOk = Boolean(howHeard);
+  const messageOk = isValidMessage(message);
+
+  const emailOpen = nameOk;
+  const optionalOpen = emailOk;
+  const howHeardOpen = emailOk;
+  const messageOpen = howHeardOk;
+  const formReady = nameOk && emailOk && howHeardOk && messageOk;
+
+  function markTouched(key: keyof Touched) {
+    setTouched((current) => ({ ...current, [key]: true }));
+  }
+
+  function showError(key: keyof Touched) {
+    return showAllErrors || touched[key];
+  }
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setComposeHint(false);
+    setShowAllErrors(true);
+
+    if (!formReady) {
+      return;
+    }
 
     const trimmedName = name.trim();
     const trimmedEmail = email.trim();
@@ -52,10 +98,6 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
     const callbackLabel =
       contact.callbackOptions.find((option) => option.value === callback)
         ?.label ?? callback;
-
-    if (!trimmedName || !trimmedEmail || !trimmedMessage || !howHeard) {
-      return;
-    }
 
     const subject = encodeURIComponent(
       `${contact.subjectPrefix} ${trimmedName}`,
@@ -97,7 +139,7 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
 
       <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] sm:items-start">
         <form className="flex flex-col gap-5" onSubmit={onSubmit} noValidate>
-          <div className="flex flex-col gap-2">
+          <div className={cn("flex flex-col gap-2", fieldOpenClass)}>
             <label htmlFor="book-contact-name" className={labelClass}>
               {contact.nameLabel}
             </label>
@@ -109,11 +151,26 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
+              onBlur={() => markTouched("name")}
+              aria-invalid={showError("name") && !nameOk}
+              aria-describedby={
+                showError("name") && !nameOk ? "book-contact-name-error" : undefined
+              }
               className={fieldClass}
             />
+            {showError("name") && !nameOk ? (
+              <p id="book-contact-name-error" className={fieldErrorClass} role="alert">
+                {contact.errorNameShort}
+              </p>
+            ) : null}
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div
+            className={cn(
+              "flex flex-col gap-2",
+              emailOpen ? fieldOpenClass : fieldQuietClass,
+            )}
+          >
             <label htmlFor="book-contact-email" className={labelClass}>
               {contact.emailLabel}
             </label>
@@ -125,11 +182,32 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onBlur={() => markTouched("email")}
+              aria-invalid={showError("email") && !emailOk}
+              aria-describedby={
+                showError("email") && !emailOk
+                  ? "book-contact-email-error"
+                  : undefined
+              }
               className={fieldClass}
             />
+            {showError("email") && !emailOk ? (
+              <p
+                id="book-contact-email-error"
+                className={fieldErrorClass}
+                role="alert"
+              >
+                {contact.errorEmailInvalid}
+              </p>
+            ) : null}
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div
+            className={cn(
+              "flex flex-col gap-2",
+              optionalOpen ? fieldOpenClass : fieldQuietClass,
+            )}
+          >
             <label htmlFor="book-contact-phone" className={labelClass}>
               {contact.phoneLabel}{" "}
               <span className="text-syn-comment normal-case tracking-normal">
@@ -147,7 +225,7 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
             />
           </div>
 
-          <div>
+          <div className={optionalOpen ? fieldOpenClass : fieldQuietClass}>
             <p className={labelClass}>
               {contact.callbackLabel}{" "}
               <span className="text-syn-comment normal-case tracking-normal">
@@ -185,7 +263,12 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div
+            className={cn(
+              "flex flex-col gap-2",
+              howHeardOpen ? fieldOpenClass : fieldQuietClass,
+            )}
+          >
             <label htmlFor="book-contact-heard" className={labelClass}>
               {contact.howHeardLabel}
             </label>
@@ -195,6 +278,13 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
               required
               value={howHeard}
               onChange={(e) => setHowHeard(e.target.value)}
+              onBlur={() => markTouched("howHeard")}
+              aria-invalid={showError("howHeard") && !howHeardOk}
+              aria-describedby={
+                showError("howHeard") && !howHeardOk
+                  ? "book-contact-heard-error"
+                  : undefined
+              }
               className={fieldClass}
             >
               <option value="" disabled>
@@ -206,9 +296,23 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
                 </option>
               ))}
             </select>
+            {showError("howHeard") && !howHeardOk ? (
+              <p
+                id="book-contact-heard-error"
+                className={fieldErrorClass}
+                role="alert"
+              >
+                {contact.errorHowHeard}
+              </p>
+            ) : null}
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div
+            className={cn(
+              "flex flex-col gap-2",
+              messageOpen ? fieldOpenClass : fieldQuietClass,
+            )}
+          >
             <label htmlFor="book-contact-message" className={labelClass}>
               {contact.messageLabel}
             </label>
@@ -219,15 +323,35 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
               rows={5}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
+              onBlur={() => markTouched("message")}
+              aria-invalid={showError("message") && !messageOk}
+              aria-describedby={
+                showError("message") && !messageOk
+                  ? "book-contact-message-error"
+                  : undefined
+              }
               className={`${fieldClass} min-h-[8.5rem] resize-y py-3`}
             />
+            {showError("message") && !messageOk ? (
+              <p
+                id="book-contact-message-error"
+                className={fieldErrorClass}
+                role="alert"
+              >
+                {contact.errorMessageShort}
+              </p>
+            ) : null}
           </div>
 
           <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
-            <button type="submit" className={submitClass}>
+            <button type="submit" className={submitClass} disabled={!formReady}>
               <span className="relative z-10">{contact.submitLabel}</span>
-              <span aria-hidden="true" className="spray-shine-wash" />
-              <span aria-hidden="true" className="spray-shine-edge" />
+              {formReady ? (
+                <>
+                  <span aria-hidden="true" className="spray-shine-wash" />
+                  <span aria-hidden="true" className="spray-shine-edge" />
+                </>
+              ) : null}
             </button>
             <a
               href={`mailto:${CONTACT_EMAIL}`}

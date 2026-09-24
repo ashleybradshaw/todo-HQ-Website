@@ -54,6 +54,10 @@ export const bookPage = {
     subjectPrefix: "Book //TODO —",
     bodyHeading: "Message:",
     mediaLabel: "Still · contact",
+    errorNameShort: "Name needs at least 2 characters.",
+    errorEmailInvalid: "Enter a valid email.",
+    errorHowHeard: "Pick how you found us.",
+    errorMessageShort: "Message needs a bit more — about a sentence.",
     coffeePrefill:
       "Coffee talk (15 min) — chemistry check. Looking to see if this is a fit.",
     hardTalkPrefill:
@@ -71,6 +75,10 @@ export const bookPage = {
     composeHint: "If nothing opened, copy the summary below or email the team directly.",
     successLabel: "Draft ready",
     subjectPrefix: "Planner //TODO —",
+    errorNameShort: "Name needs at least 2 characters.",
+    errorEmailInvalid: "Enter a valid email.",
+    errorHowHeard: "Pick how you found us.",
+    errorBriefShort: "Brief needs a bit more — about a sentence.",
     steps: [
       {
         id: "booking",

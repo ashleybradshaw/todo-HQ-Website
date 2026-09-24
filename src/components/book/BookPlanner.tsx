@@ -3,16 +3,24 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { TypeComment } from "@/components/TypeComment";
 import { bookPage } from "@/content/pages/book";
+import {
+  fieldErrorClass,
+  fieldOpenClass,
+  fieldQuietClass,
+  isValidEmail,
+  isValidMessage,
+  isValidName,
+} from "@/lib/book-form";
 import { cn } from "@/lib/cn";
 import { CONTACT_EMAIL } from "@/lib/site";
 
 const fieldClass =
-  "font-jetbrains min-h-11 w-full rounded-[4px] border border-border-ide bg-background px-3 py-2 text-sm text-foreground transition-[background-color,color,border-color] duration-[400ms] ease-in-out placeholder:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
+  "font-jetbrains min-h-11 w-full rounded-[4px] border border-border-ide bg-background px-3 py-2 text-sm text-foreground transition-[background-color,color,border-color,opacity] duration-[400ms] ease-in-out placeholder:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
 
 const labelClass = "type-label";
 
 const navBtn =
-  "font-jetbrains relative inline-flex min-h-11 cursor-pointer items-center justify-center overflow-hidden rounded-[4px] border border-current px-4 py-2 text-xs font-bold tracking-wider transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50";
+  "font-jetbrains relative inline-flex min-h-11 cursor-pointer items-center justify-center overflow-hidden rounded-[4px] border border-current px-4 py-2 text-xs font-bold tracking-wider transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:opacity-40";
 
 /** Same tactile lift as blog index / article cards (translateY on hover). */
 const liftTileClass =
@@ -68,16 +76,46 @@ export function BookPlanner() {
   const [howHeard, setHowHeard] = useState("");
   const [composeHint, setComposeHint] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
+  const [briefTouched, setBriefTouched] = useState(false);
+  const [showStep4Errors, setShowStep4Errors] = useState(false);
+  const [touched4, setTouched4] = useState({
+    name: false,
+    email: false,
+    howHeard: false,
+  });
 
   const stepMeta = planner.steps[step - 1];
   const progress = (step / TOTAL_STEPS) * 100;
 
+  const nameOk = isValidName(name);
+  const emailOk = isValidEmail(email);
+  const howHeardOk = Boolean(howHeard);
+  const briefOk = isValidMessage(brief);
+
+  const budgetOpen = Boolean(timeline);
+  const needsOpen = Boolean(budget);
+  const hasBriefOpen = briefOk;
+  const emailOpen = nameOk;
+  const companyOpen = emailOk;
+  const howHeardOpen = emailOk;
+
   const canAdvance = useMemo(() => {
     if (step === 1) return Boolean(booking);
     if (step === 2) return Boolean(timeline && budget && needs.length > 0);
-    if (step === 3) return Boolean(brief.trim() && hasBrief);
-    return true;
-  }, [step, booking, timeline, budget, needs, brief, hasBrief]);
+    if (step === 3) return briefOk && Boolean(hasBrief);
+    return nameOk && emailOk && howHeardOk;
+  }, [
+    step,
+    booking,
+    timeline,
+    budget,
+    needs,
+    briefOk,
+    hasBrief,
+    nameOk,
+    emailOk,
+    howHeardOk,
+  ]);
 
   function toggleNeed(value: string) {
     setNeeds((current) =>
@@ -117,10 +155,9 @@ export function BookPlanner() {
   function onFinish(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setComposeHint(false);
+    setShowStep4Errors(true);
 
-    const trimmedName = name.trim();
-    const trimmedEmail = email.trim();
-    if (!trimmedName || !trimmedEmail || !howHeard) {
+    if (!nameOk || !emailOk || !howHeardOk) {
       return;
     }
 
@@ -128,7 +165,7 @@ export function BookPlanner() {
     setSummary(text);
 
     const subject = encodeURIComponent(
-      `${planner.subjectPrefix} ${labelFor(planner.bookingOptions, booking) || trimmedName}`,
+      `${planner.subjectPrefix} ${labelFor(planner.bookingOptions, booking) || name.trim()}`,
     );
     const body = encodeURIComponent(text);
     const href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
@@ -140,6 +177,12 @@ export function BookPlanner() {
       setComposeHint(true);
     }
   }
+
+  function show4Error(key: keyof typeof touched4) {
+    return showStep4Errors || touched4[key];
+  }
+
+  const primaryReady = canAdvance;
 
   return (
     <section aria-labelledby="book-planner-heading">
@@ -193,7 +236,7 @@ export function BookPlanner() {
 
           {step === 2 ? (
             <div className="mt-6 flex flex-col gap-6">
-              <div>
+              <div className={fieldOpenClass}>
                 <p className={labelClass}>Timeline</p>
                 <div
                   className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3"
@@ -209,7 +252,7 @@ export function BookPlanner() {
                   ))}
                 </div>
               </div>
-              <div>
+              <div className={budgetOpen ? fieldOpenClass : fieldQuietClass}>
                 <p className={labelClass}>Budget band</p>
                 <div
                   className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2"
@@ -225,7 +268,7 @@ export function BookPlanner() {
                   ))}
                 </div>
               </div>
-              <div>
+              <div className={needsOpen ? fieldOpenClass : fieldQuietClass}>
                 <p className={labelClass}>Needs</p>
                 <div
                   className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3"
@@ -246,7 +289,7 @@ export function BookPlanner() {
 
           {step === 3 ? (
             <div className="mt-6 flex flex-col gap-5">
-              <div className="flex flex-col gap-2">
+              <div className={cn("flex flex-col gap-2", fieldOpenClass)}>
                 <label htmlFor="book-planner-brief" className={labelClass}>
                   {planner.briefLabel}
                 </label>
@@ -255,11 +298,27 @@ export function BookPlanner() {
                   rows={5}
                   value={brief}
                   onChange={(e) => setBrief(e.target.value)}
+                  onBlur={() => setBriefTouched(true)}
                   placeholder={planner.briefPlaceholder}
+                  aria-invalid={briefTouched && !briefOk}
+                  aria-describedby={
+                    briefTouched && !briefOk
+                      ? "book-planner-brief-error"
+                      : undefined
+                  }
                   className={`${fieldClass} min-h-[8.5rem] resize-y py-3`}
                 />
+                {briefTouched && !briefOk ? (
+                  <p
+                    id="book-planner-brief-error"
+                    className={fieldErrorClass}
+                    role="alert"
+                  >
+                    {planner.errorBriefShort}
+                  </p>
+                ) : null}
               </div>
-              <div>
+              <div className={hasBriefOpen ? fieldOpenClass : fieldQuietClass}>
                 <p className={labelClass}>{planner.hasBriefLabel}</p>
                 <div
                   className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2"
@@ -282,7 +341,10 @@ export function BookPlanner() {
               </div>
               <div
                 role="note"
-                className="rounded-[4px] border border-dashed border-border-ide px-4 py-6"
+                className={cn(
+                  "rounded-[4px] border border-dashed border-border-ide px-4 py-6",
+                  hasBriefOpen ? fieldOpenClass : fieldQuietClass,
+                )}
               >
                 <p className="type-label">{planner.dropzoneLabel}</p>
                 <p className="type-body-sm text-syn-comment mt-2">
@@ -299,7 +361,7 @@ export function BookPlanner() {
               onSubmit={onFinish}
               noValidate
             >
-              <div className="flex flex-col gap-2">
+              <div className={cn("flex flex-col gap-2", fieldOpenClass)}>
                 <label htmlFor="book-planner-name" className={labelClass}>
                   {planner.nameLabel}
                 </label>
@@ -311,10 +373,33 @@ export function BookPlanner() {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  onBlur={() =>
+                    setTouched4((current) => ({ ...current, name: true }))
+                  }
+                  aria-invalid={show4Error("name") && !nameOk}
+                  aria-describedby={
+                    show4Error("name") && !nameOk
+                      ? "book-planner-name-error"
+                      : undefined
+                  }
                   className={fieldClass}
                 />
+                {show4Error("name") && !nameOk ? (
+                  <p
+                    id="book-planner-name-error"
+                    className={fieldErrorClass}
+                    role="alert"
+                  >
+                    {planner.errorNameShort}
+                  </p>
+                ) : null}
               </div>
-              <div className="flex flex-col gap-2">
+              <div
+                className={cn(
+                  "flex flex-col gap-2",
+                  emailOpen ? fieldOpenClass : fieldQuietClass,
+                )}
+              >
                 <label htmlFor="book-planner-email" className={labelClass}>
                   {planner.emailLabel}
                 </label>
@@ -326,10 +411,33 @@ export function BookPlanner() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  onBlur={() =>
+                    setTouched4((current) => ({ ...current, email: true }))
+                  }
+                  aria-invalid={show4Error("email") && !emailOk}
+                  aria-describedby={
+                    show4Error("email") && !emailOk
+                      ? "book-planner-email-error"
+                      : undefined
+                  }
                   className={fieldClass}
                 />
+                {show4Error("email") && !emailOk ? (
+                  <p
+                    id="book-planner-email-error"
+                    className={fieldErrorClass}
+                    role="alert"
+                  >
+                    {planner.errorEmailInvalid}
+                  </p>
+                ) : null}
               </div>
-              <div className="flex flex-col gap-2">
+              <div
+                className={cn(
+                  "flex flex-col gap-2",
+                  companyOpen ? fieldOpenClass : fieldQuietClass,
+                )}
+              >
                 <label htmlFor="book-planner-company" className={labelClass}>
                   {planner.companyLabel}{" "}
                   <span className="text-syn-comment normal-case tracking-normal">
@@ -346,7 +454,12 @@ export function BookPlanner() {
                   className={fieldClass}
                 />
               </div>
-              <div className="flex flex-col gap-2">
+              <div
+                className={cn(
+                  "flex flex-col gap-2",
+                  howHeardOpen ? fieldOpenClass : fieldQuietClass,
+                )}
+              >
                 <label htmlFor="book-planner-heard" className={labelClass}>
                   {planner.howHeardLabel}
                 </label>
@@ -356,6 +469,15 @@ export function BookPlanner() {
                   required
                   value={howHeard}
                   onChange={(e) => setHowHeard(e.target.value)}
+                  onBlur={() =>
+                    setTouched4((current) => ({ ...current, howHeard: true }))
+                  }
+                  aria-invalid={show4Error("howHeard") && !howHeardOk}
+                  aria-describedby={
+                    show4Error("howHeard") && !howHeardOk
+                      ? "book-planner-heard-error"
+                      : undefined
+                  }
                   className={fieldClass}
                 >
                   <option value="" disabled>
@@ -367,6 +489,15 @@ export function BookPlanner() {
                     </option>
                   ))}
                 </select>
+                {show4Error("howHeard") && !howHeardOk ? (
+                  <p
+                    id="book-planner-heard-error"
+                    className={fieldErrorClass}
+                    role="alert"
+                  >
+                    {planner.errorHowHeard}
+                  </p>
+                ) : null}
               </div>
             </form>
           ) : null}
@@ -387,14 +518,18 @@ export function BookPlanner() {
                   navBtn,
                   "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] text-syn-keyword",
                 )}
-                disabled={!canAdvance}
+                disabled={!primaryReady}
                 onClick={() =>
                   setStep((current) => Math.min(TOTAL_STEPS, current + 1))
                 }
               >
                 <span className="relative z-10">{planner.nextLabel}</span>
-                <span aria-hidden="true" className="spray-shine-wash" />
-                <span aria-hidden="true" className="spray-shine-edge" />
+                {primaryReady ? (
+                  <>
+                    <span aria-hidden="true" className="spray-shine-wash" />
+                    <span aria-hidden="true" className="spray-shine-edge" />
+                  </>
+                ) : null}
               </button>
             ) : (
               <button
@@ -404,10 +539,15 @@ export function BookPlanner() {
                   navBtn,
                   "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] text-syn-keyword",
                 )}
+                disabled={!primaryReady}
               >
                 <span className="relative z-10">{planner.submitLabel}</span>
-                <span aria-hidden="true" className="spray-shine-wash" />
-                <span aria-hidden="true" className="spray-shine-edge" />
+                {primaryReady ? (
+                  <>
+                    <span aria-hidden="true" className="spray-shine-wash" />
+                    <span aria-hidden="true" className="spray-shine-edge" />
+                  </>
+                ) : null}
               </button>
             )}
           </div>

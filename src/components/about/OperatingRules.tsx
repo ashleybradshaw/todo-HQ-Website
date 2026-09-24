@@ -97,13 +97,7 @@ export function OperatingRules() {
                 src={item.src}
                 alt={item.alt}
                 delayMs={index === 1 ? 150 : 0}
-              >
-                {index === 0 ? (
-                  <p className="type-label absolute right-3 bottom-3 left-3 text-foreground/55">
-                    {operatingRules.mediaLabel}
-                  </p>
-                ) : null}
-              </AsciiReveal>
+              />
             ))}
           </div>
         </div>

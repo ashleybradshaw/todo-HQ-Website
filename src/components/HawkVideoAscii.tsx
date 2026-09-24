@@ -248,22 +248,9 @@ export function HawkVideoAscii({ onFallback }: HawkVideoAsciiProps) {
       if (gl) {
         gl.viewport(0, 0, W, H);
       }
-      const { cols, rows, fillViewport } = hawkAtlasGrid(cssW, cssH);
-      if (fillViewport) {
-        layout = {
-          cellW: W / cols,
-          cellH: H / rows,
-          ox: 0,
-          oy: 0,
-          W,
-          H,
-          cols,
-          rows,
-        };
-      } else {
-        const L = atlasCoverLayout(cols, rows, W, H);
-        layout = { ...L, W, H, cols, rows };
-      }
+      const { cols, rows } = hawkAtlasGrid(cssW, cssH);
+      const L = atlasCoverLayout(cols, rows, W, H);
+      layout = { ...L, W, H, cols, rows };
     };
 
     const draw = () => {

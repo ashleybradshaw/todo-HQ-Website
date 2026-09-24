@@ -12,6 +12,7 @@ import {
   playBeep,
   setSoundEnabled,
 } from "@/lib/rsvp-audio";
+import { requestIdeBootReplay } from "@/hooks/useIdeBoot";
 
 const WORD_CLASS = "font-unbounded font-bold tracking-tight";
 const CONTROL_CLASS =
@@ -88,7 +89,11 @@ export function GatewayIdle() {
             <span className="font-jetbrains text-[1.0625rem] leading-6 font-extrabold">
               &nbsp;-&nbsp;
             </span>
-            <Link href="/home" className={CONTROL_CLASS}>
+            <Link
+              href="/home"
+              className={CONTROL_CLASS}
+              onClick={() => requestIdeBootReplay()}
+            >
               [No]
             </Link>
           </div>

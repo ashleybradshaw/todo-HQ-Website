@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { RSVPIntro } from "@/components/RSVPIntro";
+import { requestIdeBootReplay } from "@/hooks/useIdeBoot";
 
 export default function IntroPage() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export default function IntroPage() {
   return (
     <RSVPIntro
       onComplete={() => {
+        requestIdeBootReplay();
         router.replace("/home");
       }}
     />

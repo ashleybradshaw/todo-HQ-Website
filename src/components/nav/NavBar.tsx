@@ -6,6 +6,7 @@ import { SprayButton } from "@/components/SprayButton";
 import { MenuIcon } from "@/components/nav/MenuIcon";
 import { PRIMARY_LINKS, isActivePath } from "@/components/nav/nav-links";
 import { cn } from "@/lib/cn";
+import { requestIdeBootReplay } from "@/hooks/useIdeBoot";
 
 type NavBarProps = {
   solid: boolean;
@@ -40,7 +41,10 @@ export function NavBar({
         href="/home"
         aria-label="//TODO Engineering"
         className="relative z-10 min-w-0 shrink-0"
-        onClick={onNavigate}
+        onClick={() => {
+          requestIdeBootReplay();
+          onNavigate?.();
+        }}
       >
         <LogoNav className="text-brand-logo h-7 w-auto max-w-[11rem]" />
       </Link>

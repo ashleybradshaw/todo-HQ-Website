@@ -91,11 +91,14 @@ function DecodeLabel({
   text,
   playKey,
   chroma = false,
+  wrap = false,
   className,
 }: {
   text: string;
   playKey: number;
   chroma?: boolean;
+  /** Allow soft wrap (helper copy on narrow viewports). */
+  wrap?: boolean;
   className?: string;
 }) {
   const reduceMotion = useSyncExternalStore(
@@ -144,14 +147,34 @@ function DecodeLabel({
   }, [text, playKey, reduceMotion, chroma]);
 
   const inheritOnly = !chroma;
+  const whiteSpace = wrap ? "whitespace-pre-wrap" : "whitespace-pre";
 
   return (
-    <span className={cn("relative inline-grid justify-items-stretch", className)}>
-      <span className="invisible col-start-1 row-start-1 whitespace-pre">
+    <span
+      className={cn(
+        "relative",
+        wrap
+          ? "block w-full max-w-full"
+          : "inline-grid justify-items-stretch",
+        className,
+      )}
+    >
+      <span
+        className={cn(
+          "invisible",
+          wrap ? "block" : "col-start-1 row-start-1",
+          whiteSpace,
+        )}
+      >
         {text}
       </span>
       <span
-        className="col-start-1 row-start-1 whitespace-pre"
+        className={cn(
+          wrap
+            ? "absolute inset-0 text-center"
+            : "col-start-1 row-start-1",
+          whiteSpace,
+        )}
         aria-hidden="true"
         style={
           chroma && !scrambling ? { color: SETTLE_COLOR } : undefined
@@ -265,8 +288,8 @@ export function BookPathToggle({ value, onChange }: BookPathToggleProps) {
           );
         })}
       </div>
-      <p className="font-jetbrains mt-3 text-center text-xs tracking-wide text-syn-comment">
-        <DecodeLabel text={helper} playKey={playKey} chroma />
+      <p className="font-jetbrains mt-3 max-w-full text-center text-xs tracking-wide text-syn-comment text-pretty">
+        <DecodeLabel text={helper} playKey={playKey} chroma wrap />
       </p>
     </div>
   );

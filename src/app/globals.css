@@ -560,22 +560,7 @@ html.is-section-transitioning a {
   opacity: 1;
 }
 
-/* HQ Home IDE — once-per-session boot assemble */
-@keyframes ide-boot-frame-draw {
-  from {
-    stroke-dashoffset: 100;
-    opacity: 1;
-  }
-  70% {
-    stroke-dashoffset: 0;
-    opacity: 1;
-  }
-  to {
-    stroke-dashoffset: 0;
-    opacity: 0;
-  }
-}
-
+/* HQ Home IDE — once-per-session boot assemble (bone morph) */
 @keyframes ide-boot-fade-up {
   from {
     opacity: 0;
@@ -590,7 +575,7 @@ html.is-section-transitioning a {
 @keyframes ide-boot-line-in {
   from {
     opacity: 0;
-    transform: translateX(-6px);
+    transform: translateX(-4px);
   }
   to {
     opacity: 1;
@@ -598,29 +583,41 @@ html.is-section-transitioning a {
   }
 }
 
-.ide-boot-frame-rect {
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
+@keyframes ide-boot-bone-pulse {
+  0% {
+    opacity: 0.55;
+  }
+  55% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0.7;
+  }
 }
 
-.ide-boot-stage[data-ide-boot="frame"] .ide-boot-frame-rect {
-  animation: ide-boot-frame-draw 500ms ease-out forwards;
+@keyframes ide-boot-bone-out {
+  from {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
-.ide-boot-stage[data-ide-boot="tabs"] .ide-boot-frame-rect,
-.ide-boot-stage[data-ide-boot="content"] .ide-boot-frame-rect {
-  stroke-dashoffset: 0;
+/* —— bones phase: overlay holds; real chrome hidden —— */
+.ide-boot-stage[data-ide-boot="bones"] .ide-bone-overlay .ide-bone {
+  animation: ide-boot-bone-pulse 450ms ease-out forwards;
+}
+
+.ide-boot-stage[data-ide-boot="bones"] .ide-boot-tabs,
+.ide-boot-stage[data-ide-boot="bones"] .ide-boot-editor > :not(.ide-boot-tabs),
+.ide-boot-stage[data-ide-boot="bones"] .ide-boot-sidecar {
   opacity: 0;
 }
 
-.ide-boot-stage[data-ide-boot="frame"] .ide-boot-tabs,
-.ide-boot-stage[data-ide-boot="frame"] .ide-boot-editor > :not(.ide-boot-tabs),
-.ide-boot-stage[data-ide-boot="frame"] .ide-boot-sidecar {
-  opacity: 0;
-}
-
+/* —— tabs phase: real tabs in; tab bones out; rest still bone —— */
 .ide-boot-stage[data-ide-boot="tabs"] .ide-boot-tabs {
-  animation: ide-boot-fade-up 200ms ease-out forwards;
+  animation: ide-boot-fade-up 160ms ease-out forwards;
 }
 
 .ide-boot-stage[data-ide-boot="tabs"] .ide-boot-editor > :not(.ide-boot-tabs),
@@ -628,6 +625,21 @@ html.is-section-transitioning a {
   opacity: 0;
 }
 
+.ide-boot-stage[data-ide-boot="tabs"] .ide-bone-tab {
+  animation: ide-boot-bone-out 180ms ease-out forwards;
+  animation-delay: calc(var(--b, 0) * 18ms);
+}
+
+.ide-boot-stage[data-ide-boot="tabs"] .ide-bone-gutter-cell,
+.ide-boot-stage[data-ide-boot="tabs"] .ide-bone-crumb,
+.ide-boot-stage[data-ide-boot="tabs"] .ide-bone-row,
+.ide-boot-stage[data-ide-boot="tabs"] .ide-bone-status,
+.ide-boot-stage[data-ide-boot="tabs"] .ide-bone-card-head,
+.ide-boot-stage[data-ide-boot="tabs"] .ide-bone-card-body {
+  opacity: 0.7;
+}
+
+/* —— content phase: real lines/status/sidecar in; remaining bones out —— */
 .ide-boot-stage[data-ide-boot="content"] .ide-boot-tabs {
   opacity: 1;
   transform: none;
@@ -635,31 +647,63 @@ html.is-section-transitioning a {
 
 .ide-boot-stage[data-ide-boot="content"] .ide-boot-line {
   opacity: 0;
-  animation: ide-boot-line-in 320ms ease-out forwards;
-  animation-delay: calc(var(--i, 0) * 22ms);
+  animation: ide-boot-line-in 220ms ease-out forwards;
+  animation-delay: calc(var(--i, 0) * 14ms);
+}
+
+.ide-boot-stage[data-ide-boot="content"] .ide-boot-gutter .ide-boot-line {
+  animation-delay: max(0ms, calc(var(--i, 0) * 14ms - 40ms));
+}
+
+.ide-boot-stage[data-ide-boot="content"] .ide-boot-status {
+  opacity: 0;
+  animation: ide-boot-fade-up 220ms ease-out 200ms forwards;
+}
+
+.ide-boot-stage[data-ide-boot="content"] .ide-boot-crumb {
+  opacity: 0;
+  animation: ide-boot-fade-up 220ms ease-out 120ms forwards;
 }
 
 .ide-boot-stage[data-ide-boot="content"] .ide-boot-sidecar {
   opacity: 0;
-  animation: ide-boot-fade-up 400ms ease-out 450ms forwards;
+  animation: ide-boot-fade-up 320ms ease-out 280ms forwards;
 }
 
+.ide-boot-stage[data-ide-boot="content"] .ide-bone-tab {
+  opacity: 0;
+}
+
+.ide-boot-stage[data-ide-boot="content"] .ide-bone-gutter-cell,
+.ide-boot-stage[data-ide-boot="content"] .ide-bone-crumb,
+.ide-boot-stage[data-ide-boot="content"] .ide-bone-row,
+.ide-boot-stage[data-ide-boot="content"] .ide-bone-status,
+.ide-boot-stage[data-ide-boot="content"] .ide-bone-card-head,
+.ide-boot-stage[data-ide-boot="content"] .ide-bone-card-body {
+  animation: ide-boot-bone-out 180ms ease-out forwards;
+  animation-delay: calc(var(--b, 0) * 18ms);
+}
+
+/* —— done —— */
 .ide-boot-stage[data-ide-boot="done"] .ide-boot-tabs,
+.ide-boot-stage[data-ide-boot="done"] .ide-boot-crumb,
 .ide-boot-stage[data-ide-boot="done"] .ide-boot-line,
+.ide-boot-stage[data-ide-boot="done"] .ide-boot-status,
 .ide-boot-stage[data-ide-boot="done"] .ide-boot-sidecar {
   opacity: 1;
   transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ide-boot-frame,
-  .ide-boot-frame-rect {
-    display: none;
+  .ide-bone-overlay {
+    display: none !important;
     animation: none !important;
   }
 
   .ide-boot-stage .ide-boot-tabs,
+  .ide-boot-stage .ide-boot-crumb,
   .ide-boot-stage .ide-boot-line,
+  .ide-boot-stage .ide-boot-status,
   .ide-boot-stage .ide-boot-sidecar,
   .ide-boot-stage[data-ide-boot] .ide-boot-editor > :not(.ide-boot-tabs) {
     opacity: 1 !important;

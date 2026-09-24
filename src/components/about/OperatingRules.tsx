@@ -90,7 +90,7 @@ export function OperatingRules() {
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
         <div className="order-2 lg:order-1 lg:sticky lg:top-28">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3">
             {operatingRules.media.map((item, index) => (
               <AsciiReveal
                 key={item.src}

@@ -7,7 +7,7 @@ export function OriginStory() {
 
   return (
     <section className="mt-16 grid grid-cols-1 gap-8 border-t border-border-ide pt-10 lg:grid-cols-2 lg:items-start">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3">
         {origin.media.map((item, index) => (
           <AsciiReveal
             key={item.src}

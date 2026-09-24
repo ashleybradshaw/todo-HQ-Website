@@ -1,11 +1,11 @@
 export const STAT_MOCKS = [
-  { figure: "$50B+", label: "Pipeline value", source: "// modeled capacity" },
+  { figure: "£30M+", label: "Pipeline value", source: "// modeled capacity" },
   {
-    figure: "500M+",
+    figure: "100k+",
     label: "Requests through the floor",
     source: "// production traffic",
   },
-  { figure: "50+", label: "Production handoffs", source: "// roster + clients" },
+  { figure: "12", label: "Products shipped", source: "// roster + clients" },
 ] as const;
 
 /** Simulated floor telemetry — panel titled // FLOOR SIM; not real analytics. */

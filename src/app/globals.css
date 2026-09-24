@@ -50,6 +50,28 @@
   }
 }
 
+@keyframes footer-colon-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.footer-clock-colon {
+  animation: footer-colon-blink 1s steps(1, end) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-clock-colon {
+    animation: none;
+    opacity: 1;
+  }
+}
+
 .font-jetbrains {
   font-variant-ligatures: contextual;
   font-feature-settings: "liga" 1, "calt" 1;
@@ -224,6 +246,17 @@ body {
   color: var(--blog-note-hover-fg);
   border-color: var(--blog-note-hover-border);
   background-color: var(--blog-note-hover-bg);
+}
+
+/* Book path lift tiles — pressed fill must beat the default FG rule */
+.blog-note-link[aria-pressed="true"] {
+  color: var(--background);
+}
+
+.blog-note-link[aria-pressed="true"]:hover {
+  color: var(--background);
+  border-color: var(--foreground);
+  background-color: var(--foreground);
 }
 
 .blog-note-link:hover .blog-read-minutes {

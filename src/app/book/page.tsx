@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { BookContact } from "@/components/book/BookContact";
 import { BookFaq } from "@/components/book/BookFaq";
-import { BookPlanner } from "@/components/book/BookPlanner";
+import { BookPaths } from "@/components/book/BookPaths";
 import { JsonLd } from "@/components/JsonLd";
 import { PageShell } from "@/components/PageShell";
 import { bookPage } from "@/content/pages/book";
@@ -44,9 +43,8 @@ export default async function BookPage({ searchParams }: BookPageProps) {
         ledeClassName="text-center"
         lede={<p>{bookPage.lede}</p>}
       >
-        <BookContact bookingType={bookingType} />
-        <BookPlanner />
-        <BookFaq />
+        <BookPaths bookingType={bookingType} />
+        <BookFaq showCta={false} />
       </PageShell>
     </>
   );

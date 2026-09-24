@@ -2,19 +2,32 @@
 
 import { useEffect, useState } from "react";
 
-const LONDON_FMT = new Intl.DateTimeFormat("en-GB", {
-  timeZone: "Europe/London",
+const LONDON_TZ = "Europe/London";
+
+const DATE_FMT = new Intl.DateTimeFormat("en-GB", {
+  timeZone: LONDON_TZ,
   weekday: "short",
   day: "2-digit",
   month: "short",
   year: "numeric",
+});
+
+const TIME_FMT = new Intl.DateTimeFormat("en-GB", {
+  timeZone: LONDON_TZ,
   hour: "2-digit",
   minute: "2-digit",
-  second: "2-digit",
   hour12: false,
 });
 
-/** Tiny client island — London clock only. */
+function londonClockParts(now: Date) {
+  const date = DATE_FMT.format(now);
+  const parts = TIME_FMT.formatToParts(now);
+  const hour = parts.find((part) => part.type === "hour")?.value ?? "00";
+  const minute = parts.find((part) => part.type === "minute")?.value ?? "00";
+  return { date, hour, minute };
+}
+
+/** Tiny client island — London clock (minute precision, blinking colon). */
 export function FooterClock() {
   const [now, setNow] = useState<Date | null>(null);
 
@@ -24,7 +37,7 @@ export function FooterClock() {
       if (!cancelled) setNow(new Date());
     };
     const boot = window.setTimeout(tick, 0);
-    const id = window.setInterval(tick, 1000);
+    const id = window.setInterval(tick, 60_000);
     return () => {
       cancelled = true;
       window.clearTimeout(boot);
@@ -40,12 +53,18 @@ export function FooterClock() {
     );
   }
 
+  const { date, hour, minute } = londonClockParts(now);
+
   return (
     <time
       className="text-foreground/70 tabular-nums"
       dateTime={now.toISOString()}
     >
-      {LONDON_FMT.format(now)}
+      {date}, {hour}
+      <span className="footer-clock-colon" aria-hidden="true">
+        :
+      </span>
+      {minute}
     </time>
   );
 }

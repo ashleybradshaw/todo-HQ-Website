@@ -10,7 +10,18 @@ const { faq } = bookPage;
 const jumpClass =
   "font-jetbrains inline-flex min-h-11 cursor-pointer items-center justify-center rounded-[4px] border border-current bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] px-4 py-2 text-xs font-bold tracking-wider text-syn-keyword transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
 
-export function BookFaq() {
+type BookFaqProps = {
+  ctaLabel?: string;
+  ctaHref?: string;
+  /** Off on /book — form is already above. Work/About keep a booking CTA. */
+  showCta?: boolean;
+};
+
+export function BookFaq({
+  ctaLabel = faq.jumpLabel,
+  ctaHref = faq.jumpHref,
+  showCta = true,
+}: BookFaqProps) {
   const [openId, setOpenId] = useState<string | null>(faq.items[0]?.id ?? null);
 
   return (
@@ -28,9 +39,11 @@ export function BookFaq() {
           >
             {faq.title}
           </h2>
-          <a href={faq.jumpHref} className={cn(jumpClass, "mt-8")}>
-            {faq.jumpLabel}
-          </a>
+          {showCta ? (
+            <a href={ctaHref} className={cn(jumpClass, "mt-8")}>
+              {ctaLabel}
+            </a>
+          ) : null}
         </div>
 
         <div className="flex min-w-0 flex-col gap-2">

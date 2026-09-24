@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClientStrip } from "@/components/about/ClientStrip";
 import { OperatingRules } from "@/components/about/OperatingRules";
 import { OriginStory } from "@/components/about/OriginStory";
+import { BookFaq } from "@/components/book/BookFaq";
 import { PageShell } from "@/components/PageShell";
 import { SiteCloser } from "@/components/SiteCloser";
 import { aboutPage } from "@/content/pages/about";
@@ -36,6 +37,7 @@ export default function AboutPage() {
       <ClientStrip />
       <OriginStory />
       <OperatingRules />
+      <BookFaq ctaLabel="Book a call" ctaHref="/book#contact" />
       <SiteCloser variant="full" />
     </PageShell>
   );

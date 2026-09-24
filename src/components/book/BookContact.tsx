@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { TypeComment } from "@/components/TypeComment";
 import { bookPage } from "@/content/pages/book";
+import { cn } from "@/lib/cn";
 import { CONTACT_EMAIL } from "@/lib/site";
 
 const fieldClass =
@@ -16,6 +17,10 @@ const mailtoClass =
 const submitClass =
   "font-jetbrains relative inline-flex min-h-11 cursor-pointer items-center justify-center overflow-hidden rounded-[4px] border border-current bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] px-4 py-2 text-xs font-bold tracking-wider text-syn-keyword transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50";
 
+/** Same tactile lift as blog index / article cards (translateY on hover). */
+const liftTileClass =
+  "blog-note-link font-jetbrains flex min-h-11 cursor-pointer items-center justify-center rounded-[4px] border border-border-ide bg-background px-3 py-3 text-center text-xs font-bold tracking-wider focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
+
 const { contact, howHeardOptions } = bookPage;
 
 function messagePrefill(type?: string): string {
@@ -28,6 +33,7 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [callback, setCallback] = useState("");
   const [howHeard, setHowHeard] = useState("");
   const [message, setMessage] = useState(() => messagePrefill(bookingType));
   const [composeHint, setComposeHint] = useState(false);
@@ -43,6 +49,9 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
     const heard =
       howHeardOptions.find((option) => option.value === howHeard)?.label ??
       howHeard;
+    const callbackLabel =
+      contact.callbackOptions.find((option) => option.value === callback)
+        ?.label ?? callback;
 
     if (!trimmedName || !trimmedEmail || !trimmedMessage || !howHeard) {
       return;
@@ -56,6 +65,7 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
         `Name: ${trimmedName}`,
         `Email: ${trimmedEmail}`,
         trimmedPhone ? `Phone: ${trimmedPhone}` : null,
+        callbackLabel ? `Best time to call back (UK): ${callbackLabel}` : null,
         `How heard: ${heard}`,
         "",
         contact.bodyHeading,
@@ -75,11 +85,7 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
   }
 
   return (
-    <section
-      id="contact"
-      className="mt-16 scroll-mt-28 border-t border-border-ide pt-12"
-      aria-labelledby="book-contact-heading"
-    >
+    <section aria-labelledby="book-contact-heading">
       <TypeComment text={contact.eyebrow} className="text-syn-comment" />
       <h2
         id="book-contact-heading"
@@ -90,11 +96,7 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
       <p className="type-body mt-4 max-w-xl">{contact.intro}</p>
 
       <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] sm:items-start">
-        <form
-          className="flex flex-col gap-5"
-          onSubmit={onSubmit}
-          noValidate
-        >
+        <form className="flex flex-col gap-5" onSubmit={onSubmit} noValidate>
           <div className="flex flex-col gap-2">
             <label htmlFor="book-contact-name" className={labelClass}>
               {contact.nameLabel}
@@ -143,6 +145,44 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
               onChange={(e) => setPhone(e.target.value)}
               className={fieldClass}
             />
+          </div>
+
+          <div>
+            <p className={labelClass}>
+              {contact.callbackLabel}{" "}
+              <span className="text-syn-comment normal-case tracking-normal">
+                {contact.callbackOptional}
+              </span>
+            </p>
+            <div
+              className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3"
+              role="group"
+              aria-label={contact.callbackLabel}
+            >
+              {contact.callbackOptions.map((option) => {
+                const pressed = callback === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    aria-pressed={pressed}
+                    onClick={() =>
+                      setCallback((current) =>
+                        current === option.value ? "" : option.value,
+                      )
+                    }
+                    className={cn(
+                      liftTileClass,
+                      pressed
+                        ? "border-foreground bg-foreground text-background"
+                        : "text-foreground",
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div className="flex flex-col gap-2">

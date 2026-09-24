@@ -14,8 +14,9 @@ const labelClass = "type-label";
 const navBtn =
   "font-jetbrains relative inline-flex min-h-11 cursor-pointer items-center justify-center overflow-hidden rounded-[4px] border border-current px-4 py-2 text-xs font-bold tracking-wider transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50";
 
-const chipClass =
-  "font-jetbrains inline-flex min-h-10 cursor-pointer items-center justify-center rounded-[4px] border border-current px-3 py-2 text-xs font-bold tracking-wider transition-[opacity,background-color,color] duration-[400ms] ease-in-out hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
+/** Same tactile lift as blog index / article cards (translateY on hover). */
+const liftTileClass =
+  "blog-note-link font-jetbrains flex min-h-11 cursor-pointer items-center justify-center rounded-[4px] border border-border-ide bg-background px-3 py-3 text-center text-xs font-bold tracking-wider focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
 
 const { planner, howHeardOptions } = bookPage;
 const TOTAL_STEPS = planner.steps.length;
@@ -25,6 +26,32 @@ function labelFor(
   value: string,
 ) {
   return options.find((option) => option.value === value)?.label ?? value;
+}
+
+function LiftTile({
+  label,
+  pressed,
+  onClick,
+}: {
+  label: string;
+  pressed: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={pressed}
+      onClick={onClick}
+      className={cn(
+        liftTileClass,
+        pressed
+          ? "border-foreground bg-foreground text-background"
+          : "text-foreground",
+      )}
+    >
+      {label}
+    </button>
+  );
 }
 
 export function BookPlanner() {
@@ -115,11 +142,7 @@ export function BookPlanner() {
   }
 
   return (
-    <section
-      id="planner"
-      className="mt-16 scroll-mt-28 border-t border-border-ide pt-12"
-      aria-labelledby="book-planner-heading"
-    >
+    <section aria-labelledby="book-planner-heading">
       <TypeComment text={planner.eyebrow} className="text-syn-comment" />
       <h2
         id="book-planner-heading"
@@ -153,29 +176,18 @@ export function BookPlanner() {
 
           {step === 1 ? (
             <div
-              className="mt-6 flex flex-wrap gap-2"
+              className="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-2"
               role="group"
               aria-label={stepMeta.title}
             >
-              {planner.bookingOptions.map((option) => {
-                const pressed = booking === option.value;
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    aria-pressed={pressed}
-                    onClick={() => setBooking(option.value)}
-                    className={cn(
-                      chipClass,
-                      pressed
-                        ? "bg-foreground text-background"
-                        : "bg-transparent text-foreground",
-                    )}
-                  >
-                    {option.label}
-                  </button>
-                );
-              })}
+              {planner.bookingOptions.map((option) => (
+                <LiftTile
+                  key={option.value}
+                  label={option.label}
+                  pressed={booking === option.value}
+                  onClick={() => setBooking(option.value)}
+                />
+              ))}
             </div>
           ) : null}
 
@@ -183,74 +195,50 @@ export function BookPlanner() {
             <div className="mt-6 flex flex-col gap-6">
               <div>
                 <p className={labelClass}>Timeline</p>
-                <div className="mt-3 flex flex-wrap gap-2" role="group">
-                  {planner.timelineOptions.map((option) => {
-                    const pressed = timeline === option.value;
-                    return (
-                      <button
-                        key={option.value}
-                        type="button"
-                        aria-pressed={pressed}
-                        onClick={() => setTimeline(option.value)}
-                        className={cn(
-                          chipClass,
-                          pressed
-                            ? "bg-foreground text-background"
-                            : "bg-transparent text-foreground",
-                        )}
-                      >
-                        {option.label}
-                      </button>
-                    );
-                  })}
+                <div
+                  className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3"
+                  role="group"
+                >
+                  {planner.timelineOptions.map((option) => (
+                    <LiftTile
+                      key={option.value}
+                      label={option.label}
+                      pressed={timeline === option.value}
+                      onClick={() => setTimeline(option.value)}
+                    />
+                  ))}
                 </div>
               </div>
               <div>
                 <p className={labelClass}>Budget band</p>
-                <div className="mt-3 flex flex-wrap gap-2" role="group">
-                  {planner.budgetOptions.map((option) => {
-                    const pressed = budget === option.value;
-                    return (
-                      <button
-                        key={option.value}
-                        type="button"
-                        aria-pressed={pressed}
-                        onClick={() => setBudget(option.value)}
-                        className={cn(
-                          chipClass,
-                          pressed
-                            ? "bg-foreground text-background"
-                            : "bg-transparent text-foreground",
-                        )}
-                      >
-                        {option.label}
-                      </button>
-                    );
-                  })}
+                <div
+                  className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2"
+                  role="group"
+                >
+                  {planner.budgetOptions.map((option) => (
+                    <LiftTile
+                      key={option.value}
+                      label={option.label}
+                      pressed={budget === option.value}
+                      onClick={() => setBudget(option.value)}
+                    />
+                  ))}
                 </div>
               </div>
               <div>
                 <p className={labelClass}>Needs</p>
-                <div className="mt-3 flex flex-wrap gap-2" role="group">
-                  {planner.needsOptions.map((option) => {
-                    const pressed = needs.includes(option.value);
-                    return (
-                      <button
-                        key={option.value}
-                        type="button"
-                        aria-pressed={pressed}
-                        onClick={() => toggleNeed(option.value)}
-                        className={cn(
-                          chipClass,
-                          pressed
-                            ? "bg-foreground text-background"
-                            : "bg-transparent text-foreground",
-                        )}
-                      >
-                        {option.label}
-                      </button>
-                    );
-                  })}
+                <div
+                  className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2"
+                  role="group"
+                >
+                  {planner.needsOptions.map((option) => (
+                    <LiftTile
+                      key={option.value}
+                      label={option.label}
+                      pressed={needs.includes(option.value)}
+                      onClick={() => toggleNeed(option.value)}
+                    />
+                  ))}
                 </div>
               </div>
             </div>
@@ -273,31 +261,23 @@ export function BookPlanner() {
               </div>
               <div>
                 <p className={labelClass}>{planner.hasBriefLabel}</p>
-                <div className="mt-3 flex flex-wrap gap-2" role="group">
+                <div
+                  className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2"
+                  role="group"
+                >
                   {(
                     [
                       ["yes", planner.hasBriefYes],
                       ["no", planner.hasBriefNo],
                     ] as const
-                  ).map(([value, label]) => {
-                    const pressed = hasBrief === value;
-                    return (
-                      <button
-                        key={value}
-                        type="button"
-                        aria-pressed={pressed}
-                        onClick={() => setHasBrief(value)}
-                        className={cn(
-                          chipClass,
-                          pressed
-                            ? "bg-foreground text-background"
-                            : "bg-transparent text-foreground",
-                        )}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
+                  ).map(([value, label]) => (
+                    <LiftTile
+                      key={value}
+                      label={label}
+                      pressed={hasBrief === value}
+                      onClick={() => setHasBrief(value)}
+                    />
+                  ))}
                 </div>
               </div>
               <div
@@ -435,7 +415,10 @@ export function BookPlanner() {
           {composeHint || summary ? (
             <div className="mt-6 rounded-[4px] border border-border-ide p-4">
               {composeHint ? (
-                <p className="type-label text-syn-comment font-normal" role="status">
+                <p
+                  className="type-label text-syn-comment font-normal"
+                  role="status"
+                >
                   {planner.composeHint}
                 </p>
               ) : null}

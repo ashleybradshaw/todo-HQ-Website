@@ -4,6 +4,22 @@ export const bookPage = {
   metaDescription:
     "Book //TODO Engineering — tell product and engineering leads what has to ship. Contact strip, project planner, and FAQ for coffee or hard talk.",
   lede: "//TODO Engineering works with product and engineering leads who need AI workflow architecture or a full-stack application in production. Tell us what has to ship.",
+  pathLead: "Two ways in. Pick the one that fits.",
+
+  paths: {
+    quick: {
+      id: "quick" as const,
+      label: "Quick note",
+      helper: "About 30 seconds. We reply and set up a call.",
+      hash: "quick",
+    },
+    brief: {
+      id: "brief" as const,
+      label: "Pre-brief",
+      helper: "About 3 minutes. Four steps, so our first call starts with a real brief.",
+      hash: "brief",
+    },
+  },
 
   howHeardOptions: [
     { value: "referral", label: "Referral" },
@@ -15,7 +31,7 @@ export const bookPage = {
   ] as const,
 
   contact: {
-    eyebrow: "// Contact",
+    eyebrow: "// Quick note",
     title: "Start with a short note.",
     intro:
       "Name, email, and what has to ship. Opens your mail client with a draft — or write the team directly.",
@@ -23,6 +39,13 @@ export const bookPage = {
     emailLabel: "Email",
     phoneLabel: "Phone",
     phoneOptional: "(optional)",
+    callbackLabel: "Best time to call back",
+    callbackOptional: "(optional, UK)",
+    callbackOptions: [
+      { value: "morning", label: "Morning" },
+      { value: "afternoon", label: "Afternoon" },
+      { value: "evening", label: "Evening" },
+    ] as const,
     howHeardLabel: "How did you hear about TODO?",
     howHeardPlaceholder: "Select one",
     messageLabel: "Message",
@@ -38,7 +61,7 @@ export const bookPage = {
   },
 
   planner: {
-    eyebrow: "// Project planner",
+    eyebrow: "// Pre-brief",
     title: "Scope the next lap.",
     intro:
       "Four short steps. We turn the answers into a mail draft so the first conversation starts with a real brief.",

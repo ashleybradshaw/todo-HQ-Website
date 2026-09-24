@@ -85,7 +85,7 @@ export function BookPaths({ bookingType }: BookPathsProps) {
         {path === "quick" ? (
           <BookContact bookingType={bookingType} />
         ) : (
-          <BookPlanner />
+          <BookPlanner bookingType={bookingType} />
         )}
       </div>
     </div>

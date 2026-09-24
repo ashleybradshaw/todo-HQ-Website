@@ -78,7 +78,7 @@ export const bookPage = {
     errorNameShort: "Name needs at least 2 characters.",
     errorEmailInvalid: "Enter a valid email.",
     errorHowHeard: "Pick how you found us.",
-    errorBriefShort: "Brief needs a bit more — about a sentence.",
+    errorBriefShort: "A few more words help — at least three.",
     steps: [
       {
         id: "booking",

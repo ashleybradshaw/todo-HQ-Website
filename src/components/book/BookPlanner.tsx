@@ -7,8 +7,8 @@ import {
   fieldErrorClass,
   fieldOpenClass,
   fieldQuietClass,
+  isValidBrief,
   isValidEmail,
-  isValidMessage,
   isValidName,
 } from "@/lib/book-form";
 import { cn } from "@/lib/cn";
@@ -62,9 +62,14 @@ function LiftTile({
   );
 }
 
-export function BookPlanner() {
+function bookingFromType(type?: string) {
+  if (type === "coffee" || type === "hard-talk") return type;
+  return "";
+}
+
+export function BookPlanner({ bookingType }: { bookingType?: string }) {
   const [step, setStep] = useState(1);
-  const [booking, setBooking] = useState("");
+  const [booking, setBooking] = useState(() => bookingFromType(bookingType));
   const [timeline, setTimeline] = useState("");
   const [budget, setBudget] = useState("");
   const [needs, setNeeds] = useState<string[]>([]);
@@ -76,7 +81,6 @@ export function BookPlanner() {
   const [howHeard, setHowHeard] = useState("");
   const [composeHint, setComposeHint] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
-  const [briefTouched, setBriefTouched] = useState(false);
   const [showStep4Errors, setShowStep4Errors] = useState(false);
   const [touched4, setTouched4] = useState({
     name: false,
@@ -90,7 +94,7 @@ export function BookPlanner() {
   const nameOk = isValidName(name);
   const emailOk = isValidEmail(email);
   const howHeardOk = Boolean(howHeard);
-  const briefOk = isValidMessage(brief);
+  const briefOk = isValidBrief(brief);
 
   const budgetOpen = Boolean(timeline);
   const needsOpen = Boolean(budget);
@@ -219,7 +223,7 @@ export function BookPlanner() {
 
           {step === 1 ? (
             <div
-              className="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-2"
+              className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2"
               role="group"
               aria-label={stepMeta.title}
             >
@@ -239,7 +243,7 @@ export function BookPlanner() {
               <div className={fieldOpenClass}>
                 <p className={labelClass}>Timeline</p>
                 <div
-                  className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3"
+                  className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3"
                   role="group"
                 >
                   {planner.timelineOptions.map((option) => (
@@ -255,7 +259,7 @@ export function BookPlanner() {
               <div className={budgetOpen ? fieldOpenClass : fieldQuietClass}>
                 <p className={labelClass}>Budget band</p>
                 <div
-                  className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2"
+                  className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2"
                   role="group"
                 >
                   {planner.budgetOptions.map((option) => (
@@ -271,7 +275,7 @@ export function BookPlanner() {
               <div className={needsOpen ? fieldOpenClass : fieldQuietClass}>
                 <p className={labelClass}>Needs</p>
                 <div
-                  className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3"
+                  className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3"
                   role="group"
                 >
                   {planner.needsOptions.map((option) => (
@@ -298,22 +302,11 @@ export function BookPlanner() {
                   rows={5}
                   value={brief}
                   onChange={(e) => setBrief(e.target.value)}
-                  onBlur={() => setBriefTouched(true)}
                   placeholder={planner.briefPlaceholder}
-                  aria-invalid={briefTouched && !briefOk}
-                  aria-describedby={
-                    briefTouched && !briefOk
-                      ? "book-planner-brief-error"
-                      : undefined
-                  }
                   className={`${fieldClass} min-h-[8.5rem] resize-y py-3`}
                 />
-                {briefTouched && !briefOk ? (
-                  <p
-                    id="book-planner-brief-error"
-                    className={fieldErrorClass}
-                    role="alert"
-                  >
+                {!briefOk ? (
+                  <p className="type-label text-syn-comment mt-1 font-normal">
                     {planner.errorBriefShort}
                   </p>
                 ) : null}
@@ -321,7 +314,7 @@ export function BookPlanner() {
               <div className={hasBriefOpen ? fieldOpenClass : fieldQuietClass}>
                 <p className={labelClass}>{planner.hasBriefLabel}</p>
                 <div
-                  className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2"
+                  className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2"
                   role="group"
                 >
                   {(
@@ -575,7 +568,7 @@ export function BookPlanner() {
         </div>
 
         <aside
-          className="flex min-h-[12rem] items-center justify-center rounded-[4px] border border-dashed border-border-ide bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] px-4 py-8"
+          className="hidden min-h-[12rem] items-center justify-center rounded-[4px] border border-dashed border-border-ide bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] px-4 py-8 sm:flex"
           aria-hidden="true"
         >
           <p className="type-label text-syn-comment text-center font-normal">

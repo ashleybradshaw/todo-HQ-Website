@@ -233,6 +233,7 @@ body {
   --blog-note-hover-border: color-mix(in srgb, var(--foreground) 38%, transparent);
   --blog-note-hover-bg: color-mix(in srgb, var(--foreground) 5%, var(--background));
   --blog-read-flash-end: color-mix(in srgb, var(--syn-comment) 55%, white);
+  position: relative;
   color: var(--foreground);
   transition:
     transform 140ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -246,6 +247,16 @@ body {
   color: var(--blog-note-hover-fg);
   border-color: var(--blog-note-hover-border);
   background-color: var(--blog-note-hover-bg);
+}
+
+/* Bridge the 4px lift so the cursor doesn't fall off the bottom edge */
+.blog-note-link:hover::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 6px;
 }
 
 /* Book path lift tiles — pressed fill must beat the default FG rule */
@@ -951,11 +962,34 @@ html.is-section-transitioning a {
   animation: text-accent-swap 1.1s ease-in-out 3s 1 both;
 }
 
+/* Book field errors — one-shot flash on mount (mailto accent kinship) */
+@keyframes book-field-error-flash {
+  0% {
+    color: var(--foreground);
+  }
+  40% {
+    color: var(--syn-string);
+  }
+  100% {
+    color: var(--syn-number);
+  }
+}
+
+.book-field-error-flash {
+  color: var(--syn-number);
+  animation: book-field-error-flash 420ms ease-out both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .text-accent-swap,
   .discovery-mailto-nudge {
     animation: none;
     color: var(--syn-string);
+  }
+
+  .book-field-error-flash {
+    animation: none;
+    color: var(--syn-number);
   }
 }
 

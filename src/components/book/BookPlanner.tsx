@@ -228,7 +228,7 @@ export function BookPlanner() {
               <div>
                 <p className={labelClass}>Needs</p>
                 <div
-                  className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2"
+                  className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3"
                   role="group"
                 >
                   {planner.needsOptions.map((option) => (

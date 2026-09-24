@@ -70,7 +70,7 @@ export function SiteNav() {
 
   useEffect(() => {
     const img = new Image();
-    img.src = "/nav/founders.webp";
+    img.src = "/nav/menu-founders.webp";
   }, []);
 
   useEffect(() => {

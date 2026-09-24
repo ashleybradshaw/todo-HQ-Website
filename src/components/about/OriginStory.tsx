@@ -7,7 +7,16 @@ export function OriginStory() {
 
   return (
     <section className="mt-16 grid grid-cols-1 gap-8 border-t border-border-ide pt-10 lg:grid-cols-2 lg:items-start">
-      <AsciiReveal src={origin.mediaSrc} alt={origin.mediaAlt} />
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {origin.media.map((item, index) => (
+          <AsciiReveal
+            key={item.src}
+            src={item.src}
+            alt={item.alt}
+            delayMs={index === 1 ? 150 : 0}
+          />
+        ))}
+      </div>
       <div>
         <TypeComment text={origin.eyebrow} />
         <h2 className="type-heading mt-3">{origin.title}</h2>

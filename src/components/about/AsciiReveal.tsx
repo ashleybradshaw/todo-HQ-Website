@@ -30,6 +30,8 @@ type AsciiRevealProps = {
   children?: ReactNode;
   /** Nav founders — skip IO wait; scramble once layout has a real size. */
   priority?: boolean;
+  /** Delay before scramble starts (after IO / priority). Used to stagger dual grids. */
+  delayMs?: number;
 };
 
 function subscribeReducedMotion(onStoreChange: () => void) {
@@ -131,6 +133,7 @@ export function AsciiReveal({
   className,
   children,
   priority = false,
+  delayMs = 0,
 }: AsciiRevealProps) {
   const reduceMotion = useSyncExternalStore(
     subscribeReducedMotion,
@@ -158,9 +161,11 @@ export function AsciiReveal({
     let scrambleTimer = 0;
     let settleTimer = 0;
     let fadeTimer = 0;
+    let delayTimer = 0;
     let observer: IntersectionObserver | null = null;
     let cancelled = false;
     let revealed = false;
+    let scheduled = false;
 
     const showPhoto = () => {
       if (cancelled || revealed) {
@@ -300,13 +305,28 @@ export function AsciiReveal({
       }, SCRAMBLE_MS);
     };
 
-    if (priority) {
+    const scheduleReveal = () => {
+      if (scheduled || cancelled) {
+        return;
+      }
+      scheduled = true;
+      observer?.disconnect();
+      if (delayMs > 0) {
+        delayTimer = window.setTimeout(() => {
+          void runReveal();
+        }, delayMs);
+        return;
+      }
       void runReveal();
+    };
+
+    if (priority) {
+      scheduleReveal();
     } else {
       observer = new IntersectionObserver(
         (entries) => {
           if (entries.some((entry) => entry.isIntersecting)) {
-            void runReveal();
+            scheduleReveal();
           }
         },
         { root: null, rootMargin: "0px 0px -10% 0px", threshold: 0.2 },
@@ -322,11 +342,12 @@ export function AsciiReveal({
       if (raf) {
         cancelAnimationFrame(raf);
       }
+      window.clearTimeout(delayTimer);
       window.clearTimeout(scrambleTimer);
       window.clearTimeout(settleTimer);
       window.clearTimeout(fadeTimer);
     };
-  }, [reduceMotion, priority]);
+  }, [reduceMotion, priority, delayMs]);
 
   const fadeStyle = {
     ["--ascii-fade-ms" as string]: `${FADE_MS}ms`,

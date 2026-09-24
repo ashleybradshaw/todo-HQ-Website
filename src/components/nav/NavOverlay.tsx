@@ -42,7 +42,7 @@ function FoundersPlate({ className }: { className?: string }) {
       }}
     >
       <AsciiReveal
-        src="/nav/founders.webp"
+        src="/nav/menu-founders.webp"
         alt=""
         priority
         className="rounded-[4px]"

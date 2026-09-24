@@ -90,14 +90,22 @@ export function OperatingRules() {
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
         <div className="order-2 lg:order-1 lg:sticky lg:top-28">
-          <AsciiReveal
-            src={operatingRules.mediaSrc}
-            alt={operatingRules.mediaAlt}
-          >
-            <p className="type-label absolute right-3 bottom-3 left-3 text-foreground/55">
-              {operatingRules.mediaLabel}
-            </p>
-          </AsciiReveal>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {operatingRules.media.map((item, index) => (
+              <AsciiReveal
+                key={item.src}
+                src={item.src}
+                alt={item.alt}
+                delayMs={index === 1 ? 150 : 0}
+              >
+                {index === 0 ? (
+                  <p className="type-label absolute right-3 bottom-3 left-3 text-foreground/55">
+                    {operatingRules.mediaLabel}
+                  </p>
+                ) : null}
+              </AsciiReveal>
+            ))}
+          </div>
         </div>
 
         <div className="order-1 lg:order-2">

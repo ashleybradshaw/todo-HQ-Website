@@ -96,17 +96,31 @@ export const aboutPage = {
       "The roster shipped on one pipeline before any client work did. Intake, multi-agent implementation, and a production handoff — the same sequence, every time.",
       "Client work runs that factory, not a side desk. Product and engineering leads get the system we already use to ship our own apps.",
     ],
-    /** TEMP — replace with final origin still */
-    mediaSrc: "/about/origin-test.webp",
-    mediaAlt: "Origin — temporary still",
+    media: [
+      {
+        src: "/about/origin-01.webp",
+        alt: "Two helmeted founders in black tie counting cash in a helicopter over a city skyline",
+      },
+      {
+        src: "/about/origin-02.webp",
+        alt: "Helmeted founder in black tie at a desk as a money counter sprays notes",
+      },
+    ],
   },
   operatingRules: {
     eyebrow: "// OPERATING",
     title: "How the factory runs.",
     mediaLabel: "Floor",
-    /** TEMP — replace with final floor plate */
-    mediaSrc: "/about/floor-test.webp",
-    mediaAlt: "Floor — temporary still",
+    media: [
+      {
+        src: "/about/operating-01.webp",
+        alt: "Helmeted founder at a Wall St Chronicle desk buried in banknotes",
+      },
+      {
+        src: "/about/operating-02.webp",
+        alt: "Two helmeted founders in black tie holding whisky glasses in a wood-panelled club",
+      },
+    ],
     rules: [
       "One pipeline for roster and client work — no side desk.",
       "Intake before agents. Clarify the ship target, then open the floor.",

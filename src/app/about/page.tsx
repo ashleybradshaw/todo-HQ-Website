@@ -37,7 +37,7 @@ export default function AboutPage() {
       <ClientStrip />
       <OriginStory />
       <OperatingRules />
-      <BookFaq ctaLabel="Book a call" ctaHref="/book#contact" />
+      <BookFaq ctaLabel="Send a brief" ctaHref="/book#brief" />
       <SiteCloser variant="full" />
     </PageShell>
   );

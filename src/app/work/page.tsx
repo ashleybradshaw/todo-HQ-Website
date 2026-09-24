@@ -30,7 +30,7 @@ export default function WorkPage() {
           </li>
         ))}
       </ul>
-      <BookFaq ctaLabel="Book a call" ctaHref="/book#contact" />
+      <BookFaq ctaLabel="Send a brief" ctaHref="/book#brief" />
       <SignalStrip />
     </PageShell>
   );

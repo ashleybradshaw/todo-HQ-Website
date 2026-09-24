@@ -222,11 +222,11 @@ export function BookPathToggle({ value, onChange }: BookPathToggleProps) {
         aria-labelledby={labelId}
         aria-orientation="horizontal"
         onKeyDown={onKeyDown}
-        className="relative grid grid-cols-2 gap-1 rounded-[4px] border border-border-ide bg-[color-mix(in_srgb,var(--background)_88%,#DDDDFF)] p-1"
+        className="relative grid grid-cols-2 gap-1 rounded-[4px] border border-border-ide bg-[color-mix(in_srgb,var(--foreground)_6%,var(--background))] p-1 transition-[background-color,border-color,color] duration-[400ms] ease-in-out"
       >
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute top-1 bottom-1 left-1 w-[calc(50%-0.25rem)] rounded-[4px] bg-[#4545FF] transition-transform duration-[400ms] ease-in-out motion-reduce:transition-none"
+          className="pointer-events-none absolute top-1 bottom-1 left-1 w-[calc(50%-0.25rem)] rounded-[4px] bg-foreground transition-[transform,background-color] duration-[400ms] ease-in-out motion-reduce:transition-none"
           style={{
             transform:
               activeIndex <= 0
@@ -253,7 +253,7 @@ export function BookPathToggle({ value, onChange }: BookPathToggleProps) {
               onClick={() => onChange(path.id)}
               className={cn(
                 "font-jetbrains relative z-10 min-h-11 cursor-pointer rounded-[4px] px-3 py-2 text-xs font-bold tracking-wider uppercase transition-colors duration-[400ms] ease-in-out focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none",
-                selected ? "text-white" : "text-[#4545FF]",
+                selected ? "text-background" : "text-foreground",
               )}
             >
               {selected ? (

@@ -1,4 +1,4 @@
-/** Shared HQ gateway field colours — StippleField + HawkAsciiField. */
+/** Shared HQ gateway field colours — StippleField + HawkVideoAscii. */
 
 export const GATEWAY_ACCENT = "#A78BFA";
 

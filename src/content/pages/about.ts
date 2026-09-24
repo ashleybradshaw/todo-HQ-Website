@@ -110,6 +110,7 @@ export const aboutPage = {
   operatingRules: {
     eyebrow: "// OPERATING",
     title: "How the factory runs.",
+    mediaLabel: "Floor",
     media: [
       {
         src: "/about/operating-01.webp",

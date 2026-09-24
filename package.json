@@ -8,8 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test:e2e": "playwright test",
-    "blog:image": "node scripts/process-blog-image.mjs",
-    "hawk:bake": "node scripts/bake-hawk-ascii.mjs"
+    "blog:image": "node scripts/process-blog-image.mjs"
   },
   "dependencies": {
     "@animateicons/react": "^0.5.0",

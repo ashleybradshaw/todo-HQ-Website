@@ -9,7 +9,6 @@ import {
   type ReactNode,
 } from "react";
 import { motion } from "framer-motion";
-import { IntroGlyphBed } from "@/components/IntroGlyphBed";
 import { cn } from "@/lib/cn";
 import { initRsvpAudio, playBeep } from "@/lib/rsvp-audio";
 
@@ -228,7 +227,6 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
   const word = rsvpSequence[wordIndex].text;
   const exiting = phase === "done";
   const showSequence = phase === "reading" || exiting;
-  const showBed = phase === "countdown" || phase === "reading" || exiting;
   const showSkip = phase === "countdown" || phase === "reading";
   const exitDuration = reduceMotion ? 0.2 : 0.9;
 
@@ -256,8 +254,6 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
           animate={{ opacity: exiting ? 0 : 1 }}
           transition={{ duration: reduceMotion ? 0.12 : 0.3, ease: "easeIn" }}
         >
-          {showBed ? <IntroGlyphBed /> : null}
-
           {phase === "countdown" ? (
             <Centered
               className={WORD_CLASS}

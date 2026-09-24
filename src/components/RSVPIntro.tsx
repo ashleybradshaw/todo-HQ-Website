@@ -1,34 +1,44 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { motion, useAnimation } from "framer-motion";
-import { PerspectiveGrid } from "@/components/PerspectiveGrid";
-import { PhyllotaxisBloom } from "@/components/PhyllotaxisBloom";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
+import { motion } from "framer-motion";
+import { IntroGlyphBed } from "@/components/IntroGlyphBed";
 import { cn } from "@/lib/cn";
 import { initRsvpAudio, playBeep } from "@/lib/rsvp-audio";
 
 type Phase = "countdown" | "reading" | "done";
 
+/**
+ * Keep Up reading ramp — early/mid tokens ~15–25% shorter than the prior
+ * ladder; sentence-end holds lengthened; Fast. unchanged.
+ */
 const rsvpSequence = [
-  { text: "Most teams", ms: 380 },
-  { text: "just", ms: 200 },
-  { text: "write", ms: 200 },
-  { text: "code.", ms: 640 },
-  { text: "We", ms: 170 },
-  { text: "build", ms: 200 },
-  { text: "the", ms: 150 },
-  { text: "entire", ms: 240 },
-  { text: "factory.", ms: 700 },
-  { text: "Autonomous", ms: 280 },
-  { text: "agents.", ms: 540 },
-  { text: "Automated", ms: 260 },
-  { text: "workflows.", ms: 540 },
-  { text: "We", ms: 140 },
-  { text: "design,", ms: 280 },
-  { text: "build,", ms: 280 },
-  { text: "and ship", ms: 240 },
-  { text: "production-", ms: 300 },
-  { text: "ready.", ms: 640 },
+  { text: "Most teams", ms: 300 },
+  { text: "just", ms: 155 },
+  { text: "write", ms: 155 },
+  { text: "code.", ms: 720 },
+  { text: "We", ms: 135 },
+  { text: "build", ms: 155 },
+  { text: "the", ms: 120 },
+  { text: "entire", ms: 190 },
+  { text: "factory.", ms: 800 },
+  { text: "Autonomous", ms: 220 },
+  { text: "agents.", ms: 620 },
+  { text: "Automated", ms: 205 },
+  { text: "workflows.", ms: 620 },
+  { text: "We", ms: 110 },
+  { text: "design,", ms: 220 },
+  { text: "build,", ms: 220 },
+  { text: "and ship", ms: 190 },
+  { text: "production-", ms: 240 },
+  { text: "ready.", ms: 720 },
   { text: "Fast.", ms: 1200 },
 ] as const;
 
@@ -37,17 +47,35 @@ const RSVP_FONT_SIZE = "clamp(2.5rem, 7.5vw, 5.25rem)";
 const WORD_CLASS = "font-unbounded font-bold tracking-tight";
 const WORD_ANCHOR_CLASS =
   "absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2";
+const SKIP_CLASS =
+  "font-jetbrains text-[1.0625rem] leading-6 font-extrabold text-[#DDDDFF] transition-opacity hover:opacity-80";
 
+/** Honda-like punch: 3 huge → 2 mid → 1 almost tiny. */
 function fontSizeForCount(count: number) {
   if (count === 3) {
-    return "clamp(6.5rem, 22vw, 11rem)";
+    return "clamp(8.5rem, 30vw, 15rem)";
   }
 
   if (count === 2) {
-    return "clamp(3.75rem, 12vw, 6.5rem)";
+    return "clamp(3.25rem, 11vw, 5.75rem)";
   }
 
-  return "clamp(1.75rem, 5.5vw, 2.75rem)";
+  return "clamp(0.95rem, 3.2vw, 1.65rem)";
+}
+
+function prefersReducedMotion() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+/** Reduced-motion: fast-forward holds so the sequence never traps. */
+function holdMs(baseMs: number, reduce: boolean) {
+  if (!reduce) {
+    return baseMs;
+  }
+  return Math.min(baseMs, Math.max(60, Math.round(baseMs * 0.22)));
 }
 
 function FitWord({
@@ -108,14 +136,52 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
   const [phase, setPhase] = useState<Phase>("countdown");
   const [count, setCount] = useState(3);
   const [wordIndex, setWordIndex] = useState(0);
-  const bloomControls = useAnimation();
+  const [reduceMotion, setReduceMotion] = useState(false);
+  const completedRef = useRef(false);
+  const onCompleteRef = useRef(onComplete);
+  const reduceMotionRef = useRef(reduceMotion);
+
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+
+  useEffect(() => {
+    reduceMotionRef.current = reduceMotion;
+  }, [reduceMotion]);
+
+  const goHomeNow = () => {
+    if (completedRef.current) {
+      return;
+    }
+    completedRef.current = true;
+    onCompleteRef.current();
+  };
+
+  const beginExitZoom = () => {
+    if (completedRef.current) {
+      return;
+    }
+    if (reduceMotionRef.current) {
+      goHomeNow();
+      return;
+    }
+    setPhase("done");
+  };
 
   useEffect(() => {
     initRsvpAudio();
+    setReduceMotion(prefersReducedMotion());
   }, []);
 
   useEffect(() => {
     if (phase !== "countdown") {
+      return;
+    }
+
+    // Reduced motion: skip the 3-2-1 trap and enter reading immediately.
+    if (reduceMotion) {
+      setWordIndex(0);
+      setPhase("reading");
       return;
     }
 
@@ -136,7 +202,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
     }, COUNTDOWN_MS);
 
     return () => window.clearInterval(interval);
-  }, [phase]);
+  }, [phase, reduceMotion]);
 
   useEffect(() => {
     if (phase !== "reading") {
@@ -145,35 +211,26 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
 
     const current = rsvpSequence[wordIndex];
     const isLast = wordIndex >= rsvpSequence.length - 1;
+    const ms = holdMs(current.ms, reduceMotion);
 
     const timeout = window.setTimeout(() => {
       if (isLast) {
-        setPhase("done");
+        beginExitZoom();
         return;
       }
 
       setWordIndex((index) => index + 1);
-    }, current.ms);
+    }, ms);
 
     return () => window.clearTimeout(timeout);
-  }, [phase, wordIndex]);
-
-  useLayoutEffect(() => {
-    if (phase !== "countdown") {
-      return;
-    }
-
-    bloomControls.set({ scale: 1.05 });
-    void bloomControls.start({
-      scale: 1,
-      transition: { duration: 0.15, ease: "easeOut" },
-    });
-  }, [bloomControls, count, phase]);
+  }, [phase, wordIndex, reduceMotion]);
 
   const word = rsvpSequence[wordIndex].text;
   const exiting = phase === "done";
   const showSequence = phase === "reading" || exiting;
-  const showBloom = phase === "countdown" || phase === "reading" || exiting;
+  const showBed = phase === "countdown" || phase === "reading" || exiting;
+  const showSkip = phase === "countdown" || phase === "reading";
+  const exitDuration = reduceMotion ? 0.2 : 0.9;
 
   return (
     <div
@@ -186,27 +243,20 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
         className="h-full w-full"
         initial={{ scale: 1 }}
         animate={{ scale: exiting ? 25 : 1 }}
-        transition={{ duration: 0.9, ease: [0.83, 0, 0.39, 1] }}
+        transition={{ duration: exitDuration, ease: [0.83, 0, 0.39, 1] }}
         style={{ transformOrigin: "center center" }}
         onAnimationComplete={() => {
           if (exiting) {
-            onComplete();
+            goHomeNow();
           }
         }}
       >
         <motion.div
           className="relative h-full w-full text-[#DDDDFF]"
           animate={{ opacity: exiting ? 0 : 1 }}
-          transition={{ duration: 0.3, ease: "easeIn" }}
+          transition={{ duration: reduceMotion ? 0.12 : 0.3, ease: "easeIn" }}
         >
-          {showBloom ? (
-            <div className="pointer-events-none absolute inset-0 z-[1] flex items-center justify-center opacity-15">
-              <PhyllotaxisBloom
-                className="h-[min(100vw,100vh)] w-[min(100vw,100vh)] origin-center"
-                animate={bloomControls}
-              />
-            </div>
-          ) : null}
+          {showBed ? <IntroGlyphBed /> : null}
 
           {phase === "countdown" ? (
             <Centered
@@ -218,22 +268,34 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
           ) : null}
 
           {showSequence ? (
-            <>
-              <PerspectiveGrid />
-              <Centered>
-                <FitWord className={WORD_CLASS} text={word} />
-              </Centered>
-            </>
+            <Centered>
+              <FitWord className={WORD_CLASS} text={word} />
+            </Centered>
           ) : null}
         </motion.div>
       </motion.div>
+
+      {showSkip ? (
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex justify-center pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+          <button
+            type="button"
+            className={cn(SKIP_CLASS, "pointer-events-auto")}
+            onClick={goHomeNow}
+          >
+            [ Skip ]
+          </button>
+        </div>
+      ) : null}
 
       <motion.div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-20 bg-[#DDDDFF]"
         initial={{ opacity: 0 }}
         animate={{ opacity: exiting ? 1 : 0 }}
-        transition={{ duration: 0.3, ease: "easeIn" }}
+        transition={{
+          duration: reduceMotion ? 0.12 : 0.3,
+          ease: "easeIn",
+        }}
       />
     </div>
   );

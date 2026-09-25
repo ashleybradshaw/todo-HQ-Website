@@ -30,11 +30,51 @@ export const bookPage = {
     { value: "other", label: "Other" },
   ] as const,
 
+  links: {
+    label: "Links (optional)",
+    helper: "Deck, Figma, Drive, GitHub, Notion, a live site. Up to 5.",
+    urlError: "Enter a web link (https://…)",
+    namePlaceholder: "Pitch deck",
+    nameLabel: "Name (optional)",
+    addLabel: "+ Add link",
+    maxLabel: "5 links max",
+  },
+
+  access: {
+    label: "Some of these need access",
+    helper:
+      "Set Drive or Figma to 'anyone with the link can view', or share access with team@todo.engineering. Never paste passwords here. If you need to share one, send it separately.",
+    noteLabel: "How do we get in?",
+  },
+
+  panel: {
+    opened: {
+      title: "Your draft is ready",
+      // TEST COPY: reply time for Ashley to confirm
+      body: "Check your email app and press Send. We reply within 2 working days.",
+    },
+    tooLong: {
+      title: "Your draft is too long to open",
+      body: "Some email apps cut long drafts short. Copy it and paste it into a new email to team@todo.engineering.",
+    },
+    copyDraftLabel: "Copy email text",
+    copyDraftDone: "Copied ✓",
+    editLabel: "Edit details",
+    previewLabel: "What's in your draft",
+  },
+
+  copyEmail: {
+    buttonLabel: "Copy email",
+    copiedLabel: "Copied ✓",
+    liveCopied: "Email address copied",
+    liveFallback: "Press Ctrl or Cmd + C to copy",
+  },
+
   contact: {
     eyebrow: "// Quick note",
     title: "Start with a short note.",
     intro:
-      "Name, email, and what has to ship. Opens your mail client with a draft — or write the team directly.",
+      "Name, email, and what has to ship. We turn it into an email draft you can check and send.",
     nameLabel: "Name",
     emailLabel: "Email",
     phoneLabel: "Phone",
@@ -49,8 +89,9 @@ export const bookPage = {
     howHeardLabel: "How did you hear about TODO?",
     howHeardPlaceholder: "Select one",
     messageLabel: "Message",
-    submitLabel: "Open mail draft →",
-    composeHint: "If nothing opened, use the email link above.",
+    submitLabel: "Create email draft →",
+    submitHelper:
+      "Opens your email app with everything filled in. Nothing is sent until you press Send.",
     subjectPrefix: "Book //TODO —",
     bodyHeading: "Message:",
     mediaLabel: "Still · contact",
@@ -71,9 +112,9 @@ export const bookPage = {
       "Four short steps. We turn the answers into a mail draft so the first conversation starts with a real brief.",
     backLabel: "Back",
     nextLabel: "Next →",
-    submitLabel: "Open planner draft →",
-    composeHint: "If nothing opened, copy the summary below or email the team directly.",
-    successLabel: "Draft ready",
+    submitLabel: "Create email draft →",
+    submitHelper:
+      "Opens your email app with everything filled in. Nothing is sent until you press Send.",
     subjectPrefix: "Planner //TODO —",
     errorNameShort: "Name needs at least 2 characters.",
     errorEmailInvalid: "Enter a valid email.",
@@ -95,7 +136,7 @@ export const bookPage = {
       {
         id: "brief",
         title: "Brief",
-        hint: "Name the outcome. A brief helps — a file upload is not required.",
+        hint: "Name the outcome. Add links if you have them. No files needed.",
         mediaLabel: "Still · step 3",
       },
       {
@@ -137,8 +178,6 @@ export const bookPage = {
     hasBriefLabel: "Got a brief?",
     hasBriefYes: "Yes",
     hasBriefNo: "Not yet",
-    dropzoneLabel: "Drop a brief here later",
-    dropzoneHint: "Placeholder only — no upload on this pass. Attach files in the mail draft.",
     nameLabel: "Name",
     emailLabel: "Email",
     companyLabel: "Company",

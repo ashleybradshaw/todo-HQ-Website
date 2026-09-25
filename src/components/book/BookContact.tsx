@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { BookCopyEmail } from "@/components/book/BookCopyEmail";
+import { BookDraftPanel } from "@/components/book/BookDraftPanel";
+import { BookLinks } from "@/components/book/BookLinks";
 import { TypeComment } from "@/components/TypeComment";
 import { bookPage } from "@/content/pages/book";
 import {
@@ -10,20 +13,25 @@ import {
   isValidEmail,
   isValidMessage,
   isValidName,
+  MAX_MESSAGE_CHARS,
 } from "@/lib/book-form";
+import {
+  buildMailto,
+  firstInvalidLinkIndex,
+  formatLinksForEmail,
+  linksHaveInvalidRows,
+  initialLinkRows,
+  type BookLinkRow,
+} from "@/lib/book-links";
 import { cn } from "@/lib/cn";
-import { CONTACT_EMAIL } from "@/lib/site";
 
 const fieldClass =
   "font-jetbrains min-h-11 w-full rounded-[4px] border border-border-ide bg-background px-3 py-2 text-sm text-foreground transition-[background-color,color,border-color,opacity] duration-[400ms] ease-in-out placeholder:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
 
 const labelClass = "type-label";
 
-const mailtoClass =
-  "font-jetbrains text-syn-string underline decoration-[color-mix(in_srgb,var(--foreground)_35%,transparent)] underline-offset-2 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
-
 const submitClass =
-  "font-jetbrains relative inline-flex min-h-11 cursor-pointer items-center justify-center overflow-hidden rounded-[4px] border border-current bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] px-4 py-2 text-xs font-bold tracking-wider text-syn-keyword transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:opacity-40";
+  "font-jetbrains relative inline-flex min-h-11 cursor-pointer items-center justify-center overflow-hidden rounded-[4px] border border-current bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] px-4 py-2 text-xs font-bold tracking-wider text-syn-keyword transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
 
 /** Same tactile lift as blog index / article cards (translateY on hover). */
 const liftTileClass =
@@ -44,6 +52,12 @@ type Touched = {
   message: boolean;
 };
 
+type PanelState = {
+  variant: "opened" | "too-long";
+  subject: string;
+  body: string;
+} | null;
+
 export function BookContact({ bookingType }: { bookingType?: string }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -51,7 +65,10 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
   const [callback, setCallback] = useState("");
   const [howHeard, setHowHeard] = useState("");
   const [message, setMessage] = useState(() => messagePrefill(bookingType));
-  const [composeHint, setComposeHint] = useState(false);
+  const [links, setLinks] = useState<BookLinkRow[]>(() => initialLinkRows(1));
+  const [needsAccess, setNeedsAccess] = useState(false);
+  const [accessNote, setAccessNote] = useState("");
+  const [panel, setPanel] = useState<PanelState>(null);
   const [touched, setTouched] = useState<Touched>({
     name: false,
     email: false,
@@ -64,12 +81,13 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
   const emailOk = isValidEmail(email);
   const howHeardOk = Boolean(howHeard);
   const messageOk = isValidMessage(message);
+  const linksOk = !linksHaveInvalidRows(links);
 
   const emailOpen = nameOk;
   const optionalOpen = emailOk;
   const howHeardOpen = emailOk;
   const messageOpen = howHeardOk;
-  const formReady = nameOk && emailOk && howHeardOk && messageOk;
+  const formReady = nameOk && emailOk && howHeardOk && messageOk && linksOk;
 
   function markTouched(key: keyof Touched) {
     setTouched((current) => ({ ...current, [key]: true }));
@@ -81,10 +99,27 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setComposeHint(false);
     setShowAllErrors(true);
 
     if (!formReady) {
+      const invalidLink = firstInvalidLinkIndex(links);
+      const order: string[] = [];
+      if (!nameOk) order.push("book-contact-name");
+      if (!emailOk) order.push("book-contact-email");
+      if (!howHeardOk) order.push("book-contact-heard");
+      if (!messageOk) order.push("book-contact-message");
+      if (invalidLink >= 0) {
+        order.push(`book-contact-link-url-${links[invalidLink].id}`);
+      }
+      queueMicrotask(() => {
+        for (const id of order) {
+          const el = document.getElementById(id);
+          if (el) {
+            el.focus();
+            return;
+          }
+        }
+      });
       return;
     }
 
@@ -99,31 +134,60 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
       contact.callbackOptions.find((option) => option.value === callback)
         ?.label ?? callback;
 
-    const subject = encodeURIComponent(
-      `${contact.subjectPrefix} ${trimmedName}`,
-    );
-    const body = encodeURIComponent(
-      [
-        `Name: ${trimmedName}`,
-        `Email: ${trimmedEmail}`,
-        trimmedPhone ? `Phone: ${trimmedPhone}` : null,
-        callbackLabel ? `Best time to call back (UK): ${callbackLabel}` : null,
-        `How heard: ${heard}`,
-        "",
-        contact.bodyHeading,
-        trimmedMessage,
-      ]
-        .filter((line) => line !== null)
-        .join("\n"),
+    const linksBlock = formatLinksForEmail(
+      links,
+      needsAccess ? accessNote : undefined,
     );
 
-    const href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+    const subject = `${contact.subjectPrefix} ${trimmedName}`;
+    const body = [
+      `Name: ${trimmedName}`,
+      `Email: ${trimmedEmail}`,
+      trimmedPhone ? `Phone: ${trimmedPhone}` : null,
+      callbackLabel ? `Best time to call back (UK): ${callbackLabel}` : null,
+      `How heard: ${heard}`,
+      "",
+      contact.bodyHeading,
+      trimmedMessage,
+      linksBlock ? "" : null,
+      linksBlock || null,
+    ]
+      .filter((line) => line !== null)
+      .join("\n");
+
+    const { href, tooLong } = buildMailto(subject, body);
+
+    if (tooLong) {
+      setPanel({ variant: "too-long", subject, body });
+      return;
+    }
+
     try {
       window.location.href = href;
-      window.setTimeout(() => setComposeHint(true), 1200);
     } catch {
-      setComposeHint(true);
+      // Panel still shows — we cannot know if mail opened.
     }
+    setPanel({ variant: "opened", subject, body });
+  }
+
+  if (panel) {
+    return (
+      <section aria-labelledby="book-contact-heading">
+        <TypeComment text={contact.eyebrow} className="text-syn-comment" />
+        <h2
+          id="book-contact-heading"
+          className="type-heading mt-3 text-balance tracking-tight"
+        >
+          {contact.title}
+        </h2>
+        <BookDraftPanel
+          variant={panel.variant}
+          subject={panel.subject}
+          body={panel.body}
+          onEdit={() => setPanel(null)}
+        />
+      </section>
+    );
   }
 
   return (
@@ -321,17 +385,27 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
               name="message"
               required
               rows={5}
+              maxLength={MAX_MESSAGE_CHARS}
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={(e) =>
+                setMessage(e.target.value.slice(0, MAX_MESSAGE_CHARS))
+              }
               onBlur={() => markTouched("message")}
               aria-invalid={showError("message") && !messageOk}
               aria-describedby={
                 showError("message") && !messageOk
                   ? "book-contact-message-error"
-                  : undefined
+                  : "book-contact-message-count"
               }
               className={`${fieldClass} min-h-[8.5rem] resize-y py-3`}
             />
+            <p
+              id="book-contact-message-count"
+              className="type-label text-syn-comment font-normal tabular-nums"
+            >
+              {message.length.toLocaleString("en-GB")} /{" "}
+              {MAX_MESSAGE_CHARS.toLocaleString("en-GB")}
+            </p>
             {showError("message") && !messageOk ? (
               <p
                 id="book-contact-message-error"
@@ -343,8 +417,23 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
             ) : null}
           </div>
 
+          <div className={messageOpen ? fieldOpenClass : fieldQuietClass}>
+            <BookLinks
+              links={links}
+              onChange={setLinks}
+              max={1}
+              single
+              needsAccess={needsAccess}
+              onNeedsAccessChange={setNeedsAccess}
+              accessNote={accessNote}
+              onAccessNoteChange={setAccessNote}
+              showErrors={showAllErrors}
+              idPrefix="book-contact-link"
+            />
+          </div>
+
           <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
-            <button type="submit" className={submitClass} disabled={!formReady}>
+            <button type="submit" className={submitClass}>
               <span className="relative z-10">{contact.submitLabel}</span>
               {formReady ? (
                 <>
@@ -353,19 +442,11 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
                 </>
               ) : null}
             </button>
-            <a
-              href={`mailto:${CONTACT_EMAIL}`}
-              className={`${mailtoClass} text-accent-swap`}
-            >
-              {CONTACT_EMAIL}
-            </a>
+            <BookCopyEmail />
           </div>
-
-          {composeHint ? (
-            <p className="type-label text-syn-comment font-normal" role="status">
-              {contact.composeHint}
-            </p>
-          ) : null}
+          <p className="type-label text-syn-comment font-normal normal-case tracking-normal">
+            {contact.submitHelper}
+          </p>
         </form>
 
         <aside

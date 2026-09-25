@@ -1,6 +1,9 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { BookCopyEmail } from "@/components/book/BookCopyEmail";
+import { BookDraftPanel } from "@/components/book/BookDraftPanel";
+import { BookLinks } from "@/components/book/BookLinks";
 import { TypeComment } from "@/components/TypeComment";
 import { bookPage } from "@/content/pages/book";
 import {
@@ -10,9 +13,17 @@ import {
   isValidBrief,
   isValidEmail,
   isValidName,
+  MAX_BRIEF_CHARS,
 } from "@/lib/book-form";
+import {
+  buildMailto,
+  firstInvalidLinkIndex,
+  formatLinksForEmail,
+  linksHaveInvalidRows,
+  initialLinkRows,
+  type BookLinkRow,
+} from "@/lib/book-links";
 import { cn } from "@/lib/cn";
-import { CONTACT_EMAIL } from "@/lib/site";
 
 const fieldClass =
   "font-jetbrains min-h-11 w-full rounded-[4px] border border-border-ide bg-background px-3 py-2 text-sm text-foreground transition-[background-color,color,border-color,opacity] duration-[400ms] ease-in-out placeholder:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
@@ -67,6 +78,12 @@ function bookingFromType(type?: string) {
   return "";
 }
 
+type PanelState = {
+  variant: "opened" | "too-long";
+  subject: string;
+  body: string;
+} | null;
+
 export function BookPlanner({ bookingType }: { bookingType?: string }) {
   const [step, setStep] = useState(1);
   const [booking, setBooking] = useState(() => bookingFromType(bookingType));
@@ -75,13 +92,17 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
   const [needs, setNeeds] = useState<string[]>([]);
   const [brief, setBrief] = useState("");
   const [hasBrief, setHasBrief] = useState<"" | "yes" | "no">("");
+  const [links, setLinks] = useState<BookLinkRow[]>(() => initialLinkRows(1));
+  const [needsAccess, setNeedsAccess] = useState(false);
+  const [accessNote, setAccessNote] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
   const [howHeard, setHowHeard] = useState("");
-  const [composeHint, setComposeHint] = useState(false);
-  const [summary, setSummary] = useState<string | null>(null);
+  const [panel, setPanel] = useState<PanelState>(null);
   const [showStep4Errors, setShowStep4Errors] = useState(false);
+  const [showLinkErrors, setShowLinkErrors] = useState(false);
+  const pendingLinkFocusRef = useRef<string | null>(null);
   const [touched4, setTouched4] = useState({
     name: false,
     email: false,
@@ -95,6 +116,7 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
   const emailOk = isValidEmail(email);
   const howHeardOk = Boolean(howHeard);
   const briefOk = isValidBrief(brief);
+  const linksOk = !linksHaveInvalidRows(links);
 
   const budgetOpen = Boolean(timeline);
   const needsOpen = Boolean(budget);
@@ -102,6 +124,13 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
   const emailOpen = nameOk;
   const companyOpen = emailOk;
   const howHeardOpen = emailOk;
+
+  useEffect(() => {
+    if (step !== 3 || !pendingLinkFocusRef.current) return;
+    const id = pendingLinkFocusRef.current;
+    pendingLinkFocusRef.current = null;
+    document.getElementById(`book-planner-link-url-${id}`)?.focus();
+  }, [step, showLinkErrors]);
 
   const canAdvance = useMemo(() => {
     if (step === 1) return Boolean(booking);
@@ -137,6 +166,11 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
       .map((value) => labelFor(planner.needsOptions, value))
       .join(", ");
 
+    const linksBlock = formatLinksForEmail(
+      links,
+      needsAccess ? accessNote : undefined,
+    );
+
     return [
       `Booking: ${labelFor(planner.bookingOptions, booking)}`,
       `Timeline: ${labelFor(planner.timelineOptions, timeline)}`,
@@ -146,6 +180,8 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
       "Brief:",
       brief.trim(),
       `Has brief: ${hasBrief === "yes" ? planner.hasBriefYes : planner.hasBriefNo}`,
+      linksBlock ? "" : null,
+      linksBlock || null,
       "",
       `Name: ${name.trim()}`,
       `Email: ${email.trim()}`,
@@ -158,28 +194,50 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
 
   function onFinish(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setComposeHint(false);
     setShowStep4Errors(true);
 
     if (!nameOk || !emailOk || !howHeardOk) {
+      const order: string[] = [];
+      if (!nameOk) order.push("book-planner-name");
+      if (!emailOk) order.push("book-planner-email");
+      if (!howHeardOk) order.push("book-planner-heard");
+      queueMicrotask(() => {
+        for (const id of order) {
+          const el = document.getElementById(id);
+          if (el) {
+            el.focus();
+            return;
+          }
+        }
+      });
+      return;
+    }
+
+    if (!linksOk) {
+      setShowLinkErrors(true);
+      const invalidLink = firstInvalidLinkIndex(links);
+      if (invalidLink >= 0) {
+        pendingLinkFocusRef.current = links[invalidLink].id;
+      }
+      setStep(3);
       return;
     }
 
     const text = buildSummary();
-    setSummary(text);
+    const subject = `${planner.subjectPrefix} ${labelFor(planner.bookingOptions, booking) || name.trim()}`;
+    const { href, tooLong } = buildMailto(subject, text);
 
-    const subject = encodeURIComponent(
-      `${planner.subjectPrefix} ${labelFor(planner.bookingOptions, booking) || name.trim()}`,
-    );
-    const body = encodeURIComponent(text);
-    const href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+    if (tooLong) {
+      setPanel({ variant: "too-long", subject, body: text });
+      return;
+    }
 
     try {
       window.location.href = href;
-      window.setTimeout(() => setComposeHint(true), 1200);
     } catch {
-      setComposeHint(true);
+      // Panel still shows — we cannot know if mail opened.
     }
+    setPanel({ variant: "opened", subject, body: text });
   }
 
   function show4Error(key: keyof typeof touched4) {
@@ -187,6 +245,28 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
   }
 
   const primaryReady = canAdvance;
+  const finishReady = nameOk && emailOk && howHeardOk && linksOk;
+
+  if (panel) {
+    return (
+      <section aria-labelledby="book-planner-heading">
+        <TypeComment text={planner.eyebrow} className="text-syn-comment" />
+        <h2
+          id="book-planner-heading"
+          className="type-heading mt-3 text-balance tracking-tight"
+        >
+          {planner.title}
+        </h2>
+        <BookDraftPanel
+          variant={panel.variant}
+          subject={panel.subject}
+          body={panel.body}
+          preview={panel.body}
+          onEdit={() => setPanel(null)}
+        />
+      </section>
+    );
+  }
 
   return (
     <section aria-labelledby="book-planner-heading">
@@ -300,11 +380,18 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
                 <textarea
                   id="book-planner-brief"
                   rows={5}
+                  maxLength={MAX_BRIEF_CHARS}
                   value={brief}
-                  onChange={(e) => setBrief(e.target.value)}
+                  onChange={(e) =>
+                    setBrief(e.target.value.slice(0, MAX_BRIEF_CHARS))
+                  }
                   placeholder={planner.briefPlaceholder}
                   className={`${fieldClass} min-h-[8.5rem] resize-y py-3`}
                 />
+                <p className="type-label text-syn-comment font-normal tabular-nums">
+                  {brief.length.toLocaleString("en-GB")} /{" "}
+                  {MAX_BRIEF_CHARS.toLocaleString("en-GB")}
+                </p>
                 {!briefOk ? (
                   <p className="type-label text-syn-comment mt-1 font-normal">
                     {planner.errorBriefShort}
@@ -332,17 +419,18 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
                   ))}
                 </div>
               </div>
-              <div
-                role="note"
-                className={cn(
-                  "rounded-[4px] border border-dashed border-border-ide px-4 py-6",
-                  hasBriefOpen ? fieldOpenClass : fieldQuietClass,
-                )}
-              >
-                <p className="type-label">{planner.dropzoneLabel}</p>
-                <p className="type-body-sm text-syn-comment mt-2">
-                  {planner.dropzoneHint}
-                </p>
+              <div className={hasBriefOpen ? fieldOpenClass : fieldQuietClass}>
+                <BookLinks
+                  links={links}
+                  onChange={setLinks}
+                  max={5}
+                  needsAccess={needsAccess}
+                  onNeedsAccessChange={setNeedsAccess}
+                  accessNote={accessNote}
+                  onAccessNoteChange={setAccessNote}
+                  showErrors={showLinkErrors}
+                  idPrefix="book-planner-link"
+                />
               </div>
             </div>
           ) : null}
@@ -495,76 +583,64 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
             </form>
           ) : null}
 
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              className={cn(navBtn, "bg-transparent")}
-              disabled={step === 1}
-              onClick={() => setStep((current) => Math.max(1, current - 1))}
-            >
-              {planner.backLabel}
-            </button>
-            {step < TOTAL_STEPS ? (
+          <div className="mt-8 flex flex-col gap-4">
+            <div className="flex flex-wrap items-center gap-3">
               <button
                 type="button"
-                className={cn(
-                  navBtn,
-                  "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] text-syn-keyword",
-                )}
-                disabled={!primaryReady}
-                onClick={() =>
-                  setStep((current) => Math.min(TOTAL_STEPS, current + 1))
-                }
+                className={cn(navBtn, "bg-transparent")}
+                disabled={step === 1}
+                onClick={() => setStep((current) => Math.max(1, current - 1))}
               >
-                <span className="relative z-10">{planner.nextLabel}</span>
-                {primaryReady ? (
-                  <>
-                    <span aria-hidden="true" className="spray-shine-wash" />
-                    <span aria-hidden="true" className="spray-shine-edge" />
-                  </>
-                ) : null}
+                {planner.backLabel}
               </button>
-            ) : (
-              <button
-                type="submit"
-                form="book-planner-finish"
-                className={cn(
-                  navBtn,
-                  "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] text-syn-keyword",
-                )}
-                disabled={!primaryReady}
-              >
-                <span className="relative z-10">{planner.submitLabel}</span>
-                {primaryReady ? (
-                  <>
-                    <span aria-hidden="true" className="spray-shine-wash" />
-                    <span aria-hidden="true" className="spray-shine-edge" />
-                  </>
-                ) : null}
-              </button>
-            )}
-          </div>
-
-          {composeHint || summary ? (
-            <div className="mt-6 rounded-[4px] border border-border-ide p-4">
-              {composeHint ? (
-                <p
-                  className="type-label text-syn-comment font-normal"
-                  role="status"
+              {step < TOTAL_STEPS ? (
+                <button
+                  type="button"
+                  className={cn(
+                    navBtn,
+                    "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] text-syn-keyword",
+                  )}
+                  disabled={!primaryReady}
+                  onClick={() =>
+                    setStep((current) => Math.min(TOTAL_STEPS, current + 1))
+                  }
                 >
-                  {planner.composeHint}
-                </p>
-              ) : null}
-              {summary ? (
+                  <span className="relative z-10">{planner.nextLabel}</span>
+                  {primaryReady ? (
+                    <>
+                      <span aria-hidden="true" className="spray-shine-wash" />
+                      <span aria-hidden="true" className="spray-shine-edge" />
+                    </>
+                  ) : null}
+                </button>
+              ) : (
                 <>
-                  <p className="type-label mt-2">{planner.successLabel}</p>
-                  <pre className="type-body-sm mt-3 whitespace-pre-wrap font-mono">
-                    {summary}
-                  </pre>
+                  <button
+                    type="submit"
+                    form="book-planner-finish"
+                    className={cn(
+                      navBtn,
+                      "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] text-syn-keyword",
+                    )}
+                  >
+                    <span className="relative z-10">{planner.submitLabel}</span>
+                    {finishReady ? (
+                      <>
+                        <span aria-hidden="true" className="spray-shine-wash" />
+                        <span aria-hidden="true" className="spray-shine-edge" />
+                      </>
+                    ) : null}
+                  </button>
+                  <BookCopyEmail />
                 </>
-              ) : null}
+              )}
             </div>
-          ) : null}
+            {step === TOTAL_STEPS ? (
+              <p className="type-label text-syn-comment font-normal normal-case tracking-normal">
+                {planner.submitHelper}
+              </p>
+            ) : null}
+          </div>
         </div>
 
         <aside

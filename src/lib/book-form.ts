@@ -3,6 +3,9 @@
 export const MIN_NAME_CHARS = 2;
 export const MIN_MESSAGE_CHARS = 40;
 export const MIN_BRIEF_WORDS = 3;
+export const MAX_MESSAGE_CHARS = 1000;
+export const MAX_BRIEF_CHARS = 1000;
+export const MAX_ACCESS_NOTE_CHARS = 300;
 
 /** Basic shape — not DNS. Good enough for mailto commitment. */
 const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

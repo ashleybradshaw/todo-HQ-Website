@@ -421,8 +421,8 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
             <BookLinks
               links={links}
               onChange={setLinks}
-              max={1}
-              single
+              max={3}
+              helper={bookPage.links.helperQuick}
               needsAccess={needsAccess}
               onNeedsAccessChange={setNeedsAccess}
               accessNote={accessNote}

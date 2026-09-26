@@ -32,7 +32,8 @@ type BookLinksProps = {
   links: BookLinkRow[];
   onChange: (links: BookLinkRow[]) => void;
   max?: number;
-  single?: boolean;
+  /** Override helper; defaults to Pre-brief “Up to 5.” copy. */
+  helper?: string;
   needsAccess: boolean;
   onNeedsAccessChange: (value: boolean) => void;
   accessNote: string;
@@ -46,7 +47,7 @@ export function BookLinks({
   links,
   onChange,
   max = MAX_LINKS,
-  single = false,
+  helper = linksCopy.helper,
   needsAccess,
   onNeedsAccessChange,
   accessNote,
@@ -58,6 +59,7 @@ export function BookLinks({
   const [blurred, setBlurred] = useState<Record<string, boolean>>({});
 
   const atMax = links.length >= max;
+  const maxLabel = `${max} links max`;
   const showAccess = links.some((row) => row.url.trim().length > 0);
 
   function updateRow(id: string, patch: Partial<BookLinkRow>) {
@@ -87,7 +89,7 @@ export function BookLinks({
   }
 
   function addRow() {
-    if (atMax || single) return;
+    if (atMax) return;
     const row = newLinkRow();
     onChange([...links, row]);
     queueMicrotask(() => {
@@ -104,7 +106,7 @@ export function BookLinks({
       <div>
         <p className={labelClass}>{linksCopy.label}</p>
         <p className="type-label text-syn-comment mt-1 font-normal normal-case tracking-normal">
-          {linksCopy.helper}
+          {helper}
         </p>
       </div>
 
@@ -200,21 +202,17 @@ export function BookLinks({
         })}
       </ul>
 
-      {!single ? (
-        atMax ? (
-          <p className="type-label text-syn-comment font-normal">
-            {linksCopy.maxLabel}
-          </p>
-        ) : (
-          <button
-            type="button"
-            onClick={addRow}
-            className={cn(mailtoClass, "inline-flex min-h-11 items-center self-start")}
-          >
-            {linksCopy.addLabel}
-          </button>
-        )
-      ) : null}
+      {atMax ? (
+        <p className="type-label text-syn-comment font-normal">{maxLabel}</p>
+      ) : (
+        <button
+          type="button"
+          onClick={addRow}
+          className={cn(mailtoClass, "inline-flex min-h-11 items-center self-start")}
+        >
+          {linksCopy.addLabel}
+        </button>
+      )}
 
       {showAccess ? (
         <div className="flex flex-col gap-3">

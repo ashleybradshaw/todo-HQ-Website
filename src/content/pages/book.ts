@@ -32,12 +32,13 @@ export const bookPage = {
 
   links: {
     label: "Links (optional)",
+    /** Pre-brief default. Quick note passes helperQuick. */
     helper: "Deck, Figma, Drive, GitHub, Notion, a live site. Up to 5.",
+    helperQuick: "Deck, Figma, Drive, GitHub, Notion, a live site. Up to 3.",
     urlError: "Enter a web link (https://…)",
     namePlaceholder: "Pitch deck",
     nameLabel: "Name (optional)",
     addLabel: "+ Add link",
-    maxLabel: "5 links max",
   },
 
   access: {

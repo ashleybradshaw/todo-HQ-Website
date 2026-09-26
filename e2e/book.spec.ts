@@ -27,10 +27,27 @@ async function goToPlannerStep3(page: Page) {
 }
 
 test.describe("book links and draft panel", () => {
+  test("Quick note adds links to 3 then shows 3 links max", async ({ page }) => {
+    await visit(page, "/book#quick");
+    await expect(
+      page.getByRole("heading", { name: /start with a short note/i }),
+    ).toBeVisible();
+    await expect(page.getByText(/up to 3\./i)).toBeVisible();
+
+    const add = page.getByRole("button", { name: "+ Add link" });
+    await expect(add).toBeVisible();
+    await add.click();
+    await add.click();
+    await expect(add).toHaveCount(0);
+    await expect(page.getByText("3 links max")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Remove link 1" })).toBeVisible();
+  });
+
   test("add links to max, remove a row, reject invalid and javascript URLs", async ({
     page,
   }) => {
     await goToPlannerStep3(page);
+    await expect(page.getByText(/up to 5\./i)).toBeVisible();
 
     const add = page.getByRole("button", { name: "+ Add link" });
     for (let i = 0; i < 4; i++) {

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { cn } from "@/lib/cn";
 import type { ProjectMediaAspect } from "@/lib/projects";
 import { PlaceholderStill } from "@/components/work/PlaceholderStill";
@@ -14,13 +15,13 @@ export type BrowserFrameProps = {
   caption: string;
   aspect: ProjectMediaAspect;
   className?: string;
+  priority?: boolean;
 };
 
 /**
  * Faux-browser chrome for a project still.
  * Paths under /work/placeholders/ render PlaceholderStill (inline currentColor).
- * Other src values use <img>. A later pass can swap that slot for <video>
- * with no autoplay, and a static frame under prefers-reduced-motion.
+ * Other src values use next/image.
  */
 export function BrowserFrame({
   src,
@@ -28,6 +29,7 @@ export function BrowserFrame({
   caption,
   aspect,
   className,
+  priority = false,
 }: BrowserFrameProps) {
   const placeholder = src.startsWith("/work/placeholders/");
 
@@ -44,7 +46,7 @@ export function BrowserFrame({
           <span className="bg-foreground/25 size-1.5 rounded-full" />
           <span className="bg-foreground/25 size-1.5 rounded-full" />
         </span>
-        <figcaption className="font-jetbrains text-syn-comment min-w-0 flex-1 truncate text-[10px] tracking-wide uppercase">
+        <figcaption className="font-jetbrains min-w-0 flex-1 truncate text-xs tracking-wide text-foreground uppercase">
           {caption}
         </figcaption>
       </div>
@@ -59,11 +61,13 @@ export function BrowserFrame({
             <PlaceholderStill aspect={aspect} />
           </div>
         ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={src}
             alt={alt}
-            className="absolute inset-0 h-full w-full object-cover"
+            fill
+            sizes="(min-width:768px) 688px, 100vw"
+            priority={priority}
+            className="object-cover"
           />
         )}
       </div>

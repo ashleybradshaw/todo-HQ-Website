@@ -8,10 +8,13 @@ import { PageShell } from "@/components/PageShell";
 import { SiteCloser } from "@/components/SiteCloser";
 import { BrowserFrame } from "@/components/work/BrowserFrame";
 import { ProjectGlyphField } from "@/components/work/ProjectGlyphField";
+import { ProjectStatusChip } from "@/components/work/ProjectStatusChip";
 import {
+  getPageProjects,
   getProject,
   getProjectSlugs,
-  type Project,
+  projectHasPage,
+  type FullProject,
   type ProjectMediaOffset,
   type ProjectMediaWidth,
 } from "@/lib/projects";
@@ -34,7 +37,7 @@ export async function generateMetadata({
 }: WorkProjectParams): Promise<Metadata> {
   const { slug } = await params;
   const project = getProject(slug);
-  if (!project) {
+  if (!project || !projectHasPage(project)) {
     return pageMetadata({
       title: "Not found",
       description: "This factory project does not exist.",
@@ -51,7 +54,7 @@ export async function generateMetadata({
   });
 }
 
-function projectJsonLd(project: Project) {
+function projectJsonLd(project: FullProject) {
   return {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
@@ -112,12 +115,26 @@ const linkClass =
 const ctaClass =
   "type-label inline-flex min-h-11 items-center justify-center rounded-[4px] border border-border-ide bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] px-4 py-2 text-syn-keyword transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
 
+function adjacentProjects(slug: string) {
+  const pages = getPageProjects();
+  const index = pages.findIndex((project) => project.slug === slug);
+  if (index === -1) {
+    return { prev: null, next: null };
+  }
+  return {
+    prev: index > 0 ? pages[index - 1] : null,
+    next: index < pages.length - 1 ? pages[index + 1] : null,
+  };
+}
+
 export default async function WorkProjectPage({ params }: WorkProjectParams) {
   const { slug } = await params;
   const project = getProject(slug);
-  if (!project) {
+  if (!project || !projectHasPage(project)) {
     notFound();
   }
+
+  const { prev, next } = adjacentProjects(project.slug);
 
   return (
     <>
@@ -135,6 +152,16 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
         }
       >
         {/* Micro-study — blog-article Essay rhythm (centred header + column). */}
+        <div className="mt-4 flex flex-col items-center gap-3">
+          <ProjectStatusChip status={project.status} />
+          {project.slug === "readygo" ? (
+            // TEST COPY
+            <p className="type-body-sm mx-auto max-w-[688px] text-center text-foreground">
+              Early build: this case study grows as we ship.
+            </p>
+          ) : null}
+        </div>
+
         <div className="mt-6">
           <p className="type-body mx-auto max-w-[688px] text-center text-foreground">
             {project.description}
@@ -147,20 +174,22 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
             {project.stack.map((item) => (
               <li
                 key={item}
-                className="type-label border-border-ide text-syn-comment rounded-[4px] border px-2 py-0.5"
+                className="type-label border-border-ide rounded-[4px] border px-2 py-0.5 text-foreground"
               >
                 {item}
               </li>
             ))}
           </ul>
 
-          <ul className="type-body mx-auto mt-6 max-w-[688px] list-disc space-y-1.5 pl-5 text-foreground">
+          <h2 className="type-label mx-auto mt-8 max-w-[688px]">Scope</h2>
+          <ul className="type-body mx-auto mt-3 max-w-[688px] list-disc space-y-1.5 pl-5 text-foreground">
             {project.scope.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
 
-          <p className="type-meta text-syn-string mx-auto mt-5 max-w-[688px] opacity-90">
+          <h2 className="type-label mx-auto mt-8 max-w-[688px]">Outcome</h2>
+          <p className="type-body mx-auto mt-3 max-w-[688px] text-foreground">
             {project.outcome}
           </p>
         </div>
@@ -169,11 +198,21 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
           className="mt-12 flex min-w-0 flex-col gap-8"
           aria-label={`${project.name} stills`}
         >
+          <div className={cn("work-frame-enter min-w-0", ESSAY_FRAME)}>
+            <BrowserFrame
+              src={project.imageSrc}
+              alt={project.imageAlt}
+              caption={project.name}
+              aspect="landscape"
+              priority
+              className="w-full"
+            />
+          </div>
           {project.media.map((item, index) => (
             <div
               key={item.id}
               className={cn("work-frame-enter min-w-0", ESSAY_FRAME)}
-              style={{ "--work-frame-i": index } as CSSProperties}
+              style={{ "--work-frame-i": index + 1 } as CSSProperties}
             >
               <BrowserFrame
                 src={item.src}
@@ -186,9 +225,27 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
           ))}
         </section>
 
-        <div className="border-border-ide mx-auto mt-12 flex max-w-[688px] flex-wrap items-center gap-4 border-t pt-6">
+        <nav
+          className="border-border-ide mx-auto mt-12 flex max-w-[688px] flex-wrap items-center justify-between gap-4 border-t pt-6"
+          aria-label="Adjacent projects"
+        >
+          {prev ? (
+            <Link href={`/work/${prev.slug}`} className={linkClass}>
+              ← {prev.name}
+            </Link>
+          ) : (
+            <span />
+          )}
+          {next ? (
+            <Link href={`/work/${next.slug}`} className={linkClass}>
+              {next.name} →
+            </Link>
+          ) : null}
+        </nav>
+
+        <div className="mx-auto mt-6 flex max-w-[688px] flex-wrap items-center gap-4">
           <Link href="/book" className={ctaClass}>
-            Book team
+            Book the team
           </Link>
           <Link href="/work" className={linkClass}>
             ← Work

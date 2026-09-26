@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: "website",
-    locale: "en_US",
+    locale: "en_GB",
     url: SITE_URL,
     siteName: SITE_NAME,
     title: `${SITE_NAME} — Enterprise AI Engineering Factory`,

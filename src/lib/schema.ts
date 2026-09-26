@@ -4,12 +4,34 @@ import {
   SITE_NAME,
   SITE_URL,
 } from "@/lib/site";
+import { getPageProjects } from "@/lib/projects";
+
+const PAGE_APP_CATEGORY: Record<string, string> = {
+  RepDaily: "HealthApplication",
+  ReadyGo: "SportsApplication",
+  Contentic: "BusinessApplication",
+};
+
+const PAGE_APP_OS: Record<string, string> = {
+  RepDaily: "iOS, Android, Web",
+  ReadyGo: "iOS, Android, Web",
+  Contentic: "Web",
+};
 
 export function serializeJsonLd(data: unknown) {
   return JSON.stringify(data).replace(/</g, "\\u003c");
 }
 
 export function organizationGraph() {
+  const applications = getPageProjects().map((project) => ({
+    "@type": "SoftwareApplication" as const,
+    name: project.name,
+    applicationCategory:
+      PAGE_APP_CATEGORY[project.name] ?? "BusinessApplication",
+    operatingSystem: PAGE_APP_OS[project.name] ?? "Web",
+    description: project.description,
+  }));
+
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -49,30 +71,7 @@ export function organizationGraph() {
             "Product leads, engineering leads, and technical founders evaluating AI workflow architecture",
         },
       },
-      {
-        "@type": "SoftwareApplication",
-        name: "RepDaily",
-        applicationCategory: "HealthApplication",
-        operatingSystem: "iOS, Android, Web",
-        description:
-          "Camera-based fitness tracking shipped through the //TODO internal software factory.",
-      },
-      {
-        "@type": "SoftwareApplication",
-        name: "ReadyGo",
-        applicationCategory: "SportsApplication",
-        operatingSystem: "iOS, Android, Web",
-        description:
-          "Pre-activity planning for runners and cyclists, designed and shipped with an integrated AI workflow stack.",
-      },
-      {
-        "@type": "SoftwareApplication",
-        name: "Contentic",
-        applicationCategory: "BusinessApplication",
-        operatingSystem: "Web",
-        description:
-          "Production content operations software from the //TODO factory roster.",
-      },
+      ...applications,
     ],
   };
 }

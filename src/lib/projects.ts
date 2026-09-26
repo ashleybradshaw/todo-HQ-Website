@@ -1,6 +1,7 @@
 export type ProjectMediaAspect = "landscape" | "portrait" | "square";
 export type ProjectMediaWidth = "hero" | "support" | "tall";
 export type ProjectMediaOffset = "left" | "center" | "right";
+export type ProjectStatus = "shipped" | "building" | "live" | "pipeline";
 
 export type ProjectMedia = {
   /** Stable key for a later image-SEO pass (alt, dimensions, OG). */
@@ -13,7 +14,7 @@ export type ProjectMedia = {
   offset: ProjectMediaOffset;
 };
 
-export type Project = {
+type ProjectBase = {
   slug: string;
   name: string;
   /** SEO description and visible lede. ~150–160 characters. */
@@ -24,54 +25,50 @@ export type Project = {
   imageWidth: number;
   imageHeight: number;
   /**
-   * Public Work roster. `false` = layout-stress detail only
-   * (reachable by URL, omitted from /work index + sitemap).
+   * Public Work roster. `false` = omitted from /work index + sitemap.
    */
   listed: boolean;
+  status: ProjectStatus;
+  /** Detail route + sitemap. Derived: pipeline ⇒ false. */
+  hasPage: boolean;
+};
+
+export type FullProject = ProjectBase & {
+  status: Exclude<ProjectStatus, "pipeline">;
+  hasPage: true;
   scope: readonly string[];
   stack: readonly string[];
   outcome: string;
   media: readonly ProjectMedia[];
 };
 
+export type PipelineProject = ProjectBase & {
+  status: "pipeline";
+  hasPage: false;
+};
+
+export type Project = FullProject | PipelineProject;
+
 type MediaSpec = {
   aspect: ProjectMediaAspect;
   caption: string;
   width: ProjectMediaWidth;
   offset: ProjectMediaOffset;
+  /** Real still path; omit to use placeholder art. */
+  src?: string;
 };
-
-function placeholderAlt(name: string, caption: string) {
-  // TODO: real alt + image meta when assets land
-  return `${name} — ${caption} placeholder`;
-}
 
 function media(
   slug: string,
   name: string,
-  slots: readonly [
-    MediaSpec,
-    MediaSpec,
-    MediaSpec,
-    MediaSpec,
-    MediaSpec,
-    MediaSpec,
-    MediaSpec,
-    MediaSpec,
-  ],
+  slots: readonly MediaSpec[],
 ): readonly ProjectMedia[] {
-  const aspects = new Set(slots.map((slot) => slot.aspect));
-  if (aspects.size < 3) {
-    throw new Error(`${slug} media must include landscape, portrait, and square`);
-  }
-
   return slots.map((slot, index) => {
     const n = String(index + 1).padStart(2, "0");
     return {
       id: `${slug}-${n}`,
-      // Sentinel — BrowserFrame swaps to PlaceholderStill; no public file.
-      src: `/work/placeholders/${slot.aspect}.svg`,
-      alt: placeholderAlt(name, slot.caption),
+      src: slot.src ?? `/work/placeholders/${slot.aspect}.svg`,
+      alt: `${name} — ${slot.caption}`,
       aspect: slot.aspect,
       caption: slot.caption,
       width: slot.width,
@@ -80,49 +77,27 @@ function media(
   });
 }
 
+export const PROJECT_STATUS_LABEL: Record<ProjectStatus, string> = {
+  shipped: "// Shipped",
+  building: "// In build",
+  live: "// Live",
+  pipeline: "// In pipeline",
+};
+
 /**
- * Work projects: public roster + layout-stress detail pages.
- * Index / sitemap use `listed: true` only. All slugs stay in
- * generateStaticParams so stress URLs keep rendering for QA.
+ * Work projects: public roster (full case pages + pipeline cards).
+ * Index uses `listed: true`. Detail routes + sitemap use `hasPage`.
  */
 export const PROJECTS: readonly Project[] = [
-  {
-    slug: "readygo",
-    name: "ReadyGo",
-    listed: true,
-    description:
-      "Pre-activity planning for runners and cyclists — conditions, effort, and kit settled before the session starts, shipped through the //TODO factory roster.",
-    imageSrc: "/work/readygo.jpg",
-    imageAlt:
-      "ReadyGo still: a cyclist and a runner on a mountain road under the line Take it out on the road.",
-    imageWidth: 1400,
-    imageHeight: 756,
-    scope: [
-      "Conditions, effort, and kit settled before the session starts.",
-      "A short plan an athlete can read on the way out.",
-      "Intake, implementation, and a production handoff in the factory.",
-      "One record for the session instead of a stack of notes.",
-    ],
-    stack: ["Swift", "Node.js", "PostgreSQL", "Vercel"],
-    outcome: "In production — pre-activity planning for endurance athletes.",
-    media: media("readygo", "ReadyGo", [
-      { aspect: "landscape", caption: "Route brief", width: "hero", offset: "left" },
-      { aspect: "square", caption: "Conditions", width: "support", offset: "right" },
-      { aspect: "portrait", caption: "Effort", width: "support", offset: "left" },
-      { aspect: "landscape", caption: "Kit list", width: "support", offset: "right" },
-      { aspect: "square", caption: "Start line", width: "tall", offset: "center" },
-      { aspect: "portrait", caption: "Split plan", width: "support", offset: "left" },
-      { aspect: "landscape", caption: "Session card", width: "hero", offset: "right" },
-      { aspect: "square", caption: "Handoff", width: "support", offset: "left" },
-    ]),
-  },
   {
     slug: "repdaily",
     name: "RepDaily",
     listed: true,
+    status: "shipped",
+    hasPage: true,
     description:
       "Camera-based fitness tracking for product teams — reps, progression, and a training calendar from the phone, designed and shipped in the //TODO factory.",
-    imageSrc: "/work/repdaily.jpg",
+    imageSrc: "/work/repdaily.webp",
     imageAlt:
       "RepDaily production interface on a phone, showing workout progression and a January training calendar.",
     imageWidth: 1400,
@@ -147,13 +122,48 @@ export const PROJECTS: readonly Project[] = [
     ]),
   },
   {
-    // Layout stress only — Contentic is not on the public Work roster yet.
-    // Not a marketing commitment; remove or hold before a public roster pass.
+    slug: "readygo",
+    name: "ReadyGo",
+    listed: true,
+    status: "building",
+    hasPage: true,
+    // TEST COPY
+    description:
+      "Pre-activity planning for runners and cyclists — conditions, effort, and kit settled before the session starts.",
+    imageSrc: "/work/readygo.webp",
+    imageAlt:
+      "ReadyGo still: a cyclist and a runner on a mountain road under the line Take it out on the road.",
+    imageWidth: 1400,
+    imageHeight: 756,
+    scope: [
+      "Conditions, effort, and kit settled before the session starts.",
+      "A short plan an athlete can read on the way out.",
+      "Intake, implementation, and a production handoff in the factory.",
+      "One record for the session instead of a stack of notes.",
+    ],
+    stack: ["Swift", "Node.js", "PostgreSQL", "Vercel"],
+    // TEST COPY
+    outcome: "In build: pre-activity planning for endurance athletes.",
+    media: media("readygo", "ReadyGo", [
+      { aspect: "landscape", caption: "Route brief", width: "hero", offset: "left" },
+      { aspect: "square", caption: "Conditions", width: "support", offset: "right" },
+      { aspect: "portrait", caption: "Effort", width: "support", offset: "left" },
+      { aspect: "landscape", caption: "Kit list", width: "support", offset: "right" },
+      { aspect: "square", caption: "Start line", width: "tall", offset: "center" },
+      { aspect: "portrait", caption: "Split plan", width: "support", offset: "left" },
+      { aspect: "landscape", caption: "Session card", width: "hero", offset: "right" },
+      { aspect: "square", caption: "Handoff", width: "support", offset: "left" },
+    ]),
+  },
+  {
     slug: "contentic",
     name: "Contentic",
-    listed: false,
+    listed: true,
+    status: "live",
+    hasPage: true,
+    // TEST COPY — card/hero use placeholder art until a real still lands.
     description:
-      "Content operations for a production pipeline — intake, review, and publish in one surface. A layout study for this page only, not a roster commitment.",
+      "Content operations for a production pipeline — intake, review, and publish in one surface.",
     imageSrc: "/work/placeholders/landscape.svg", // sentinel → PlaceholderStill
     imageAlt: "Contentic — index placeholder",
     imageWidth: 1600,
@@ -162,10 +172,10 @@ export const PROJECTS: readonly Project[] = [
       "Intake, review, and publish on one surface.",
       "A queue for drafts instead of a side channel.",
       "Status a product lead can read without opening the file.",
-      "Laid out here to stress the detail page, not to announce a launch.",
+      "Production content ops through the factory roster.", // TEST COPY
     ],
     stack: ["TypeScript", "Node.js", "PostgreSQL"],
-    outcome: "Layout study — not a roster or marketing commitment.",
+    outcome: "Live — content operations in the factory roster.", // TEST COPY
     media: media("contentic", "Contentic", [
       { aspect: "portrait", caption: "Intake queue", width: "hero", offset: "left" },
       { aspect: "landscape", caption: "Draft board", width: "support", offset: "right" },
@@ -178,34 +188,31 @@ export const PROJECTS: readonly Project[] = [
     ]),
   },
   {
-    // Obvious layout mock. Not a shipped product.
-    slug: "northstar",
-    name: "Northstar",
-    listed: false,
-    description:
-      "Planning surface for scope, status, and handoff across one factory build. A layout study for this page only — not a shipped //TODO Engineering product.",
-    imageSrc: "/work/placeholders/landscape.svg", // sentinel → PlaceholderStill
-    imageAlt: "Northstar — index placeholder",
+    slug: "the-tower",
+    name: "The Tower",
+    listed: true,
+    status: "pipeline",
+    hasPage: false,
+    // TEST COPY
+    description: "Structured brief intake and status for factory builds in flight.",
+    imageSrc: "/work/placeholders/landscape.svg",
+    imageAlt: "The Tower — index placeholder",
     imageWidth: 1600,
     imageHeight: 900,
-    scope: [
-      "Scope, status, and handoff in one planning surface.",
-      "A milestone row a lead can scan without a second tool.",
-      "Notes kept next to the work they describe.",
-      "Placeholder project so the detail layout can be reviewed.",
-    ],
-    stack: ["TypeScript", "Node.js", "Redis"],
-    outcome: "Layout study — not a shipped product.",
-    media: media("northstar", "Northstar", [
-      { aspect: "square", caption: "Scope map", width: "hero", offset: "right" },
-      { aspect: "landscape", caption: "Status", width: "support", offset: "left" },
-      { aspect: "portrait", caption: "Milestone", width: "support", offset: "right" },
-      { aspect: "square", caption: "Owner row", width: "tall", offset: "center" },
-      { aspect: "landscape", caption: "Handoff", width: "support", offset: "left" },
-      { aspect: "portrait", caption: "Risk", width: "support", offset: "right" },
-      { aspect: "square", caption: "Notes", width: "support", offset: "left" },
-      { aspect: "landscape", caption: "Release", width: "hero", offset: "right" },
-    ]),
+  },
+  {
+    // Working title — product name may change before public launch.
+    slug: "ergtrainer",
+    name: "ErgTrainer",
+    listed: true,
+    status: "pipeline",
+    hasPage: false,
+    // TEST COPY
+    description: "Erg-session coaching and pacing for indoor training blocks.",
+    imageSrc: "/work/placeholders/landscape.svg",
+    imageAlt: "ErgTrainer — index placeholder",
+    imageWidth: 1600,
+    imageHeight: 900,
   },
 ] as const;
 
@@ -213,16 +220,33 @@ export function getProject(slug: string): Project | undefined {
   return PROJECTS.find((project) => project.slug === slug);
 }
 
-/** All detail slugs (public + layout-stress) for static params. */
-export function getProjectSlugs(): string[] {
-  return PROJECTS.map((project) => project.slug);
+export function projectHasPage(project: Project): project is FullProject {
+  return project.hasPage;
 }
 
-/** Public Work roster — index cards and sitemap. */
+/** Detail slugs for static params (full case pages only). */
+export function getProjectSlugs(): string[] {
+  return PROJECTS.filter(projectHasPage).map((project) => project.slug);
+}
+
+/** Full case-study projects in roster order (prev/next). */
+export function getPageProjects(): readonly FullProject[] {
+  return PROJECTS.filter(projectHasPage);
+}
+
+/** Public Work roster — index cards. */
 export function getListedProjects(): readonly Project[] {
   return PROJECTS.filter((project) => project.listed);
 }
 
+/** Sitemap locs — listed projects that have a detail page. */
 export function getListedProjectSlugs(): string[] {
-  return getListedProjects().map((project) => project.slug);
+  return getListedProjects()
+    .filter(projectHasPage)
+    .map((project) => project.slug);
+}
+
+/** Names of listed full projects, for copy/schema sync. */
+export function getPageProjectNames(): string[] {
+  return getPageProjects().map((project) => project.name);
 }

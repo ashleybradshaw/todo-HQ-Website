@@ -28,7 +28,7 @@ export function pageMetadata({
       description,
       url,
       siteName: SITE_NAME,
-      locale: "en_US",
+      locale: "en_GB",
       type: "website",
     },
     twitter: {

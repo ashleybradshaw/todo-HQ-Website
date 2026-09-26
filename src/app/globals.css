@@ -1115,7 +1115,7 @@ html.is-section-transitioning a {
 }
 
 .floor-ghost__eye {
-  fill: var(--foreground);
+  fill: var(--floor-ghost-eye, var(--foreground));
   transform-box: fill-box;
   transform-origin: center;
   transition: transform 70ms ease-in;

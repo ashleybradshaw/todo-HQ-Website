@@ -24,9 +24,9 @@ export default function WorkPage() {
       lede={<p className="type-body-sm max-w-[592px]">{workPage.lede}</p>}
     >
       <ul className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-2">
-        {projects.map((project) => (
+        {projects.map((project, index) => (
           <li key={project.slug}>
-            <ProjectCard project={project} />
+            <ProjectCard project={project} priority={index === 0} />
           </li>
         ))}
       </ul>

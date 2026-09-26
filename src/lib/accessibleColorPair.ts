@@ -6,8 +6,15 @@ export type AccessibleColorPair = {
 const WCAG_AA_CONTRAST = 4.5;
 /** Prefer AAA when a candidate appears within the attempt budget. */
 const WCAG_AAA_PREFER = 7;
-/** Approximate floor for color-mix muted roles (comment / property) on bg. */
-const MUTED_MIN_CONTRAST = 3;
+/** Floor for muted roles (comment / property) on bg — AA normal text. */
+const MUTED_MIN_CONTRAST = 4.5;
+/** Brand soft tier — matches --text-muted / syn-comment / syn-property. */
+export const BRAND_TEXT_MUTED = "#5A5A99";
+/** Brand text on tinted card/CTA fills — matches --text-on-tint. */
+export const BRAND_TEXT_ON_TINT = "#3636FF";
+/** Brand syn-string / syn-number solids (smallest AA step on powder). */
+export const BRAND_SYN_STRING = "#047351";
+export const BRAND_SYN_NUMBER = "#985304";
 const MAX_ATTEMPTS = 120;
 const HEX_PAIR = /^#([0-9a-fA-F]{6})$/;
 
@@ -129,7 +136,7 @@ function randomHex(lightnessMin: number, lightnessMax: number) {
 }
 
 export const INNER_BRAND_PAIR: AccessibleColorPair = {
-  bg: "#DDDDFF",
+  bg: "#DFDFFF",
   text: "#4545FF",
 };
 
@@ -189,14 +196,27 @@ export function fitHueAgainstBackground(
   return best;
 }
 
+/**
+ * Soft role for comment/property: text hue, desaturated, lightest L that still
+ * hits AA against the canvas (mirrors brand --text-muted behaviour).
+ */
+export function fitMutedAgainstBackground(background: string, text: string) {
+  const { h, s, l } = hexToHsl(text);
+  const desaturated = Math.max(18, Math.min(45, s * 0.42));
+  const preferred = Math.min(55, Math.max(28, l * 0.85));
+  return fitHueAgainstBackground(background, h, desaturated, preferred);
+}
+
+/** Darker same-hue text for ~10% tinted fills (cards / CTAs). */
+export function fitTextOnTint(background: string, text: string) {
+  const tint = mixHex(text, background, 0.1);
+  const { h, s, l } = hexToHsl(text);
+  return fitHueAgainstBackground(tint, h, Math.min(100, s), Math.max(12, l * 0.72));
+}
+
 function pairPassesMutedRoles(bg: string, text: string) {
-  // Mirrors SprayProvider mixes: comment ~72% fg, property ~68% fg on bg.
-  const comment = mixHex(text, bg, 0.72);
-  const property = mixHex(text, bg, 0.68);
-  return (
-    contrastRatio(comment, bg) >= MUTED_MIN_CONTRAST &&
-    contrastRatio(property, bg) >= MUTED_MIN_CONTRAST
-  );
+  const muted = fitMutedAgainstBackground(bg, text);
+  return contrastRatio(muted, bg) >= MUTED_MIN_CONTRAST;
 }
 
 export function getRandomAccessiblePair(): AccessibleColorPair {

@@ -4,6 +4,8 @@ const config = {
       colors: {
         "bg-canvas": "var(--bg-canvas)",
         "border-ide": "var(--border-ide)",
+        muted: "var(--text-muted)",
+        "on-tint": "var(--text-on-tint)",
         "syn-keyword": "var(--syn-keyword)",
         "syn-property": "var(--syn-property)",
         "syn-string": "var(--syn-string)",

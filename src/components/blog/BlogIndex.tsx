@@ -59,6 +59,7 @@ function FeaturedCover({ src }: { src: string | null }) {
             src={src}
             alt=""
             fill
+            priority
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover object-center"
           />

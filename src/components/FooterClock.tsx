@@ -57,7 +57,7 @@ export function FooterClock() {
 
   return (
     <time
-      className="text-foreground/70 tabular-nums"
+      className="text-muted tabular-nums"
       dateTime={now.toISOString()}
     >
       {date}, {hour}

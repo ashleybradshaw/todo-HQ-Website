@@ -14,24 +14,25 @@ Landing (`/` and `/intro`) stays on electric blue. Inner routes (`/home`, `/abou
 | Token | Hex | Use |
 |---|---|---|
 | Landing background | `#4545FF` | Gateway and RSVP canvas only |
-| Landing text | `#DDDDFF` | Gateway and RSVP copy |
+| Landing text | `#DFDFFF` | Gateway and RSVP copy |
 | Logo (gateway) | `#0B0CB4` | Idle lockup on the landing only |
-| Inner background | `#DDDDFF` | Unsprayed factory pages |
+| Inner background | `#DFDFFF` | Unsprayed factory pages |
 | Inner text | `#4545FF` | Unsprayed factory copy and chrome |
 | Logo (inner, unsprayed) | `#0B0CB4` | Nav lockup until Spray (`--brand-logo`) |
-| Line numbers | `#D97706` | Factory gutter (`--syn-number`) |
+| Muted text | `#5A5A99` | Soft labels (`--text-muted`, syn-comment/property) |
+| Line numbers | `#985304` | Factory gutter (`--syn-number`) |
 
 Do not paint inner routes with landing electric blue as the unsprayed default. Spray is the only switch off the inverted pair.
 
 ```tsx
 // ❌ BAD — unsprayed inner canvas
-<div className="bg-[#4545FF] text-[#DDDDFF]">
+<div className="bg-[#4545FF] text-[#DFDFFF]">
 
 // ✅ GOOD — landing
-<div className="bg-[#4545FF] text-[#DDDDFF]">
+<div className="bg-[#4545FF] text-[#DFDFFF]">
 
 // ✅ GOOD — unsprayed inner
-<div className="bg-[#DDDDFF] text-[#4545FF]">
+<div className="bg-[#DFDFFF] text-[#4545FF]">
 ```
 
 ## Grid

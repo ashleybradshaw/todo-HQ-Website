@@ -272,7 +272,7 @@ export function SignalStrip() {
                 figure={stat.figure}
                 className="font-[family-name:var(--font-unbounded)] text-[40px] leading-none font-bold tracking-tight sm:text-[48px] lg:text-[52px]"
               />
-              <p className="type-body mt-3 text-foreground/80">{stat.label}</p>
+              <p className="type-body mt-3 text-muted">{stat.label}</p>
               {stat.source ? (
                 <TypeComment
                   text={stat.source}

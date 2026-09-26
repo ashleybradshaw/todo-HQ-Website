@@ -253,7 +253,7 @@ export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
               [ AGENT_COMPILING... ]
             </span>
           ) : (
-            <span className="text-foreground/40">
+            <span className="text-muted">
               {rebooting ? "REBOOT" : pinned ? "PINNED" : "LIVE"}
               {" · "}
               {String(activeIndex + 1).padStart(2, "0")}/
@@ -318,7 +318,7 @@ export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
                   onClick={() => selectStage(index)}
                   className={cn(
                     "flex w-full cursor-pointer items-baseline gap-2 bg-transparent py-2 text-left text-xs leading-4 lg:text-[13px] lg:leading-5",
-                    active ? "text-foreground" : "text-foreground/40",
+                    active ? "text-foreground" : "text-muted",
                   )}
                 >
                   <span className="w-3 shrink-0" aria-hidden="true">

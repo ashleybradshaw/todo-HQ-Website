@@ -35,10 +35,10 @@ export function WorkTogetherBand() {
         <div className="lg:col-span-8">
           <TypeComment text={workTogether.eyebrow} />
           <h2 className="type-heading mt-3 text-balance">{workTogether.title}</h2>
-          <p className="type-subhead mt-4 text-background/85">
+          <p className="type-subhead mt-4 text-background">
             {workTogether.subtitle}
           </p>
-          <p className="type-body mt-4 max-w-[40rem] text-background/80">
+          <p className="type-body mt-4 max-w-[40rem] text-background">
             {workTogether.body}
           </p>
           <div className="relative z-[60] mt-8 flex flex-wrap items-center gap-3 sm:gap-4">

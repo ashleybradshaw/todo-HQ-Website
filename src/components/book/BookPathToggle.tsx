@@ -276,7 +276,7 @@ export function BookPathToggle({ value, onChange }: BookPathToggleProps) {
               onClick={() => onChange(path.id)}
               className={cn(
                 "font-jetbrains relative z-10 min-h-11 cursor-pointer rounded-[4px] px-3 py-2 text-xs font-bold tracking-wider uppercase transition-colors duration-[400ms] ease-in-out focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none",
-                selected ? "text-background" : "text-foreground",
+                selected ? "text-background" : "text-on-tint",
               )}
             >
               {selected ? (

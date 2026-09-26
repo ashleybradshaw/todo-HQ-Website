@@ -17,7 +17,7 @@ export default function OpenGraphImage() {
           justifyContent: "center",
           padding: "72px 80px",
           background: "#4545FF",
-          color: "#DDDDFF",
+          color: "#DFDFFF",
         }}
       >
         <div

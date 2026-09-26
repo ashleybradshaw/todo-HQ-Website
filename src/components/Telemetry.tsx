@@ -221,7 +221,7 @@ export function Telemetry({ agents }: { agents: number }) {
             key={row.key}
             className="flex items-center justify-between gap-3 border-b border-border-ide px-3 py-2 last:border-b-0"
           >
-            <dt className="text-foreground/50 shrink-0">{row.key}</dt>
+            <dt className="text-muted shrink-0">{row.key}</dt>
             {"kind" in row && row.kind === "infra" ? (
               <dd
                 className={cn("flex shrink-0 justify-end", fadeClass)}

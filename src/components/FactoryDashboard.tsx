@@ -13,7 +13,6 @@ import { PipelineRunner } from "@/components/PipelineRunner";
 import { Telemetry } from "@/components/Telemetry";
 import { IdeTabBar, type IdeTabId } from "@/components/ide/IdeTabBar";
 import { IdeStatusStrip } from "@/components/ide/IdeStatusStrip";
-import { IdeFactoryCrumb } from "@/components/ide/IdeFactoryCrumb";
 import { IdeBoneOverlay } from "@/components/ide/IdeBoneOverlay";
 import { OfferPane } from "@/components/ide/OfferPane";
 import { DiscoveryPane } from "@/components/ide/DiscoveryPane";
@@ -23,18 +22,18 @@ import { IdeProjectCards } from "@/components/ide/IdeProjectCards";
 const EXECUTE_PIPELINE_LINE = 24;
 
 const ACTIVE_LINE_BG =
-  "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)]";
+  "border-l-2 border-[var(--foreground)] bg-transparent";
 
 function Comment({ children }: { children: ReactNode }) {
   return <span className="text-syn-comment italic">{children}</span>;
 }
 
 function Keyword({ children }: { children: ReactNode }) {
-  return <span className="text-syn-keyword/80">{children}</span>;
+  return <span className="text-syn-keyword font-medium">{children}</span>;
 }
 
 function Property({ children }: { children: ReactNode }) {
-  return <span className="text-syn-property/70">{children}</span>;
+  return <span className="text-syn-property">{children}</span>;
 }
 
 function Str({ children }: { children: ReactNode }) {
@@ -42,11 +41,11 @@ function Str({ children }: { children: ReactNode }) {
 }
 
 function Bracket({ children }: { children: ReactNode }) {
-  return <span className="text-syn-bracket/70">{children}</span>;
+  return <span className="text-syn-bracket">{children}</span>;
 }
 
 function Punct({ children }: { children: ReactNode }) {
-  return <span className="text-syn-property/60">{children}</span>;
+  return <span className="text-syn-property">{children}</span>;
 }
 
 function Fn({
@@ -61,8 +60,8 @@ function Fn({
       type="button"
       onClick={onActivate}
       onMouseEnter={onActivate}
-      aria-label="Restart factory pipeline"
-      className="text-syn-string cursor-pointer bg-transparent p-0 font-jetbrains font-medium hover:underline focus-visible:underline"
+      aria-label="executePipeline() — restart factory pipeline"
+      className="text-syn-string bg-transparent p-0 font-jetbrains font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]"
     >
       {children}
     </button>
@@ -76,7 +75,7 @@ function codeLines(onExecutePipeline: () => void): ReactNode[] {
     </Fragment>,
     <Fragment key={1}>
       <Keyword>export const</Keyword>{" "}
-      <span className="text-syn-property/70">TODO_HQ</span> <Punct>=</Punct>{" "}
+      <span className="text-syn-property">TODO_HQ</span> <Punct>=</Punct>{" "}
       <Bracket>{"{"}</Bracket>
     </Fragment>,
     <Fragment key={2}>
@@ -248,7 +247,7 @@ function TodoPane({
     <div className="flex min-h-0 flex-1 overflow-auto text-xs leading-6 lg:text-sm lg:leading-7">
       <div
         aria-hidden="true"
-        className="ide-boot-gutter text-syn-number/90 flex w-8 shrink-0 flex-col border-r border-border-ide py-4 text-right tabular-nums select-none lg:w-10"
+        className="ide-boot-gutter text-syn-number flex w-8 shrink-0 flex-col border-r border-border-ide py-4 text-right tabular-nums select-none lg:w-10"
       >
         {lines.map((_, index) => (
           <span
@@ -354,7 +353,6 @@ export function FactoryDashboard() {
             aria-label="IDE editor"
           >
             <IdeTabBar activeTab={activeTab} onChange={setActiveTab} />
-            <IdeFactoryCrumb activeTab={activeTab} />
 
             <IdePanel
               tab="todo"

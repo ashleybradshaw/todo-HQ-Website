@@ -124,8 +124,8 @@ export function TypeComment({
       ref={rootRef as never}
       id={id}
       className={cn("type-label", className)}
-      aria-label={text}
     >
+      <span className="sr-only">{text}</span>
       <span
         className="relative inline-grid max-w-full justify-items-stretch text-left"
         aria-hidden="true"

@@ -58,7 +58,7 @@ export function GatewayIdle() {
   const useStipple = reduceMotion || hawkFailed;
 
   return (
-    <div className="fixed inset-0 z-40 overflow-hidden bg-[#4545FF] text-[#DDDDFF]">
+    <div className="fixed inset-0 z-40 overflow-hidden bg-[#4545FF] text-[#DFDFFF]">
       {useStipple ? (
         <StippleField />
       ) : (

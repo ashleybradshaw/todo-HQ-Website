@@ -22,19 +22,19 @@ export function IdeStatusStrip({ activeTab }: IdeStatusStripProps) {
       role="status"
       aria-label={`Editor status: ${STATUS_BY_TAB[activeTab]}`}
     >
-      <span className="text-syn-property/80 shrink-0">Ln 25, Col 1</span>
+      <span className="text-syn-property shrink-0">Ln 25, Col 1</span>
       <span aria-hidden="true" className="text-syn-comment shrink-0 opacity-40">
         ·
       </span>
-      <span className="text-syn-property/80 shrink-0">UTF-8</span>
+      <span className="text-syn-property shrink-0">UTF-8</span>
       <span aria-hidden="true" className="text-syn-comment shrink-0 opacity-40">
         ·
       </span>
-      <span className="text-syn-property/80 shrink-0">LF</span>
+      <span className="text-syn-property shrink-0">LF</span>
       <span aria-hidden="true" className="text-syn-comment shrink-0 opacity-40">
         ·
       </span>
-      <span className="text-syn-property/80 shrink-0">
+      <span className="text-syn-property shrink-0">
         {STATUS_BY_TAB[activeTab]}
       </span>
       <span aria-hidden="true" className="text-syn-comment shrink-0 opacity-40">

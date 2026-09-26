@@ -8,7 +8,7 @@ export const GATEWAY_TONES = [
   "#5C5CFF",
   "#8A8AFF",
   "#C6C6FF",
-  "#DDDDFF",
+  "#DFDFFF",
   "#F0F0FF",
 ] as const;
 

@@ -3,20 +3,24 @@
 
 :root {
   /* Light IDE house defaults until Spray — match INNER_BRAND_PAIR exactly */
-  --background: #DDDDFF;
+  --background: #DFDFFF;
   --foreground: #4545FF;
-  --bg-canvas: #DDDDFF;
+  --bg-canvas: #DFDFFF;
   --brand-logo: #0B0CB4;
   --border-ide: color-mix(in srgb, #4545FF 15%, transparent);
   --media-elev-shadow: color-mix(in srgb, #4545FF 16%, transparent);
   --media-elev-bloom: color-mix(in srgb, #4545FF 12%, transparent);
+  /* Soft readable tier — 4.81:1 on powder; also drives syn-comment / syn-property */
+  --text-muted: #5A5A99;
+  /* Darker blue for text on tinted card/CTA fills only — not --foreground */
+  --text-on-tint: #3636FF;
   --syn-keyword: #4545FF;
-  --syn-property: color-mix(in srgb, #4545FF 68%, #DDDDFF);
-  --syn-string: #059669;
-  --syn-number: #D97706;
+  --syn-property: #5A5A99;
+  --syn-string: #047351;
+  --syn-number: #985304;
   /* Telemetry PENDING status dot only — label stays --foreground for AA */
   --status-pending: #F08C00;
-  --syn-comment: color-mix(in srgb, #4545FF 72%, transparent);
+  --syn-comment: #5A5A99;
   --syn-bracket: color-mix(in srgb, #4545FF 82%, #0B0CB4);
   --blog-cat-projects: #89551a;
   --blog-cat-leaps: #156f4a;
@@ -32,6 +36,8 @@
   --color-bg-canvas: var(--bg-canvas);
   --color-brand-logo: var(--brand-logo);
   --color-border-ide: var(--border-ide);
+  --color-muted: var(--text-muted);
+  --color-on-tint: var(--text-on-tint);
   --color-syn-keyword: var(--syn-keyword);
   --color-syn-property: var(--syn-property);
   --color-syn-string: var(--syn-string);
@@ -229,7 +235,7 @@ html {
 
 body {
   background: #4545ff;
-  color: #ddddff;
+  color: #dfdfff;
 }
 
 /* Blog post hero — 4px factory radius, continuous where supported; spray-tied elev */
@@ -656,7 +662,6 @@ html.is-section-transitioning a {
 }
 
 .ide-boot-stage[data-ide-boot="tabs"] .ide-bone-gutter-cell,
-.ide-boot-stage[data-ide-boot="tabs"] .ide-bone-crumb,
 .ide-boot-stage[data-ide-boot="tabs"] .ide-bone-row,
 .ide-boot-stage[data-ide-boot="tabs"] .ide-bone-status,
 .ide-boot-stage[data-ide-boot="tabs"] .ide-bone-card-head,
@@ -685,11 +690,6 @@ html.is-section-transitioning a {
   animation: ide-boot-fade-up 220ms ease-out 200ms forwards;
 }
 
-.ide-boot-stage[data-ide-boot="content"] .ide-boot-crumb {
-  opacity: 0;
-  animation: ide-boot-fade-up 220ms ease-out 120ms forwards;
-}
-
 .ide-boot-stage[data-ide-boot="content"] .ide-boot-sidecar {
   opacity: 0;
   animation: ide-boot-fade-up 320ms ease-out 280ms forwards;
@@ -700,7 +700,6 @@ html.is-section-transitioning a {
 }
 
 .ide-boot-stage[data-ide-boot="content"] .ide-bone-gutter-cell,
-.ide-boot-stage[data-ide-boot="content"] .ide-bone-crumb,
 .ide-boot-stage[data-ide-boot="content"] .ide-bone-row,
 .ide-boot-stage[data-ide-boot="content"] .ide-bone-status,
 .ide-boot-stage[data-ide-boot="content"] .ide-bone-card-head,
@@ -711,7 +710,6 @@ html.is-section-transitioning a {
 
 /* —— done —— */
 .ide-boot-stage[data-ide-boot="done"] .ide-boot-tabs,
-.ide-boot-stage[data-ide-boot="done"] .ide-boot-crumb,
 .ide-boot-stage[data-ide-boot="done"] .ide-boot-line,
 .ide-boot-stage[data-ide-boot="done"] .ide-boot-status,
 .ide-boot-stage[data-ide-boot="done"] .ide-boot-sidecar {
@@ -726,7 +724,6 @@ html.is-section-transitioning a {
   }
 
   .ide-boot-stage .ide-boot-tabs,
-  .ide-boot-stage .ide-boot-crumb,
   .ide-boot-stage .ide-boot-line,
   .ide-boot-stage .ide-boot-status,
   .ide-boot-stage .ide-boot-sidecar,

@@ -14,7 +14,7 @@ export function ProjectStatusChip({
   return (
     <span
       className={cn(
-        "font-jetbrains inline-flex w-fit rounded-[4px] border border-border-ide px-2 py-0.5 text-xs tracking-wide text-foreground",
+        "font-jetbrains inline-flex w-fit rounded-[4px] border border-border-ide px-2 py-0.5 text-xs tracking-wide text-on-tint",
         className,
       )}
     >

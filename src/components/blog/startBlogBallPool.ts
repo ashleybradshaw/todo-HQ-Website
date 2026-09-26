@@ -13,7 +13,7 @@ export type BallPoolHandle = {
 };
 
 const WALL = 28;
-const HQ_BG = "#ddddff";
+const HQ_BG = "#dfdfff";
 const HQ_FG = "#4545ff";
 
 function readHqColors() {

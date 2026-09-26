@@ -47,7 +47,7 @@ const WORD_CLASS = "font-unbounded font-bold tracking-tight";
 const WORD_ANCHOR_CLASS =
   "absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2";
 const SKIP_CLASS =
-  "font-jetbrains text-[1.0625rem] leading-6 font-extrabold text-[#DDDDFF] transition-opacity hover:opacity-80";
+  "font-jetbrains text-[1.0625rem] leading-6 font-extrabold text-[#DFDFFF] transition-opacity hover:opacity-80";
 
 /** Honda-like punch: 3 huge → 2 mid → 1 almost tiny. */
 function fontSizeForCount(count: number) {
@@ -233,7 +233,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
   return (
     <div
       className={cn(
-        "fixed inset-0 z-40 overflow-hidden bg-[#4545FF] text-[#DDDDFF]",
+        "fixed inset-0 z-40 overflow-hidden bg-[#4545FF] text-[#DFDFFF]",
         exiting && "pointer-events-none",
       )}
     >
@@ -250,7 +250,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
         }}
       >
         <motion.div
-          className="relative h-full w-full text-[#DDDDFF]"
+          className="relative h-full w-full text-[#DFDFFF]"
           animate={{ opacity: exiting ? 0 : 1 }}
           transition={{ duration: reduceMotion ? 0.12 : 0.3, ease: "easeIn" }}
         >
@@ -285,7 +285,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
 
       <motion.div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-20 bg-[#DDDDFF]"
+        className="pointer-events-none absolute inset-0 z-20 bg-[#DFDFFF]"
         initial={{ opacity: 0 }}
         animate={{ opacity: exiting ? 1 : 0 }}
         transition={{

@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 
 const SPRAY_NAME = "Spray a new accessible colour palette";
-const BRAND_BG = "#DDDDFF";
+const BRAND_BG = "#DFDFFF";
 const BRAND_FG = "#4545FF";
 
 async function visit(page: Page, path: string) {

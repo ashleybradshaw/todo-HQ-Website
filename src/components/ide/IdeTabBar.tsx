@@ -101,8 +101,8 @@ export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
             onClick={() => onChange(tab.id)}
             className={`font-jetbrains relative -mb-px min-h-11 border border-b-0 px-4 py-3 text-xs transition-[background,border-color,opacity,color] duration-[400ms] ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--foreground)] ${
               selected
-                ? "z-[1] rounded-t-[4px] text-syn-keyword"
-                : "rounded-t-[4px] border-transparent text-syn-comment opacity-55 hover:opacity-85"
+                ? "z-[1] rounded-t-[4px] text-syn-keyword font-medium"
+                : "rounded-t-[4px] border-transparent text-syn-comment font-normal"
             }`}
             style={
               selected

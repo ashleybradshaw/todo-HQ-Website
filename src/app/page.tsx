@@ -12,7 +12,7 @@ export const metadata: Metadata = pageMetadata({
 
 export default function GatewayPage() {
   return (
-    <main className="relative min-h-screen bg-[#4545FF] text-[#DDDDFF]">
+    <main className="relative min-h-screen bg-[#4545FF] text-[#DFDFFF]">
       <article className="sr-only">
         <h1>{SITE_NAME} enterprise AI engineering factory</h1>
         <p>{SITE_DESCRIPTION}</p>

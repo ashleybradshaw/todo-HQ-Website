@@ -69,7 +69,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${unbounded.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-[#4545FF] text-[#DDDDFF]">
+      <body className="min-h-full bg-[#4545FF] text-[#DFDFFF]">
         <JsonLd data={organizationGraph()} />
         <SprayProvider>
           <NoiseOverlay />

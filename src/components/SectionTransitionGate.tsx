@@ -21,7 +21,6 @@ const FADE_IN_MS = 120;
 const REDUCED_MS = 80;
 const FAILSAFE_MS = 800;
 const EASE_OUT = "cubic-bezier(0.22, 1, 0.36, 1)";
-const BLUR_MAX = "2px";
 
 function sectionOf(path: string): string {
   if (path === "/" || path === "/intro") {
@@ -97,7 +96,7 @@ function cancelAnimations(anims: Animation[]) {
   }
 }
 
-const BRIDGE_FALLBACK = "color-mix(in srgb, #4545FF 32%, #DDDDFF 68%)";
+const BRIDGE_FALLBACK = "color-mix(in srgb, #4545FF 32%, #DFDFFF 68%)";
 
 /** Resolve --page-bridge (or any CSS color) to a concrete rgb() for freeze. */
 function freezePageBridge(): string {
@@ -143,7 +142,6 @@ export function SectionTransitionGate({ children }: { children: ReactNode }) {
     const el = contentRef.current;
     if (!el) return;
     el.style.opacity = "";
-    el.style.filter = "";
   }, []);
 
   /**
@@ -195,13 +193,10 @@ export function SectionTransitionGate({ children }: { children: ReactNode }) {
 
       const reduced = prefersReducedMotion();
       const duration = reduced ? REDUCED_MS : FADE_OUT_MS;
-      const from = { opacity: "1", filter: "blur(0px)" };
-      const to = reduced
-        ? { opacity: "0", filter: "blur(0px)" }
-        : { opacity: "0", filter: `blur(${BLUR_MAX})` };
+      const from = { opacity: "1" };
+      const to = { opacity: "0" };
 
       el.style.opacity = "1";
-      el.style.filter = "blur(0px)";
 
       const anim = el.animate([from, to], {
         duration,
@@ -214,7 +209,6 @@ export function SectionTransitionGate({ children }: { children: ReactNode }) {
         () => {
           if (gen !== animGenRef.current) return;
           el.style.opacity = "0";
-          el.style.filter = reduced ? "blur(0px)" : `blur(${BLUR_MAX})`;
           onDone();
         },
         () => {
@@ -239,13 +233,10 @@ export function SectionTransitionGate({ children }: { children: ReactNode }) {
 
       const reduced = prefersReducedMotion();
       const duration = reduced ? REDUCED_MS : FADE_IN_MS;
-      const from = reduced
-        ? { opacity: "0", filter: "blur(0px)" }
-        : { opacity: "0", filter: `blur(${BLUR_MAX})` };
-      const to = { opacity: "1", filter: "blur(0px)" };
+      const from = { opacity: "0" };
+      const to = { opacity: "1" };
 
       el.style.opacity = "0";
-      el.style.filter = from.filter;
 
       const anim = el.animate([from, to], {
         duration,

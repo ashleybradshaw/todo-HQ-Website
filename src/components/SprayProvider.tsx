@@ -11,7 +11,13 @@ import {
   type ReactNode,
 } from "react";
 import {
+  BRAND_SYN_NUMBER,
+  BRAND_SYN_STRING,
+  BRAND_TEXT_MUTED,
+  BRAND_TEXT_ON_TINT,
   fitHueAgainstBackground,
+  fitMutedAgainstBackground,
+  fitTextOnTint,
   getRandomAccessiblePair,
   INNER_BRAND_PAIR,
   isInnerBrandPair,
@@ -51,24 +57,32 @@ function applyPair(pair: AccessibleColorPair) {
     "--media-elev-bloom",
     `color-mix(in srgb, ${pair.text} 12%, transparent)`,
   );
+
   root.setProperty("--syn-keyword", pair.text);
-  root.setProperty(
-    "--syn-property",
-    `color-mix(in srgb, ${pair.text} 68%, ${pair.bg})`,
-  );
-  // Semantic accents derived from the pair (not hard-coded hues).
-  root.setProperty(
-    "--syn-string",
-    fitHueAgainstBackground(pair.bg, 160, 70, brand ? 35 : 55),
-  );
-  root.setProperty(
-    "--syn-number",
-    fitHueAgainstBackground(pair.bg, 35, 80, brand ? 45 : 60),
-  );
-  root.setProperty(
-    "--syn-comment",
-    `color-mix(in srgb, ${pair.text} 72%, transparent)`,
-  );
+
+  if (brand) {
+    root.setProperty("--text-muted", BRAND_TEXT_MUTED);
+    root.setProperty("--syn-property", BRAND_TEXT_MUTED);
+    root.setProperty("--syn-comment", BRAND_TEXT_MUTED);
+    root.setProperty("--syn-string", BRAND_SYN_STRING);
+    root.setProperty("--syn-number", BRAND_SYN_NUMBER);
+    root.setProperty("--text-on-tint", BRAND_TEXT_ON_TINT);
+  } else {
+    const muted = fitMutedAgainstBackground(pair.bg, pair.text);
+    root.setProperty("--text-muted", muted);
+    root.setProperty("--syn-property", muted);
+    root.setProperty("--syn-comment", muted);
+    root.setProperty(
+      "--syn-string",
+      fitHueAgainstBackground(pair.bg, 160, 70, 55),
+    );
+    root.setProperty(
+      "--syn-number",
+      fitHueAgainstBackground(pair.bg, 35, 80, 60),
+    );
+    root.setProperty("--text-on-tint", fitTextOnTint(pair.bg, pair.text));
+  }
+
   // Brand: mix toward logo blue; sprayed: mix toward canvas.
   root.setProperty(
     "--syn-bracket",

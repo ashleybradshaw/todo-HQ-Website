@@ -48,13 +48,13 @@ export function ProjectCard({
       >
         <ProjectCardSkeleton />
       </div>
-      <div className="relative z-0 flex flex-col items-start gap-2.5 px-6 pt-7 pb-12 text-foreground sm:px-14">
+      <div className="relative z-0 flex flex-col items-start gap-2.5 px-6 pt-7 pb-12 text-on-tint sm:px-14">
         <div className="aspect-[547/271] w-full shrink-0 overflow-hidden rounded-[4px]">
           {placeholder ? (
             <div
               role="img"
               aria-label={project.imageAlt}
-              className="h-full w-full text-foreground"
+              className="h-full w-full text-on-tint"
             >
               <PlaceholderStill aspect="landscape" fit="slice" />
             </div>

@@ -99,7 +99,7 @@ export function OperatingRules() {
                 delayMs={index === 1 ? 150 : 0}
               >
                 {index === 0 ? (
-                  <p className="type-label absolute right-3 bottom-3 left-3 text-foreground/55">
+                  <p className="type-label absolute right-3 bottom-3 left-3 text-muted">
                     {operatingRules.mediaLabel}
                   </p>
                 ) : null}
@@ -134,8 +134,8 @@ export function OperatingRules() {
                   onMouseEnter={() => setHoverIndex(index)}
                   className={cn(
                     "border-t border-border-ide py-5 first:border-t-0 first:pt-0",
-                    "transition-opacity duration-200 motion-reduce:transition-none",
-                    active ? "opacity-100" : "opacity-40",
+                    "transition-colors duration-200 motion-reduce:transition-none",
+                    active ? "text-foreground" : "text-muted",
                   )}
                 >
                   <p

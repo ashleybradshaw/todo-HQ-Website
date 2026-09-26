@@ -598,7 +598,7 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
                   type="button"
                   className={cn(
                     navBtn,
-                    "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] text-syn-keyword",
+                    "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] text-on-tint",
                   )}
                   disabled={!primaryReady}
                   onClick={() =>
@@ -620,7 +620,7 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
                     form="book-planner-finish"
                     className={cn(
                       navBtn,
-                      "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] text-syn-keyword",
+                      "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] text-on-tint",
                     )}
                   >
                     <span className="relative z-10">{planner.submitLabel}</span>

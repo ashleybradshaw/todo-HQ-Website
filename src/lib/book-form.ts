@@ -34,9 +34,9 @@ export function isValidBrief(value: string) {
 
 /** Soft unlock: still focusable; visual quiet until the prior gate opens. */
 export const fieldQuietClass =
-  "opacity-45 transition-opacity duration-[400ms] ease-in-out";
+  "text-muted transition-[color,opacity] duration-[400ms] ease-in-out";
 export const fieldOpenClass =
-  "opacity-100 transition-opacity duration-[400ms] ease-in-out";
+  "text-foreground transition-[color,opacity] duration-[400ms] ease-in-out";
 
 export const fieldErrorClass =
   "book-field-error-flash font-jetbrains mt-1 text-xs tracking-wide";

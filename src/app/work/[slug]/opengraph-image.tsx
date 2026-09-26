@@ -42,7 +42,7 @@ export default async function OpenGraphImage({ params }: OgParams) {
           flexDirection: "column",
           justifyContent: "center",
           padding: "72px 80px",
-          background: "#DDDDFF",
+          background: "#DFDFFF",
           color: "#4545FF",
         }}
       >

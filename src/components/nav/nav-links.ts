@@ -2,8 +2,12 @@ export const PRIMARY_LINKS = [
   { href: "/about", label: "About" },
   { href: "/work", label: "Work" },
   { href: "/blog", label: "Blog" },
-  { href: "/book", label: "Book" },
+  { href: "/home", label: "Home" },
+  { href: "/book", label: "Book a call" },
 ] as const;
+
+/** Landing desktop crawl row — same order/labels as site Primary nav. */
+export const LANDING_CRAWL_LINKS = PRIMARY_LINKS;
 
 export const BOOK_DUO = [
   {

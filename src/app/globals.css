@@ -525,12 +525,13 @@ textarea::-moz-selection {
   }
 }
 
-.nav-stagger {
+/* Only while overlay is open — keeps stagger when the panel stays mounted closed. */
+[data-open] .nav-stagger {
   animation: nav-stagger-in 0.4s ease-out both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nav-stagger {
+  [data-open] .nav-stagger {
     animation: none;
     opacity: 1;
     transform: none;

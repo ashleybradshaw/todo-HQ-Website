@@ -38,9 +38,11 @@ test.describe("site smoke", () => {
     await expect(
       page.getByRole("button", { name: SPRAY_NAME }),
     ).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "Open menu" })).toHaveCount(0);
     await expect(
       page.getByRole("navigation", { name: "Primary", exact: true }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("navigation", { name: "Landing footer" }),
     ).toHaveCount(0);
   });
 

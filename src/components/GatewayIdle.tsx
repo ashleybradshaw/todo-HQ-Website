@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { HawkVideoAscii } from "@/components/HawkVideoAscii";
+import { LandingCrawlNav } from "@/components/landing/LandingCrawlNav";
 import { StippleField } from "@/components/StippleField";
 import {
   initRsvpAudio,
@@ -64,6 +65,7 @@ export function GatewayIdle() {
       ) : (
         <HawkVideoAscii onFallback={() => setHawkFailed(true)} />
       )}
+      {/* CTA column first in DOM so Yes/No/Sound stay ahead of crawl chrome in tab order. */}
       <div className="relative z-10 flex h-full w-full flex-col items-center justify-end px-6 pb-[min(18vh,8rem)]">
         <div className="flex flex-col items-center">
           <div className="flex items-center justify-center py-2.5">
@@ -113,6 +115,7 @@ export function GatewayIdle() {
           </button>
         </div>
       </div>
+      <LandingCrawlNav />
     </div>
   );
 }

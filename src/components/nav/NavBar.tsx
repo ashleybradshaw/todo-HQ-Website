@@ -96,7 +96,7 @@ export function NavBar({
   );
 }
 
-function MenuButton({
+export function MenuButton({
   open,
   menuId,
   onToggle,

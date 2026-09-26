@@ -60,17 +60,20 @@ export function NavOverlay({
 }: NavOverlayProps) {
   const isLg = useSyncExternalStore(subscribeLg, readLg, () => false);
 
-  if (!open) {
-    return null;
-  }
-
+  // Always mounted so Primary + Book hrefs stay in SSR HTML while closed.
+  // Closed: inert + visually hidden (no look/behaviour change when open).
   return (
     <div
       id={id}
       role="dialog"
-      aria-modal="true"
+      aria-modal={open ? true : undefined}
       aria-label="Menu"
-      className="bg-bg-canvas text-foreground fixed inset-0 z-0 flex flex-col overflow-y-auto pt-[4.5rem]"
+      data-open={open ? "" : undefined}
+      inert={!open ? true : undefined}
+      className={cn(
+        "bg-bg-canvas text-foreground fixed inset-0 z-0 flex flex-col overflow-y-auto pt-[4.5rem]",
+        !open && "invisible pointer-events-none",
+      )}
     >
       <div
         className={cn(

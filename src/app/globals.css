@@ -15,7 +15,7 @@
   --syn-string: #059669;
   --syn-number: #D97706;
   /* Telemetry PENDING status dot only — label stays --foreground for AA */
-  --status-pending: #D97706;
+  --status-pending: #F08C00;
   --syn-comment: color-mix(in srgb, #4545FF 72%, transparent);
   --syn-bracket: color-mix(in srgb, #4545FF 82%, #0B0CB4);
   --blog-cat-projects: #89551a;
@@ -50,6 +50,28 @@
   }
   100% {
     background-position: 200% 0;
+  }
+}
+
+/* Telemetry status dots — floor opacity so amber stays visibly orange at trough */
+@keyframes status-dot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.78;
+  }
+}
+
+.status-dot-pulse {
+  animation: status-dot-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-dot-pulse {
+    animation: none;
+    opacity: 1;
   }
 }
 

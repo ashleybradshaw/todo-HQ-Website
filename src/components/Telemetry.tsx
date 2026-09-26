@@ -106,7 +106,7 @@ function StatusDot({
         cy="4"
         r="3"
         className={cn(
-          pulse && "animate-pulse motion-reduce:animate-none",
+          pulse && "status-dot-pulse",
           tone === "online" && "fill-syn-string",
           tone === "building" && "fill-foreground",
           tone === "pending" && "fill-status-pending",
@@ -224,14 +224,16 @@ export function Telemetry({ agents }: { agents: number }) {
             <dt className="text-foreground/50 shrink-0">{row.key}</dt>
             {"kind" in row && row.kind === "infra" ? (
               <dd
-                className={cn(
-                  "text-foreground flex shrink-0 items-center justify-end gap-1.5 tabular-nums",
-                  fadeClass,
-                )}
-                style={{ ...fadeStyle, minWidth: `${INFRA_CH + 1.5}ch` }}
+                className={cn("flex shrink-0 justify-end", fadeClass)}
+                style={fadeStyle}
               >
-                <StatusDot tone={row.tone} pulse={!reduceMotion} />
-                <span className="text-right" style={{ minWidth: `${INFRA_CH}ch` }}>
+                <span
+                  className="text-foreground inline-flex items-center justify-end gap-1.5 tabular-nums"
+                  style={{
+                    minWidth: `calc(8px + 0.375rem + ${INFRA_CH}ch)`,
+                  }}
+                >
+                  <StatusDot tone={row.tone} pulse={!reduceMotion} />
                   {row.label}
                 </span>
               </dd>

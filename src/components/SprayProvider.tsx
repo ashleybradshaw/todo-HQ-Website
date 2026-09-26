@@ -43,6 +43,9 @@ function applyPair(pair: AccessibleColorPair) {
   root.setProperty("--background", pair.bg);
   root.setProperty("--foreground", pair.text);
   root.setProperty("--bg-canvas", pair.bg);
+  // Selection always inverts the live pair (brand defaults or sprayed).
+  root.setProperty("--selection-bg", pair.text);
+  root.setProperty("--selection-fg", pair.bg);
   // Brand lockup stays #0B0CB4 until Spray; sprayed routes ride pair.text.
   root.setProperty("--brand-logo", brand ? "#0B0CB4" : pair.text);
   root.setProperty(

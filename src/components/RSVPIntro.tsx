@@ -233,7 +233,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
   return (
     <div
       className={cn(
-        "fixed inset-0 z-40 overflow-hidden bg-[#4545FF] text-[#DFDFFF]",
+        "landing-shell fixed inset-0 z-40 overflow-hidden bg-[#4545FF] text-[#DFDFFF]",
         exiting && "pointer-events-none",
       )}
     >

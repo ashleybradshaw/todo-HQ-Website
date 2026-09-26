@@ -28,6 +28,9 @@
   --blog-cat-deep-cuts: #ab2154;
   /* Soft mid-tone under content during section fades (never raw house blue) */
   --page-bridge: color-mix(in srgb, var(--foreground) 32%, var(--bg-canvas) 68%);
+  /* Text selection — brand pair inverted (4.55:1); Spray remaps in applyPair */
+  --selection-bg: #4545FF;
+  --selection-fg: #DFDFFF;
 }
 
 @theme inline {
@@ -236,6 +239,46 @@ html {
 body {
   background: #4545ff;
   color: #dfdfff;
+}
+
+::selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-fg);
+}
+
+::-moz-selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-fg);
+}
+
+input::selection,
+textarea::selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-fg);
+}
+
+input::-moz-selection,
+textarea::-moz-selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-fg);
+}
+
+/* Landing electric blue canvas — invert selection vs inner brand defaults */
+.landing-shell {
+  --selection-bg: #DFDFFF;
+  --selection-fg: #4545FF;
+}
+
+.landing-shell ::selection,
+.landing-shell::selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-fg);
+}
+
+.landing-shell ::-moz-selection,
+.landing-shell::-moz-selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-fg);
 }
 
 /* Blog post hero — 4px factory radius, continuous where supported; spray-tied elev */

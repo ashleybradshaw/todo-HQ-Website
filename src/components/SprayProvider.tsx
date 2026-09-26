@@ -32,6 +32,8 @@ const LEGACY_STORAGE_KEY = "todo-spray";
 type SprayContextValue = {
   pair: AccessibleColorPair;
   randomize: () => void;
+  /** Restore house pair only — does not alter randomize. */
+  reset: () => void;
 };
 
 const SprayContext = createContext<SprayContextValue | null>(null);
@@ -122,7 +124,14 @@ export function SprayProvider({ children }: { children: ReactNode }) {
     setPair(getRandomAccessiblePair());
   }, []);
 
-  const value = useMemo(() => ({ pair, randomize }), [pair, randomize]);
+  const reset = useCallback(() => {
+    setPair(INNER_BRAND_PAIR);
+  }, []);
+
+  const value = useMemo(
+    () => ({ pair, randomize, reset }),
+    [pair, randomize, reset],
+  );
 
   return (
     <SprayContext.Provider value={value}>{children}</SprayContext.Provider>

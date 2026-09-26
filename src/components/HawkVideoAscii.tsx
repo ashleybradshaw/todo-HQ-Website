@@ -4,6 +4,8 @@
  * Landing hawk — video-driven WebGL ASCII (matched ping-pong look).
  * Shader + constants from the approved reference base mode.
  * Poster paints through the shader first; video starts right after (short idle yield).
+ * Play rejection / load timeout keep the still poster (gesture may unlock play).
+ * Stipple only if WebGL or the poster itself fails.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -19,7 +21,10 @@ import {
   HAWK_VIDEO_WEBM,
   atlasCoverLayout,
   hawkAtlasGrid,
+  hawkFrameForAspect,
   hawkNeedsReducedFps,
+  hawkVideoSampleLayout,
+  type HawkFrameConfig,
 } from "@/lib/ascii-hawk";
 
 type HawkVideoAsciiProps = {
@@ -28,10 +33,13 @@ type HawkVideoAsciiProps = {
 
 const VS = `attribute vec2 a;varying vec2 v;void main(){v=a*0.5+0.5;gl_Position=vec4(a,0.,1.);}`;
 
-/** Matched base-mode fragment — square then glyph, violet accent @8%. */
+/**
+ * Matched base-mode fragment — square then glyph, violet accent @8%.
+ * Video sample uses JS-computed uVidScale / uVidOff (focus + aspect bands).
+ */
 const FS = `precision highp float;
 uniform sampler2D uVid,uGlyph;
-uniform vec2 uRes,uVidSize,uGrid;
+uniform vec2 uRes,uVidSize,uGrid,uVidScale,uVidOff;
 uniform vec4 uLayout;
 uniform float uSkip,uAlpha,uN,uAccentRate;
 varying vec2 v;
@@ -44,9 +52,8 @@ void main(){
   float cy=floor((pix.y-oy)/cellH);
   if(cx<0.||cy<0.||cx>=uGrid.x||cy>=uGrid.y){gl_FragColor=vec4(69./255.,69./255.,1.,1.);return;}
   vec2 local=vec2((pix.x-ox)/cellW-cx,(pix.y-oy)/cellH-cy);
-  float sFit=max(uGrid.x/uVidSize.x, uGrid.y/uVidSize.y);
-  vec2 vs=uVidSize*sFit;
-  vec2 off=(uGrid-vs)*0.5;
+  vec2 vs=uVidScale;
+  vec2 off=uVidOff;
   vec2 vu=(vec2(cx+0.5, cy+0.5)-off)/vs;
   if(vu.x<0.||vu.x>1.||vu.y<0.||vu.y>1.){gl_FragColor=vec4(69./255.,69./255.,1.,1.);return;}
   vec2 tuv=vec2(vu.x, 1.-vu.y);
@@ -158,6 +165,14 @@ function cancelIdle(handle: number) {
   }
 }
 
+function applyMutedInline(video: HTMLVideoElement) {
+  video.muted = true;
+  video.defaultMuted = true;
+  video.playsInline = true;
+  video.setAttribute("muted", "");
+  video.setAttribute("playsinline", "");
+}
+
 export function HawkVideoAscii({ onFallback }: HawkVideoAsciiProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -175,6 +190,8 @@ export function HawkVideoAscii({ onFallback }: HawkVideoAsciiProps) {
       onFallbackRef.current?.();
       return;
     }
+
+    applyMutedInline(video);
 
     let disposed = false;
     let gl: WebGLRenderingContext | null = null;
@@ -194,6 +211,9 @@ export function HawkVideoAscii({ onFallback }: HawkVideoAsciiProps) {
     let posterW = 480;
     let posterH = 270;
     let usingPoster = true;
+    let posterReady = false;
+    let gestureArmed = false;
+    let frameCfg: HawkFrameConfig = hawkFrameForAspect(16 / 9);
     let layout = {
       cellW: 1,
       cellH: 1,
@@ -203,6 +223,8 @@ export function HawkVideoAscii({ onFallback }: HawkVideoAsciiProps) {
       H: 1,
       cols: 400,
       rows: 225,
+      cssW: 1,
+      cssH: 1,
     };
 
     const uniforms: Record<string, WebGLUniformLocation | null> = {};
@@ -214,6 +236,7 @@ export function HawkVideoAscii({ onFallback }: HawkVideoAsciiProps) {
       disposed = true;
       stop();
       window.clearTimeout(loadTimeout);
+      removeGestureRetry();
       onFallbackRef.current?.();
     };
 
@@ -222,7 +245,6 @@ export function HawkVideoAscii({ onFallback }: HawkVideoAsciiProps) {
         return;
       }
       gotFrame = true;
-      window.clearTimeout(loadTimeout);
       setVisible(true);
     };
 
@@ -231,6 +253,46 @@ export function HawkVideoAscii({ onFallback }: HawkVideoAsciiProps) {
       if (raf) {
         window.cancelAnimationFrame(raf);
         raf = 0;
+      }
+    };
+
+    const removeGestureRetry = () => {
+      if (!gestureArmed) {
+        return;
+      }
+      gestureArmed = false;
+      window.removeEventListener("pointerdown", onGesturePlay);
+      window.removeEventListener("keydown", onGesturePlay);
+      window.removeEventListener("touchstart", onGesturePlay);
+    };
+
+    const onGesturePlay = () => {
+      removeGestureRetry();
+      if (disposed || !usingPoster) {
+        return;
+      }
+      void tryPlayAndSwitch();
+    };
+
+    const armGestureRetry = () => {
+      if (disposed || gestureArmed || !usingPoster) {
+        return;
+      }
+      gestureArmed = true;
+      window.addEventListener("pointerdown", onGesturePlay, { once: true });
+      window.addEventListener("keydown", onGesturePlay, { once: true });
+      window.addEventListener("touchstart", onGesturePlay, {
+        once: true,
+        passive: true,
+      });
+    };
+
+    /** Keep still poster; allow one gesture unlock. Never Stipple from here. */
+    const softStall = () => {
+      window.clearTimeout(loadTimeout);
+      armGestureRetry();
+      if (!running && posterReady) {
+        start();
       }
     };
 
@@ -248,9 +310,17 @@ export function HawkVideoAscii({ onFallback }: HawkVideoAsciiProps) {
       if (gl) {
         gl.viewport(0, 0, W, H);
       }
+      frameCfg = hawkFrameForAspect(cssW / cssH);
       const { cols, rows } = hawkAtlasGrid(cssW, cssH);
-      const L = atlasCoverLayout(cols, rows, W, H);
-      layout = { ...L, W, H, cols, rows };
+      const L = atlasCoverLayout(
+        cols,
+        rows,
+        W,
+        H,
+        frameCfg.focus.x,
+        frameCfg.focus.y,
+      );
+      layout = { ...L, W, H, cols, rows, cssW, cssH };
     };
 
     const draw = () => {
@@ -260,6 +330,13 @@ export function HawkVideoAscii({ onFallback }: HawkVideoAsciiProps) {
       const { W, H, cellW, cellH, ox, oy, cols, rows } = layout;
       const vw = usingPoster ? posterW : video.videoWidth || posterW;
       const vh = usingPoster ? posterH : video.videoHeight || posterH;
+      const sample = hawkVideoSampleLayout(
+        cols,
+        rows,
+        vw,
+        vh,
+        frameCfg,
+      );
 
       gl.clearColor(69 / 255, 69 / 255, 1, 1);
       gl.clear(gl.COLOR_BUFFER_BIT);
@@ -267,6 +344,8 @@ export function HawkVideoAscii({ onFallback }: HawkVideoAsciiProps) {
       gl.uniform2f(uniforms.uRes, W, H);
       gl.uniform2f(uniforms.uVidSize, vw, vh);
       gl.uniform2f(uniforms.uGrid, cols, rows);
+      gl.uniform2f(uniforms.uVidScale, sample.vsX, sample.vsY);
+      gl.uniform2f(uniforms.uVidOff, sample.offX, sample.offY);
       gl.uniform4f(uniforms.uLayout, cellW, cellH, ox, oy);
       gl.uniform1f(uniforms.uSkip, HAWK_LUMA_SKIP);
       gl.uniform1f(uniforms.uAlpha, HAWK_GLYPH_ALPHA);
@@ -360,6 +439,55 @@ export function HawkVideoAscii({ onFallback }: HawkVideoAsciiProps) {
       }
     };
 
+    const switchToVideo = () => {
+      if (disposed) {
+        return;
+      }
+      usingPoster = false;
+      removeGestureRetry();
+      lastVidT = -1;
+      if (gl && texV && video.readyState >= 2) {
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, texV);
+        gl.texImage2D(
+          gl.TEXTURE_2D,
+          0,
+          gl.RGBA,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          video,
+        );
+        lastVidT = video.currentTime;
+      }
+      draw();
+      markReady();
+      window.clearTimeout(loadTimeout);
+      stop();
+      start();
+    };
+
+    const tryPlayAndSwitch = async () => {
+      if (disposed) {
+        return false;
+      }
+      applyMutedInline(video);
+      try {
+        await video.play();
+      } catch {
+        softStall();
+        return false;
+      }
+      if (disposed) {
+        return false;
+      }
+      if (video.readyState >= 2) {
+        switchToVideo();
+      } else {
+        video.addEventListener("loadeddata", switchToVideo, { once: true });
+      }
+      return true;
+    };
+
     const initGL = async () => {
       try {
         await document.fonts.load(
@@ -386,6 +514,8 @@ export function HawkVideoAscii({ onFallback }: HawkVideoAsciiProps) {
         "uRes",
         "uVidSize",
         "uGrid",
+        "uVidScale",
+        "uVidOff",
         "uLayout",
         "uSkip",
         "uAlpha",
@@ -454,6 +584,7 @@ export function HawkVideoAscii({ onFallback }: HawkVideoAsciiProps) {
             return;
           }
           usingPoster = true;
+          posterReady = true;
           uploadImage(img, img.naturalWidth || 480, img.naturalHeight || 270);
           draw();
           markReady();
@@ -468,55 +599,18 @@ export function HawkVideoAscii({ onFallback }: HawkVideoAsciiProps) {
         return;
       }
       loadTimeout = window.setTimeout(() => {
-        if (usingPoster) {
-          fail();
+        if (usingPoster && posterReady) {
+          softStall();
         }
       }, HAWK_LOAD_TIMEOUT_MS);
 
+      applyMutedInline(video);
       video.preload = "auto";
       video.load();
 
-      try {
-        await video.play();
-      } catch {
-        fail();
-        return;
-      }
-
-      if (disposed) {
-        return;
-      }
-
-      const switchToVideo = () => {
-        if (disposed) {
-          return;
-        }
-        usingPoster = false;
-        lastVidT = -1;
-        if (gl && texV && video.readyState >= 2) {
-          gl.activeTexture(gl.TEXTURE0);
-          gl.bindTexture(gl.TEXTURE_2D, texV);
-          gl.texImage2D(
-            gl.TEXTURE_2D,
-            0,
-            gl.RGBA,
-            gl.RGBA,
-            gl.UNSIGNED_BYTE,
-            video,
-          );
-          lastVidT = video.currentTime;
-        }
-        draw();
-        markReady();
-        window.clearTimeout(loadTimeout);
-        stop();
-        start();
-      };
-
-      if (video.readyState >= 2) {
-        switchToVideo();
-      } else {
-        video.addEventListener("loadeddata", switchToVideo, { once: true });
+      const ok = await tryPlayAndSwitch();
+      if (!ok) {
+        softStall();
       }
     };
 
@@ -527,7 +621,10 @@ export function HawkVideoAscii({ onFallback }: HawkVideoAsciiProps) {
         return;
       }
       if (!usingPoster) {
-        void video.play().catch(() => fail());
+        applyMutedInline(video);
+        void video.play().catch(() => {
+          /* keep current frame — no Stipple */
+        });
       }
       start();
     };
@@ -562,6 +659,7 @@ export function HawkVideoAscii({ onFallback }: HawkVideoAsciiProps) {
       window.clearTimeout(loadTimeout);
       cancelIdle(idleHandle);
       stop();
+      removeGestureRetry();
       observer.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
       video.pause();
@@ -589,8 +687,8 @@ export function HawkVideoAscii({ onFallback }: HawkVideoAsciiProps) {
         tabIndex={-1}
         className="pointer-events-none absolute h-px w-px opacity-0"
       >
-        <source src={HAWK_VIDEO_WEBM} type="video/webm" />
         <source src={HAWK_VIDEO_MP4} type="video/mp4" />
+        <source src={HAWK_VIDEO_WEBM} type="video/webm" />
       </video>
       <canvas
         ref={canvasRef}

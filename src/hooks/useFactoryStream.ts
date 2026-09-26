@@ -36,9 +36,6 @@ export function useFactoryStream() {
 
   const count = reduceMotion ? 10 : tick;
   const agents = 3 + ((1 + Math.floor(count / 4)) % 3);
-  const sprint = (["READYGO", "REPDAILY", "CONTENTIC"] as const)[
-    Math.floor(count / 5) % 3
-  ];
 
-  return { agents, sprint };
+  return { agents };
 }

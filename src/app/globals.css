@@ -14,6 +14,8 @@
   --syn-property: color-mix(in srgb, #4545FF 68%, #DDDDFF);
   --syn-string: #059669;
   --syn-number: #D97706;
+  /* Telemetry PENDING status dot only — label stays --foreground for AA */
+  --status-pending: #D97706;
   --syn-comment: color-mix(in srgb, #4545FF 72%, transparent);
   --syn-bracket: color-mix(in srgb, #4545FF 82%, #0B0CB4);
   --blog-cat-projects: #89551a;
@@ -34,6 +36,7 @@
   --color-syn-property: var(--syn-property);
   --color-syn-string: var(--syn-string);
   --color-syn-number: var(--syn-number);
+  --color-status-pending: var(--status-pending);
   --color-syn-comment: var(--syn-comment);
   --color-syn-bracket: var(--syn-bracket);
   --font-unbounded: var(--font-unbounded);

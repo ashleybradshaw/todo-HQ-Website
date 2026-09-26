@@ -312,7 +312,7 @@ function FactorySidecar({ rebootSignal }: { rebootSignal: number }) {
   return (
     <>
       <PipelineRunner rebootSignal={rebootSignal} />
-      <Telemetry agents={feed.agents} sprint={feed.sprint} />
+      <Telemetry agents={feed.agents} />
       <IdeProjectCards />
     </>
   );

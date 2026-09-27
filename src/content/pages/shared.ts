@@ -13,8 +13,9 @@ export const faq = {
     {
       id: "timelines",
       question: "How fast can we start?",
+      // TEST COPY
       answer:
-        "Coffee calls and hard talks usually book within a week. Builds start after intake, once we've agreed the first checkpoint.",
+        "We reply within 3 working days and usually get a call in within a week. Builds start after intake, once we've agreed the first checkpoint.",
     },
     {
       id: "cost",
@@ -38,7 +39,7 @@ export const faq = {
       id: "meetings",
       question: "What do meetings look like?",
       answer:
-        "Coffee is 15 minutes to see if we're a fit. Hard talk is 60 minutes on the real problem. Builds run on short checkpoint reviews, not weekly status calls.",
+        "Coffee call (15 min) to see if we're a fit. Hard talk (60 min) on the real problem. Builds run on short checkpoint reviews, not weekly status calls.",
     },
     {
       id: "nda",

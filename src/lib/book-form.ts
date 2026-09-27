@@ -40,3 +40,18 @@ export const fieldOpenClass =
 
 export const fieldErrorClass =
   "book-field-error-flash font-jetbrains mt-1 text-xs tracking-wide";
+
+/** Helper / hint copy under labels — sentence case, no type-label tracking. */
+export const fieldHelperClass =
+  "type-label text-syn-comment font-normal normal-case tracking-normal";
+
+/** Scroll clearance under the fixed site header (`--site-header-offset`). */
+export const scrollMtHeaderClass = "scroll-mt-header";
+
+/** Focus a step/form heading and scroll it into view (honours reduced motion). */
+export function focusHeading(el: HTMLElement | null) {
+  if (!el) return;
+  el.focus({ preventScroll: true });
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+}

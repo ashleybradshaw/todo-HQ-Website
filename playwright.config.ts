@@ -17,7 +17,14 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        // Clipboard grants in one test otherwise poison Chrome autofill in later
+        // tests (email fill clears the name field). Keep Book assertions honest.
+        launchOptions: {
+          args: ["--disable-features=AutofillServerCommunication"],
+        },
+      },
     },
   ],
   webServer: {

@@ -56,7 +56,7 @@ export function BookDraftPanel({
     const ok = await copyText(text);
     if (ok) {
       setCopied(true);
-      setLive(bookPage.copyEmail.liveCopied);
+      setLive(panel.copyDraftLive);
       if (resetTimer.current !== null) {
         window.clearTimeout(resetTimer.current);
       }

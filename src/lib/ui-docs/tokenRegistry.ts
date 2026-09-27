@@ -52,6 +52,12 @@ export const TOKEN_REGISTRY: readonly TokenEntry[] = [
     group: "status",
     note: "Never sprayed — stays brand amber.",
   },
+  {
+    name: "Form error",
+    token: "--color-error",
+    group: "status",
+    note: "Never sprayed — ~5.97:1 on powder; was --syn-number for Book errors.",
+  },
   { name: "Syn keyword", token: "--syn-keyword", group: "syntax" },
   { name: "Syn property", token: "--syn-property", group: "syntax" },
   { name: "Syn string", token: "--syn-string", group: "syntax" },

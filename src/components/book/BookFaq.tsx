@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { TypeComment } from "@/components/TypeComment";
 import { faq } from "@/content/pages/shared";
+import { scrollMtHeaderClass } from "@/lib/book-form";
 import { cn } from "@/lib/cn";
 
 const jumpClass =
@@ -13,19 +14,25 @@ type BookFaqProps = {
   ctaHref?: string;
   /** Off on /book — form is already above. Work/About keep a booking CTA. */
   showCta?: boolean;
+  /** Override shared FAQ title (Book uses a different heading). */
+  heading?: string;
 };
 
 export function BookFaq({
   ctaLabel = faq.jumpLabel,
   ctaHref = faq.jumpHref,
   showCta = true,
+  heading = faq.title,
 }: BookFaqProps) {
   const [openId, setOpenId] = useState<string | null>(faq.items[0]?.id ?? null);
 
   return (
     <section
       id="faq"
-      className="mt-16 scroll-mt-28 border-t border-border-ide pt-12"
+      className={cn(
+        "mt-16 border-t border-border-ide pt-12",
+        scrollMtHeaderClass,
+      )}
       aria-labelledby="book-faq-heading"
     >
       <div className="grid grid-cols-1 gap-10 sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.2fr)] sm:items-start sm:gap-8">
@@ -35,7 +42,7 @@ export function BookFaq({
             id="book-faq-heading"
             className="type-heading mt-3 text-balance tracking-tight"
           >
-            {faq.title}
+            {heading}
           </h2>
           {showCta ? (
             <a href={ctaHref} className={cn(jumpClass, "mt-8")}>

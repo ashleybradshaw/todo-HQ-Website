@@ -80,7 +80,7 @@ export function contactPageGraph() {
   return {
     "@context": "https://schema.org",
     "@type": "ContactPage",
-    name: `Book ${SITE_NAME}`,
+    name: `Book a call · ${SITE_NAME}`,
     url: `${SITE_URL}/book`,
     description:
       "Contact //TODO Engineering about AI workflow architecture or production application work.",

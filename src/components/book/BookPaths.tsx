@@ -8,6 +8,8 @@ import {
 } from "@/components/book/BookPathToggle";
 import { BookPlanner } from "@/components/book/BookPlanner";
 import { bookPage } from "@/content/pages/book";
+import { scrollMtHeaderClass } from "@/lib/book-form";
+import { cn } from "@/lib/cn";
 
 function pathFromHash(hash: string): BookPathId | null {
   const id = hash.replace(/^#/, "").toLowerCase();
@@ -35,17 +37,21 @@ type BookPathsProps = {
 };
 
 /**
- * Path toggle + one active panel. SSR defaults to Quick note; hash / ?type
- * applied after mount. Hash wins over ?type when both are present.
+ * Path toggle + both panels mounted. Inactive panel is hidden + inert so
+ * Tab/SR skip it, while field values survive path switches. Name/email shared.
  */
 export function BookPaths({ bookingType }: BookPathsProps) {
   const [path, setPath] = useState<BookPathId>("quick");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
 
   const syncFromLocation = useCallback(() => {
     setPath(resolvePath(window.location.hash, bookingType));
   }, [bookingType]);
 
   useLayoutEffect(() => {
+    // Sync path from hash / ?type (external URL state).
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- location is an external system
     syncFromLocation();
     const onHashChange = () => syncFromLocation();
     window.addEventListener("hashchange", onHashChange);
@@ -64,12 +70,15 @@ export function BookPaths({ bookingType }: BookPathsProps) {
     }
   }
 
+  const quickActive = path === "quick";
+  const briefActive = path === "brief";
+
   return (
-    <div className="mt-12 scroll-mt-28">
-      {/* Stable anchors — panels unmount, so hashes land on the toggle. */}
-      <span id="quick" className="block scroll-mt-28" />
-      <span id="contact" className="block scroll-mt-28" />
-      <span id="brief" className="block scroll-mt-28" />
+    <div className={cn("mt-12", scrollMtHeaderClass)}>
+      {/* Stable anchors — panels stay mounted; hashes land on the toggle. */}
+      <span id="quick" className={cn("block", scrollMtHeaderClass)} />
+      <span id="contact" className={cn("block", scrollMtHeaderClass)} />
+      <span id="brief" className={cn("block", scrollMtHeaderClass)} />
 
       <p className="type-body text-center">{bookPage.pathLead}</p>
       <div className="mt-6 flex justify-center">
@@ -78,15 +87,36 @@ export function BookPaths({ bookingType }: BookPathsProps) {
 
       <div
         role="tabpanel"
-        id={`book-path-panel-${path}`}
-        aria-labelledby={`book-path-tab-${path}`}
-        className="mt-10"
+        id="book-path-panel-quick"
+        aria-labelledby="book-path-tab-quick"
+        aria-hidden={!quickActive}
+        inert={!quickActive ? true : undefined}
+        className={cn("mt-10", !quickActive && "hidden")}
       >
-        {path === "quick" ? (
-          <BookContact bookingType={bookingType} />
-        ) : (
-          <BookPlanner bookingType={bookingType} />
-        )}
+        <BookContact
+          bookingType={bookingType}
+          name={name}
+          email={email}
+          onNameChange={setName}
+          onEmailChange={setEmail}
+        />
+      </div>
+
+      <div
+        role="tabpanel"
+        id="book-path-panel-brief"
+        aria-labelledby="book-path-tab-brief"
+        aria-hidden={!briefActive}
+        inert={!briefActive ? true : undefined}
+        className={cn("mt-10", !briefActive && "hidden")}
+      >
+        <BookPlanner
+          bookingType={bookingType}
+          name={name}
+          email={email}
+          onNameChange={setName}
+          onEmailChange={setEmail}
+        />
       </div>
     </div>
   );

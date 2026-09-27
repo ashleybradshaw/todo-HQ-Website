@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { BookCopyEmail } from "@/components/book/BookCopyEmail";
 import { BookDraftPanel } from "@/components/book/BookDraftPanel";
 import { BookLinks } from "@/components/book/BookLinks";
@@ -8,12 +8,15 @@ import { TypeComment } from "@/components/TypeComment";
 import { bookPage } from "@/content/pages/book";
 import {
   fieldErrorClass,
+  fieldHelperClass,
   fieldOpenClass,
   fieldQuietClass,
+  focusHeading,
   isValidEmail,
   isValidMessage,
   isValidName,
   MAX_MESSAGE_CHARS,
+  scrollMtHeaderClass,
 } from "@/lib/book-form";
 import {
   buildMailto,
@@ -37,7 +40,26 @@ const submitClass =
 const liftTileClass =
   "blog-note-link font-jetbrains flex min-h-11 cursor-pointer items-center justify-center rounded-[4px] border border-border-ide bg-background px-3 py-3 text-center text-xs font-bold tracking-wider focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
 
+/** Form column width matches prior 1.2fr track in the media-slot grid. */
+const formColumnClass =
+  "mt-8 grid grid-cols-1 gap-8 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] sm:items-start";
+
 const { contact, howHeardOptions } = bookPage;
+
+const ID = {
+  heading: "quick-contact-heading",
+  name: "quick-name",
+  nameError: "quick-name-error",
+  email: "quick-email",
+  emailError: "quick-email-error",
+  phone: "quick-phone",
+  heard: "quick-heard",
+  heardError: "quick-heard-error",
+  message: "quick-message",
+  messageError: "quick-message-error",
+  messageCount: "quick-message-count",
+  linkPrefix: "quick-link",
+} as const;
 
 function messagePrefill(type?: string): string {
   if (type === "coffee") return contact.coffeePrefill;
@@ -58,13 +80,26 @@ type PanelState = {
   body: string;
 } | null;
 
-export function BookContact({ bookingType }: { bookingType?: string }) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+type BookContactProps = {
+  bookingType?: string;
+  name: string;
+  email: string;
+  onNameChange: (value: string) => void;
+  onEmailChange: (value: string) => void;
+};
+
+export function BookContact({
+  bookingType,
+  name,
+  email,
+  onNameChange,
+  onEmailChange,
+}: BookContactProps) {
   const [phone, setPhone] = useState("");
   const [callback, setCallback] = useState("");
   const [howHeard, setHowHeard] = useState("");
   const [message, setMessage] = useState(() => messagePrefill(bookingType));
+  const [prefillType, setPrefillType] = useState(bookingType);
   const [links, setLinks] = useState<BookLinkRow[]>(() => initialLinkRows(1));
   const [needsAccess, setNeedsAccess] = useState(false);
   const [accessNote, setAccessNote] = useState("");
@@ -76,7 +111,16 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
     message: false,
   });
   const [showAllErrors, setShowAllErrors] = useState(false);
+  const headingRef = useRef<HTMLHeadingElement>(null);
 
+  // Coffee / Hard talk: fill Quick note message only when empty — never overwrite typed text.
+  if (bookingType !== prefillType) {
+    setPrefillType(bookingType);
+    const prefill = messagePrefill(bookingType);
+    if (prefill && message.trim() === "") {
+      setMessage(prefill);
+    }
+  }
   const nameOk = isValidName(name);
   const emailOk = isValidEmail(email);
   const howHeardOk = Boolean(howHeard);
@@ -97,6 +141,11 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
     return showAllErrors || touched[key];
   }
 
+  function onEdit() {
+    setPanel(null);
+    queueMicrotask(() => focusHeading(headingRef.current));
+  }
+
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setShowAllErrors(true);
@@ -104,12 +153,12 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
     if (!formReady) {
       const invalidLink = firstInvalidLinkIndex(links);
       const order: string[] = [];
-      if (!nameOk) order.push("book-contact-name");
-      if (!emailOk) order.push("book-contact-email");
-      if (!howHeardOk) order.push("book-contact-heard");
-      if (!messageOk) order.push("book-contact-message");
+      if (!nameOk) order.push(ID.name);
+      if (!emailOk) order.push(ID.email);
+      if (!howHeardOk) order.push(ID.heard);
+      if (!messageOk) order.push(ID.message);
       if (invalidLink >= 0) {
-        order.push(`book-contact-link-url-${links[invalidLink].id}`);
+        order.push(`${ID.linkPrefix}-url-${links[invalidLink].id}`);
       }
       queueMicrotask(() => {
         for (const id of order) {
@@ -172,11 +221,16 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
 
   if (panel) {
     return (
-      <section aria-labelledby="book-contact-heading">
+      <section aria-labelledby={ID.heading}>
         <TypeComment text={contact.eyebrow} className="text-syn-comment" />
         <h2
-          id="book-contact-heading"
-          className="type-heading mt-3 text-balance tracking-tight"
+          ref={headingRef}
+          id={ID.heading}
+          tabIndex={-1}
+          className={cn(
+            "type-heading mt-3 text-balance tracking-tight outline-none",
+            scrollMtHeaderClass,
+          )}
         >
           {contact.title}
         </h2>
@@ -184,46 +238,64 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
           variant={panel.variant}
           subject={panel.subject}
           body={panel.body}
-          onEdit={() => setPanel(null)}
+          preview={panel.body}
+          onEdit={onEdit}
         />
       </section>
     );
   }
 
   return (
-    <section aria-labelledby="book-contact-heading">
+    <section aria-labelledby={ID.heading}>
       <TypeComment text={contact.eyebrow} className="text-syn-comment" />
       <h2
-        id="book-contact-heading"
-        className="type-heading mt-3 text-balance tracking-tight"
+        ref={headingRef}
+        id={ID.heading}
+        tabIndex={-1}
+        className={cn(
+          "type-heading mt-3 text-balance tracking-tight outline-none",
+          scrollMtHeaderClass,
+        )}
       >
         {contact.title}
       </h2>
       <p className="type-body mt-4 max-w-xl">{contact.intro}</p>
 
-      <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] sm:items-start">
-        <form className="flex flex-col gap-5" onSubmit={onSubmit} noValidate>
+      <div className={formColumnClass}>
+        <form
+          className="flex min-w-0 flex-col gap-5"
+          onSubmit={onSubmit}
+          noValidate
+          autoComplete="off"
+        >
           <div className={cn("flex flex-col gap-2", fieldOpenClass)}>
-            <label htmlFor="book-contact-name" className={labelClass}>
+            <label htmlFor={ID.name} className={labelClass}>
               {contact.nameLabel}
             </label>
             <input
-              id="book-contact-name"
-              name="name"
+              id={ID.name}
+              name="quick-visitor-name"
               type="text"
               autoComplete="name"
               required
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              onBlur={() => markTouched("name")}
+              onChange={(e) => onNameChange(e.target.value)}
+              onBlur={(e) => {
+                // Playwright/Chromium can update the DOM without React onChange;
+                // commit whatever is in the field so the next render does not wipe it.
+                if (e.currentTarget.value !== name) {
+                  onNameChange(e.currentTarget.value);
+                }
+                markTouched("name");
+              }}
               aria-invalid={showError("name") && !nameOk}
               aria-describedby={
-                showError("name") && !nameOk ? "book-contact-name-error" : undefined
+                showError("name") && !nameOk ? ID.nameError : undefined
               }
               className={fieldClass}
             />
             {showError("name") && !nameOk ? (
-              <p id="book-contact-name-error" className={fieldErrorClass} role="alert">
+              <p id={ID.nameError} className={fieldErrorClass} role="alert">
                 {contact.errorNameShort}
               </p>
             ) : null}
@@ -235,32 +307,31 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
               emailOpen ? fieldOpenClass : fieldQuietClass,
             )}
           >
-            <label htmlFor="book-contact-email" className={labelClass}>
+            <label htmlFor={ID.email} className={labelClass}>
               {contact.emailLabel}
             </label>
             <input
-              id="book-contact-email"
-              name="email"
+              id={ID.email}
+              name="quick-visitor-email"
               type="email"
               autoComplete="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onBlur={() => markTouched("email")}
+              onChange={(e) => onEmailChange(e.target.value)}
+              onBlur={(e) => {
+                if (e.currentTarget.value !== email) {
+                  onEmailChange(e.currentTarget.value);
+                }
+                markTouched("email");
+              }}
               aria-invalid={showError("email") && !emailOk}
               aria-describedby={
-                showError("email") && !emailOk
-                  ? "book-contact-email-error"
-                  : undefined
+                showError("email") && !emailOk ? ID.emailError : undefined
               }
               className={fieldClass}
             />
             {showError("email") && !emailOk ? (
-              <p
-                id="book-contact-email-error"
-                className={fieldErrorClass}
-                role="alert"
-              >
+              <p id={ID.emailError} className={fieldErrorClass} role="alert">
                 {contact.errorEmailInvalid}
               </p>
             ) : null}
@@ -272,14 +343,14 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
               optionalOpen ? fieldOpenClass : fieldQuietClass,
             )}
           >
-            <label htmlFor="book-contact-phone" className={labelClass}>
+            <label htmlFor={ID.phone} className={labelClass}>
               {contact.phoneLabel}{" "}
               <span className="text-syn-comment normal-case tracking-normal">
                 {contact.phoneOptional}
               </span>
             </label>
             <input
-              id="book-contact-phone"
+              id={ID.phone}
               name="phone"
               type="tel"
               autoComplete="tel"
@@ -290,7 +361,7 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
           </div>
 
           <div className={optionalOpen ? fieldOpenClass : fieldQuietClass}>
-            <p className={labelClass}>
+            <p className={labelClass} id="quick-callback-label">
               {contact.callbackLabel}{" "}
               <span className="text-syn-comment normal-case tracking-normal">
                 {contact.callbackOptional}
@@ -299,7 +370,7 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
             <div
               className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3"
               role="group"
-              aria-label={contact.callbackLabel}
+              aria-labelledby="quick-callback-label"
             >
               {contact.callbackOptions.map((option) => {
                 const pressed = callback === option.value;
@@ -333,11 +404,11 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
               howHeardOpen ? fieldOpenClass : fieldQuietClass,
             )}
           >
-            <label htmlFor="book-contact-heard" className={labelClass}>
+            <label htmlFor={ID.heard} className={labelClass}>
               {contact.howHeardLabel}
             </label>
             <select
-              id="book-contact-heard"
+              id={ID.heard}
               name="howHeard"
               required
               value={howHeard}
@@ -345,9 +416,7 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
               onBlur={() => markTouched("howHeard")}
               aria-invalid={showError("howHeard") && !howHeardOk}
               aria-describedby={
-                showError("howHeard") && !howHeardOk
-                  ? "book-contact-heard-error"
-                  : undefined
+                showError("howHeard") && !howHeardOk ? ID.heardError : undefined
               }
               className={fieldClass}
             >
@@ -361,11 +430,7 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
               ))}
             </select>
             {showError("howHeard") && !howHeardOk ? (
-              <p
-                id="book-contact-heard-error"
-                className={fieldErrorClass}
-                role="alert"
-              >
+              <p id={ID.heardError} className={fieldErrorClass} role="alert">
                 {contact.errorHowHeard}
               </p>
             ) : null}
@@ -377,11 +442,11 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
               messageOpen ? fieldOpenClass : fieldQuietClass,
             )}
           >
-            <label htmlFor="book-contact-message" className={labelClass}>
+            <label htmlFor={ID.message} className={labelClass}>
               {contact.messageLabel}
             </label>
             <textarea
-              id="book-contact-message"
+              id={ID.message}
               name="message"
               required
               rows={5}
@@ -394,24 +459,17 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
               aria-invalid={showError("message") && !messageOk}
               aria-describedby={
                 showError("message") && !messageOk
-                  ? "book-contact-message-error"
-                  : "book-contact-message-count"
+                  ? ID.messageError
+                  : ID.messageCount
               }
               className={`${fieldClass} min-h-[8.5rem] resize-y py-3`}
             />
-            <p
-              id="book-contact-message-count"
-              className="type-label text-syn-comment font-normal tabular-nums"
-            >
+            <p id={ID.messageCount} className={cn(fieldHelperClass, "tabular-nums")}>
               {message.length.toLocaleString("en-GB")} /{" "}
               {MAX_MESSAGE_CHARS.toLocaleString("en-GB")}
             </p>
             {showError("message") && !messageOk ? (
-              <p
-                id="book-contact-message-error"
-                className={fieldErrorClass}
-                role="alert"
-              >
+              <p id={ID.messageError} className={fieldErrorClass} role="alert">
                 {contact.errorMessageShort}
               </p>
             ) : null}
@@ -428,7 +486,7 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
               accessNote={accessNote}
               onAccessNoteChange={setAccessNote}
               showErrors={showAllErrors}
-              idPrefix="book-contact-link"
+              idPrefix={ID.linkPrefix}
             />
           </div>
 
@@ -444,19 +502,8 @@ export function BookContact({ bookingType }: { bookingType?: string }) {
             </button>
             <BookCopyEmail />
           </div>
-          <p className="type-label text-syn-comment font-normal normal-case tracking-normal">
-            {contact.submitHelper}
-          </p>
+          <p className={fieldHelperClass}>{contact.submitHelper}</p>
         </form>
-
-        <aside
-          className="flex min-h-[12rem] items-center justify-center rounded-[4px] border border-dashed border-border-ide bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] px-4 py-8"
-          aria-hidden="true"
-        >
-          <p className="type-label text-syn-comment text-center font-normal">
-            {contact.mediaLabel}
-          </p>
-        </aside>
       </div>
     </section>
   );

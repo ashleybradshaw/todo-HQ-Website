@@ -46,6 +46,7 @@ export function SiteCloser({ route }: SiteCloserProps) {
           showCta={blocks.faqCta}
           ctaLabel={ctas.sendABrief}
           ctaHref={ctas.sendABriefHref}
+          heading={route === "book" ? "Before you send it." : undefined}
         />
       ) : null}
       {blocks.signalStrip ? <SignalStrip /> : null}

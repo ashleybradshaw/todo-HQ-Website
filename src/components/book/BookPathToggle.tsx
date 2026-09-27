@@ -113,6 +113,7 @@ function DecodeLabel({
   useEffect(() => {
     targetRef.current = text;
     if (reduceMotion || playKey === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- settle scramble cells from text/playKey
       setCells(settleCells(text));
       setScrambling(false);
       return;
@@ -289,7 +290,10 @@ export function BookPathToggle({ value, onChange }: BookPathToggleProps) {
         })}
       </div>
       <p className="font-jetbrains mt-3 max-w-full text-center text-xs tracking-wide text-syn-comment text-pretty">
-        <DecodeLabel text={helper} playKey={playKey} chroma wrap />
+        <span className="sr-only">{helper}</span>
+        <span aria-hidden="true">
+          <DecodeLabel text={helper} playKey={playKey} chroma wrap />
+        </span>
       </p>
     </div>
   );

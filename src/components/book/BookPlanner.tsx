@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { useMemo, useRef, useState, type FormEvent, type MouseEvent } from "react";
 import { BookCopyEmail } from "@/components/book/BookCopyEmail";
 import { BookDraftPanel } from "@/components/book/BookDraftPanel";
 import { BookLinks } from "@/components/book/BookLinks";
@@ -8,12 +8,15 @@ import { TypeComment } from "@/components/TypeComment";
 import { bookPage } from "@/content/pages/book";
 import {
   fieldErrorClass,
+  fieldHelperClass,
   fieldOpenClass,
   fieldQuietClass,
+  focusHeading,
   isValidBrief,
   isValidEmail,
   isValidName,
   MAX_BRIEF_CHARS,
+  scrollMtHeaderClass,
 } from "@/lib/book-form";
 import {
   buildMailto,
@@ -30,6 +33,8 @@ const fieldClass =
 
 const labelClass = "type-label";
 
+const legendClass = "type-label p-0";
+
 const navBtn =
   "font-jetbrains relative inline-flex min-h-11 cursor-pointer items-center justify-center overflow-hidden rounded-[4px] border border-current px-4 py-2 text-xs font-bold tracking-wider transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:opacity-40";
 
@@ -37,8 +42,31 @@ const navBtn =
 const liftTileClass =
   "blog-note-link font-jetbrains flex min-h-11 cursor-pointer items-center justify-center rounded-[4px] border border-border-ide bg-background px-3 py-3 text-center text-xs font-bold tracking-wider focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
 
+/** Form column width matches prior 1.2fr track in the media-slot grid. */
+const formColumnClass =
+  "mt-8 grid grid-cols-1 gap-8 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] sm:items-start";
+
 const { planner, howHeardOptions } = bookPage;
 const TOTAL_STEPS = planner.steps.length;
+
+const ID = {
+  heading: "brief-planner-heading",
+  stepHeading: "brief-step-heading",
+  brief: "brief-brief",
+  name: "brief-name",
+  nameError: "brief-name-error",
+  email: "brief-email",
+  emailError: "brief-email-error",
+  company: "brief-company",
+  heard: "brief-heard",
+  heardError: "brief-heard-error",
+  finish: "brief-planner-finish",
+  linkPrefix: "brief-link",
+  timelineLegend: "brief-timeline-legend",
+  budgetLegend: "brief-budget-legend",
+  needsLegend: "brief-needs-legend",
+  hasBriefLegend: "brief-has-brief-legend",
+} as const;
 
 function labelFor(
   options: readonly { value: string; label: string }[],
@@ -84,7 +112,21 @@ type PanelState = {
   body: string;
 } | null;
 
-export function BookPlanner({ bookingType }: { bookingType?: string }) {
+type BookPlannerProps = {
+  bookingType?: string;
+  name: string;
+  email: string;
+  onNameChange: (value: string) => void;
+  onEmailChange: (value: string) => void;
+};
+
+export function BookPlanner({
+  bookingType,
+  name,
+  email,
+  onNameChange,
+  onEmailChange,
+}: BookPlannerProps) {
   const [step, setStep] = useState(1);
   const [booking, setBooking] = useState(() => bookingFromType(bookingType));
   const [timeline, setTimeline] = useState("");
@@ -95,14 +137,13 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
   const [links, setLinks] = useState<BookLinkRow[]>(() => initialLinkRows(1));
   const [needsAccess, setNeedsAccess] = useState(false);
   const [accessNote, setAccessNote] = useState("");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
   const [howHeard, setHowHeard] = useState("");
   const [panel, setPanel] = useState<PanelState>(null);
   const [showStep4Errors, setShowStep4Errors] = useState(false);
   const [showLinkErrors, setShowLinkErrors] = useState(false);
-  const pendingLinkFocusRef = useRef<string | null>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const stepHeadingRef = useRef<HTMLHeadingElement>(null);
   const [touched4, setTouched4] = useState({
     name: false,
     email: false,
@@ -124,13 +165,6 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
   const emailOpen = nameOk;
   const companyOpen = emailOk;
   const howHeardOpen = emailOk;
-
-  useEffect(() => {
-    if (step !== 3 || !pendingLinkFocusRef.current) return;
-    const id = pendingLinkFocusRef.current;
-    pendingLinkFocusRef.current = null;
-    document.getElementById(`book-planner-link-url-${id}`)?.focus();
-  }, [step, showLinkErrors]);
 
   const canAdvance = useMemo(() => {
     if (step === 1) return Boolean(booking);
@@ -158,6 +192,42 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
     );
   }
 
+  function goToStep(next: number) {
+    setStep(next);
+    queueMicrotask(() => focusHeading(stepHeadingRef.current));
+  }
+
+  function onBack() {
+    goToStep(Math.max(1, step - 1));
+  }
+
+  function onNext() {
+    if (step === 3 && !linksOk) {
+      setShowLinkErrors(true);
+      const invalidLink = firstInvalidLinkIndex(links);
+      if (invalidLink >= 0) {
+        const focusId = `${ID.linkPrefix}-url-${links[invalidLink].id}`;
+        queueMicrotask(() => {
+          document.getElementById(focusId)?.focus();
+        });
+      }
+      return;
+    }
+    goToStep(Math.min(TOTAL_STEPS, step + 1));
+  }
+
+  /** Keep focus off Next when step-3 links are invalid so we can move it to the field. */
+  function onNextMouseDown(event: MouseEvent<HTMLButtonElement>) {
+    if (step === 3 && !linksOk) {
+      event.preventDefault();
+    }
+  }
+
+  function onEdit() {
+    setPanel(null);
+    queueMicrotask(() => focusHeading(headingRef.current));
+  }
+
   function buildSummary() {
     const heard =
       howHeardOptions.find((option) => option.value === howHeard)?.label ??
@@ -179,7 +249,7 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
       "",
       planner.draftLabels.brief,
       brief.trim(),
-      `Has brief: ${hasBrief === "yes" ? planner.hasBriefYes : planner.hasBriefNo}`,
+      `Written brief: ${hasBrief === "yes" ? planner.hasBriefYes : planner.hasBriefNo}`,
       linksBlock ? "" : null,
       linksBlock || null,
       "",
@@ -200,9 +270,9 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
 
     if (!nameOk || !emailOk || !howHeardOk) {
       const order: string[] = [];
-      if (!nameOk) order.push("book-planner-name");
-      if (!emailOk) order.push("book-planner-email");
-      if (!howHeardOk) order.push("book-planner-heard");
+      if (!nameOk) order.push(ID.name);
+      if (!emailOk) order.push(ID.email);
+      if (!howHeardOk) order.push(ID.heard);
       queueMicrotask(() => {
         for (const id of order) {
           const el = document.getElementById(id);
@@ -215,18 +285,9 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
       return;
     }
 
-    if (!linksOk) {
-      setShowLinkErrors(true);
-      const invalidLink = firstInvalidLinkIndex(links);
-      if (invalidLink >= 0) {
-        pendingLinkFocusRef.current = links[invalidLink].id;
-      }
-      setStep(3);
-      return;
-    }
-
+    // Links already validated on step 3 Next — never bounce back to step 3.
     const text = buildSummary();
-    const subject = `${planner.subjectPrefix} ${labelFor(planner.bookingOptions, booking) || name.trim()}`;
+    const subject = `${planner.subjectPrefix} ${name.trim()}`;
     const { href, tooLong } = buildMailto(subject, text);
 
     if (tooLong) {
@@ -251,11 +312,16 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
 
   if (panel) {
     return (
-      <section aria-labelledby="book-planner-heading">
+      <section aria-labelledby={ID.heading}>
         <TypeComment text={planner.eyebrow} className="text-syn-comment" />
         <h2
-          id="book-planner-heading"
-          className="type-heading mt-3 text-balance tracking-tight"
+          ref={headingRef}
+          id={ID.heading}
+          tabIndex={-1}
+          className={cn(
+            "type-heading mt-3 text-balance tracking-tight outline-none",
+            scrollMtHeaderClass,
+          )}
         >
           {planner.title}
         </h2>
@@ -264,18 +330,23 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
           subject={panel.subject}
           body={panel.body}
           preview={panel.body}
-          onEdit={() => setPanel(null)}
+          onEdit={onEdit}
         />
       </section>
     );
   }
 
   return (
-    <section aria-labelledby="book-planner-heading">
+    <section aria-labelledby={ID.heading}>
       <TypeComment text={planner.eyebrow} className="text-syn-comment" />
       <h2
-        id="book-planner-heading"
-        className="type-heading mt-3 text-balance tracking-tight"
+        ref={headingRef}
+        id={ID.heading}
+        tabIndex={-1}
+        className={cn(
+          "type-heading mt-3 text-balance tracking-tight outline-none",
+          scrollMtHeaderClass,
+        )}
       >
         {planner.title}
       </h2>
@@ -294,13 +365,23 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
           style={{ width: `${progress}%` }}
         />
       </div>
-      <p className="type-label text-syn-comment mt-2 font-normal">
+      <p className={cn(fieldHelperClass, "mt-2")}>
         Step {step} / {TOTAL_STEPS}
       </p>
 
-      <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] sm:items-start">
+      <div className={formColumnClass}>
         <div className="min-w-0">
-          <h3 className="type-subhead tracking-tight">{stepMeta.title}</h3>
+          <h3
+            ref={stepHeadingRef}
+            id={ID.stepHeading}
+            tabIndex={-1}
+            className={cn(
+              "type-subhead tracking-tight outline-none",
+              scrollMtHeaderClass,
+            )}
+          >
+            {stepMeta.title}
+          </h3>
           <p className="type-body-sm mt-2 text-syn-comment">{stepMeta.hint}</p>
 
           {step === 1 ? (
@@ -322,12 +403,11 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
 
           {step === 2 ? (
             <div className="mt-6 flex flex-col gap-6">
-              <div className={fieldOpenClass}>
-                <p className={labelClass}>Timeline</p>
-                <div
-                  className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3"
-                  role="group"
-                >
+              <fieldset className={cn("min-w-0 border-0 p-0", fieldOpenClass)}>
+                <legend id={ID.timelineLegend} className={legendClass}>
+                  Timeline
+                </legend>
+                <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
                   {planner.timelineOptions.map((option) => (
                     <LiftTile
                       key={option.value}
@@ -337,13 +417,17 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
                     />
                   ))}
                 </div>
-              </div>
-              <div className={budgetOpen ? fieldOpenClass : fieldQuietClass}>
-                <p className={labelClass}>Budget band</p>
-                <div
-                  className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2"
-                  role="group"
-                >
+              </fieldset>
+              <fieldset
+                className={cn(
+                  "min-w-0 border-0 p-0",
+                  budgetOpen ? fieldOpenClass : fieldQuietClass,
+                )}
+              >
+                <legend id={ID.budgetLegend} className={legendClass}>
+                  Budget
+                </legend>
+                <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {planner.budgetOptions.map((option) => (
                     <LiftTile
                       key={option.value}
@@ -353,13 +437,17 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
                     />
                   ))}
                 </div>
-              </div>
-              <div className={needsOpen ? fieldOpenClass : fieldQuietClass}>
-                <p className={labelClass}>Needs</p>
-                <div
-                  className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3"
-                  role="group"
-                >
+              </fieldset>
+              <fieldset
+                className={cn(
+                  "min-w-0 border-0 p-0",
+                  needsOpen ? fieldOpenClass : fieldQuietClass,
+                )}
+              >
+                <legend id={ID.needsLegend} className={legendClass}>
+                  Needs
+                </legend>
+                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {planner.needsOptions.map((option) => (
                     <LiftTile
                       key={option.value}
@@ -369,18 +457,18 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
                     />
                   ))}
                 </div>
-              </div>
+              </fieldset>
             </div>
           ) : null}
 
           {step === 3 ? (
             <div className="mt-6 flex flex-col gap-5">
               <div className={cn("flex flex-col gap-2", fieldOpenClass)}>
-                <label htmlFor="book-planner-brief" className={labelClass}>
+                <label htmlFor={ID.brief} className={labelClass}>
                   {planner.briefLabel}
                 </label>
                 <textarea
-                  id="book-planner-brief"
+                  id={ID.brief}
                   rows={5}
                   maxLength={MAX_BRIEF_CHARS}
                   value={brief}
@@ -390,22 +478,26 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
                   placeholder={planner.briefPlaceholder}
                   className={`${fieldClass} min-h-[8.5rem] resize-y py-3`}
                 />
-                <p className="type-label text-syn-comment font-normal tabular-nums">
+                <p className={cn(fieldHelperClass, "tabular-nums")}>
                   {brief.length.toLocaleString("en-GB")} /{" "}
                   {MAX_BRIEF_CHARS.toLocaleString("en-GB")}
                 </p>
                 {!briefOk ? (
-                  <p className="type-label text-syn-comment mt-1 font-normal">
+                  <p className={cn(fieldHelperClass, "mt-1")}>
                     {planner.errorBriefShort}
                   </p>
                 ) : null}
               </div>
-              <div className={hasBriefOpen ? fieldOpenClass : fieldQuietClass}>
-                <p className={labelClass}>{planner.hasBriefLabel}</p>
-                <div
-                  className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2"
-                  role="group"
-                >
+              <fieldset
+                className={cn(
+                  "min-w-0 border-0 p-0",
+                  hasBriefOpen ? fieldOpenClass : fieldQuietClass,
+                )}
+              >
+                <legend id={ID.hasBriefLegend} className={legendClass}>
+                  {planner.hasBriefLabel}
+                </legend>
+                <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {(
                     [
                       ["yes", planner.hasBriefYes],
@@ -420,7 +512,7 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
                     />
                   ))}
                 </div>
-              </div>
+              </fieldset>
               <div className={hasBriefOpen ? fieldOpenClass : fieldQuietClass}>
                 <BookLinks
                   links={links}
@@ -431,7 +523,7 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
                   accessNote={accessNote}
                   onAccessNoteChange={setAccessNote}
                   showErrors={showLinkErrors}
-                  idPrefix="book-planner-link"
+                  idPrefix={ID.linkPrefix}
                 />
               </div>
             </div>
@@ -439,40 +531,38 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
 
           {step === 4 ? (
             <form
-              id="book-planner-finish"
+              id={ID.finish}
               className="mt-6 flex flex-col gap-5"
               onSubmit={onFinish}
               noValidate
+              autoComplete="off"
             >
               <div className={cn("flex flex-col gap-2", fieldOpenClass)}>
-                <label htmlFor="book-planner-name" className={labelClass}>
+                <label htmlFor={ID.name} className={labelClass}>
                   {planner.nameLabel}
                 </label>
                 <input
-                  id="book-planner-name"
-                  name="name"
+                  id={ID.name}
+                  name="brief-visitor-name"
                   type="text"
                   autoComplete="name"
                   required
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  onBlur={() =>
-                    setTouched4((current) => ({ ...current, name: true }))
-                  }
+                  onChange={(e) => onNameChange(e.target.value)}
+                  onBlur={(e) => {
+                    if (e.currentTarget.value !== name) {
+                      onNameChange(e.currentTarget.value);
+                    }
+                    setTouched4((current) => ({ ...current, name: true }));
+                  }}
                   aria-invalid={show4Error("name") && !nameOk}
                   aria-describedby={
-                    show4Error("name") && !nameOk
-                      ? "book-planner-name-error"
-                      : undefined
+                    show4Error("name") && !nameOk ? ID.nameError : undefined
                   }
                   className={fieldClass}
                 />
                 {show4Error("name") && !nameOk ? (
-                  <p
-                    id="book-planner-name-error"
-                    className={fieldErrorClass}
-                    role="alert"
-                  >
+                  <p id={ID.nameError} className={fieldErrorClass} role="alert">
                     {planner.errorNameShort}
                   </p>
                 ) : null}
@@ -483,34 +573,31 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
                   emailOpen ? fieldOpenClass : fieldQuietClass,
                 )}
               >
-                <label htmlFor="book-planner-email" className={labelClass}>
+                <label htmlFor={ID.email} className={labelClass}>
                   {planner.emailLabel}
                 </label>
                 <input
-                  id="book-planner-email"
-                  name="email"
+                  id={ID.email}
+                  name="brief-visitor-email"
                   type="email"
                   autoComplete="email"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onBlur={() =>
-                    setTouched4((current) => ({ ...current, email: true }))
-                  }
+                  onChange={(e) => onEmailChange(e.target.value)}
+                  onBlur={(e) => {
+                    if (e.currentTarget.value !== email) {
+                      onEmailChange(e.currentTarget.value);
+                    }
+                    setTouched4((current) => ({ ...current, email: true }));
+                  }}
                   aria-invalid={show4Error("email") && !emailOk}
                   aria-describedby={
-                    show4Error("email") && !emailOk
-                      ? "book-planner-email-error"
-                      : undefined
+                    show4Error("email") && !emailOk ? ID.emailError : undefined
                   }
                   className={fieldClass}
                 />
                 {show4Error("email") && !emailOk ? (
-                  <p
-                    id="book-planner-email-error"
-                    className={fieldErrorClass}
-                    role="alert"
-                  >
+                  <p id={ID.emailError} className={fieldErrorClass} role="alert">
                     {planner.errorEmailInvalid}
                   </p>
                 ) : null}
@@ -521,14 +608,14 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
                   companyOpen ? fieldOpenClass : fieldQuietClass,
                 )}
               >
-                <label htmlFor="book-planner-company" className={labelClass}>
+                <label htmlFor={ID.company} className={labelClass}>
                   {planner.companyLabel}{" "}
                   <span className="text-syn-comment normal-case tracking-normal">
                     {planner.companyOptional}
                   </span>
                 </label>
                 <input
-                  id="book-planner-company"
+                  id={ID.company}
                   name="company"
                   type="text"
                   autoComplete="organization"
@@ -543,11 +630,11 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
                   howHeardOpen ? fieldOpenClass : fieldQuietClass,
                 )}
               >
-                <label htmlFor="book-planner-heard" className={labelClass}>
+                <label htmlFor={ID.heard} className={labelClass}>
                   {planner.howHeardLabel}
                 </label>
                 <select
-                  id="book-planner-heard"
+                  id={ID.heard}
                   name="howHeard"
                   required
                   value={howHeard}
@@ -558,7 +645,7 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
                   aria-invalid={show4Error("howHeard") && !howHeardOk}
                   aria-describedby={
                     show4Error("howHeard") && !howHeardOk
-                      ? "book-planner-heard-error"
+                      ? ID.heardError
                       : undefined
                   }
                   className={fieldClass}
@@ -573,11 +660,7 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
                   ))}
                 </select>
                 {show4Error("howHeard") && !howHeardOk ? (
-                  <p
-                    id="book-planner-heard-error"
-                    className={fieldErrorClass}
-                    role="alert"
-                  >
+                  <p id={ID.heardError} className={fieldErrorClass} role="alert">
                     {planner.errorHowHeard}
                   </p>
                 ) : null}
@@ -591,7 +674,7 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
                 type="button"
                 className={cn(navBtn, "bg-transparent")}
                 disabled={step === 1}
-                onClick={() => setStep((current) => Math.max(1, current - 1))}
+                onClick={onBack}
               >
                 {planner.backLabel}
               </button>
@@ -603,9 +686,8 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
                     "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] text-on-tint",
                   )}
                   disabled={!primaryReady}
-                  onClick={() =>
-                    setStep((current) => Math.min(TOTAL_STEPS, current + 1))
-                  }
+                  onMouseDown={onNextMouseDown}
+                  onClick={onNext}
                 >
                   <span className="relative z-10">{planner.nextLabel}</span>
                   {primaryReady ? (
@@ -619,7 +701,7 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
                 <>
                   <button
                     type="submit"
-                    form="book-planner-finish"
+                    form={ID.finish}
                     className={cn(
                       navBtn,
                       "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] text-on-tint",
@@ -638,21 +720,10 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
               )}
             </div>
             {step === TOTAL_STEPS ? (
-              <p className="type-label text-syn-comment font-normal normal-case tracking-normal">
-                {planner.submitHelper}
-              </p>
+              <p className={fieldHelperClass}>{planner.submitHelper}</p>
             ) : null}
           </div>
         </div>
-
-        <aside
-          className="hidden min-h-[12rem] items-center justify-center rounded-[4px] border border-dashed border-border-ide bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] px-4 py-8 sm:flex"
-          aria-hidden="true"
-        >
-          <p className="type-label text-syn-comment text-center font-normal">
-            {stepMeta.mediaLabel}
-          </p>
-        </aside>
       </div>
     </section>
   );

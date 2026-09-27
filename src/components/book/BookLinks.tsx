@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { bookPage } from "@/content/pages/book";
 import {
   fieldErrorClass,
+  fieldHelperClass,
   MAX_ACCESS_NOTE_CHARS,
 } from "@/lib/book-form";
 import {
@@ -105,9 +106,7 @@ export function BookLinks({
     <div className="flex min-w-0 flex-col gap-4">
       <div>
         <p className={labelClass}>{linksCopy.label}</p>
-        <p className="type-label text-syn-comment mt-1 font-normal normal-case tracking-normal">
-          {helper}
-        </p>
+        <p className={cn(fieldHelperClass, "mt-1")}>{helper}</p>
       </div>
 
       <ul className="flex min-w-0 flex-col gap-4" role="list">
@@ -203,7 +202,7 @@ export function BookLinks({
       </ul>
 
       {atMax ? (
-        <p className="type-label text-syn-comment font-normal">{maxLabel}</p>
+        <p className={fieldHelperClass}>{maxLabel}</p>
       ) : (
         <button
           type="button"
@@ -243,13 +242,11 @@ export function BookLinks({
                 }
                 className={`${fieldClass} min-h-[5.5rem] resize-y py-3`}
               />
-              <p className="type-label text-syn-comment font-normal tabular-nums">
+              <p className={cn(fieldHelperClass, "tabular-nums")}>
                 {accessNote.length.toLocaleString("en-GB")} /{" "}
                 {MAX_ACCESS_NOTE_CHARS.toLocaleString("en-GB")}
               </p>
-              <p className="type-label text-syn-comment font-normal normal-case tracking-normal">
-                {accessCopy.helper}
-              </p>
+              <p className={fieldHelperClass}>{accessCopy.helper}</p>
             </div>
           ) : null}
         </div>

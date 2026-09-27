@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { BookFaq } from "@/components/book/BookFaq";
 import { BookPaths } from "@/components/book/BookPaths";
 import { JsonLd } from "@/components/JsonLd";
 import { PageShell } from "@/components/PageShell";
+import { SiteCloser } from "@/components/SiteCloser";
 import { bookPage } from "@/content/pages/book";
 import { contactPageGraph } from "@/lib/schema";
 import { pageMetadata } from "@/lib/seo";
@@ -44,7 +44,7 @@ export default async function BookPage({ searchParams }: BookPageProps) {
         lede={<p>{bookPage.lede}</p>}
       >
         <BookPaths bookingType={bookingType} />
-        <BookFaq showCta={false} />
+        <SiteCloser route="book" />
       </PageShell>
     </>
   );

@@ -17,7 +17,7 @@ export default async function BlogLandingPage() {
   return (
     <>
       <BlogIndex posts={posts} />
-      <SiteCloser variant="full" />
+      <SiteCloser route="blog" />
     </>
   );
 }

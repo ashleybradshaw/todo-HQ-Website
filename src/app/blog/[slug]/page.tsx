@@ -162,7 +162,7 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
           </div>
         </article>
       </div>
-      <SiteCloser variant="book" />
+      <SiteCloser route="blog-detail" />
     </>
   );
 }

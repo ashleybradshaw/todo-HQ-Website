@@ -2,11 +2,9 @@ import type { Metadata } from "next";
 import { ClientStrip } from "@/components/about/ClientStrip";
 import { OperatingRules } from "@/components/about/OperatingRules";
 import { OriginStory } from "@/components/about/OriginStory";
-import { BookFaq } from "@/components/book/BookFaq";
 import { PageShell } from "@/components/PageShell";
 import { SiteCloser } from "@/components/SiteCloser";
 import { about } from "@/content/pages/about";
-import { ctas } from "@/content/pages/shared";
 import { pageMetadata } from "@/lib/seo";
 
 const baseMetadata = pageMetadata({
@@ -33,7 +31,7 @@ export default function AboutPage() {
       eyebrow={about.hero.eyebrow}
       eyebrowClassName="text-center"
       title={about.hero.h1}
-      titleClassName="type-display text-center text-balance tracking-tight"
+      titleClassName="type-display mx-auto max-w-none text-center text-balance tracking-tight max-md:max-w-[16ch]"
       ledeClassName="text-center"
       lede={
         <>
@@ -57,8 +55,7 @@ export default function AboutPage() {
           {about.operating.uiLink.label}
         </a>
       </div>
-      <BookFaq ctaLabel={ctas.sendABrief} ctaHref={ctas.sendABriefHref} />
-      <SiteCloser variant="full" />
+      <SiteCloser route="about" />
     </PageShell>
   );
 }

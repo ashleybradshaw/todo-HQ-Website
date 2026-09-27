@@ -113,9 +113,6 @@ const ESSAY_FRAME = "w-full max-w-[688px] mx-auto";
 const linkClass =
   "type-label font-normal normal-case tracking-normal underline decoration-[color-mix(in_srgb,var(--foreground)_35%,transparent)] underline-offset-2 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
 
-const ctaClass =
-  "type-label inline-flex min-h-11 items-center justify-center rounded-[4px] border border-border-ide bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] px-4 py-2 text-on-tint transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
-
 function adjacentProjects(slug: string) {
   const pages = getPageProjects();
   const index = pages.findIndex((project) => project.slug === slug);
@@ -248,15 +245,7 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
           ) : null}
         </nav>
 
-        <div className="mx-auto mt-6 flex max-w-[688px] flex-wrap items-center gap-4">
-          <Link href={workDetailPage.bookHref} className={ctaClass}>
-            {workDetailPage.bookCta}
-          </Link>
-          <Link href={workDetailPage.backHref} className={linkClass}>
-            {workDetailPage.backLabel}
-          </Link>
-        </div>
-        <SiteCloser variant="book" />
+        <SiteCloser route="work-detail" />
       </PageShell>
     </>
   );

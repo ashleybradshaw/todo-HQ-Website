@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
-import { SignalStrip } from "@/components/about/SignalStrip";
-import { BookFaq } from "@/components/book/BookFaq";
 import { PageShell } from "@/components/PageShell";
 import { ProjectCard } from "@/components/ProjectCard";
+import { SiteCloser } from "@/components/SiteCloser";
 import { workPage } from "@/content/pages/work";
-import { ctas } from "@/content/pages/shared";
 import { getListedProjects } from "@/lib/projects";
 import { pageMetadata } from "@/lib/seo";
 
@@ -31,8 +29,7 @@ export default function WorkPage() {
           </li>
         ))}
       </ul>
-      <BookFaq ctaLabel={ctas.sendABrief} ctaHref={ctas.sendABriefHref} />
-      <SignalStrip />
+      <SiteCloser route="work" />
     </PageShell>
   );
 }

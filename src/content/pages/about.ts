@@ -6,7 +6,7 @@
 import { close, faq } from "@/content/pages/shared";
 
 export const STAT_MOCKS = [
-  { figure: "£30M+", label: "Pipeline value", source: "// modeled capacity" },
+  { figure: "£30M+", label: "Pipeline value", source: "// modelled capacity" },
   {
     figure: "100k+",
     label: "Requests through the floor",
@@ -75,7 +75,7 @@ export const LIVE_FLOOR_SIM = [
   },
   {
     id: "gate-passes",
-    label: "gate passes",
+    label: "checkpoints",
     min: 6,
     max: 42,
     step: 2,
@@ -99,7 +99,7 @@ export const about = {
   hero: {
     eyebrow: "// About",
     h1: "We deconstruct complex domains and build AI that works.",
-    p1: "//TODO Engineering is a design engineer and an AI engineer. We build apps, CMS and software systems, and products that talk to hardware, for specialised and regulated teams.",
+    p1: "//TODO Engineering is a design engineer and an AI engineer. We build apps, CMS and software systems, and products that talk to hardware, for teams with hard problems.",
     p2: "Specialised. Esoteric. Regulated. We learn the domain before we write a line, so what we ship solves the right problem and holds up after launch.",
     clientStrip: ["Acme", "Globex", "Initech", "+ more"],
   },
@@ -107,7 +107,7 @@ export const about = {
   // TEST COPY
   origin: {
     eyebrow: "// ORIGIN",
-    title: "Our own apps came first.",
+    title: "Our apps came first.",
     body: [
       "RepDaily, Contentic and ReadyGo run on the same process we sell. We take the domain apart, prototype until it's clear, write the spec, then ship to production. Before any code, we map how the domain really works: who uses it, what the rules are, and where it tends to break.",
       "Client work goes through that same process, not a side desk. You get the system we already trust with our own products. At each checkpoint you get something you can use: a domain map, a working prototype, a spec your team can read, and then the build itself.",

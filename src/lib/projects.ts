@@ -14,11 +14,23 @@ export type ProjectMedia = {
   offset: ProjectMediaOffset;
 };
 
+/** Optional labelled chapter between Outcome and stills (RepDaily only today). */
+export type ProjectPhaseNote = {
+  /** e.g. "// MVP" */
+  label: string;
+  body: string;
+};
+
 type ProjectBase = {
   slug: string;
   name: string;
-  /** SEO description and visible lede. ~150–160 characters. */
+  /**
+   * SEO description and case-study lede (full projects).
+   * Pipeline cards may mirror cardDescription.
+   */
   description: string;
+  /** Index card body. */
+  cardDescription: string;
   /** Index card thumb. Separate from the detail media essay. */
   imageSrc: string;
   imageAlt: string;
@@ -37,9 +49,12 @@ export type FullProject = ProjectBase & {
   status: Exclude<ProjectStatus, "pipeline">;
   hasPage: true;
   scope: readonly string[];
-  stack: readonly string[];
+  /** Hide stack chip row when empty / omitted. */
+  stack?: readonly string[];
   outcome: string;
   media: readonly ProjectMedia[];
+  /** Optional MVP / version notes — omit on most projects. */
+  phaseNotes?: readonly ProjectPhaseNote[];
 };
 
 export type PipelineProject = ProjectBase & {
@@ -95,21 +110,42 @@ export const PROJECTS: readonly Project[] = [
     listed: true,
     status: "shipped",
     hasPage: true,
+    // TEST COPY
     description:
-      "Camera-based fitness tracking for product teams — reps, progression, and a training calendar from the phone, designed and shipped in the //TODO factory.",
+      "Camera-based push-up tracking for iOS and Android. Designed and built by two people in 103 days, from a push-up counter to a daily habit.",
+    // TEST COPY
+    cardDescription:
+      "Camera-based push-up tracking for iOS and Android. It counts every rep on the phone, then turns the habit into a streak worth keeping.",
     imageSrc: "/work/repdaily.webp",
+    // TEST COPY
     imageAlt:
-      "RepDaily production interface on a phone, showing workout progression and a January training calendar.",
+      "RepDaily on a phone, showing workout progression and a training calendar.",
     imageWidth: 1400,
     imageHeight: 787,
+    // TEST COPY
     scope: [
-      "Phone-camera capture of a set, without a separate logger.",
-      "Progression and a month calendar on the same record.",
-      "Scoped intake, agent stations, and a production release.",
-      "A training log that stays on the phone between sets.",
+      "On-device rep counting. Nothing recorded, nothing uploaded.",
+      "A 30-second calibration that has to work first time.",
+      "Streaks, Rep Points and 24 stages to bring people back.",
+      "Brand, website and launch, alongside the iOS and Android builds.",
     ],
-    stack: ["Swift", "Node.js", "PostgreSQL", "Redis"],
-    outcome: "In production — camera-based fitness tracking on iOS.",
+    // Stack hidden until product copy is ready.
+    stack: [],
+    // TEST COPY
+    outcome: "Live on iOS and Android. Now moving from MVP to v1.5.",
+    // TEST COPY
+    phaseNotes: [
+      {
+        label: "// MVP",
+        body: "Started as a push-up counter. The real brief was getting people to come back tomorrow. 103 days later we had 40+ screens, the calibration flow, streaks and a paid workout system.",
+      },
+      {
+        label: "// v1.5",
+        body: "FreeRep and PowerPath 10K are now free. Pro adds PushPass 24, timed UltraTasks and a 17-badge Trophy Cabinet. Friends and leaderboards come next.",
+      },
+    ],
+    // PENDING new stills — apply when assets match:
+    // ["RepDaily", "Calibration", "FreeRep", "Rep count", "PushPass 24", "Rep Points", "UltraTasks", "Trophy Cabinet", "Handoff"]
     media: media("repdaily", "RepDaily", [
       { aspect: "landscape", caption: "Session log", width: "hero", offset: "right" },
       { aspect: "portrait", caption: "Set detail", width: "support", offset: "left" },
@@ -129,21 +165,25 @@ export const PROJECTS: readonly Project[] = [
     hasPage: true,
     // TEST COPY
     description:
-      "Pre-activity planning for runners and cyclists — conditions, effort, and kit settled before the session starts.",
+      "Pre-activity planning for runners and cyclists. Conditions, effort and kit, sorted before the session starts.",
+    // TEST COPY
+    cardDescription:
+      "Pre-activity planning for runners and cyclists. Conditions, effort and kit, sorted before you head out.",
     imageSrc: "/work/readygo.webp",
     imageAlt:
       "ReadyGo still: a cyclist and a runner on a mountain road under the line Take it out on the road.",
     imageWidth: 1400,
     imageHeight: 756,
+    // TEST COPY
     scope: [
-      "Conditions, effort, and kit settled before the session starts.",
-      "A short plan an athlete can read on the way out.",
-      "Intake, implementation, and a production handoff in the factory.",
+      "Conditions, effort and kit settled before you head out.",
+      "A short plan you can read on the way out the door.",
+      "Built like RepDaily: map, prototype, spec, ship.",
       "One record for the session instead of a stack of notes.",
     ],
     stack: ["Swift", "Node.js", "PostgreSQL", "Vercel"],
     // TEST COPY
-    outcome: "In build: pre-activity planning for endurance athletes.",
+    outcome: "In build: pre-activity planning for runners and cyclists.",
     media: media("readygo", "ReadyGo", [
       { aspect: "landscape", caption: "Route brief", width: "hero", offset: "left" },
       { aspect: "square", caption: "Conditions", width: "support", offset: "right" },
@@ -161,21 +201,26 @@ export const PROJECTS: readonly Project[] = [
     listed: true,
     status: "live",
     hasPage: true,
-    // TEST COPY — card/hero use placeholder art until a real still lands.
+    // TEST COPY
     description:
-      "Content operations for a production pipeline — intake, review, and publish in one surface.",
+      "Content operations in one place. Intake, review and publish, without the side channels.",
+    // TEST COPY
+    cardDescription:
+      "Content operations in one place: intake, review and publish, without the side channels.",
     imageSrc: "/work/placeholders/landscape.svg", // sentinel → PlaceholderStill
     imageAlt: "Contentic — index placeholder",
     imageWidth: 1600,
     imageHeight: 900,
+    // TEST COPY
     scope: [
-      "Intake, review, and publish on one surface.",
+      "Intake, review and publish on one surface.",
       "A queue for drafts instead of a side channel.",
-      "Status a product lead can read without opening the file.",
-      "Production content ops through the factory roster.", // TEST COPY
+      "Status anyone can read without opening the file.",
+      "Built and run on the same process as our other products.",
     ],
     stack: ["TypeScript", "Node.js", "PostgreSQL"],
-    outcome: "Live — content operations in the factory roster.", // TEST COPY
+    // TEST COPY
+    outcome: "Live. Content operations from intake to publish.",
     media: media("contentic", "Contentic", [
       { aspect: "portrait", caption: "Intake queue", width: "hero", offset: "left" },
       { aspect: "landscape", caption: "Draft board", width: "support", offset: "right" },
@@ -194,7 +239,9 @@ export const PROJECTS: readonly Project[] = [
     status: "pipeline",
     hasPage: false,
     // TEST COPY
-    description: "Structured brief intake and status for factory builds in flight.",
+    description: "Brief intake and live build status, in one view.",
+    // TEST COPY
+    cardDescription: "Brief intake and live build status, in one view.",
     imageSrc: "/work/placeholders/landscape.svg",
     imageAlt: "The Tower — index placeholder",
     imageWidth: 1600,
@@ -208,7 +255,9 @@ export const PROJECTS: readonly Project[] = [
     status: "pipeline",
     hasPage: false,
     // TEST COPY
-    description: "Erg-session coaching and pacing for indoor training blocks.",
+    description: "Coaching and pacing for erg sessions and indoor blocks.",
+    // TEST COPY
+    cardDescription: "Coaching and pacing for erg sessions and indoor blocks.",
     imageSrc: "/work/placeholders/landscape.svg",
     imageAlt: "ErgTrainer — index placeholder",
     imageWidth: 1600,

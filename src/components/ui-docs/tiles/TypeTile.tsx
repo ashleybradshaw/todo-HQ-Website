@@ -1,10 +1,10 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
-import { UiSectionFrame } from "@/components/ui-docs/UiSectionFrame";
-import { SNIPPETS } from "@/lib/ui-docs/snippets";
-import { TYPE_CLASSES, type TypeClassName } from "@/lib/ui-docs/tokenRegistry";
 import { useSpray } from "@/components/SprayProvider";
+import { UiTile } from "@/components/ui-docs/UiTile";
+import { TYPE_CLASSES, type TypeClassName } from "@/lib/ui-docs/tokenRegistry";
+import { uiPage } from "@/content/pages/ui";
 
 const SPECIMEN: Record<TypeClassName, string> = {
   "type-display": "Display",
@@ -38,11 +38,14 @@ function TypeRow({ className }: { className: TypeClassName }) {
   }, [pair.bg, pair.text]);
 
   return (
-    <div className="min-w-0 border-b border-border-ide py-4 last:border-b-0">
-      <p className="font-jetbrains type-caption text-muted mb-2">
+    <div className="border-border-ide min-w-0 border-b py-3 last:border-b-0">
+      <p className="font-jetbrains type-caption text-muted mb-1">
         .{className} · {metrics}
       </p>
-      <p ref={ref} className={`${className} text-foreground min-w-0 break-words`}>
+      <p
+        ref={ref}
+        className={`${className} text-foreground min-w-0 break-words`}
+      >
         {/* // TEST COPY */}
         {SPECIMEN[className]}
       </p>
@@ -50,28 +53,28 @@ function TypeRow({ className }: { className: TypeClassName }) {
   );
 }
 
-export function TypeSection() {
+export function TypeTile() {
+  const { type } = uiPage.tiles;
+
   return (
-    <UiSectionFrame
-      comment="// Type — Unbounded + JetBrains scale. TEST COPY."
-      code={SNIPPETS.type}
-      example={
-        <div className="min-w-0">
-          <div className="mb-6 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-[4px] border border-border-ide p-4">
-              <p className="type-label text-muted mb-2">Unbounded</p>
-              <p className="type-heading text-foreground">Aa Bb Cc</p>
-            </div>
-            <div className="rounded-[4px] border border-border-ide p-4">
-              <p className="type-label text-muted mb-2">JetBrains Mono</p>
-              <p className="type-body text-foreground">Aa Bb Cc 0123</p>
-            </div>
+    <UiTile title={type.title} description={type.description}>
+      <div className="min-w-0">
+        <div className="mb-4 grid gap-3 sm:grid-cols-2">
+          <div className="border-border-ide rounded-[4px] border p-3">
+            <p className="type-label text-muted mb-2">Unbounded</p>
+            <p className="type-heading text-foreground">Aa Bb Cc</p>
           </div>
+          <div className="border-border-ide rounded-[4px] border p-3">
+            <p className="type-label text-muted mb-2">JetBrains Mono</p>
+            <p className="type-body text-foreground">Aa Bb Cc 0123</p>
+          </div>
+        </div>
+        <div className="max-h-[22rem] overflow-y-auto">
           {TYPE_CLASSES.map((name) => (
             <TypeRow key={name} className={name} />
           ))}
         </div>
-      }
-    />
+      </div>
+    </UiTile>
   );
 }

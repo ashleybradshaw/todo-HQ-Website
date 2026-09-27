@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import type { ProjectMediaAspect } from "@/lib/projects";
 import { PlaceholderStill } from "@/components/work/PlaceholderStill";
@@ -10,18 +11,24 @@ const ASPECT_CLASS: Record<ProjectMediaAspect, string> = {
 };
 
 export type BrowserFrameProps = {
-  src: string;
   alt: string;
   caption: string;
   aspect: ProjectMediaAspect;
   className?: string;
   priority?: boolean;
+  /**
+   * Still image path. Required when `children` is omitted.
+   * Paths under /work/placeholders/ render PlaceholderStill.
+   */
+  src?: string;
+  /** Custom media slot. When set, `src` is ignored. */
+  children?: ReactNode;
 };
 
 /**
  * Faux-browser chrome for a project still.
  * Paths under /work/placeholders/ render PlaceholderStill (inline currentColor).
- * Other src values use next/image.
+ * Other src values use next/image. Optional children replace the media slot.
  */
 export function BrowserFrame({
   src,
@@ -30,8 +37,9 @@ export function BrowserFrame({
   aspect,
   className,
   priority = false,
+  children,
 }: BrowserFrameProps) {
-  const placeholder = src.startsWith("/work/placeholders/");
+  const placeholder = Boolean(src?.startsWith("/work/placeholders/"));
 
   return (
     <figure
@@ -56,11 +64,15 @@ export function BrowserFrame({
           ASPECT_CLASS[aspect],
         )}
       >
-        {placeholder ? (
+        {children ? (
+          <div className="absolute inset-0 min-w-0 overflow-hidden">
+            {children}
+          </div>
+        ) : placeholder && src ? (
           <div role="img" aria-label={alt} className="absolute inset-0">
             <PlaceholderStill aspect={aspect} />
           </div>
-        ) : (
+        ) : src ? (
           <Image
             src={src}
             alt={alt}
@@ -69,7 +81,7 @@ export function BrowserFrame({
             priority={priority}
             className="object-cover"
           />
-        )}
+        ) : null}
       </div>
     </figure>
   );

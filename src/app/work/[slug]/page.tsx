@@ -165,19 +165,21 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
             {project.description}
           </p>
 
-          <ul
-            className="mt-5 flex flex-wrap justify-center gap-1.5"
-            aria-label={`${project.name} stack`}
-          >
-            {project.stack.map((item) => (
-              <li
-                key={item}
-                className="type-label border-border-ide rounded-[4px] border px-2 py-0.5 text-foreground"
-              >
-                {item}
-              </li>
-            ))}
-          </ul>
+          {project.stack && project.stack.length > 0 ? (
+            <ul
+              className="mt-5 flex flex-wrap justify-center gap-1.5"
+              aria-label={`${project.name} stack`}
+            >
+              {project.stack.map((item) => (
+                <li
+                  key={item}
+                  className="type-label border-border-ide rounded-[4px] border px-2 py-0.5 text-foreground"
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
+          ) : null}
 
           <h2 className="type-label mx-auto mt-8 max-w-[688px]">
             {workDetailPage.scopeHeading}
@@ -194,6 +196,13 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
           <p className="type-body mx-auto mt-3 max-w-[688px] text-foreground">
             {project.outcome}
           </p>
+
+          {project.phaseNotes?.map((note) => (
+            <div key={note.label} className="mx-auto mt-8 max-w-[688px]">
+              <h2 className="type-label">{note.label}</h2>
+              <p className="type-body mt-3 text-foreground">{note.body}</p>
+            </div>
+          ))}
         </div>
 
         <section

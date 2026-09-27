@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { UiIdeShell } from "@/components/ui-docs/UiIdeShell";
+import { UiShowcase } from "@/components/ui-docs/UiShowcase";
 import { uiPage } from "@/content/pages/ui";
 import { pageMetadata } from "@/lib/seo";
 
@@ -10,5 +10,5 @@ export const metadata: Metadata = pageMetadata({
 });
 
 export default function UiPage() {
-  return <UiIdeShell />;
+  return <UiShowcase />;
 }

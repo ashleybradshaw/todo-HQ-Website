@@ -76,7 +76,7 @@ export function ProjectCard({
         <ProjectStatusChip status={project.status} />
         <div className="flex w-full flex-col items-start">
           <h2 className="type-heading w-full tracking-tight">{project.name}</h2>
-          <p className="type-body-sm w-full">{project.description}</p>
+          <p className="type-body-sm w-full">{project.cardDescription}</p>
         </div>
         {project.hasPage ? (
           <Link

@@ -40,9 +40,8 @@ const submitClass =
 const liftTileClass =
   "blog-note-link font-jetbrains flex min-h-11 cursor-pointer items-center justify-center rounded-[4px] border border-border-ide bg-background px-3 py-3 text-center text-xs font-bold tracking-wider focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
 
-/** Form column width matches prior 1.2fr track in the media-slot grid. */
-const formColumnClass =
-  "mt-8 grid grid-cols-1 gap-8 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] sm:items-start";
+/** Form column — full essay width (media aside removed; no empty 2nd grid track). */
+const formColumnClass = "mt-8 w-full min-w-0";
 
 const { contact, howHeardOptions } = bookPage;
 

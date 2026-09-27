@@ -15,17 +15,17 @@ export const faq = {
       question: "How fast can we start?",
       // TEST COPY
       answer:
-        "We reply within 3 working days and usually get a call in within a week. Builds start after intake, once we've agreed the first checkpoint.",
+        "We reply within 3 working days, and most first calls happen within a week. Builds start after intake, once we've agreed the first checkpoint.",
     },
     {
       id: "cost",
       question: "How do you talk about cost?",
       answer:
-        "We keep ranges honest. A budget band in the planner is enough for a first pass. No inflated quotes and no surprise retainers.",
+        "We keep ranges honest. A rough budget in the Pre-brief is enough for a first pass. No inflated quotes and no surprise retainers.",
     },
     {
       id: "remote",
-      question: "Do you work remote?",
+      question: "Do you work remotely?",
       answer:
         "Yes, remote by default. We meet in person when a decision needs everyone in the room, and the rest runs async.",
     },
@@ -85,12 +85,12 @@ export const nav = {
   bookDuo: [
     {
       href: "/book?type=coffee",
-      label: "Coffee · 15 min",
-      vibe: "Chemistry, is this a fit, no deck.",
+      label: "Coffee call (15 min)",
+      vibe: "A quick chat to see if we're a fit. No deck needed.",
     },
     {
       href: "/book?type=hard-talk",
-      label: "Hard talk · 60 min",
+      label: "Hard talk (60 min)",
       vibe: "Dig into the real issue, scope the fix.",
     },
   ],

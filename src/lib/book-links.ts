@@ -14,6 +14,7 @@ export type BookLinkRow = {
 export function normaliseUrl(raw: string): string | null {
   const trimmed = raw.trim();
   if (!trimmed) return null;
+  if (/\s/.test(trimmed)) return null;
 
   const withScheme = /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)
     ? trimmed
@@ -24,6 +25,8 @@ export function normaliseUrl(raw: string): string | null {
     if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
       return null;
     }
+    const host = parsed.hostname;
+    if (!host || !host.includes(".")) return null;
     return parsed.href;
   } catch {
     return null;

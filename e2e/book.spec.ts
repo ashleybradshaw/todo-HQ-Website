@@ -155,6 +155,25 @@ test.describe("book links and draft panel", () => {
       brief.getByRole("alert").filter({ hasText: /enter a web link/i }),
     ).toBeVisible();
     await expect(firstUrl).toHaveAttribute("aria-invalid", "true");
+
+    await firstUrl.fill("asdf");
+    await firstUrl.press("Tab");
+    await expect(
+      brief.getByRole("alert").filter({ hasText: /enter a web link/i }),
+    ).toBeVisible();
+    await expect(firstUrl).toHaveAttribute("aria-invalid", "true");
+  });
+
+  test("Quick note rejects bare hostname fragments like asdf", async ({ page }) => {
+    await visit(page, "/book#quick");
+    const quick = quickPanel(page);
+    const url = linkUrl(quick, 1);
+    await url.fill("asdf");
+    await url.press("Tab");
+    await expect(
+      quick.getByRole("alert").filter({ hasText: /enter a web link/i }),
+    ).toBeVisible();
+    await expect(url).toHaveAttribute("aria-invalid", "true");
   });
 
   test("copy address shows Copied then reverts", async ({ browser, baseURL }) => {

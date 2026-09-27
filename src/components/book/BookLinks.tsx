@@ -76,6 +76,11 @@ export function BookLinks({
     const normalised = normaliseUrl(trimmed);
     if (normalised) {
       updateRow(row.id, { url: normalised });
+      return;
+    }
+    // Keep the typed value so validation can flag it (fill may have skipped onChange).
+    if (trimmed !== row.url) {
+      updateRow(row.id, { url: trimmed });
     }
   }
 
@@ -132,7 +137,7 @@ export function BookLinks({
                     }}
                     id={urlId}
                     name={`${idPrefix}-url-${n}`}
-                    type="url"
+                    type="text"
                     inputMode="url"
                     autoComplete="url"
                     maxLength={MAX_URL_CHARS}
@@ -222,7 +227,7 @@ export function BookLinks({
               onChange={(e) => onNeedsAccessChange(e.target.checked)}
               className="size-4 rounded-[4px] border border-border-ide accent-[var(--foreground)]"
             />
-            <span className={labelClass}>{accessCopy.label}</span>
+            <span className={fieldHelperClass}>{accessCopy.label}</span>
           </label>
 
           {needsAccess ? (

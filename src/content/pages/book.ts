@@ -132,7 +132,7 @@ export const bookPage = {
     eyebrow: "// Pre-brief",
     title: "Scope it before we talk.",
     intro:
-      "Four short steps. We turn your answers into an email draft, so the first call starts with a real brief.",
+      "Answer four questions and we'll turn them into an email draft you check and send.",
     backLabel: "Back",
     nextLabel: "Next →",
     submitLabel: "Create email draft →",

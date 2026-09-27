@@ -41,9 +41,9 @@ export const fieldOpenClass =
 export const fieldErrorClass =
   "book-field-error-flash font-jetbrains mt-1 text-xs tracking-wide";
 
-/** Helper / hint copy under labels — sentence case, no type-label tracking. */
+/** Helper / hint copy under labels — sentence case (not type-label / uppercase). */
 export const fieldHelperClass =
-  "type-label text-syn-comment font-normal normal-case tracking-normal";
+  "font-jetbrains text-xs font-normal leading-4 tracking-normal text-syn-comment normal-case";
 
 /** Scroll clearance under the fixed site header (`--site-header-offset`). */
 export const scrollMtHeaderClass = "scroll-mt-header";

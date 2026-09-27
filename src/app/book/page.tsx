@@ -41,7 +41,7 @@ export default async function BookPage({ searchParams }: BookPageProps) {
         title={bookPage.title}
         titleClassName="type-title text-center text-balance tracking-tight"
         ledeClassName="text-center"
-        lede={<p>{bookPage.lede}</p>}
+        lede={<p className="text-pretty">{bookPage.lede}</p>}
       >
         <BookPaths bookingType={bookingType} />
         <SiteCloser route="book" />

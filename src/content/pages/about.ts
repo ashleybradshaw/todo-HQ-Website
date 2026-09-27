@@ -99,8 +99,9 @@ export const about = {
   hero: {
     eyebrow: "// About",
     h1: "We build apps, systems and hardware for hard\u00A0problems.",
-    p1: "//TODO Engineering is a design engineer and an AI engineer. CMS, large software systems and products that talk to hardware: we design them, build them and ship them.",
+    p1: "//TODO Engineering is a design engineer and an AI engineer. Software systems, CMS platforms and products that talk to hardware: we design them, build them and ship them.",
     p2: "Specialised. Esoteric. Regulated. We learn the domain before we write a line, so what we ship solves the right problem and holds up after launch.",
+    // PENDING real client names
     clientStrip: ["Acme", "Globex", "Initech", "+ more"],
   },
 

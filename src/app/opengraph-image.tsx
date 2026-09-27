@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { SITE_NAME } from "@/lib/site";
 
-export const alt = `${SITE_NAME} — internal software factory`;
+export const alt = `${SITE_NAME} — design and AI engineering studio`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -41,7 +41,7 @@ export default function OpenGraphImage() {
             opacity: 0.92,
           }}
         >
-          Internal software factory — we ship production systems, not theatre.
+          Design and AI engineering studio — we ship production systems, not theatre.
         </div>
       </div>
     ),

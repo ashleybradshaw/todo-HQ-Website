@@ -22,7 +22,7 @@ export function UiShowcaseHeader() {
       <div className="p-6 md:p-10">
         <h1
           id="ui-heading"
-          className="type-display max-md:max-w-[18ch] tracking-tight text-balance"
+          className="type-display tracking-tight text-balance md:text-pretty"
         >
           {uiPage.header.titleLine1}
           <br className="md:hidden" />{" "}

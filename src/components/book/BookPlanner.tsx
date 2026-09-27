@@ -42,9 +42,8 @@ const navBtn =
 const liftTileClass =
   "blog-note-link font-jetbrains flex min-h-11 cursor-pointer items-center justify-center rounded-[4px] border border-border-ide bg-background px-3 py-3 text-center text-xs font-bold tracking-wider focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
 
-/** Form column width matches prior 1.2fr track in the media-slot grid. */
-const formColumnClass =
-  "mt-8 grid grid-cols-1 gap-8 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] sm:items-start";
+/** Form column — full essay width (media aside removed; no empty 2nd grid track). */
+const formColumnClass = "mt-8 w-full min-w-0";
 
 const { planner, howHeardOptions } = bookPage;
 const TOTAL_STEPS = planner.steps.length;
@@ -142,6 +141,7 @@ export function BookPlanner({
   const [panel, setPanel] = useState<PanelState>(null);
   const [showStep4Errors, setShowStep4Errors] = useState(false);
   const [showLinkErrors, setShowLinkErrors] = useState(false);
+  const [briefTouched, setBriefTouched] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const stepHeadingRef = useRef<HTMLHeadingElement>(null);
   const [touched4, setTouched4] = useState({
@@ -202,6 +202,9 @@ export function BookPlanner({
   }
 
   function onNext() {
+    if (step === 3) {
+      setBriefTouched(true);
+    }
     if (step === 3 && !linksOk) {
       setShowLinkErrors(true);
       const invalidLink = firstInvalidLinkIndex(links);
@@ -475,6 +478,7 @@ export function BookPlanner({
                   onChange={(e) =>
                     setBrief(e.target.value.slice(0, MAX_BRIEF_CHARS))
                   }
+                  onBlur={() => setBriefTouched(true)}
                   placeholder={planner.briefPlaceholder}
                   className={`${fieldClass} min-h-[8.5rem] resize-y py-3`}
                 />
@@ -482,7 +486,7 @@ export function BookPlanner({
                   {brief.length.toLocaleString("en-GB")} /{" "}
                   {MAX_BRIEF_CHARS.toLocaleString("en-GB")}
                 </p>
-                {!briefOk ? (
+                {briefTouched && !briefOk ? (
                   <p className={cn(fieldHelperClass, "mt-1")}>
                     {planner.errorBriefShort}
                   </p>

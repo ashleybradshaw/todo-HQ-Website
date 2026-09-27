@@ -10,7 +10,7 @@ export const SITE_NAME = "//TODO Engineering";
 export const CONTACT_EMAIL = "team@todo.engineering";
 
 export const SITE_DESCRIPTION =
-  "//TODO Engineering designs, builds, and ships production applications, agent workflows, and backends for product and engineering teams that need systems that hold up after launch.";
+  "//TODO Engineering designs and builds apps, software systems and hardware-connected products for teams with hard problems.";
 
 function formatNameList(names: string[]) {
   if (names.length === 0) return "";
@@ -19,4 +19,4 @@ function formatNameList(names: string[]) {
   return `${names.slice(0, -1).join(", ")}, and ${names[names.length - 1]}`;
 }
 
-export const OFFERING_SUMMARY = `Most teams just write code. We build the entire factory — autonomous agents, automated workflows, and production applications including ${formatNameList(getPageProjectNames())}.`;
+export const OFFERING_SUMMARY = `We take hard domains apart, then design and build what runs them: AI agents, automated workflows and production apps, including ${formatNameList(getPageProjectNames())}.`;

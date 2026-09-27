@@ -23,8 +23,12 @@ export const homePage = {
   // TEST COPY — page hero above the IDE
   hero: {
     h1: "Hard problems in. Working software out.", // TEST COPY
-    /** Two block lines for one render path at all breakpoints. */
+    /** Two block lines; line 2 can wrap after "Working" on small viewports. */
     h1Lines: ["Hard problems in.", "Working software out."] as const, // TEST COPY
+    h1Line2: {
+      word: "Working", // TEST COPY
+      rest: "software out.", // TEST COPY — kept nowrap so "out." never stands alone
+    },
     lead: "A two-person design and AI engineering studio.", // TEST COPY
     primaryCta: { label: "About the studio", href: "/about" }, // TEST COPY
     secondaryCta: { label: "See the work", href: "/work" }, // TEST COPY

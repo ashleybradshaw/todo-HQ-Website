@@ -54,12 +54,17 @@ test.describe("/home IDE", () => {
     await page.goto("/home", { waitUntil: "domcontentloaded" });
 
     const status = page.locator(".ide-boot-status");
+    await status.scrollIntoViewIfNeeded();
     await expect(status.getByText("Markdown", { exact: true })).toBeVisible();
 
-    await page.getByRole("tab", { name: /book\.ts/ }).click();
+    const bookTab = page.getByRole("tab", { name: /book\.ts/ });
+    await bookTab.scrollIntoViewIfNeeded();
+    await bookTab.click();
     await expect(status.getByText("TypeScript", { exact: true })).toBeVisible();
 
-    await page.getByRole("tab", { name: /services\.md/ }).click();
+    const servicesTab = page.getByRole("tab", { name: /services\.md/ });
+    await servicesTab.scrollIntoViewIfNeeded();
+    await servicesTab.click();
     await expect(status.getByText("Markdown", { exact: true })).toBeVisible();
   });
 
@@ -73,7 +78,8 @@ test.describe("/home IDE", () => {
     const h1Matches = html.match(/<h1\b[^>]*>/gi) ?? [];
     expect(h1Matches.length).toBe(1);
     expect(html).toContain("Hard problems in.");
-    expect(html).toContain("Working software out.");
+    expect(html).toContain("Working");
+    expect(html).toContain("software out.");
     expect(html).not.toMatch(/<h1[^>]*sr-only/);
     expect(html).toContain('data-readme-source="true"');
     expect(html).toContain("ide-readme-gutter");

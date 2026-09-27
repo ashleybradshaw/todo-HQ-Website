@@ -52,15 +52,16 @@ export function HomeHero() {
       className={`${HOME_FRAME} relative z-10 flex flex-col items-center pt-[12vh] pb-10 text-center md:pt-[24vh] md:pb-12`}
     >
       {/*
-        Mobile clamp sized so the longer line ("Working software out.") fits
-        one line at 390 within the frame. Desktop stays 36/40.
+        Mobile: ~28px at 360 → ~30–32px at 390 so line 1 stays one line.
+        Line 2 may wrap after "Working"; "software out." stays nowrap.
+        Desktop: two lines at 36/40.
       */}
-      <h1 className="font-unbounded text-foreground w-full max-w-none text-[clamp(1.125rem,4.55vw,2.25rem)] leading-[1.12] font-bold tracking-tight md:max-w-[22ch] md:text-[36px] md:leading-[40px]">
-        {hero.h1Lines.map((line) => (
-          <span key={line} className="block whitespace-nowrap">
-            {line}
-          </span>
-        ))}
+      <h1 className="font-unbounded text-foreground w-full max-w-none text-[clamp(1.75rem,7.78vw,2.25rem)] leading-[1.12] font-bold tracking-tight md:max-w-[22ch] md:text-[36px] md:leading-[40px]">
+        <span className="block whitespace-nowrap">{hero.h1Lines[0]}</span>
+        <span className="block md:whitespace-nowrap">
+          {hero.h1Line2.word}{" "}
+          <span className="whitespace-nowrap">{hero.h1Line2.rest}</span>
+        </span>
       </h1>
       <p className="type-body text-foreground mt-5 max-w-[40rem]">
         {hero.lead}

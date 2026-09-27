@@ -7,8 +7,9 @@ import { HOME_FRAME } from "@/components/ide/homeFrame";
 const { strip } = homePage;
 
 /**
- * Sets --home-strip-top / --home-strip-bottom on the grid root (not main)
- * so crosshairs land on the inset hairlines. Hairlines end at left-6/right-6.
+ * Flush under the hero — shared top edge with the hero rule.
+ * Sets --home-strip-bottom for the bottom hairline / crosshairs / vertical gap.
+ * Top hairline is drawn once by HomePageGrid on the hero rule.
  */
 export function HomeFeatureStrip() {
   const rootRef = useRef<HTMLElement>(null);
@@ -18,10 +19,13 @@ export function HomeFeatureStrip() {
     if (!el) return;
 
     const sync = () => {
-      const grid = el.closest("main")?.querySelector<HTMLElement>("[data-home-grid]");
+      const grid = el
+        .closest("main")
+        ?.querySelector<HTMLElement>("[data-home-grid]");
       if (!grid) return;
       const gridTop = grid.getBoundingClientRect().top;
       const rect = el.getBoundingClientRect();
+      // Strip top === hero rule when flush; keep both vars in sync for verticals.
       const top = Math.round(rect.top - gridTop);
       const bottom = Math.round(rect.bottom - gridTop);
       grid.style.setProperty("--home-strip-top", `${top}px`);
@@ -41,18 +45,10 @@ export function HomeFeatureStrip() {
   return (
     <section
       ref={rootRef}
-      className={`${HOME_FRAME} relative z-10 my-16 md:my-20`}
+      className={`${HOME_FRAME} relative z-10 mb-16 md:mb-20`}
       aria-label={strip.aria}
     >
-      {/* Hairlines end at the vertical grid / IDE frame edges */}
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute top-0 right-6 left-6 h-px"
-        style={{
-          backgroundColor:
-            "color-mix(in srgb, var(--foreground) 22%, transparent)",
-        }}
-      />
+      {/* Bottom hairline only — top is the shared hero/strip rule from the grid */}
       <span
         aria-hidden="true"
         className="pointer-events-none absolute right-6 bottom-0 left-6 h-px"

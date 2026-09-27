@@ -15,8 +15,8 @@ const primaryCta = `${sharedCta} border border-transparent bg-foreground text-bg
 const secondaryCta = `${sharedCta} border border-foreground bg-transparent text-foreground hover:bg-ide-chrome`;
 
 /**
- * Sets --home-hero-rule-top on the page grid root so the horizontal
- * and crosshairs meet the hero bottom edge.
+ * Sets --home-hero-rule-top so the shared hero/strip hairline + crosshairs
+ * sit on the hero bottom edge (strip is flush beneath).
  */
 export function HomeHero() {
   const rootRef = useRef<HTMLElement>(null);
@@ -26,7 +26,9 @@ export function HomeHero() {
     if (!el) return;
 
     const sync = () => {
-      const grid = el.closest("main")?.querySelector<HTMLElement>("[data-home-grid]");
+      const grid = el
+        .closest("main")
+        ?.querySelector<HTMLElement>("[data-home-grid]");
       if (!grid) return;
       const top = Math.round(
         el.getBoundingClientRect().bottom - grid.getBoundingClientRect().top,
@@ -49,9 +51,13 @@ export function HomeHero() {
       ref={rootRef}
       className={`${HOME_FRAME} relative z-10 flex flex-col items-center pt-[12vh] pb-10 text-center md:pt-[24vh] md:pb-12`}
     >
-      <h1 className="font-unbounded text-foreground w-full max-w-[22ch] text-[clamp(1.625rem,7.8vw,2.25rem)] leading-[1.12] font-bold tracking-tight md:text-[36px] md:leading-[40px]">
+      {/*
+        Mobile clamp sized so the longer line ("Working software out.") fits
+        one line at 390 within the frame. Desktop stays 36/40.
+      */}
+      <h1 className="font-unbounded text-foreground w-full max-w-none text-[clamp(1.125rem,4.55vw,2.25rem)] leading-[1.12] font-bold tracking-tight md:max-w-[22ch] md:text-[36px] md:leading-[40px]">
         {hero.h1Lines.map((line) => (
-          <span key={line} className="block">
+          <span key={line} className="block whitespace-nowrap">
             {line}
           </span>
         ))}

@@ -2,6 +2,8 @@ import { HOME_FRAME } from "@/components/ide/homeFrame";
 
 const lineColor =
   "color-mix(in srgb, var(--foreground) 10%, transparent)";
+const hairlineColor =
+  "color-mix(in srgb, var(--foreground) 22%, transparent)";
 const crossColor =
   "color-mix(in srgb, var(--foreground) 12%, transparent)";
 
@@ -38,7 +40,7 @@ function Crosshair({
 
 /**
  * Decorative page grid for /home — below nav, above footer.
- * Verticals at content frame edges; crosshairs only at hero rule + strip hairlines.
+ * One shared hairline at the hero/strip join; crosshairs only there + strip bottom.
  */
 export function HomePageGrid() {
   return (
@@ -48,21 +50,22 @@ export function HomePageGrid() {
       aria-hidden="true"
     >
       <div className={`${HOME_FRAME} relative h-full`}>
-        {/* Continuous verticals (gap through strip via shorter segments) */}
+        {/* Verticals above the shared hero/strip join */}
         <span
           className="absolute top-0 left-6 w-px"
           style={{
-            height: "var(--home-strip-top, 0px)",
+            height: "var(--home-hero-rule-top, var(--home-strip-top, 0px))",
             backgroundColor: lineColor,
           }}
         />
         <span
           className="absolute top-0 right-6 w-px"
           style={{
-            height: "var(--home-strip-top, 0px)",
+            height: "var(--home-hero-rule-top, var(--home-strip-top, 0px))",
             backgroundColor: lineColor,
           }}
         />
+        {/* Verticals below the strip */}
         <span
           className="absolute bottom-0 left-6 w-px"
           style={{
@@ -78,19 +81,23 @@ export function HomePageGrid() {
           }}
         />
 
-        {/* Hero bottom rule between verticals */}
+        {/* Shared hero-bottom / strip-top hairline */}
         <span
           className="absolute right-6 left-6 h-px"
           style={{
-            top: "var(--home-hero-rule-top, 0px)",
-            backgroundColor: lineColor,
+            top: "var(--home-hero-rule-top, var(--home-strip-top, 0px))",
+            backgroundColor: hairlineColor,
           }}
         />
 
-        <Crosshair side="left" topVar="var(--home-hero-rule-top, 0px)" />
-        <Crosshair side="right" topVar="var(--home-hero-rule-top, 0px)" />
-        <Crosshair side="left" topVar="var(--home-strip-top, 0px)" />
-        <Crosshair side="right" topVar="var(--home-strip-top, 0px)" />
+        <Crosshair
+          side="left"
+          topVar="var(--home-hero-rule-top, var(--home-strip-top, 0px))"
+        />
+        <Crosshair
+          side="right"
+          topVar="var(--home-hero-rule-top, var(--home-strip-top, 0px))"
+        />
         <Crosshair side="left" topVar="var(--home-strip-bottom, 100%)" />
         <Crosshair side="right" topVar="var(--home-strip-bottom, 100%)" />
       </div>

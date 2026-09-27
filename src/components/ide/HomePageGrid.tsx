@@ -37,18 +37,18 @@ function Crosshair({
 }
 
 /**
- * Decorative page grid for /home.
- * Verticals gap through the feature strip so no grid line crosses strip copy.
- * Crosshairs only where verticals meet the strip’s own top/bottom hairlines.
+ * Decorative page grid for /home — below nav, above footer.
+ * Verticals at content frame edges; crosshairs only at hero rule + strip hairlines.
  */
 export function HomePageGrid() {
   return (
     <div
+      data-home-grid
       className="pointer-events-none absolute inset-x-0 top-[var(--site-header-offset)] bottom-0 z-0 overflow-hidden text-foreground"
       aria-hidden="true"
     >
       <div className={`${HOME_FRAME} relative h-full`}>
-        {/* Verticals above the strip */}
+        {/* Continuous verticals (gap through strip via shorter segments) */}
         <span
           className="absolute top-0 left-6 w-px"
           style={{
@@ -63,7 +63,6 @@ export function HomePageGrid() {
             backgroundColor: lineColor,
           }}
         />
-        {/* Verticals below the strip */}
         <span
           className="absolute bottom-0 left-6 w-px"
           style={{
@@ -79,6 +78,17 @@ export function HomePageGrid() {
           }}
         />
 
+        {/* Hero bottom rule between verticals */}
+        <span
+          className="absolute right-6 left-6 h-px"
+          style={{
+            top: "var(--home-hero-rule-top, 0px)",
+            backgroundColor: lineColor,
+          }}
+        />
+
+        <Crosshair side="left" topVar="var(--home-hero-rule-top, 0px)" />
+        <Crosshair side="right" topVar="var(--home-hero-rule-top, 0px)" />
         <Crosshair side="left" topVar="var(--home-strip-top, 0px)" />
         <Crosshair side="right" topVar="var(--home-strip-top, 0px)" />
         <Crosshair side="left" topVar="var(--home-strip-bottom, 100%)" />

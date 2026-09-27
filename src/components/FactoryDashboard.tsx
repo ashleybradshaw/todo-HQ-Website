@@ -134,6 +134,7 @@ export function FactoryDashboard() {
 
             <IdeStatusStrip
               line={editorLine}
+              activeTab={activeTab}
               pipelineIndex={pipelineIndex}
               pipelineTotal={PIPELINE_TOTAL}
             />

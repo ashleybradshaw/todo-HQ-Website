@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 export type IdeTokenKind =
@@ -12,6 +13,7 @@ export type IdeTokenKind =
   | "bold"
   | "code"
   | "bullet"
+  | "link"
   | "plain";
 
 const TOKEN_CLASS: Record<IdeTokenKind, string> = {
@@ -27,10 +29,13 @@ const TOKEN_CLASS: Record<IdeTokenKind, string> = {
   bold: "text-foreground font-medium",
   code: "text-syn-string",
   bullet: "text-muted",
+  link: "text-syn-string underline decoration-[color-mix(in_srgb,var(--foreground)_35%,transparent)] underline-offset-2",
   plain: "text-syn-property",
 };
 
-type Token = { kind: IdeTokenKind; text: string };
+type Token =
+  | { kind: Exclude<IdeTokenKind, "link">; text: string }
+  | { kind: "link"; text: string; href: string; label: string };
 
 const TS_KEYWORDS = new Set([
   "export",
@@ -53,11 +58,17 @@ function pushPlain(tokens: Token[], text: string) {
   if (text.length > 0) tokens.push({ kind: "plain", text });
 }
 
-/** Lightweight markdown tokenizer for README.md source lines. */
+/** Emit any unmatched gap so characters like the `1` in `v1.5` are never dropped. */
+function pushGap(tokens: Token[], text: string, from: number, to: number) {
+  if (to > from) pushPlain(tokens, text.slice(from, to));
+}
+
+/** Lightweight markdown tokenizer for README.md / services.md source lines. */
 export function tokenizeMarkdownLine(line: string): Token[] {
   if (line.length === 0) return [{ kind: "plain", text: "\u00a0" }];
 
-  if (line.startsWith("<!--") || line.trimStart().startsWith("//")) {
+  // HTML comments only — a leading `//` in prose stays plain.
+  if (line.startsWith("<!--")) {
     return [{ kind: "comment", text: line }];
   }
 
@@ -76,41 +87,80 @@ export function tokenizeMarkdownLine(line: string): Token[] {
       { kind: "plain", text: list[1] },
       { kind: "bullet", text: list[2] },
       { kind: "plain", text: list[3] },
-      ...tokenizeInline(list[4]),
+      ...tokenizeMarkdownInline(list[4]),
     ];
   }
 
   if (line.startsWith("|")) {
-    return tokenizeInline(line);
+    return tokenizeMarkdownInline(line);
   }
 
-  return tokenizeInline(line);
+  return tokenizeMarkdownInline(line);
 }
 
-function tokenizeInline(text: string): Token[] {
+/** Markdown-only inline: no TS keywords, quote-strings, or comment rules.
+ * Dots stay inside words so versions like `v1.5` are never split/dropped.
+ */
+function tokenizeMarkdownInline(text: string): Token[] {
+  const tokens: Token[] = [];
+  const re =
+    /(`[^`]+`)|(\*\*[^*]+\*\*)|(\[([^\]]+)\]\(([^)]+)\))|([{}[\](),;:|\\/\-→·]+)|(\s+)|([^\s`*[\](){}[\],;:|\\/\-→·]+)/g;
+
+  let last = 0;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(text)) !== null) {
+    pushGap(tokens, text, last, match.index);
+    const [, code, bold, , linkLabel, linkHref, punct, space, word] = match;
+
+    if (code) tokens.push({ kind: "code", text: code });
+    else if (bold) tokens.push({ kind: "bold", text: bold });
+    else if (linkLabel !== undefined && linkHref !== undefined) {
+      tokens.push({
+        kind: "link",
+        text: match[3],
+        label: linkLabel,
+        href: linkHref,
+      });
+    } else if (punct) tokens.push({ kind: "punct", text: punct });
+    else if (space) pushPlain(tokens, space);
+    else if (word) tokens.push({ kind: "plain", text: word });
+
+    last = match.index + match[0].length;
+  }
+  pushGap(tokens, text, last, text.length);
+
+  if (tokens.length === 0) pushPlain(tokens, text);
+  return tokens;
+}
+
+/** Lightweight TypeScript-ish tokenizer for book.ts lines. */
+export function tokenizeTsLine(line: string): Token[] {
+  if (line.length === 0) return [{ kind: "plain", text: "\u00a0" }];
+  const trimmed = line.trimStart();
+  if (
+    trimmed.startsWith("//") ||
+    trimmed.startsWith("/*") ||
+    trimmed.startsWith("*")
+  ) {
+    return [{ kind: "comment", text: line }];
+  }
+  return tokenizeTsInline(line);
+}
+
+function tokenizeTsInline(text: string): Token[] {
   const tokens: Token[] = [];
   const re =
     /(`[^`]+`)|(\*\*[^*]+\*\*)|(\[[^\]]+\]\([^)]+\))|(\b[\w.]+\(\))|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|(\b\d+(?:\.\d+)?\b)|([{}[\]().,;:|\\/\-→·]+)|(\s+)|([^\s`*[\]()"'0-9{}[\].,;:|\\/\-→·]+)/g;
 
+  let last = 0;
   let match: RegExpExecArray | null;
   while ((match = re.exec(text)) !== null) {
-    const [
-      ,
-      code,
-      bold,
-      link,
-      fn,
-      str,
-      num,
-      punct,
-      space,
-      word,
-    ] = match;
+    pushGap(tokens, text, last, match.index);
+    const [, code, bold, link, fn, str, num, punct, space, word] = match;
 
     if (code) tokens.push({ kind: "code", text: code });
     else if (bold) tokens.push({ kind: "bold", text: bold });
     else if (link) {
-      // [label](href) — label muted-ish, href string tint
       const parts = /^(\[[^\]]+\])(\([^)]+\))$/.exec(link);
       if (parts) {
         tokens.push({ kind: "property", text: parts[1] });
@@ -128,26 +178,44 @@ function tokenizeInline(text: string): Token[] {
       else if (TS_LITERALS.has(word)) tokens.push({ kind: "number", text: word });
       else tokens.push({ kind: "plain", text: word });
     }
+
+    last = match.index + match[0].length;
   }
+  pushGap(tokens, text, last, text.length);
 
   if (tokens.length === 0) pushPlain(tokens, text);
   return tokens;
 }
 
-/** Lightweight TypeScript-ish tokenizer for book.ts lines. */
-export function tokenizeTsLine(line: string): Token[] {
-  if (line.length === 0) return [{ kind: "plain", text: "\u00a0" }];
-  const trimmed = line.trimStart();
-  if (trimmed.startsWith("//") || trimmed.startsWith("/*") || trimmed.startsWith("*")) {
-    return [{ kind: "comment", text: line }];
-  }
-  return tokenizeInline(line);
-}
+const linkClass = `${TOKEN_CLASS.link} rounded-[4px] transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none`;
 
 export function renderTokens(tokens: Token[]): ReactNode {
-  return tokens.map((token, index) => (
-    <span key={`${index}-${token.kind}`} className={TOKEN_CLASS[token.kind]}>
-      {token.text}
-    </span>
-  ));
+  return tokens.map((token, index) => {
+    const key = `${index}-${token.kind}`;
+    if (token.kind === "link") {
+      const internal = token.href.startsWith("/");
+      if (internal) {
+        return (
+          <Link key={key} href={token.href} className={linkClass}>
+            {token.text}
+          </Link>
+        );
+      }
+      return (
+        <a
+          key={key}
+          href={token.href}
+          className={linkClass}
+          rel="noopener noreferrer"
+        >
+          {token.text}
+        </a>
+      );
+    }
+    return (
+      <span key={key} className={TOKEN_CLASS[token.kind]}>
+        {token.text}
+      </span>
+    );
+  });
 }

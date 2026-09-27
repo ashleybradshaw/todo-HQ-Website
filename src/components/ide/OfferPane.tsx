@@ -1,11 +1,21 @@
 import Link from "next/link";
 import { StackIconRow } from "@/components/ide/StackIconRow";
+import { IdePaneCollapse } from "@/components/ide/IdePaneCollapse";
 import { homePage } from "@/content/pages/home";
 
 const { offer } = homePage;
 
+/** Approximate source-line count for the collapse label (structured pane). */
+const OFFER_LINE_COUNT =
+  2 +
+  offer.services.length * 2 +
+  offer.howWeWorkSteps.length +
+  offer.stackGroups.length +
+  4;
+
 export function OfferPane() {
   return (
+    <IdePaneCollapse lineCount={OFFER_LINE_COUNT}>
     <div className="font-jetbrains flex flex-col gap-5 px-4 py-4 text-xs leading-5 lg:text-sm lg:leading-6">
       <p className="text-syn-comment italic">{offer.fileComment}</p>
 
@@ -71,5 +81,6 @@ export function OfferPane() {
         </Link>
       </p>
     </div>
+    </IdePaneCollapse>
   );
 }

@@ -8,12 +8,14 @@ import {
   type StatusTone,
 } from "@/hooks/useTelemetryRotation";
 import { useFactoryStream } from "@/hooks/useFactoryStream";
+import type { IdeTabId } from "@/components/ide/IdeTabBar";
 
 const { statusStrip, chrome } = homePage;
 
 type IdeStatusStripProps = {
   line: number;
   col?: number;
+  activeTab: IdeTabId;
   /** 0-based active pipeline stage index. */
   pipelineIndex: number;
   pipelineTotal: number;
@@ -53,6 +55,7 @@ function StatusDot({
 export function IdeStatusStrip({
   line,
   col = 1,
+  activeTab,
   pipelineIndex,
   pipelineTotal,
 }: IdeStatusStripProps) {
@@ -68,6 +71,7 @@ export function IdeStatusStrip({
     .replace("{total}", String(pipelineTotal).padStart(2, "0"));
 
   const agentsLabel = `${chrome.agentsPrefix} ${String(feed.agents).padStart(2, "0")}`;
+  const language = chrome.languageByTab[activeTab];
 
   const fadeClass = cn(
     "transition-opacity ease-out",
@@ -78,8 +82,7 @@ export function IdeStatusStrip({
   return (
     <div
       className="ide-boot-status bg-ide-chrome border-border-ide-strong font-jetbrains flex shrink-0 items-center justify-between gap-x-3 border-t px-3 py-1 text-[10px] tracking-wide tabular-nums lg:text-[11px]"
-      role="status"
-      aria-label={`${statusStrip.ariaPrefix}${lnLabel}. ${telem.sectionAria}`}
+      aria-label={`${statusStrip.ariaPrefix}${lnLabel}`}
     >
       <p className="sr-only">{telem.rosterSummary}</p>
 
@@ -99,6 +102,7 @@ export function IdeStatusStrip({
 
       <span className="text-muted flex min-w-0 shrink items-center gap-x-1.5 overflow-hidden">
         <span
+          aria-hidden="true"
           className={cn(
             "text-foreground hidden shrink-0 items-center gap-1.5 md:inline-flex",
             fadeClass,
@@ -111,9 +115,7 @@ export function IdeStatusStrip({
           />
           <StatusDot tone={telem.infra.tone} pulse={!telem.reduceMotion} />
           <span>{telem.infra.label}</span>
-          <span className="opacity-40" aria-hidden="true">
-            ·
-          </span>
+          <span className="opacity-40">·</span>
           <span>{telem.projectName}</span>
         </span>
         <span className="hidden shrink-0 opacity-40 md:inline" aria-hidden="true">
@@ -127,11 +129,14 @@ export function IdeStatusStrip({
         <span className="hidden shrink-0 opacity-40 md:inline" aria-hidden="true">
           ·
         </span>
-        <span className="hidden shrink-0 md:inline">{chrome.language}</span>
+        <span className="hidden shrink-0 md:inline">{language}</span>
         <span className="hidden shrink-0 opacity-40 md:inline" aria-hidden="true">
           ·
         </span>
-        <span className="text-muted hidden shrink-0 items-center gap-1 md:inline-flex">
+        <span
+          className="text-muted hidden shrink-0 items-center gap-1 md:inline-flex"
+          aria-live="polite"
+        >
           <span className="text-syn-string" aria-hidden="true">
             {chrome.pipelineDot}
           </span>

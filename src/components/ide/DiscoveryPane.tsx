@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CONTACT_EMAIL } from "@/lib/site";
+import { IdePaneCollapse } from "@/components/ide/IdePaneCollapse";
 import { homePage } from "@/content/pages/home";
 
 const bookClass =
@@ -11,8 +12,11 @@ const mailtoClass =
 const { discovery } = homePage;
 const keys = discovery.codeKeys;
 
+const DISCOVERY_LINE_COUNT = 22;
+
 export function DiscoveryPane() {
   return (
+    <IdePaneCollapse lineCount={DISCOVERY_LINE_COUNT}>
     <div className="font-jetbrains flex flex-col gap-6 px-4 py-4 text-xs leading-5 lg:text-sm lg:leading-6">
       <div className="space-y-1">
         <p className="text-syn-comment italic">{discovery.fileComment}</p>
@@ -116,5 +120,6 @@ export function DiscoveryPane() {
         </p>
       </div>
     </div>
+    </IdePaneCollapse>
   );
 }

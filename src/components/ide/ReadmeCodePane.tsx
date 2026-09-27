@@ -17,6 +17,7 @@ import {
   renderTokens,
   tokenizeMarkdownLine,
 } from "@/components/ide/ideHighlight";
+import { IdePaneCollapse } from "@/components/ide/IdePaneCollapse";
 
 const { todoHq } = homePage;
 
@@ -85,6 +86,7 @@ export function ReadmeCodePane({
   );
 
   return (
+    <IdePaneCollapse lineCount={lines.length}>
     <div
       className="font-jetbrains flex flex-col py-3 text-xs leading-6 lg:text-sm lg:leading-7"
       data-readme-source="true"
@@ -165,5 +167,6 @@ export function ReadmeCodePane({
         );
       })}
     </div>
+    </IdePaneCollapse>
   );
 }

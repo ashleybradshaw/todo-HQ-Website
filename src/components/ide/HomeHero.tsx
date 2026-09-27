@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useLayoutEffect, useRef } from "react";
 import { homePage } from "@/content/pages/home";
 import { HOME_FRAME } from "@/components/ide/homeFrame";
 
@@ -13,13 +14,47 @@ const primaryCta = `${sharedCta} border border-transparent bg-foreground text-bg
 
 const secondaryCta = `${sharedCta} border border-foreground bg-transparent text-foreground hover:bg-ide-chrome`;
 
+/**
+ * Sets --home-hero-rule-top on the page grid root so the horizontal
+ * and crosshairs meet the hero bottom edge.
+ */
 export function HomeHero() {
+  const rootRef = useRef<HTMLElement>(null);
+
+  useLayoutEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
+
+    const sync = () => {
+      const grid = el.closest("main")?.querySelector<HTMLElement>("[data-home-grid]");
+      if (!grid) return;
+      const top = Math.round(
+        el.getBoundingClientRect().bottom - grid.getBoundingClientRect().top,
+      );
+      grid.style.setProperty("--home-hero-rule-top", `${top}px`);
+    };
+
+    sync();
+    const ro = new ResizeObserver(sync);
+    ro.observe(el);
+    window.addEventListener("resize", sync);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", sync);
+    };
+  }, []);
+
   return (
     <section
-      className={`${HOME_FRAME} relative z-10 flex flex-col items-center pt-[12vh] pb-0 text-center md:pt-[24vh]`}
+      ref={rootRef}
+      className={`${HOME_FRAME} relative z-10 flex flex-col items-center pt-[12vh] pb-10 text-center md:pt-[24vh] md:pb-12`}
     >
-      <h1 className="type-title text-foreground max-w-[18ch] text-balance tracking-tight md:max-w-[22ch]">
-        {hero.h1}
+      <h1 className="font-unbounded text-foreground w-full max-w-[22ch] text-[clamp(1.625rem,7.8vw,2.25rem)] leading-[1.12] font-bold tracking-tight md:text-[36px] md:leading-[40px]">
+        {hero.h1Lines.map((line) => (
+          <span key={line} className="block">
+            {line}
+          </span>
+        ))}
       </h1>
       <p className="type-body text-foreground mt-5 max-w-[40rem]">
         {hero.lead}

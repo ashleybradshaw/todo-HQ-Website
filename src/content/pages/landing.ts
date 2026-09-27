@@ -9,7 +9,7 @@ import { OFFERING_SUMMARY, SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
 export const landingPage = {
   // TEST COPY
   seo: {
-    title: `${SITE_NAME} — Design and AI Engineering Studio`, // TEST COPY
+    title: `${SITE_NAME}: design and AI engineering studio`, // TEST COPY
     description: SITE_DESCRIPTION,
   },
 
@@ -20,18 +20,18 @@ export const landingPage = {
     offering: OFFERING_SUMMARY,
     capabilitiesHeading: "Capabilities",
     capabilities: [
-      "Production-ready application design, code, and ship",
-      "Autonomous agentic workflows and multi-agent ecosystems",
-      "Scalable backend engineering for SaaS and enterprise",
-      "Active roster: RepDaily, ReadyGo, and Contentic",
+      "Apps for iOS, Android and web", // TEST COPY
+      "CMS and software systems", // TEST COPY
+      "Products that talk to hardware (BLE, edge AI)", // TEST COPY
+      "Projects: RepDaily (live), ReadyGo (in build), Contentic (live)", // TEST COPY
     ],
     navAria: "Primary destinations",
     nav: [
       { href: "/intro", label: "Start the intro sequence" },
       { href: "/home", label: "Open the homepage" }, // TEST COPY
-      { href: "/about", label: "Read the manifesto" },
-      { href: "/work", label: "View production work" },
-      { href: "/book", label: "Book the team" },
+      { href: "/about", label: "About the studio" }, // TEST COPY
+      { href: "/work", label: "See the work" }, // TEST COPY
+      { href: "/book", label: "Book a call" }, // TEST COPY
     ],
   },
 
@@ -40,10 +40,9 @@ export const landingPage = {
     description: SITE_DESCRIPTION,
     links: [
       { href: "/home", label: "Continue to the homepage" }, // TEST COPY
-
       { href: "/about", label: "About" },
       { href: "/work", label: "Work" },
-      { href: "/book", label: "Book Team" },
+      { href: "/book", label: "Book a call" }, // TEST COPY
     ],
   },
 

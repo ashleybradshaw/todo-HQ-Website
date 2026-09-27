@@ -17,7 +17,7 @@ type Phase = "countdown" | "reading" | "done";
 
 /**
  * Keep Up reading ramp — early/mid tokens ~15–25% shorter than the prior
- * ladder; sentence-end holds lengthened; Fast. unchanged.
+ * ladder; sentence-end holds lengthened; Working. unchanged hold.
  */
 const rsvpSequence = [
   { text: "Most teams", ms: 300 },
@@ -25,21 +25,21 @@ const rsvpSequence = [
   { text: "write", ms: 155 },
   { text: "code.", ms: 720 },
   { text: "We", ms: 135 },
-  { text: "build", ms: 155 },
+  { text: "take", ms: 155 },
   { text: "the", ms: 120 },
-  { text: "entire", ms: 190 },
-  { text: "factory.", ms: 800 },
+  { text: "problem", ms: 190 },
+  { text: "apart.", ms: 800 },
   { text: "Autonomous", ms: 220 },
   { text: "agents.", ms: 620 },
-  { text: "Automated", ms: 205 },
-  { text: "workflows.", ms: 620 },
+  { text: "Human", ms: 205 },
+  { text: "checkpoints.", ms: 620 },
   { text: "We", ms: 110 },
   { text: "design,", ms: 220 },
-  { text: "build,", ms: 220 },
+  { text: "build", ms: 220 },
   { text: "and ship", ms: 190 },
-  { text: "production-", ms: 240 },
-  { text: "ready.", ms: 720 },
-  { text: "Fast.", ms: 1200 },
+  { text: "to", ms: 240 },
+  { text: "production.", ms: 720 },
+  { text: "Working.", ms: 1200 },
 ] as const;
 
 const COUNTDOWN_MS = 700;

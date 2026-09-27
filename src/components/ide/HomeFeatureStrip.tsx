@@ -7,8 +7,8 @@ import { HOME_FRAME } from "@/components/ide/homeFrame";
 const { strip } = homePage;
 
 /**
- * Sets --home-strip-top / --home-strip-bottom on <main> so the page grid
- * can gap verticals through the strip and place crosshairs on its hairlines.
+ * Sets --home-strip-top / --home-strip-bottom on the grid root (not main)
+ * so crosshairs land on the inset hairlines. Hairlines end at left-6/right-6.
  */
 export function HomeFeatureStrip() {
   const rootRef = useRef<HTMLElement>(null);
@@ -18,14 +18,14 @@ export function HomeFeatureStrip() {
     if (!el) return;
 
     const sync = () => {
-      const main = el.closest("main");
-      if (!main) return;
-      const mainTop = main.getBoundingClientRect().top + window.scrollY;
+      const grid = el.closest("main")?.querySelector<HTMLElement>("[data-home-grid]");
+      if (!grid) return;
+      const gridTop = grid.getBoundingClientRect().top;
       const rect = el.getBoundingClientRect();
-      const top = Math.round(rect.top + window.scrollY - mainTop);
-      const bottom = Math.round(rect.bottom + window.scrollY - mainTop);
-      main.style.setProperty("--home-strip-top", `${top}px`);
-      main.style.setProperty("--home-strip-bottom", `${bottom}px`);
+      const top = Math.round(rect.top - gridTop);
+      const bottom = Math.round(rect.bottom - gridTop);
+      grid.style.setProperty("--home-strip-top", `${top}px`);
+      grid.style.setProperty("--home-strip-bottom", `${bottom}px`);
     };
 
     sync();
@@ -41,9 +41,27 @@ export function HomeFeatureStrip() {
   return (
     <section
       ref={rootRef}
-      className={`${HOME_FRAME} relative z-10 my-16 border-y border-border-ide md:my-20`}
-      aria-label="What we build"
+      className={`${HOME_FRAME} relative z-10 my-16 md:my-20`}
+      aria-label={strip.aria}
     >
+      {/* Hairlines end at the vertical grid / IDE frame edges */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute top-0 right-6 left-6 h-px"
+        style={{
+          backgroundColor:
+            "color-mix(in srgb, var(--foreground) 22%, transparent)",
+        }}
+      />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute right-6 bottom-0 left-6 h-px"
+        style={{
+          backgroundColor:
+            "color-mix(in srgb, var(--foreground) 22%, transparent)",
+        }}
+      />
+
       <ul className="grid grid-cols-1 md:grid-cols-3">
         {strip.items.map((item, index) => (
           <li

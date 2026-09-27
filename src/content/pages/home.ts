@@ -23,25 +23,28 @@ export const homePage = {
   // TEST COPY — page hero above the IDE
   hero: {
     h1: "Hard problems in. Working software out.", // TEST COPY
-    lead: "We take complex domains apart and build what runs them.", // TEST COPY
-    primaryCta: { label: "Learn about us", href: "/about" }, // TEST COPY
+    /** Two block lines for one render path at all breakpoints. */
+    h1Lines: ["Hard problems in.", "Working software out."] as const, // TEST COPY
+    lead: "A two-person design and AI engineering studio.", // TEST COPY
+    primaryCta: { label: "About the studio", href: "/about" }, // TEST COPY
     secondaryCta: { label: "See the work", href: "/work" }, // TEST COPY
   },
 
   // TEST COPY — three-column feature strip
   strip: {
+    aria: "What we build", // TEST COPY
     items: [
       {
         title: "Apps", // TEST COPY
-        body: "iOS, Android and web — first screen to store release.", // TEST COPY
+        body: "Shipped apps for iOS, Android and web. Not demos.", // TEST COPY
       },
       {
         title: "Systems", // TEST COPY
-        body: "CMS and internal software for content, data and operations.", // TEST COPY
+        body: "The CMS and internal tools your team runs on.", // TEST COPY
       },
       {
-        title: "How we ship", // TEST COPY
-        body: "Design and code in one pass. Checkpoints you sign off.", // TEST COPY
+        title: "Hardware", // TEST COPY
+        body: "Products that pair with devices over BLE, with edge AI.", // TEST COPY
       },
     ],
   },
@@ -55,29 +58,34 @@ export const homePage = {
     pathSeparator: "›", // TEST COPY
     statusBranch: "⎇ main", // TEST COPY
     statusProblems: "⊘ 0 ⚠ 0", // TEST COPY
-    language: "TypeScript", // TEST COPY
+    languageByTab: {
+      todo: "Markdown", // TEST COPY
+      offer: "Markdown", // TEST COPY
+      discovery: "TypeScript", // TEST COPY
+    },
     pipelineDot: "●", // TEST COPY
     /** {n} = 1-based padded stage index, {total} = stage count. */
     pipelineLabel: "pipeline {n}/{total}", // TEST COPY
-    agentsPrefix: "agents", // TEST COPY
+    agentsPrefix: "agents (sim)", // TEST COPY
+    /** {n} = total line count in the pane. */
+    showAllLines: "Show all {n} lines", // TEST COPY
+    showFewerLines: "Show fewer lines", // TEST COPY
   },
 
   // TEST COPY — README.md content (rendered as source code in the editor)
   todoHq: {
     fileComment:
       "<!-- designed by devs. built by designers. don't tell the linter. -->", // TEST COPY
-    hook: "Hard problems in. Working software out.", // TEST COPY
+    hook: "todo-hq", // TEST COPY
     whoWeAre:
-      "//TODO Engineering is two engineers, one design and one backend and AI, working with agents.", // TEST COPY
+      "One design engineer and one backend and AI engineer, working with agents.", // TEST COPY
     whatWeDoBest: "We take complex domains apart and build what runs them.", // TEST COPY
-    primaryCta: { label: "Book a call", href: "/book" }, // TEST COPY
-    secondaryCta: { label: "See the work", href: "/work" }, // TEST COPY
+    primaryCta: { label: "About", href: "/about" }, // TEST COPY
+    secondaryCta: { label: "Blog", href: "/blog" }, // TEST COPY
 
     whatWeBuildHeading: "What we build", // TEST COPY
     whatWeBuild: [
-      "Apps for iOS, Android and web", // TEST COPY
-      "CMS and software systems that run the operation", // TEST COPY
-      "Products that talk to hardware (BLE, edge AI)", // TEST COPY
+      "Apps, systems and hardware-connected products. Detail in services.md.", // TEST COPY
     ],
 
     whoWeShipForHeading: "Who it's for", // TEST COPY
@@ -100,12 +108,12 @@ export const homePage = {
       { fn: "checkMarket()", line: "Ideate, then check someone actually wants it." }, // TEST COPY
       { fn: "shipMvp()", line: "MVP, homepage and light marketing, out the door." }, // TEST COPY
       { fn: "buildInPublic()", line: "v1.5, in the open." }, // TEST COPY
-      { fn: "parkOrPush()", line: "No users, it's parked. Users, it's back on." }, // TEST COPY
+      { fn: "parkOrPush()", line: "No users: parked. Users: back on." }, // TEST COPY
     ],
     methodologyAria: "runPipeline(): replay the pipeline graph", // TEST COPY
     methodologyLabel: "runPipeline()", // TEST COPY
 
-    inProductionHeading: "In production", // TEST COPY
+    inProductionHeading: "Projects", // TEST COPY
     /** Table rows derived from PROJECTS; these are the column headers and labels. */
     inProductionColumns: { project: "Project", status: "Status" }, // TEST COPY
     inProductionStatus: {
@@ -164,7 +172,7 @@ export const homePage = {
     ],
     proofHeading: "Proof", // TEST COPY
     proofLine:
-      "RepDaily is live on the App Store and Google Play. Same process, same two people.", // TEST COPY
+      "RepDaily: designed and built by two people in 103 days.", // TEST COPY
     cta: { label: "Talk it through →", href: "/book" }, // TEST COPY
   },
 
@@ -253,9 +261,9 @@ export const homePage = {
     rosterPrefix: "Projects: ", // TEST COPY
   },
 
-  // TEST COPY — pipeline.log theatre (stages from Autumn; chrome keys restored from main)
+  // TEST COPY — pipeline.log stages
   pipelineRunner: {
-    sectionAria: "Factory pipeline", // TEST COPY
+    sectionAria: "Pipeline", // TEST COPY
     header: "pipeline.log", // TEST COPY
     compiling: "[ AGENT_COMPILING... ]", // TEST COPY
     mode: {
@@ -264,7 +272,7 @@ export const homePage = {
       live: "LIVE", // TEST COPY
     },
     rebootLogs: [
-      "> REBOOTING FACTORY PIPELINE...", // TEST COPY
+      "> REPLAYING PIPELINE...", // TEST COPY
       "> flushing stage buffers...", // TEST COPY
       "> handshake ok.", // TEST COPY
     ],

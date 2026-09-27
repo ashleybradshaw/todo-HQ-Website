@@ -1,7 +1,5 @@
 import { test, expect } from "@playwright/test";
 
-const HOOK = "Hard problems in. Working software out.";
-
 test.describe("/home IDE", () => {
   test("hero, strip, tabs, project cards, empty reply, pipeline.log", async ({
     page,
@@ -9,17 +7,18 @@ test.describe("/home IDE", () => {
     await page.goto("/home", { waitUntil: "domcontentloaded" });
 
     await expect(page.locator("h1")).toHaveCount(1);
-    await expect(page.locator("h1")).toHaveText(HOOK);
+    await expect(page.locator("h1")).toContainText("Hard problems in.");
+    await expect(page.locator("h1")).toContainText("Working software out.");
     await expect(page.locator("h1")).not.toHaveClass(/sr-only/);
 
     await expect(page.getByRole("heading", { name: "Apps" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Systems" })).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: "How we ship" }),
+      page.getByRole("heading", { name: "Hardware" }),
     ).toBeVisible();
 
     await expect(
-      page.getByRole("link", { name: "Learn about us" }),
+      page.getByRole("link", { name: "About the studio" }),
     ).toHaveAttribute("href", "/about");
     await expect(
       page.getByRole("link", { name: "See the work" }),
@@ -34,6 +33,7 @@ test.describe("/home IDE", () => {
     await expect(page.getByRole("tab", { name: /book\.ts/ })).toBeVisible();
 
     await expect(page.getByText(/pipeline\.log/)).toBeVisible();
+    await expect(page.getByText(/v1\.5/)).toBeVisible();
 
     await expect(
       page.getByRole("link", { name: "View" }).nth(0),
@@ -49,6 +49,20 @@ test.describe("/home IDE", () => {
     await expect(page.locator("[data-discovery-reply]")).toHaveCount(0);
   });
 
+  test("language follows active tab at desktop width", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/home", { waitUntil: "domcontentloaded" });
+
+    const status = page.locator(".ide-boot-status");
+    await expect(status.getByText("Markdown", { exact: true })).toBeVisible();
+
+    await page.getByRole("tab", { name: /book\.ts/ }).click();
+    await expect(status.getByText("TypeScript", { exact: true })).toBeVisible();
+
+    await page.getByRole("tab", { name: /services\.md/ }).click();
+    await expect(status.getByText("Markdown", { exact: true })).toBeVisible();
+  });
+
   test("SSR has one visible h1 and README source gutter", async ({
     request,
   }) => {
@@ -58,10 +72,12 @@ test.describe("/home IDE", () => {
 
     const h1Matches = html.match(/<h1\b[^>]*>/gi) ?? [];
     expect(h1Matches.length).toBe(1);
-    expect(html).toContain(HOOK);
+    expect(html).toContain("Hard problems in.");
+    expect(html).toContain("Working software out.");
     expect(html).not.toMatch(/<h1[^>]*sr-only/);
     expect(html).toContain('data-readme-source="true"');
     expect(html).toContain("ide-readme-gutter");
     expect(html).toContain("pipeline.log");
+    expect(html).toContain("v1.5");
   });
 });

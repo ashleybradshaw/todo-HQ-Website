@@ -31,7 +31,7 @@ export default function AboutPage() {
       eyebrow={about.hero.eyebrow}
       eyebrowClassName="text-center"
       title={about.hero.h1}
-      titleClassName="type-display mx-auto max-w-none text-center text-balance tracking-tight max-md:max-w-[16ch]"
+      titleClassName="type-display mx-auto max-w-none text-center text-balance tracking-tight"
       ledeClassName="text-center"
       lede={
         <>

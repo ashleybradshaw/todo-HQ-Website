@@ -6,7 +6,7 @@ export type PageShellVariant = "index" | "essay" | "essayMedia";
 
 export type PageShellProps = {
   eyebrow?: string;
-  title: string;
+  title: ReactNode;
   lede?: ReactNode;
   children?: ReactNode;
   /**

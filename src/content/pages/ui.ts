@@ -16,7 +16,10 @@ export const uiPage = {
   header: {
     eyebrow: "// TODO UI",
     barLabel: "LIVE TOKENS",
+    /** Full title (a11y / tools). Rendered as line1 + mobile break + line2. */
     title: "Built to spec. Here's the spec.",
+    titleLine1: "Built to spec.",
+    titleLine2: "Here's the spec.",
     subtitle:
       "Every colour, type size, spacing step and motion curve on this site, read live from the code that ships it.",
   },

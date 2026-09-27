@@ -24,7 +24,9 @@ export function UiShowcaseHeader() {
           id="ui-heading"
           className="type-display max-md:max-w-[18ch] tracking-tight text-balance"
         >
-          {uiPage.header.title}
+          {uiPage.header.titleLine1}
+          <br className="md:hidden" />{" "}
+          {uiPage.header.titleLine2}
         </h1>
         <p className="type-body mt-6 max-w-[688px] text-foreground">
           {/* // TEST COPY */}

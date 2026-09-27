@@ -4,12 +4,13 @@ import { BookFaq } from "@/components/book/BookFaq";
 import { PageShell } from "@/components/PageShell";
 import { ProjectCard } from "@/components/ProjectCard";
 import { workPage } from "@/content/pages/work";
+import { ctas } from "@/content/pages/shared";
 import { getListedProjects } from "@/lib/projects";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Work",
-  description: workPage.metaDescription,
+  title: workPage.seo.title,
+  description: workPage.seo.description,
   path: "/work",
 });
 
@@ -30,7 +31,7 @@ export default function WorkPage() {
           </li>
         ))}
       </ul>
-      <BookFaq ctaLabel="Send a brief" ctaHref="/book#brief" />
+      <BookFaq ctaLabel={ctas.sendABrief} ctaHref={ctas.sendABriefHref} />
       <SignalStrip />
     </PageShell>
   );

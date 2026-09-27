@@ -8,8 +8,8 @@ import { contactPageGraph } from "@/lib/schema";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Book Team",
-  description: bookPage.metaDescription,
+  title: bookPage.seo.title,
+  description: bookPage.seo.description,
   path: "/book",
 });
 

@@ -29,6 +29,7 @@ import {
   TOKEN_REGISTRY,
   UI_DOCS_VERSION,
 } from "@/lib/ui-docs/tokenRegistry";
+import { uiPage } from "@/content/pages/ui";
 
 const GUTTER_LINES = 48;
 
@@ -62,12 +63,12 @@ function ResetButton() {
       type="button"
       onClick={reset}
       disabled={isBrand}
-      aria-label="Reset colour palette to brand"
+      aria-label={uiPage.resetAria}
       className={cn(
         "font-jetbrains inline-flex shrink-0 cursor-pointer items-center justify-center rounded-[4px] border border-current px-3 py-1.5 text-xs font-bold tracking-wider uppercase transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none disabled:cursor-default disabled:opacity-40",
       )}
     >
-      Reset
+      {uiPage.resetLabel}
     </button>
   );
 }
@@ -82,9 +83,9 @@ function FileTree({
   idPrefix: string;
 }) {
   return (
-    <nav aria-label="Design system files" className="min-w-0">
+    <nav aria-label={uiPage.filesAria} className="min-w-0">
       <p className="font-jetbrains text-muted mb-2 px-3 text-[10px] tracking-wider uppercase">
-        explorer
+        {uiPage.explorerLabel}
       </p>
       <ul className="font-jetbrains text-xs">
         {UI_SECTIONS.map((section) => {
@@ -267,16 +268,16 @@ export function UiIdeShell() {
             onClick={() => setDrawerOpen((o) => !o)}
           >
             <span className="sr-only">
-              {drawerOpen ? "Close file tree" : "Open file tree"}
+              {drawerOpen ? uiPage.drawerOpenAria : uiPage.drawerClosedAria}
             </span>
             <span aria-hidden="true">{drawerOpen ? "✕" : "☰"}</span>
           </button>
           <div className="flex min-w-0 flex-1 items-baseline gap-2 sm:gap-3">
             <h1 className="type-title shrink-0 tracking-tight text-foreground">
-              TODO UI
+              {uiPage.title}
             </h1>
             <p className="type-caption text-muted min-w-0">
-              {UI_DOCS_VERSION} · design system
+              {UI_DOCS_VERSION} {uiPage.captionSuffix}
             </p>
           </div>
           <ResetButton />

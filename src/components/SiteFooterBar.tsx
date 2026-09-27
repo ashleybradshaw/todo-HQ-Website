@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { FooterClock } from "@/components/FooterClock";
+import { footer } from "@/content/pages/shared";
 
 const GITHUB_URL = "https://github.com/todo-engineering";
 const X_URL = "https://x.com/todo_engineering";
@@ -12,7 +13,7 @@ export function SiteFooterBar() {
   return (
     <footer className="border-border-ide bg-bg-canvas text-foreground relative z-10 border-t transition-[background-color,color,border-color] duration-[400ms] ease-in-out">
       <div className="font-jetbrains flex flex-col gap-3 px-4 py-4 text-[10px] tracking-wide uppercase sm:px-6 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between lg:gap-x-6 lg:gap-y-2 lg:text-xs">
-        <p>© 2026 TODO DESIGN & ENGINEERING</p>
+        <p>{footer.copyright}</p>
         <p>
           <a
             href={GITHUB_URL}
@@ -20,7 +21,7 @@ export function SiteFooterBar() {
             rel="noopener noreferrer"
             className={linkClass}
           >
-            GITHUB
+            {footer.github}
           </a>
           {" · "}
           <a
@@ -29,15 +30,15 @@ export function SiteFooterBar() {
             rel="noopener noreferrer"
             className={linkClass}
           >
-            X
+            {footer.x}
           </a>
         </p>
         <FooterClock />
-        <Link href="/book" className={linkClass}>
-          WORK TOGETHER
+        <Link href={footer.workTogetherHref} className={linkClass}>
+          {footer.workTogether}
         </Link>
-        <Link href="/privacy" className={linkClass}>
-          HOW WE USE YOUR DATA – PRIVACY POLICY
+        <Link href={footer.privacyHref} className={linkClass}>
+          {footer.privacy}
         </Link>
       </div>
     </footer>

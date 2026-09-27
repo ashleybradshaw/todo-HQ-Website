@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { FloorGhostDuo } from "@/components/ide/FloorGhost";
 import { TypeComment } from "@/components/TypeComment";
-import { aboutPage } from "@/content/pages/about";
+import { close } from "@/content/pages/shared";
 import { cn } from "@/lib/cn";
 
 /**
@@ -24,8 +24,6 @@ const primaryBtn = cn(
 );
 
 export function WorkTogetherBand() {
-  const { workTogether } = aboutPage;
-
   return (
     <section
       aria-label="Work together"
@@ -33,22 +31,22 @@ export function WorkTogetherBand() {
     >
       <div className="mx-auto grid max-w-[1336px] grid-cols-1 gap-10 px-6 py-12 lg:grid-cols-12 lg:items-center lg:gap-12 lg:py-16">
         <div className="lg:col-span-8">
-          <TypeComment text={workTogether.eyebrow} />
-          <h2 className="type-heading mt-3 text-balance">{workTogether.title}</h2>
+          <TypeComment text={close.eyebrow} />
+          <h2 className="type-heading mt-3 text-balance">{close.title}</h2>
           <p className="type-subhead mt-4 text-background">
-            {workTogether.subtitle}
+            {close.subtitle}
           </p>
           <p className="type-body mt-4 max-w-[40rem] text-background">
-            {workTogether.body}
+            {close.body}
           </p>
           <div className="relative z-[60] mt-8 flex flex-wrap items-center gap-3 sm:gap-4">
-            <Link href={workTogether.ctaHref} className={primaryBtn}>
-              <span className="relative z-10">{workTogether.ctaLabel}</span>
+            <Link href={close.ctaHref} className={primaryBtn}>
+              <span className="relative z-10">{close.ctaLabel}</span>
               <span aria-hidden="true" className="spray-shine-wash" />
               <span aria-hidden="true" className="spray-shine-edge" />
             </Link>
-            <Link href={workTogether.secondary.href} className={secondaryBtn}>
-              {workTogether.secondary.label}
+            <Link href={close.secondary.href} className={secondaryBtn}>
+              {close.secondary.label}
             </Link>
           </div>
         </div>

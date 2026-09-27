@@ -4,10 +4,10 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AsciiReveal } from "@/components/about/AsciiReveal";
 import { MirageSpinner } from "@/components/ide/MirageSpinner";
 import { TypeComment } from "@/components/TypeComment";
-import { aboutPage } from "@/content/pages/about";
+import { about } from "@/content/pages/about";
 import { cn } from "@/lib/cn";
 
-const { operatingRules } = aboutPage;
+const { operating } = about;
 /** Gutter spinner — default Mirage is 56px. */
 const MARKER_SIZE_PX = 24;
 
@@ -85,13 +85,14 @@ export function OperatingRules() {
 
   return (
     <section className="mt-16 scroll-mt-28 border-t border-border-ide pt-10">
-      <TypeComment text={operatingRules.eyebrow} />
-      <h2 className="type-heading mt-3">{operatingRules.title}</h2>
+      <TypeComment text={operating.eyebrow} />
+      <h2 className="type-heading mt-3">{operating.title}</h2>
+      <p className="type-body mt-4 max-w-[40rem]">{operating.intro}</p>
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
         <div className="order-2 lg:order-1 lg:sticky lg:top-28">
           <div className="grid grid-cols-1 gap-3">
-            {operatingRules.media.map((item, index) => (
+            {operating.media.map((item, index) => (
               <AsciiReveal
                 key={item.src}
                 src={item.src}
@@ -117,7 +118,7 @@ export function OperatingRules() {
                 style={{ ["--mirage-size" as string]: `${MARKER_SIZE_PX}px` }}
               />
             </span>
-            {operatingRules.rules.map((rule, index) => {
+            {operating.rules.map((rule, index) => {
               const active = index === activeIndex;
               return (
                 <li

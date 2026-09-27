@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { FloorGhostDuo } from "@/components/ide/FloorGhost";
 import { NotFoundRoute } from "@/components/NotFoundRoute";
-import { SITE_NAME } from "@/lib/site";
+import { notFoundPage } from "@/content/pages/not-found";
+import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = {
-  title: { absolute: `Page not found · ${SITE_NAME}` },
+  title: { absolute: notFoundPage.seo.title },
   robots: { index: false, follow: true },
 };
 
@@ -33,15 +34,13 @@ export default function NotFound() {
         <div className="flex w-full max-w-[560px] flex-col gap-6">
           <div>
             {/* TEST COPY */}
-            <h1 className="type-heading text-balance">This page didn&apos;t ship.</h1>
+            <h1 className="type-heading text-balance">{notFoundPage.h1}</h1>
             {/* TEST COPY */}
-            <p className="type-body mt-3 text-foreground">
-              The link is broken or the page moved. Pick a way back.
-            </p>
+            <p className="type-body mt-3 text-foreground">{notFoundPage.body}</p>
           </div>
 
           <section
-            aria-label="IDE editor"
+            aria-label={notFoundPage.editorAria}
             className="border-border-ide w-full overflow-hidden rounded-[4px] border bg-background"
           >
             <div className="border-border-ide flex items-center gap-2 border-b px-3 py-2">
@@ -49,7 +48,7 @@ export default function NotFound() {
                 className="font-jetbrains rounded-[4px] border border-border-ide px-2 py-0.5 text-xs tracking-wide text-foreground"
                 aria-hidden="true"
               >
-                404.ts
+                {notFoundPage.tabLabel}
               </span>
             </div>
             <NotFoundRoute />
@@ -57,17 +56,17 @@ export default function NotFound() {
 
           <nav
             className="flex flex-wrap items-center gap-4"
-            aria-label="Ways back"
+            aria-label={notFoundPage.navAria}
           >
-            <Link href="/home" className={linkClass}>
-              Go home
-            </Link>
-            <Link href="/work" className={linkClass}>
-              See the work
-            </Link>
-            <Link href="/book" className={ctaClass}>
-              Book the team
-            </Link>
+            {notFoundPage.links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(link.primary ? ctaClass : linkClass)}
+              >
+                {link.label}
+              </Link>
+            ))}
           </nav>
         </div>
       </div>

@@ -4,25 +4,28 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { MirageSpinner } from "@/components/ide/MirageSpinner";
 import { cn } from "@/lib/cn";
 import { PROJECTS, type Project, type ProjectStatus } from "@/lib/projects";
+import { homePage } from "@/content/pages/home";
 
 const HOLD_MS = 3000;
 const FADE_MS = 400;
+
+const { telemetry } = homePage;
 
 type StatusTone = "online" | "building" | "pending";
 
 type InfraState = {
   tone: StatusTone;
-  label: "ONLINE" | "BUILDING" | "PENDING";
+  label: string;
 };
 
 function infraForStatus(status: ProjectStatus): InfraState {
   if (status === "building") {
-    return { tone: "building", label: "BUILDING" };
+    return { tone: "building", label: telemetry.infra.building };
   }
   if (status === "pipeline") {
-    return { tone: "pending", label: "PENDING" };
+    return { tone: "pending", label: telemetry.infra.pending };
   }
-  return { tone: "online", label: "ONLINE" };
+  return { tone: "online", label: telemetry.infra.online };
 }
 
 function sprintLabel(project: Project) {
@@ -31,21 +34,21 @@ function sprintLabel(project: Project) {
 
 const SPRINT_CH = Math.max(...PROJECTS.map((project) => sprintLabel(project).length));
 const INFRA_CH = Math.max(
-  "ONLINE".length,
-  "BUILDING".length,
-  "PENDING".length,
+  telemetry.infra.online.length,
+  telemetry.infra.building.length,
+  telemetry.infra.pending.length,
 );
 
 function statusPhrase(status: ProjectStatus): string {
   switch (status) {
     case "shipped":
-      return "shipped";
+      return telemetry.status.shipped;
     case "building":
-      return "in build";
+      return telemetry.status.building;
     case "live":
-      return "live";
+      return telemetry.status.live;
     case "pipeline":
-      return "in pipeline";
+      return telemetry.status.pipeline;
   }
 }
 
@@ -63,15 +66,19 @@ function rosterSummary(projects: readonly Project[]): string {
   }
 
   if (pipelineNames.length === 1) {
-    phrases.push(`${pipelineNames[0]} in pipeline`);
+    phrases.push(`${pipelineNames[0]} ${telemetry.status.pipeline}`);
   } else if (pipelineNames.length === 2) {
-    phrases.push(`${pipelineNames[0]} and ${pipelineNames[1]} in pipeline`);
+    phrases.push(
+      `${pipelineNames[0]} and ${pipelineNames[1]} ${telemetry.status.pipeline}`,
+    );
   } else if (pipelineNames.length > 2) {
     const head = pipelineNames.slice(0, -1).join(", ");
-    phrases.push(`${head}, and ${pipelineNames[pipelineNames.length - 1]} in pipeline`);
+    phrases.push(
+      `${head}, and ${pipelineNames[pipelineNames.length - 1]} ${telemetry.status.pipeline}`,
+    );
   }
 
-  return `Current roster: ${phrases.join(", ")}`;
+  return `${telemetry.rosterPrefix}${phrases.join(", ")}`;
 }
 
 const ROSTER_SUMMARY = rosterSummary(PROJECTS);
@@ -187,17 +194,17 @@ export function Telemetry({ agents }: { agents: number }) {
 
   const rows = [
     {
-      key: "AGENTS_ACTIVE",
+      key: telemetry.keys.agents,
       value: String(agents).padStart(2, "0"),
     },
     {
-      key: "INFRASTRUCTURE",
+      key: telemetry.keys.infra,
       kind: "infra" as const,
       tone: infra.tone,
       label: infra.label,
     },
     {
-      key: "CURRENT_SPRINT",
+      key: telemetry.keys.sprint,
       kind: "sprint" as const,
       value: sprint,
     },
@@ -206,12 +213,12 @@ export function Telemetry({ agents }: { agents: number }) {
   return (
     <section
       className="shrink-0 border-t border-border-ide"
-      aria-label="Factory telemetry"
+      aria-label={telemetry.sectionAria}
     >
       <p className="sr-only">{ROSTER_SUMMARY}</p>
       <div className="flex items-center justify-between border-b border-border-ide px-3 py-2">
         <p className="font-jetbrains text-foreground text-xs">
-          SYS // TELEMETRY
+          {telemetry.header}
         </p>
         <MirageSpinner />
       </div>

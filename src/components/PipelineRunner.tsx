@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/cn";
+import { homePage } from "@/content/pages/home";
 
 const STAGE_DWELL_MS = 2400;
 const PROGRESS_STEP_MS = 110;
@@ -19,11 +20,8 @@ const DETAIL_SLOT = "5.25rem";
 /** Header × 5 + detail slot + padding — log viewport stays constant. */
 const LOG_VIEWPORT = "17.5rem";
 
-const REBOOT_LOGS = [
-  "> REBOOTING FACTORY PIPELINE...",
-  "> flushing stage buffers...",
-  "> handshake ok.",
-] as const;
+const { pipelineRunner } = homePage;
+const REBOOT_LOGS = pipelineRunner.rebootLogs;
 
 type Stage = {
   id: string;
@@ -35,51 +33,7 @@ type Stage = {
   hasProgress?: boolean;
 };
 
-const STAGES: readonly Stage[] = [
-  {
-    id: "ingest",
-    code: "01",
-    phase: "INGEST",
-    name: "MAGIC_MOMENT",
-    subtitle: "Idea System Source",
-    logs: [],
-  },
-  {
-    id: "exec",
-    code: "02",
-    phase: "EXEC",
-    name: "IDEATION_PROCESSOR",
-    logs: [
-      "Extrapolating concept...",
-      "Market fit mapping...",
-      "MVP Scoping...",
-      "Parameter Rating: PASS",
-    ],
-  },
-  {
-    id: "build",
-    code: "03",
-    phase: "BUILD",
-    name: "MVP_PRODUCTION",
-    logs: ["Agentic stack active", "Assembling core features"],
-    hasProgress: true,
-  },
-  {
-    id: "scale",
-    code: "04",
-    phase: "SCALE",
-    name: "PUBLIC_BUILD_v1.5",
-    logs: ["Deploying extended services", "Scaling architecture"],
-  },
-  {
-    id: "sync",
-    code: "05",
-    phase: "SYNC",
-    name: "EXTENDED_ROADMAP",
-    logs: ["12-24mo Horizon Active", "User feedback loops: LISTENING"],
-  },
-];
-
+const STAGES = pipelineRunner.stages as readonly Stage[];
 function progressBracket(equals: number) {
   const clamped = Math.min(Math.max(equals, 0), PROGRESS_MAX);
   return `[${"=".repeat(clamped)}>${" ".repeat(PROGRESS_MAX + 2 - clamped)}]`;
@@ -243,18 +197,24 @@ export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
   return (
     <section
       className="bg-bg-canvas text-foreground flex shrink-0 flex-col transition-[background-color,color] duration-[400ms] ease-in-out"
-      aria-label="Factory pipeline"
+      aria-label={pipelineRunner.sectionAria}
     >
       <div className="flex shrink-0 items-center justify-between border-b border-border-ide px-3 py-2">
-        <p className="font-jetbrains text-foreground text-xs">pipeline.log</p>
+        <p className="font-jetbrains text-foreground text-xs">
+          {pipelineRunner.header}
+        </p>
         <p className="font-jetbrains text-xs tabular-nums">
           {isLoading ? (
             <span className="text-syn-number">
-              [ AGENT_COMPILING... ]
+              {pipelineRunner.compiling}
             </span>
           ) : (
             <span className="text-muted">
-              {rebooting ? "REBOOT" : pinned ? "PINNED" : "LIVE"}
+              {rebooting
+                ? pipelineRunner.mode.reboot
+                : pinned
+                  ? pipelineRunner.mode.pinned
+                  : pipelineRunner.mode.live}
               {" · "}
               {String(activeIndex + 1).padStart(2, "0")}/
               {String(STAGES.length).padStart(2, "0")}

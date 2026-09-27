@@ -39,8 +39,33 @@ const nameList = formatNameList(pageNames);
 const statusLede = statusRosterLede();
 
 export const workPage = {
+  // TEST COPY
+  seo: {
+    title: "Work",
+    description: `Production apps from the //TODO Engineering factory — including ${nameList}. Case pages for product and engineering leads.`,
+  },
   eyebrow: "// Work",
   title: "The work",
+  /** @deprecated Prefer workPage.seo.description */
   metaDescription: `Production apps from the //TODO Engineering factory — including ${nameList}. Case pages for product and engineering leads.`,
   lede: `//TODO Engineering operates an internal software factory. ${statusLede}`,
 } as const;
+
+// TEST COPY — work detail page chrome (case study body stays in lib/projects.ts)
+export const workDetailPage = {
+  notFound: {
+    title: "Not found",
+    description: "This factory project does not exist.",
+  },
+  breadcrumbWork: "Work",
+  scopeHeading: "Scope",
+  outcomeHeading: "Outcome",
+  bookCta: "Book the team",
+  bookHref: "/book",
+  backLabel: "← Work",
+  backHref: "/work",
+  adjacentAria: "Adjacent projects",
+  readygoNote: "Early build: this case study grows as we ship.",
+  stillsAria: (name: string) => `${name} stills`,
+} as const;
+

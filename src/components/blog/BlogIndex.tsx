@@ -20,9 +20,10 @@ import {
   type BlogCategory,
   type BlogIndexPost,
 } from "@/lib/blog-shared";
+import { blogPage } from "@/content/pages/blog";
 
 const FILTERS: readonly { id: "all" | BlogCategory; label: string }[] = [
-  { id: "all", label: "All" },
+  { id: "all", label: blogPage.allFilter },
   ...BLOG_CATEGORIES.map((id) => ({
     id,
     label: BLOG_CATEGORY_LABELS[id],
@@ -69,7 +70,9 @@ function FeaturedCover({ src }: { src: string | null }) {
           <p className="type-label">
             {BLOG_IMAGE_MASTER_WIDTH} × {BLOG_IMAGE_MASTER_HEIGHT}
           </p>
-          <p className="type-label text-syn-comment font-normal">16:9</p>
+          <p className="type-label text-syn-comment font-normal">
+            {blogPage.coverAspect}
+          </p>
         </div>
       )}
     </div>
@@ -134,14 +137,16 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
           <TypeComment
             as="h1"
             id="blog-index-heading"
-            text="// Blog"
+            text={blogPage.heading}
             className="text-syn-keyword"
           />
-          <p className="type-label text-syn-comment font-normal">NOTES</p>
+          <p className="type-label text-syn-comment font-normal">
+            {blogPage.notesLabel}
+          </p>
         </div>
 
         <div className="flex flex-col gap-6 p-6">
-          <div role="group" aria-label="Filter notes">
+          <div role="group" aria-label={blogPage.filterAria}>
             <ul className="flex flex-wrap gap-2">
               {FILTERS.map((item) => {
                 const active = filter === item.id;
@@ -179,7 +184,7 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
             className="type-meta text-syn-comment"
             aria-live="polite"
           >
-            {filtered.length} notes
+            {blogPage.notesCount(filtered.length)}
           </p>
 
           {featured ? (
@@ -262,7 +267,7 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
             </ul>
           ) : (
             <p className="type-meta text-syn-comment">
-              No notes in this filter.
+              {blogPage.empty}
             </p>
           )}
 
@@ -275,7 +280,7 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
                   setVisibleCount((count) => count + BLOG_INDEX_PAGE_SIZE)
                 }
               >
-                More
+                {blogPage.more}
               </button>
             </p>
           ) : null}

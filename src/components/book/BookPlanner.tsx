@@ -172,21 +172,23 @@ export function BookPlanner({ bookingType }: { bookingType?: string }) {
     );
 
     return [
-      `Booking: ${labelFor(planner.bookingOptions, booking)}`,
-      `Timeline: ${labelFor(planner.timelineOptions, timeline)}`,
-      `Budget: ${labelFor(planner.budgetOptions, budget)}`,
-      `Needs: ${needLabels}`,
+      `${planner.draftLabels.booking} ${labelFor(planner.bookingOptions, booking)}`,
+      `${planner.draftLabels.timeline} ${labelFor(planner.timelineOptions, timeline)}`,
+      `${planner.draftLabels.budget} ${labelFor(planner.budgetOptions, budget)}`,
+      `${planner.draftLabels.needs} ${needLabels}`,
       "",
-      "Brief:",
+      planner.draftLabels.brief,
       brief.trim(),
       `Has brief: ${hasBrief === "yes" ? planner.hasBriefYes : planner.hasBriefNo}`,
       linksBlock ? "" : null,
       linksBlock || null,
       "",
-      `Name: ${name.trim()}`,
-      `Email: ${email.trim()}`,
-      company.trim() ? `Company: ${company.trim()}` : null,
-      `How heard: ${heard}`,
+      `${planner.draftLabels.name} ${name.trim()}`,
+      `${planner.draftLabels.email} ${email.trim()}`,
+      company.trim()
+        ? `${planner.draftLabels.company} ${company.trim()}`
+        : null,
+      `${planner.draftLabels.howHeard} ${heard}`,
     ]
       .filter((line) => line !== null)
       .join("\n");

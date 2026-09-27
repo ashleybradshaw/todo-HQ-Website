@@ -18,6 +18,7 @@ import {
   type ProjectMediaOffset,
   type ProjectMediaWidth,
 } from "@/lib/projects";
+import { workDetailPage } from "@/content/pages/work";
 import { cn } from "@/lib/cn";
 import { pageMetadata } from "@/lib/seo";
 import { SITE_URL } from "@/lib/site";
@@ -39,8 +40,8 @@ export async function generateMetadata({
   const project = getProject(slug);
   if (!project || !projectHasPage(project)) {
     return pageMetadata({
-      title: "Not found",
-      description: "This factory project does not exist.",
+      title: workDetailPage.notFound.title,
+      description: workDetailPage.notFound.description,
       path: `/work/${slug}`,
       index: false,
     });
@@ -146,7 +147,7 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
         background={<ProjectGlyphField />}
         breadcrumbs={
           <Breadcrumbs
-            parent={{ href: "/work", label: "Work" }}
+            parent={{ href: "/work", label: workDetailPage.breadcrumbWork }}
             current={project.name}
           />
         }
@@ -157,7 +158,7 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
           {project.slug === "readygo" ? (
             // TEST COPY
             <p className="type-body-sm mx-auto max-w-[688px] text-center text-foreground">
-              Early build: this case study grows as we ship.
+              {workDetailPage.readygoNote}
             </p>
           ) : null}
         </div>
@@ -181,14 +182,18 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
             ))}
           </ul>
 
-          <h2 className="type-label mx-auto mt-8 max-w-[688px]">Scope</h2>
+          <h2 className="type-label mx-auto mt-8 max-w-[688px]">
+            {workDetailPage.scopeHeading}
+          </h2>
           <ul className="type-body mx-auto mt-3 max-w-[688px] list-disc space-y-1.5 pl-5 text-foreground">
             {project.scope.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
 
-          <h2 className="type-label mx-auto mt-8 max-w-[688px]">Outcome</h2>
+          <h2 className="type-label mx-auto mt-8 max-w-[688px]">
+            {workDetailPage.outcomeHeading}
+          </h2>
           <p className="type-body mx-auto mt-3 max-w-[688px] text-foreground">
             {project.outcome}
           </p>
@@ -196,7 +201,7 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
 
         <section
           className="mt-12 flex min-w-0 flex-col gap-8"
-          aria-label={`${project.name} stills`}
+          aria-label={workDetailPage.stillsAria(project.name)}
         >
           <div className={cn("work-frame-enter min-w-0", ESSAY_FRAME)}>
             <BrowserFrame
@@ -227,7 +232,7 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
 
         <nav
           className="border-border-ide mx-auto mt-12 flex max-w-[688px] flex-wrap items-center justify-between gap-4 border-t pt-6"
-          aria-label="Adjacent projects"
+          aria-label={workDetailPage.adjacentAria}
         >
           {prev ? (
             <Link href={`/work/${prev.slug}`} className={linkClass}>
@@ -244,11 +249,11 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
         </nav>
 
         <div className="mx-auto mt-6 flex max-w-[688px] flex-wrap items-center gap-4">
-          <Link href="/book" className={ctaClass}>
-            Book the team
+          <Link href={workDetailPage.bookHref} className={ctaClass}>
+            {workDetailPage.bookCta}
           </Link>
-          <Link href="/work" className={linkClass}>
-            ← Work
+          <Link href={workDetailPage.backHref} className={linkClass}>
+            {workDetailPage.backLabel}
           </Link>
         </div>
         <SiteCloser variant="book" />

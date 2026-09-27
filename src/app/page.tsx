@@ -1,47 +1,47 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { GatewayIdle } from "@/components/GatewayIdle";
+import { landingPage } from "@/content/pages/landing";
 import { pageMetadata } from "@/lib/seo";
-import { OFFERING_SUMMARY, SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
-  title: `${SITE_NAME} — Enterprise AI, Autonomous Agents & Backend Factory`,
-  description: SITE_DESCRIPTION,
+  title: landingPage.seo.title,
+  description: landingPage.seo.description,
   path: "/",
 });
 
 export default function GatewayPage() {
+  const { srOnly, noscript } = landingPage;
+
   return (
     <main className="landing-shell relative min-h-screen bg-[#4545FF] text-[#DFDFFF]">
       <article className="sr-only">
-        <h1>{SITE_NAME} enterprise AI engineering factory</h1>
-        <p>{SITE_DESCRIPTION}</p>
-        <p>{OFFERING_SUMMARY}</p>
-        <h2>Capabilities</h2>
+        <h1>{srOnly.h1}</h1>
+        <p>{srOnly.description}</p>
+        <p>{srOnly.offering}</p>
+        <h2>{srOnly.capabilitiesHeading}</h2>
         <ul>
-          <li>Production-ready application design, code, and ship</li>
-          <li>Autonomous agentic workflows and multi-agent ecosystems</li>
-          <li>Scalable backend engineering for SaaS and enterprise</li>
-          <li>Active roster: RepDaily, ReadyGo, and Contentic</li>
+          {srOnly.capabilities.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
         </ul>
-        <nav aria-label="Primary destinations">
-          <Link href="/intro">Start the intro sequence</Link>
-          <Link href="/home">Open the factory dashboard</Link>
-          <Link href="/about">Read the manifesto</Link>
-          <Link href="/work">View production work</Link>
-          <Link href="/book">Book the team</Link>
+        <nav aria-label={srOnly.navAria}>
+          {srOnly.nav.map((link) => (
+            <Link key={link.href} href={link.href}>
+              {link.label}
+            </Link>
+          ))}
         </nav>
       </article>
       <noscript>
-        <p>{SITE_DESCRIPTION}</p>
+        <p>{noscript.description}</p>
         <p>
-          <Link href="/home">Continue to the factory</Link>
-          {" · "}
-          <Link href="/about">About</Link>
-          {" · "}
-          <Link href="/work">Work</Link>
-          {" · "}
-          <Link href="/book">Book Team</Link>
+          {noscript.links.map((link, index) => (
+            <span key={link.href}>
+              {index > 0 ? " · " : null}
+              <Link href={link.href}>{link.label}</Link>
+            </span>
+          ))}
         </p>
       </noscript>
       <GatewayIdle />

@@ -512,7 +512,7 @@ test.describe("blog loop", () => {
       page.getByRole("region", { name: "Work together" }),
     ).toBeVisible();
     await expect(
-      page.getByRole("link", { name: "Work Together", exact: true }),
+      page.getByRole("link", { name: "Book a call", exact: true }),
     ).toHaveAttribute("href", "/book");
     await expect(page.getByText(/Ashley|Dan/)).toHaveCount(0);
 
@@ -626,7 +626,7 @@ test.describe("blog loop", () => {
     expect(box).not.toBeNull();
     expect(box!.width / box!.height).toBeCloseTo(1200 / 630, 1);
     await expect(
-      page.getByRole("link", { name: "Work Together", exact: true }),
+      page.getByRole("link", { name: "Book a call", exact: true }),
     ).toBeVisible();
 
     const body = page.locator("#blog-article-body");

@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { introPage } from "@/content/pages/intro";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Intro",
-  description:
-    "High-speed kinetic typography intro for the //TODO Engineering software factory.",
+  title: introPage.seo.title,
+  description: introPage.seo.description,
   path: "/intro",
   index: false,
 });

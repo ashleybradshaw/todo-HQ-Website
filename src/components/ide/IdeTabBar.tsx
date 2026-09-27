@@ -5,6 +5,7 @@ import {
   useRef,
   type KeyboardEvent,
 } from "react";
+import { homePage } from "@/content/pages/home";
 
 export type IdeTabId = "todo" | "offer" | "discovery";
 
@@ -16,19 +17,19 @@ const TABS: readonly {
 }[] = [
   {
     id: "todo",
-    label: "TODO_HQ.ts",
+    label: homePage.ideTabs.tabs.todo,
     panelId: "ide-panel-todo",
     accent: "var(--foreground)",
   },
   {
     id: "offer",
-    label: "offer.md",
+    label: homePage.ideTabs.tabs.offer,
     panelId: "ide-panel-offer",
     accent: "var(--blog-cat-agents)",
   },
   {
     id: "discovery",
-    label: "discovery.ts",
+    label: homePage.ideTabs.tabs.discovery,
     panelId: "ide-panel-discovery",
     accent: "var(--syn-string)",
   },
@@ -76,7 +77,7 @@ export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
   return (
     <div
       role="tablist"
-      aria-label="IDE source files"
+      aria-label={homePage.ideTabs.aria}
       onKeyDown={onKeyDown}
       className="ide-boot-tabs flex shrink-0 items-stretch border-b border-border-ide"
     >

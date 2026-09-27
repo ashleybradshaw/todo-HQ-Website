@@ -17,12 +17,15 @@ import { IdeBoneOverlay } from "@/components/ide/IdeBoneOverlay";
 import { OfferPane } from "@/components/ide/OfferPane";
 import { DiscoveryPane } from "@/components/ide/DiscoveryPane";
 import { IdeProjectCards } from "@/components/ide/IdeProjectCards";
+import { homePage } from "@/content/pages/home";
 
 /** 0-based index of the methodology / executePipeline() line in codeLines. */
 const EXECUTE_PIPELINE_LINE = 24;
 
 const ACTIVE_LINE_BG =
   "border-l-2 border-[var(--foreground)] bg-transparent";
+
+const { todoHq, srOnly, landmarks } = homePage;
 
 function Comment({ children }: { children: ReactNode }) {
   return <span className="text-syn-comment italic">{children}</span>;
@@ -60,7 +63,7 @@ function Fn({
       type="button"
       onClick={onActivate}
       onMouseEnter={onActivate}
-      aria-label="executePipeline() — restart factory pipeline"
+      aria-label={todoHq.methodologyAria}
       className="text-syn-string bg-transparent p-0 font-jetbrains font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]"
     >
       {children}
@@ -69,9 +72,14 @@ function Fn({
 }
 
 function codeLines(onExecutePipeline: () => void): ReactNode[] {
+  const [shipFor0, shipFor1] = todoHq.whoWeShipFor;
+  const [how0, how1] = todoHq.howWeWork;
+  const [p0, p1, p2, p3, p4, p5] = todoHq.pipeline;
+  const [prod0, prod1, prod2, prod3] = todoHq.inProduction;
+
   return [
     <Fragment key={0}>
-      <Comment>{`/** //TODO Design & Engineering — factory overview. Soft sell. TEST COPY. */`}</Comment>
+      <Comment>{todoHq.fileComment}</Comment>
     </Fragment>,
     <Fragment key={1}>
       <Keyword>export const</Keyword>{" "}
@@ -85,7 +93,7 @@ function codeLines(onExecutePipeline: () => void): ReactNode[] {
     </Fragment>,
     <Fragment key={3}>
       {"    "}
-      <Str>{`"We're //TODO — design and engineering that builds the factory, not just the tickets."`}</Str>
+      <Str>{`"${todoHq.whoWeAre}"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
     <Fragment key={4}>
@@ -95,7 +103,7 @@ function codeLines(onExecutePipeline: () => void): ReactNode[] {
     </Fragment>,
     <Fragment key={5}>
       {"    "}
-      <Str>{`"End-to-end AI and LM workflows that hold a full digital ecosystem together."`}</Str>
+      <Str>{`"${todoHq.whatWeDoBest}"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
     <Fragment key={6}>
@@ -105,12 +113,12 @@ function codeLines(onExecutePipeline: () => void): ReactNode[] {
     </Fragment>,
     <Fragment key={7}>
       {"    "}
-      <Str>{`"Enterprise teams shipping major system solutions — globally"`}</Str>
+      <Str>{`"${shipFor0}"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
     <Fragment key={8}>
       {"    "}
-      <Str>{`"Non-tech founders and investor groups taking MVPs to scale"`}</Str>
+      <Str>{`"${shipFor1}"`}</Str>
     </Fragment>,
     <Fragment key={9}>
       {"  "}
@@ -124,12 +132,12 @@ function codeLines(onExecutePipeline: () => void): ReactNode[] {
     </Fragment>,
     <Fragment key={11}>
       {"    "}
-      <Str>{`"With you, inside your stack"`}</Str>
+      <Str>{`"${how0}"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
     <Fragment key={12}>
       {"    "}
-      <Str>{`"Or for you, as a tight delivery cell"`}</Str>
+      <Str>{`"${how1}"`}</Str>
     </Fragment>,
     <Fragment key={13}>
       {"  "}
@@ -143,32 +151,32 @@ function codeLines(onExecutePipeline: () => void): ReactNode[] {
     </Fragment>,
     <Fragment key={15}>
       {"    "}
-      <Str>{`"intake"`}</Str>
+      <Str>{`"${p0}"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
     <Fragment key={16}>
       {"    "}
-      <Str>{`"review"`}</Str>
+      <Str>{`"${p1}"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
     <Fragment key={17}>
       {"    "}
-      <Str>{`"agiFlow"`}</Str>
+      <Str>{`"${p2}"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
     <Fragment key={18}>
       {"    "}
-      <Str>{`"lpPipeline"`}</Str>
+      <Str>{`"${p3}"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
     <Fragment key={19}>
       {"    "}
-      <Str>{`"analysis"`}</Str>
+      <Str>{`"${p4}"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
     <Fragment key={20}>
       {"    "}
-      <Str>{`"ship"`}</Str>
+      <Str>{`"${p5}"`}</Str>
     </Fragment>,
     <Fragment key={21}>
       {"  "}
@@ -179,21 +187,21 @@ function codeLines(onExecutePipeline: () => void): ReactNode[] {
       {"  "}
       <Property>agiFlow</Property>
       <Punct>:</Punct>{" "}
-      <Str>{`"Brief → research agents → draft → human gate → ship."`}</Str>
+      <Str>{`"${todoHq.agiFlow}"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
     <Fragment key={23}>
       {"  "}
       <Property>lpPipeline</Property>
       <Punct>:</Punct>{" "}
-      <Str>{`"Offer → layout → copy pass → QA → launch."`}</Str>
+      <Str>{`"${todoHq.lpPipeline}"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
     <Fragment key={24}>
       {"  "}
       <Property>methodology</Property>
       <Punct>:</Punct>{" "}
-      <Fn onActivate={onExecutePipeline}>executePipeline()</Fn>
+      <Fn onActivate={onExecutePipeline}>{todoHq.methodologyLabel}</Fn>
       <Punct>,</Punct>
     </Fragment>,
     <Fragment key={25}>
@@ -203,22 +211,22 @@ function codeLines(onExecutePipeline: () => void): ReactNode[] {
     </Fragment>,
     <Fragment key={26}>
       {"    "}
-      <Str>{`"RepDaily"`}</Str>
+      <Str>{`"${prod0}"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
     <Fragment key={27}>
       {"    "}
-      <Str>{`"ReadyGo"`}</Str>
+      <Str>{`"${prod1}"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
     <Fragment key={28}>
       {"    "}
-      <Str>{`"ErgTrainer"`}</Str>
+      <Str>{`"${prod2}"`}</Str>
       <Punct>,</Punct>
     </Fragment>,
     <Fragment key={29}>
       {"    "}
-      <Str>{`"The Tower"`}</Str>
+      <Str>{`"${prod3}"`}</Str>
     </Fragment>,
     <Fragment key={30}>
       {"  "}
@@ -229,7 +237,7 @@ function codeLines(onExecutePipeline: () => void): ReactNode[] {
       {"  "}
       <Property>promise</Property>
       <Punct>:</Punct>{" "}
-      <Str>{`"Future-proof your AI implementation — without the theatre."`}</Str>
+      <Str>{`"${todoHq.promise}"`}</Str>
     </Fragment>,
     <Fragment key={32}>
       <Bracket>{"}"}</Bracket>
@@ -331,16 +339,8 @@ export function FactoryDashboard() {
   return (
     <main className="bg-bg-canvas text-syn-property relative min-h-screen w-full transition-[background-color,color] duration-[400ms] ease-in-out">
       <div className="font-jetbrains relative z-10 flex min-h-[calc(100dvh-5rem)] w-full flex-col pt-20">
-        <h1 className="sr-only">
-          {"//TODO Design & Engineering factory dashboard"}
-        </h1>
-        <p className="sr-only">
-          {"//TODO Design & Engineering builds the factory, not just the tickets — "}
-          end-to-end AI and LM workflows for enterprise teams and non-tech
-          founders. Pipeline: intake, review, agiFlow, lpPipeline, analysis,
-          ship. Methodology is executePipeline() — with RepDaily, ReadyGo,
-          ErgTrainer, and The Tower in production.
-        </p>
+        <h1 className="sr-only">{srOnly.h1}</h1>
+        <p className="sr-only">{srOnly.lead}</p>
 
         <div
           className="ide-boot-stage relative grid min-h-[calc(100dvh-5rem)] flex-1 grid-cols-1 auto-rows-auto lg:grid-cols-[70%_30%] lg:grid-rows-1"
@@ -350,7 +350,7 @@ export function FactoryDashboard() {
 
           <section
             className="ide-boot-editor relative flex min-w-0 flex-col border-b border-border-ide lg:min-h-0 lg:overflow-hidden lg:border-b-0"
-            aria-label="IDE editor"
+            aria-label={landmarks.editorAria}
           >
             <IdeTabBar activeTab={activeTab} onChange={setActiveTab} />
 
@@ -383,7 +383,7 @@ export function FactoryDashboard() {
 
           <aside
             className="ide-boot-sidecar flex flex-col border-border-ide lg:min-h-0 lg:overflow-auto lg:border-l"
-            aria-label="Factory sidecar"
+            aria-label={landmarks.sidecarAria}
           >
             <FactorySidecar rebootSignal={rebootSignal} />
           </aside>

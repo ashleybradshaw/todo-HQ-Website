@@ -1,3 +1,5 @@
+import { homePage } from "@/content/pages/home";
+
 const STACK = [
   { id: "figma", label: "Figma" },
   { id: "cursor", label: "Cursor" },
@@ -37,7 +39,10 @@ function StackIcon({ id, label }: { id: string; label: string }) {
 
 export function StackIconRow() {
   return (
-    <div className="flex flex-wrap gap-2.5 lg:gap-3" aria-label="Tool stack">
+    <div
+      className="flex flex-wrap gap-2.5 lg:gap-3"
+      aria-label={homePage.offer.stackAria}
+    >
       {STACK.map((item) => (
         <StackIcon key={item.id} id={item.id} label={item.label} />
       ))}

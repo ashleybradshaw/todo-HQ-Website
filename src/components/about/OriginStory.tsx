@@ -1,9 +1,9 @@
 import { AsciiReveal } from "@/components/about/AsciiReveal";
 import { TypeComment } from "@/components/TypeComment";
-import { aboutPage } from "@/content/pages/about";
+import { about } from "@/content/pages/about";
 
 export function OriginStory() {
-  const { origin } = aboutPage;
+  const { origin } = about;
 
   return (
     <section className="mt-16 grid grid-cols-1 gap-8 border-t border-border-ide pt-10 lg:grid-cols-2 lg:items-start">

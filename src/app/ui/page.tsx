@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { UiIdeShell } from "@/components/ui-docs/UiIdeShell";
+import { uiPage } from "@/content/pages/ui";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "TODO UI",
-  description:
-    "Live design system for //TODO Engineering — colours, type, spacing, motion, icons, and components read from the factory source of truth.",
+  title: uiPage.seo.title,
+  description: uiPage.seo.description,
   path: "/ui",
 });
 

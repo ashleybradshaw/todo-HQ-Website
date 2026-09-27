@@ -1,3 +1,10 @@
+/**
+ * About page copy.
+ * // TEST COPY — Autumn draft; replace when signed off.
+ */
+
+import { close, faq } from "@/content/pages/shared";
+
 export const STAT_MOCKS = [
   { figure: "£30M+", label: "Pipeline value", source: "// modeled capacity" },
   {
@@ -79,22 +86,31 @@ export const LIVE_FLOOR_SIM = [
 export type LiveFloorMetric = (typeof LIVE_FLOOR_SIM)[number];
 export type LiveFloorFormat = LiveFloorMetric["format"];
 
-export const aboutPage = {
-  eyebrow: "// About",
-  title: "Most teams just write code. We build the entire factory.",
-  metaDescription:
-    "How //TODO Engineering operates an internal software factory — multi-agent systems, production handoff, and standards for product and engineering leads.",
-  lede: [
-    "//TODO Engineering designs, builds, and ships production applications, agent workflows, and backends for product and engineering teams that need systems that hold up after launch.",
-    "We operate the same factory for our own roster and for client work: intake, multi-agent implementation with human gates, and a clean handoff into production.",
-  ],
-  clientPlaceholders: ["Acme", "Globex", "Initech", "+ more"],
+// TEST COPY
+export const about = {
+  // TEST COPY
+  seo: {
+    title: "About · //TODO Engineering · AI for regulated teams",
+    description:
+      "Two engineers who learn complex, regulated domains, then build the AI, apps and systems that run them. How we work, what we take on, FAQs.",
+  },
+
+  // TEST COPY
+  hero: {
+    eyebrow: "// About",
+    h1: "We deconstruct complex domains and build AI that works.",
+    p1: "//TODO Engineering is a design engineer and an AI engineer. We build apps, CMS and software systems, and products that talk to hardware, for specialised and regulated teams.",
+    p2: "Specialised. Esoteric. Regulated. We learn the domain before we write a line, so what we ship solves the right problem and holds up after launch.",
+    clientStrip: ["Acme", "Globex", "Initech", "+ more"],
+  },
+
+  // TEST COPY
   origin: {
     eyebrow: "// ORIGIN",
-    title: "The factory came first.",
+    title: "Our own apps came first.",
     body: [
-      "The roster shipped on one pipeline before any client work did. Intake, multi-agent implementation, and a production handoff — the same sequence, every time.",
-      "Client work runs that factory, not a side desk. Product and engineering leads get the system we already use to ship our own apps.",
+      "RepDaily, Contentic and ReadyGo run on the same process we sell. We take the domain apart, prototype until it's clear, write the spec, then ship to production. Before any code, we map how the domain really works: who uses it, what the rules are, and where it tends to break.",
+      "Client work goes through that same process, not a side desk. You get the system we already trust with our own products. At each checkpoint you get something you can use: a domain map, a working prototype, a spec your team can read, and then the build itself.",
     ],
     media: [
       {
@@ -107,9 +123,23 @@ export const aboutPage = {
       },
     ],
   },
-  operatingRules: {
+
+  // TEST COPY
+  operating: {
     eyebrow: "// OPERATING",
-    title: "How the factory runs.",
+    title: "How the work runs.",
+    intro:
+      "Hard domains punish shortcuts. These rules keep us from solving the wrong problem quickly, and keep what we ship easy to live with after launch.",
+    rules: [
+      "Build from understanding, not assumptions.",
+      "Break the problem down to its parts before we build.",
+      "Prototype to learn. Every experiment leaves a deliverable.",
+      "AI agents do the heavy lifting. Humans sign off irreversible steps.",
+      "Backends and monitoring ship with the interface, not after.",
+      "Speed, without architecture we'll have to throw away.",
+      "Done means running in production, not a demo link.",
+    ],
+    uiLink: { href: "/ui", label: "TODO UI" },
     media: [
       {
         src: "/about/operating-01.webp",
@@ -120,24 +150,22 @@ export const aboutPage = {
         alt: "Two helmeted founders in black tie holding whisky glasses in a wood-panelled club",
       },
     ],
-    rules: [
-      "One pipeline for roster and client work — no side desk.",
-      "Intake before agents. Clarify the ship target, then open the floor.",
-      "Multi-agent implementation with human gates on irreversible steps.",
-      "Production handoff is the exit criterion — not a demo URL.",
-      "Backends and observability ship with the surface, not after.",
-      "Velocity without disposable architecture.",
-      "Proof stays in the roster: apps that hold up after launch.",
-    ],
   },
+
+  // TEST COPY — shared; imported so About stays one object without duplicating strings
+  faq,
+
+  // TEST COPY
   stats: STAT_MOCKS,
-  workTogether: {
-    eyebrow: "// CLOSE",
-    title: "Bring the factory to the next problem.",
-    subtitle: "Clear start. Quiet process. Paper when it matters.",
-    body: "We sign NDAs when you need them. A budget range in mind keeps scope honest — we don’t do price theater.",
-    ctaLabel: "Work Together",
-    ctaHref: "/book",
-    secondary: { href: "/work", label: "See our work" },
+
+  // TEST COPY
+  floorSim: {
+    label: "// FLOOR SIM",
+    status: "LIVE",
+    caption: "// simulated",
+    metrics: LIVE_FLOOR_SIM,
   },
+
+  // TEST COPY — shared
+  close,
 } as const;

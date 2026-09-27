@@ -10,6 +10,7 @@ import {
 } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/cn";
+import { introPage } from "@/content/pages/intro";
 import { initRsvpAudio, playBeep } from "@/lib/rsvp-audio";
 
 type Phase = "countdown" | "reading" | "done";
@@ -278,7 +279,7 @@ export function RSVPIntro({ onComplete }: { onComplete: () => void }) {
             className={cn(SKIP_CLASS, "pointer-events-auto")}
             onClick={goHomeNow}
           >
-            [ Skip ]
+            {introPage.skipLabel}
           </button>
         </div>
       ) : null}

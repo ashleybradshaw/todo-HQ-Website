@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
+import { notFoundPage } from "@/content/pages/not-found";
 
 function subscribeReducedMotion(onStoreChange: () => void) {
   const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -52,7 +53,7 @@ export function NotFoundRoute() {
       <p className="mt-1 flex gap-2">
         <Gutter n={3} />
         <span className="text-syn-comment italic">
-          {"// not on the factory floor"}
+          {notFoundPage.comment}
         </span>
       </p>
       <p className="mt-1 flex gap-2">

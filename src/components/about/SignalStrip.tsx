@@ -10,7 +10,7 @@ import { HelixSpinner } from "@/components/ide/HelixSpinner";
 import { TypeComment } from "@/components/TypeComment";
 import {
   LIVE_FLOOR_SIM,
-  aboutPage,
+  about,
   type LiveFloorFormat,
   type LiveFloorMetric,
 } from "@/content/pages/about";
@@ -222,8 +222,9 @@ function FloorSimPanel() {
     <div className="border border-border-ide bg-background p-5 sm:p-6">
       <div className="flex items-center justify-between gap-4 border-b border-border-ide pb-4">
         <div className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1">
-          <TypeComment text="// FLOOR SIM" />
-          <p className="type-label text-syn-string">LIVE</p>
+          <TypeComment text={about.floorSim.label} />
+          <p className="type-label text-syn-string">{about.floorSim.status}</p>
+          <TypeComment text={about.floorSim.caption} />
         </div>
         <HelixSpinner
           style={{ ["--helix-size" as string]: `${HELIX_SIZE_PX}px` }}
@@ -231,7 +232,7 @@ function FloorSimPanel() {
       </div>
 
       <div className="mt-4 grid grid-cols-2">
-        {LIVE_FLOOR_SIM.map((metric, index) => {
+        {about.floorSim.metrics.map((metric, index) => {
           const value = values[metric.id] ?? midValue(metric);
           const odd = index % 2 === 1;
           return (
@@ -263,7 +264,7 @@ export function SignalStrip() {
     >
       <div className="mx-auto grid max-w-[1336px] grid-cols-1 gap-10 px-6 py-10 lg:grid-cols-12 lg:gap-12 lg:py-14">
         <div className="flex flex-col lg:col-span-5">
-          {aboutPage.stats.map((stat) => (
+          {about.stats.map((stat) => (
             <div
               key={stat.figure}
               className="border-t border-border-ide py-6 first:border-t-0 first:pt-0"

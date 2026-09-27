@@ -1,6 +1,18 @@
+/**
+ * Book page copy.
+ * // TEST COPY
+ */
+
 export const bookPage = {
+  // TEST COPY
+  seo: {
+    title: "Book Team",
+    description:
+      "Book //TODO Engineering — tell product and engineering leads what has to ship. Contact strip, project planner, and FAQ for coffee or hard talk.",
+  },
   eyebrow: "// Book",
   title: "Bring the factory to the problem.",
+  /** @deprecated Prefer bookPage.seo.description */
   metaDescription:
     "Book //TODO Engineering — tell product and engineering leads what has to ship. Contact strip, project planner, and FAQ for coffee or hard talk.",
   lede: "//TODO Engineering works with product and engineering leads who need AI workflow architecture or a full-stack application in production. Tell us what has to ship.",
@@ -185,62 +197,17 @@ export const bookPage = {
     companyOptional: "(optional)",
     howHeardLabel: "How did you hear about TODO?",
     howHeardPlaceholder: "Select one",
-  },
-
-  faq: {
-    eyebrow: "// FAQ",
-    title: "Answers before you book.",
-    jumpLabel: "Jump to contact",
-    jumpHref: "#contact",
-    items: [
-      {
-        id: "timelines",
-        question: "How fast can we start?",
-        answer:
-          "Coffee and hard talks book within a week when the calendar is open. Full builds start after intake — we name the first gate before agents touch the stack.",
-      },
-      {
-        id: "cost",
-        question: "How do you talk about cost?",
-        answer:
-          "We keep ranges honest. A budget band in the planner is enough for a first pass; we do not do price theater or surprise retainers.",
-      },
-      {
-        id: "remote",
-        question: "Do you work remote?",
-        answer:
-          "Yes. The factory runs remote by default. We meet when a gate needs faces in the room; otherwise the stations stay async.",
-      },
-      {
-        id: "payment",
-        question: "How does payment work?",
-        answer:
-          "Milestones tied to gates you can verify. Invoices track shipped work, not hours spent in a chatbot.",
-      },
-      {
-        id: "meetings",
-        question: "What do meetings look like?",
-        answer:
-          "Coffee is a chemistry check. Hard talk is a 60-minute dig into the real issue. Build work uses short gate reviews, not weekly status theater.",
-      },
-      {
-        id: "nda",
-        question: "Can we sign an NDA?",
-        answer:
-          "Yes when you need one. Send the paper with the first note and we route it before any sensitive brief leaves your side.",
-      },
-      {
-        id: "dont",
-        question: "What do you not take on?",
-        answer:
-          "One-off design polish with no ship path, endless discovery without a gate, and work that only exists as a pitch deck. We build systems that leave the floor.",
-      },
-      {
-        id: "ship",
-        question: "What does “ship” mean here?",
-        answer:
-          "A build that runs in production with real users on the other side of the glass — not a prototype parked in a staging folder.",
-      },
-    ] as const,
+    // TEST COPY — email draft field prefixes
+    draftLabels: {
+      booking: "Booking:",
+      timeline: "Timeline:",
+      budget: "Budget:",
+      needs: "Needs:",
+      brief: "Brief:",
+      name: "Name:",
+      email: "Email:",
+      company: "Company:",
+      howHeard: "How heard:",
+    },
   },
 } as const;

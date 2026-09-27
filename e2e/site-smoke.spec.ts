@@ -58,7 +58,9 @@ test.describe("site smoke", () => {
 
     await visit(page, "/about");
     await expect(
-      page.getByRole("heading", { name: /we build the entire factory/i }),
+      page.getByRole("heading", {
+        name: /we deconstruct complex domains and build ai that works/i,
+      }),
     ).toBeVisible();
     await expect(
       page.getByRole("button", { name: SPRAY_NAME }),

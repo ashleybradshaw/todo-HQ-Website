@@ -14,10 +14,13 @@ import {
   setSoundEnabled,
 } from "@/lib/rsvp-audio";
 import { requestIdeBootReplay } from "@/hooks/useIdeBoot";
+import { landingPage } from "@/content/pages/landing";
 
 const WORD_CLASS = "font-unbounded font-bold tracking-tight";
 const CONTROL_CLASS =
   "font-jetbrains min-h-11 cursor-pointer bg-transparent px-1.5 py-2.5 text-[1.0625rem] leading-6 font-extrabold tracking-wide";
+
+const { idle } = landingPage;
 
 /** Same lockup slot as LogoAnimated — keeps layout stable while gsap chunk loads. */
 const LogoAnimated = dynamic(
@@ -75,7 +78,7 @@ export function GatewayIdle() {
           <p
             className={`${WORD_CLASS} py-5 text-center text-[clamp(1.75rem,5.5vw,2.5rem)] leading-[1.15]`}
           >
-            First time?
+            {idle.prompt}
           </p>
           <div className="flex items-center justify-center py-2.5">
             <Link
@@ -86,7 +89,7 @@ export function GatewayIdle() {
                 playBeep(180);
               }}
             >
-              [Yes]
+              {idle.yes}
             </Link>
             <span className="font-jetbrains text-[1.0625rem] leading-6 font-extrabold">
               &nbsp;-&nbsp;
@@ -96,7 +99,7 @@ export function GatewayIdle() {
               className={CONTROL_CLASS}
               onClick={() => requestIdeBootReplay()}
             >
-              [No]
+              {idle.no}
             </Link>
           </div>
           <button
@@ -111,7 +114,7 @@ export function GatewayIdle() {
               });
             }}
           >
-            {`[ Sound: ${soundOn ? "ON" : "OFF"} ]`}
+            {soundOn ? idle.soundOn : idle.soundOff}
           </button>
         </div>
       </div>

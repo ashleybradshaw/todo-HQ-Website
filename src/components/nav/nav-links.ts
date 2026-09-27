@@ -1,26 +1,11 @@
-export const PRIMARY_LINKS = [
-  { href: "/about", label: "About" },
-  { href: "/work", label: "Work" },
-  { href: "/blog", label: "Blog" },
-  { href: "/home", label: "Home" },
-  { href: "/book", label: "Book a call" },
-] as const;
+import { nav } from "@/content/pages/shared";
+
+export const PRIMARY_LINKS = nav.primary;
 
 /** Landing desktop crawl row — same order/labels as site Primary nav. */
 export const LANDING_CRAWL_LINKS = PRIMARY_LINKS;
 
-export const BOOK_DUO = [
-  {
-    href: "/book?type=coffee",
-    label: "Coffee · 15 min",
-    vibe: "Chemistry, is this a fit, no deck.",
-  },
-  {
-    href: "/book?type=hard-talk",
-    label: "Hard talk · 60 min",
-    vibe: "Dig into the real issue, scope the fix.",
-  },
-] as const;
+export const BOOK_DUO = nav.bookDuo;
 
 export function isGatewayPath(pathname: string) {
   return pathname === "/" || pathname === "/intro";

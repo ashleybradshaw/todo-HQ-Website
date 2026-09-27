@@ -14,6 +14,7 @@ const TABS: readonly {
   label: string;
   panelId: string;
   accent: string;
+  dirty?: boolean;
 }[] = [
   {
     id: "todo",
@@ -32,6 +33,7 @@ const TABS: readonly {
     label: homePage.ideTabs.tabs.discovery,
     panelId: "ide-panel-discovery",
     accent: "var(--syn-string)",
+    dirty: true,
   },
 ];
 
@@ -40,6 +42,7 @@ type IdeTabBarProps = {
   onChange: (tab: IdeTabId) => void;
 };
 
+/** Flat Zed-style tab strip — no sticky, no file-type badges. */
 export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -79,13 +82,10 @@ export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
       role="tablist"
       aria-label={homePage.ideTabs.aria}
       onKeyDown={onKeyDown}
-      className="ide-boot-tabs flex shrink-0 items-stretch border-b border-border-ide"
+      className="ide-boot-tabs border-border-ide-strong flex shrink-0 items-stretch border-b"
     >
       {TABS.map((tab, index) => {
         const selected = tab.id === activeTab;
-        const wash = selected ? 16 : 8;
-        const washMid = selected ? 5 : 2;
-        const edge = selected ? 34 : 22;
 
         return (
           <button
@@ -100,28 +100,30 @@ export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
             aria-controls={tab.panelId}
             tabIndex={selected ? 0 : -1}
             onClick={() => onChange(tab.id)}
-            className={`font-jetbrains relative -mb-px min-h-11 border border-b-0 px-4 py-3 text-xs transition-[background,border-color,opacity,color] duration-[400ms] ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--foreground)] ${
+            className={`font-jetbrains relative -mb-px flex min-h-9 items-center gap-1.5 border-b-2 px-3 py-2 text-xs transition-[color,border-color,opacity] duration-[400ms] ease-in-out focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none ${
               selected
-                ? "z-[1] rounded-t-[4px] text-syn-keyword font-medium"
-                : "rounded-t-[4px] border-transparent text-syn-comment font-normal"
+                ? "text-syn-keyword font-medium"
+                : "text-syn-comment border-transparent font-normal"
             }`}
             style={
               selected
-                ? {
-                    borderColor: `color-mix(in srgb, ${tab.accent} ${edge}%, transparent)`,
-                    backgroundImage: `linear-gradient(105deg, color-mix(in srgb, ${tab.accent} ${wash}%, transparent) 0%, color-mix(in srgb, ${tab.accent} ${washMid}%, transparent) 55%, transparent 100%)`,
-                    backgroundColor: "var(--bg-canvas)",
-                  }
-                : {
-                    borderColor: "transparent",
-                    backgroundImage: `linear-gradient(105deg, color-mix(in srgb, ${tab.accent} ${wash}%, transparent) 0%, color-mix(in srgb, ${tab.accent} ${washMid}%, transparent) 55%, transparent 100%)`,
-                  }
+                ? { borderBottomColor: tab.accent }
+                : undefined
             }
           >
-            {tab.label}
+            <span>{tab.label}</span>
+            {tab.dirty ? (
+              <span
+                aria-hidden="true"
+                className="ml-0.5 text-[10px] leading-none opacity-70"
+              >
+                ●
+              </span>
+            ) : null}
           </button>
         );
       })}
+      <div className="min-w-0 flex-1" aria-hidden="true" />
     </div>
   );
 }

@@ -9,7 +9,8 @@ export const introPage = {
   seo: {
     title: "Intro",
     description:
-      "High-speed kinetic typography intro for the //TODO Engineering software factory.",
+      "A short kinetic type intro to //TODO Engineering, a design and AI engineering studio.", // TEST COPY
+
   },
 
   // TEST COPY

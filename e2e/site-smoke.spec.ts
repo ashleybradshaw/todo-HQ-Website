@@ -55,11 +55,15 @@ test.describe("site smoke", () => {
     await expect(
       page.getByRole("link", { name: "//TODO Engineering" }),
     ).toBeVisible();
+    await expect(page.getByRole("tab", { name: /README\.md/ })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /services\.md/ })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /book\.ts/ })).toBeVisible();
+    await expect(page.locator("h1")).toHaveCount(1);
 
     await visit(page, "/about");
     await expect(
       page.getByRole("heading", {
-        name: /we deconstruct complex domains and build ai that works/i,
+        name: /we build apps, systems and hardware for hard/i,
       }),
     ).toBeVisible();
     await expect(
@@ -74,12 +78,11 @@ test.describe("site smoke", () => {
 
     await visit(page, "/book");
     await expect(
-      page.getByRole("heading", { name: /bring the factory to the problem/i }),
+      page.getByRole("heading", { name: /bring us the hard problem/i }),
     ).toBeVisible();
 
     await visit(page, "/blog");
     await expect(page.getByRole("heading", { name: /\/\/ Blog/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: "More" })).toBeVisible();
     await expect(
       page.getByRole("button", { name: SPRAY_NAME }),
     ).toBeVisible();

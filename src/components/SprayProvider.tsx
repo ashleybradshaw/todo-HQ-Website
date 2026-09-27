@@ -52,7 +52,15 @@ function applyPair(pair: AccessibleColorPair) {
   root.setProperty("--brand-logo", brand ? "#0B0CB4" : pair.text);
   root.setProperty(
     "--border-ide",
-    `color-mix(in srgb, ${pair.text} 15%, transparent)`,
+    `color-mix(in srgb, ${pair.text} 22%, transparent)`,
+  );
+  root.setProperty(
+    "--border-ide-strong",
+    `color-mix(in srgb, ${pair.text} 42%, transparent)`,
+  );
+  root.setProperty(
+    "--ide-chrome",
+    `color-mix(in srgb, ${pair.text} 8%, ${pair.bg})`,
   );
   root.setProperty(
     "--media-elev-shadow",

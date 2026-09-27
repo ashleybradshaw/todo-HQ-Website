@@ -15,9 +15,9 @@ const COMPILE_MS = 300;
 
 const SKELETON_BAR_WIDTHS = ["w-[92%]", "w-[68%]", "w-[84%]", "w-[54%]"] as const;
 
-/** Tallest stage body (exec: 4 lines). Fixed slot = no push/pull on Telemetry below. */
+/** Tallest stage body (BUILD: 2 lines + progress). Fixed slot — no layout thrash. */
 const DETAIL_SLOT = "5.25rem";
-/** Header × 5 + detail slot + padding — log viewport stays constant. */
+/** Header × 5 + detail + reboot — fits at 1280/390 with overflow-hidden (no grow). */
 const LOG_VIEWPORT = "17.5rem";
 
 const { pipelineRunner } = homePage;
@@ -109,9 +109,14 @@ function BuildProgress({
 
 type PipelineRunnerProps = {
   rebootSignal?: number;
+  /** Lifted for status-bar "pipeline 0n/05". */
+  onActiveIndexChange?: (index: number) => void;
 };
 
-export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
+export function PipelineRunner({
+  rebootSignal = 0,
+  onActiveIndexChange,
+}: PipelineRunnerProps) {
   const reduceMotion = useReducedMotion();
   const [activeIndex, setActiveIndex] = useState(0);
   const [pinned, setPinned] = useState(false);
@@ -130,6 +135,10 @@ export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
   const markBuildReady = useCallback(() => {
     setBuildReady(true);
   }, []);
+
+  useEffect(() => {
+    onActiveIndexChange?.(activeIndex);
+  }, [activeIndex, onActiveIndexChange]);
 
   useEffect(() => {
     if (lastRebootSignal.current === rebootSignal) {
@@ -199,11 +208,11 @@ export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
       className="bg-bg-canvas text-foreground flex shrink-0 flex-col transition-[background-color,color] duration-[400ms] ease-in-out"
       aria-label={pipelineRunner.sectionAria}
     >
-      <div className="flex shrink-0 items-center justify-between border-b border-border-ide px-3 py-2">
-        <p className="font-jetbrains text-foreground text-xs">
+      <div className="border-b border-border-ide flex shrink-0 items-center justify-between px-2 py-1.5">
+        <p className="font-jetbrains text-muted text-[10px] tracking-wide lg:text-[11px]">
           {pipelineRunner.header}
         </p>
-        <p className="font-jetbrains text-xs tabular-nums">
+        <p className="font-jetbrains text-[10px] tabular-nums lg:text-[11px]">
           {isLoading ? (
             <span className="text-syn-number">
               {pipelineRunner.compiling}
@@ -224,14 +233,14 @@ export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
       </div>
 
       <div
-        className="overflow-y-auto px-3 py-3"
+        className="overflow-hidden px-2 py-1"
         style={{ height: LOG_VIEWPORT }}
       >
         <AnimatePresence>
           {rebooting ? (
             <motion.div
               key={`reboot-${rebootSignal}`}
-              className="font-jetbrains text-foreground mb-3 space-y-1 border-b border-border-ide pb-3 text-xs leading-4"
+              className="font-jetbrains text-foreground mb-1.5 space-y-0.5 border-b border-border-ide pb-1.5 text-xs leading-4"
               initial={reduceMotion ? false : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={reduceMotion ? undefined : { opacity: 0 }}
@@ -277,7 +286,7 @@ export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
                   aria-current={active ? "step" : undefined}
                   onClick={() => selectStage(index)}
                   className={cn(
-                    "flex w-full cursor-pointer items-baseline gap-2 bg-transparent py-2 text-left text-xs leading-4 lg:text-[13px] lg:leading-5",
+                    "flex w-full cursor-pointer items-baseline gap-2 bg-transparent py-1 text-left text-xs leading-4",
                     active ? "text-foreground" : "text-muted",
                   )}
                 >
@@ -303,7 +312,7 @@ export function PipelineRunner({ rebootSignal = 0 }: PipelineRunnerProps) {
                   className="overflow-hidden"
                 >
                   <div
-                    className="text-foreground space-y-1 overflow-hidden pb-2 pl-5 text-xs leading-4"
+                    className="text-foreground space-y-0.5 overflow-hidden pb-1 pl-5 text-xs leading-4"
                     style={{ height: DETAIL_SLOT }}
                     aria-hidden={!active}
                     aria-busy={active && isLoading}

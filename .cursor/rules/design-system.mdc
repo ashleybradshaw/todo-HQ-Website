@@ -40,14 +40,14 @@ Do not paint inner routes with landing electric blue as the unsprayed default. S
 Use a 1px high-contrast structural grid. Borders and dividers on inner pages:
 
 ```
-color-mix(in srgb, #4545FF 15%, transparent)
+color-mix(in srgb, #4545FF 22%, transparent)
 ```
 
-Treat layout as an engineering drawing: visible edges, aligned columns, no soft drop shadows or glassmorphism.
+Treat layout as an engineering drawing: visible edges, aligned columns, no soft drop shadows or glassmorphism. IDE chrome uses `--border-ide` / `--border-ide-strong` / `--ide-chrome` (22% / 42% / 8%).
 
 ```tsx
 // ✅ GOOD
-<div className="border border-[color-mix(in_srgb,#4545FF_15%,transparent)]">
+<div className="border border-[color-mix(in_srgb,#4545FF_22%,transparent)]">
 ```
 
 ## Typography

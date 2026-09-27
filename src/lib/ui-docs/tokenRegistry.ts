@@ -74,6 +74,16 @@ export const TOKEN_REGISTRY: readonly TokenEntry[] = [
     group: "derived",
   },
   {
+    name: "Border IDE strong (30% text)",
+    token: "--border-ide-strong",
+    group: "derived",
+  },
+  {
+    name: "IDE chrome (5% text on canvas)",
+    token: "--ide-chrome",
+    group: "derived",
+  },
+  {
     name: "Page bridge (32/68)",
     token: "--page-bridge",
     group: "derived",

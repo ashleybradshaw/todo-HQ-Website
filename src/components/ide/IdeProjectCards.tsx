@@ -7,17 +7,17 @@ import { homePage } from "@/content/pages/home";
  */
 const PROJECT_META = [
   {
-    name: "RepDaily",
+    slug: "repdaily",
     logoSrc: "/logos/repdaily.svg",
     accent: "var(--foreground)",
   },
   {
-    name: "ReadyGo",
+    slug: "readygo",
     logoSrc: "/logos/readygo.svg",
     accent: "var(--blog-cat-agents)",
   },
   {
-    name: "Contentic",
+    slug: "contentic",
     logoSrc: "/logos/contentic.svg",
     accent: "var(--syn-string)",
   },
@@ -47,6 +47,7 @@ export function IdeProjectCards() {
   const projects = PROJECT_META.map((meta, index) => ({
     ...meta,
     ...projectCards.items[index],
+    slug: projectCards.items[index]?.slug ?? meta.slug,
   }));
 
   return (
@@ -54,36 +55,36 @@ export function IdeProjectCards() {
       className="shrink-0 border-t border-border-ide"
       aria-label={projectCards.sectionAria}
     >
-      <div className="border-b border-border-ide px-3 py-2">
-        <p className="font-jetbrains text-foreground text-xs">
+      <div className="border-b border-border-ide px-2 py-1.5">
+        <p className="font-jetbrains text-muted text-[10px] tracking-wide lg:text-[11px]">
           {projectCards.header}
         </p>
       </div>
-      <ul className="flex flex-col gap-2 p-3">
+      <ul className="flex flex-col gap-1.5 p-2">
         {projects.map((project) => (
           <li
-            key={project.name}
-            className="rounded-[4px] border border-solid px-3 py-2 transition-[background,border-color,opacity] duration-[400ms] ease-in-out hover:opacity-90"
+            key={project.slug}
+            className="rounded-[4px] border border-solid px-2.5 py-1.5 transition-[background,border-color,opacity] duration-[400ms] ease-in-out hover:opacity-90"
             style={{
-              borderColor: `color-mix(in srgb, ${project.accent} 34%, transparent)`,
-              backgroundImage: `linear-gradient(105deg, color-mix(in srgb, ${project.accent} 16%, transparent) 0%, color-mix(in srgb, ${project.accent} 5%, transparent) 55%, transparent 100%)`,
+              borderColor: `color-mix(in srgb, ${project.accent} 28%, transparent)`,
+              backgroundImage: `linear-gradient(105deg, color-mix(in srgb, ${project.accent} 10%, transparent) 0%, color-mix(in srgb, ${project.accent} 3%, transparent) 55%, transparent 100%)`,
             }}
           >
             <div className="flex items-center justify-between gap-3">
-              <div className="flex min-w-0 items-center gap-2.5">
+              <div className="flex min-w-0 items-center gap-2">
                 <ProjectLogo src={project.logoSrc} />
                 <div className="min-w-0">
                   <p className="font-jetbrains text-syn-keyword text-xs font-medium">
                     {project.name}
                   </p>
-                  <p className="font-jetbrains text-syn-comment mt-0.5 text-[10px] leading-4 lg:text-xs">
+                  <p className="font-jetbrains text-syn-comment mt-0.5 text-[10px] leading-4">
                     {project.blurb}
                   </p>
                 </div>
               </div>
               <Link
-                href="/work"
-                className="font-jetbrains text-syn-property shrink-0 text-[10px] underline decoration-[color-mix(in_srgb,var(--foreground)_35%,transparent)] underline-offset-2 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)] lg:text-xs"
+                href={`/work/${project.slug}`}
+                className="font-jetbrains text-syn-property shrink-0 text-[10px] underline decoration-[color-mix(in_srgb,var(--foreground)_35%,transparent)] underline-offset-2 transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none"
               >
                 {projectCards.viewLink}
               </Link>

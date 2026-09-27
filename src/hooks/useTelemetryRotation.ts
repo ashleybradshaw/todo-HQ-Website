@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { MirageSpinner } from "@/components/ide/MirageSpinner";
-import { cn } from "@/lib/cn";
 import { PROJECTS, type Project, type ProjectStatus } from "@/lib/projects";
 import { homePage } from "@/content/pages/home";
 
@@ -11,14 +9,12 @@ const FADE_MS = 400;
 
 const { telemetry } = homePage;
 
-type StatusTone = "online" | "building" | "pending";
+export type StatusTone = "online" | "building" | "pending";
 
-type InfraState = {
+function infraForStatus(status: ProjectStatus): {
   tone: StatusTone;
   label: string;
-};
-
-function infraForStatus(status: ProjectStatus): InfraState {
+} {
   if (status === "building") {
     return { tone: "building", label: telemetry.infra.building };
   }
@@ -31,13 +27,6 @@ function infraForStatus(status: ProjectStatus): InfraState {
 function sprintLabel(project: Project) {
   return project.name.toUpperCase();
 }
-
-const SPRINT_CH = Math.max(...PROJECTS.map((project) => sprintLabel(project).length));
-const INFRA_CH = Math.max(
-  telemetry.infra.online.length,
-  telemetry.infra.building.length,
-  telemetry.infra.pending.length,
-);
 
 function statusPhrase(status: ProjectStatus): string {
   switch (status) {
@@ -52,7 +41,6 @@ function statusPhrase(status: ProjectStatus): string {
   }
 }
 
-/** Static sr-only roster line derived from PROJECTS (no live region). */
 function rosterSummary(projects: readonly Project[]): string {
   const phrases: string[] = [];
   const pipelineNames: string[] = [];
@@ -81,7 +69,7 @@ function rosterSummary(projects: readonly Project[]): string {
   return `${telemetry.rosterPrefix}${phrases.join(", ")}`;
 }
 
-const ROSTER_SUMMARY = rosterSummary(PROJECTS);
+export const TELEMETRY_ROSTER_SUMMARY = rosterSummary(PROJECTS);
 
 function subscribeReducedMotion(onStoreChange: () => void) {
   const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -93,37 +81,8 @@ function readReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-function StatusDot({
-  tone,
-  pulse,
-}: {
-  tone: StatusTone;
-  pulse: boolean;
-}) {
-  return (
-    <svg
-      width="8"
-      height="8"
-      viewBox="0 0 8 8"
-      className="shrink-0"
-      aria-hidden="true"
-    >
-      <circle
-        cx="4"
-        cy="4"
-        r="3"
-        className={cn(
-          pulse && "status-dot-pulse",
-          tone === "online" && "fill-syn-string",
-          tone === "building" && "fill-foreground",
-          tone === "pending" && "fill-status-pending",
-        )}
-      />
-    </svg>
-  );
-}
-
-export function Telemetry({ agents }: { agents: number }) {
+/** Rotating project status for the IDE status bar (was Telemetry panel). */
+export function useTelemetryRotation() {
   const reduceMotion = useSyncExternalStore(
     subscribeReducedMotion,
     readReducedMotion,
@@ -185,83 +144,14 @@ export function Telemetry({ agents }: { agents: number }) {
 
   const project = PROJECTS[reduceMotion ? 0 : index] ?? PROJECTS[0];
   const infra = infraForStatus(project.status);
-  const sprint = sprintLabel(project);
-  const fadeClass = cn(
-    "transition-opacity ease-out",
-    reduceMotion || visible ? "opacity-100" : "opacity-0",
-  );
-  const fadeStyle = { transitionDuration: `${FADE_MS}ms` } as const;
 
-  const rows = [
-    {
-      key: telemetry.keys.agents,
-      value: String(agents).padStart(2, "0"),
-    },
-    {
-      key: telemetry.keys.infra,
-      kind: "infra" as const,
-      tone: infra.tone,
-      label: infra.label,
-    },
-    {
-      key: telemetry.keys.sprint,
-      kind: "sprint" as const,
-      value: sprint,
-    },
-  ];
-
-  return (
-    <section
-      className="shrink-0 border-t border-border-ide"
-      aria-label={telemetry.sectionAria}
-    >
-      <p className="sr-only">{ROSTER_SUMMARY}</p>
-      <div className="flex items-center justify-between border-b border-border-ide px-3 py-2">
-        <p className="font-jetbrains text-foreground text-xs">
-          {telemetry.header}
-        </p>
-        <MirageSpinner />
-      </div>
-      <dl className="font-jetbrains text-xs leading-5">
-        {rows.map((row) => (
-          <div
-            key={row.key}
-            className="flex items-center justify-between gap-3 border-b border-border-ide px-3 py-2 last:border-b-0"
-          >
-            <dt className="text-muted shrink-0">{row.key}</dt>
-            {"kind" in row && row.kind === "infra" ? (
-              <dd
-                className={cn("flex shrink-0 justify-end", fadeClass)}
-                style={fadeStyle}
-              >
-                <span
-                  className="text-foreground inline-flex items-center justify-end gap-1.5 tabular-nums"
-                  style={{
-                    minWidth: `calc(8px + 0.375rem + ${INFRA_CH}ch)`,
-                  }}
-                >
-                  <StatusDot tone={row.tone} pulse={!reduceMotion} />
-                  {row.label}
-                </span>
-              </dd>
-            ) : "kind" in row && row.kind === "sprint" ? (
-              <dd
-                className={cn(
-                  "text-foreground shrink-0 text-right tabular-nums",
-                  fadeClass,
-                )}
-                style={{ ...fadeStyle, minWidth: `${SPRINT_CH}ch` }}
-              >
-                {row.value}
-              </dd>
-            ) : (
-              <dd className="text-foreground shrink-0 text-right tabular-nums">
-                {row.value}
-              </dd>
-            )}
-          </div>
-        ))}
-      </dl>
-    </section>
-  );
+  return {
+    reduceMotion,
+    visible,
+    fadeMs: FADE_MS,
+    projectName: sprintLabel(project),
+    infra,
+    rosterSummary: TELEMETRY_ROSTER_SUMMARY,
+    sectionAria: telemetry.sectionAria,
+  };
 }

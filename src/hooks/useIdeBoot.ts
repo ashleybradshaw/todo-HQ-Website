@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type RefObject } from "react";
 
 export type IdeBootPhase = "bones" | "tabs" | "content" | "done";
 
-const STORAGE_KEY = "todo-ide-boot-v4";
+const STORAGE_KEY = "todo-ide-boot-v8";
 const FORCE_KEY = "todo-ide-boot-force";
 const REPLAY_EVENT = "todo-ide-boot-replay";
 
@@ -62,16 +62,19 @@ function clearForceBoot(): void {
 
 /**
  * SSR defaults to `done` so `/home` LCP is not an empty canvas.
- * First visit (no session flag) assembles after mount; reduced-motion stays settled.
- * `requestIdeBootReplay` sets FORCE_KEY + dispatches REPLAY_EVENT for logo / No / intro.
- * Force is cleared on settle (or reduced-motion), not on start — survives Strict Mode remount.
+ * First visit boots when `targetRef` enters the viewport (IDE-only first view).
+ * Force replay (logo / No / intro) ignores intersection and plays immediately.
  */
-export function useIdeBoot(): IdeBootPhase {
+export function useIdeBoot(
+  targetRef: RefObject<HTMLElement | null>,
+): IdeBootPhase {
   const [phase, setPhase] = useState<IdeBootPhase>("done");
 
   useEffect(() => {
     const timers: number[] = [];
     let cancelled = false;
+    let started = false;
+    let observer: IntersectionObserver | null = null;
 
     const clearTimers = () => {
       for (const id of timers) window.clearTimeout(id);
@@ -79,7 +82,8 @@ export function useIdeBoot(): IdeBootPhase {
     };
 
     const play = () => {
-      if (cancelled) return;
+      if (cancelled || started) return;
+      started = true;
       clearTimers();
 
       if (prefersReducedMotion()) {
@@ -116,18 +120,48 @@ export function useIdeBoot(): IdeBootPhase {
     };
 
     const onReplay = () => {
-      play();
+      started = false;
+      observer?.disconnect();
+      timers.push(window.setTimeout(play, 0));
     };
 
     window.addEventListener(REPLAY_EVENT, onReplay);
-    timers.push(window.setTimeout(play, 0));
+
+    const el = targetRef.current;
+
+    if (peekForceBoot()) {
+      timers.push(window.setTimeout(play, 0));
+    } else if (hasBootedThisSession() || prefersReducedMotion()) {
+      timers.push(
+        window.setTimeout(() => {
+          if (cancelled) return;
+          clearForceBoot();
+          setPhase("done");
+          started = true;
+        }, 0),
+      );
+    } else if (el) {
+      observer = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            observer?.disconnect();
+            play();
+          }
+        },
+        { root: null, threshold: 0.15 },
+      );
+      observer.observe(el);
+    } else {
+      timers.push(window.setTimeout(play, 0));
+    }
 
     return () => {
       cancelled = true;
       clearTimers();
+      observer?.disconnect();
       window.removeEventListener(REPLAY_EVENT, onReplay);
     };
-  }, []);
+  }, [targetRef]);
 
   return phase;
 }

@@ -7,7 +7,9 @@
   --foreground: #4545FF;
   --bg-canvas: #DFDFFF;
   --brand-logo: #0B0CB4;
-  --border-ide: color-mix(in srgb, #4545FF 15%, transparent);
+  --border-ide: color-mix(in srgb, #4545FF 22%, transparent);
+  --border-ide-strong: color-mix(in srgb, #4545FF 42%, transparent);
+  --ide-chrome: color-mix(in srgb, #4545FF 8%, #DFDFFF);
   --media-elev-shadow: color-mix(in srgb, #4545FF 16%, transparent);
   --media-elev-bloom: color-mix(in srgb, #4545FF 12%, transparent);
   /* Soft readable tier — 4.81:1 on powder; also drives syn-comment / syn-property */
@@ -45,6 +47,8 @@
   --color-bg-canvas: var(--bg-canvas);
   --color-brand-logo: var(--brand-logo);
   --color-border-ide: var(--border-ide);
+  --color-border-ide-strong: var(--border-ide-strong);
+  --color-ide-chrome: var(--ide-chrome);
   --color-muted: var(--text-muted);
   --color-on-tint: var(--text-on-tint);
   --color-syn-keyword: var(--syn-keyword);
@@ -641,6 +645,33 @@ html.is-section-transitioning a {
   opacity: 1;
 }
 
+/* Contained /home IDE window — natural height; page scrolls */
+:root {
+  --ide-tab-strip-height: 2.25rem;
+}
+
+@keyframes ide-caret-blink {
+  0%,
+  46% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.ide-caret {
+  animation: ide-caret-blink 1.05s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ide-caret {
+    animation: none;
+    opacity: 1;
+  }
+}
+
 /* HQ Home IDE — once-per-session boot assemble (bone morph) */
 @keyframes ide-boot-fade-up {
   from {
@@ -691,22 +722,27 @@ html.is-section-transitioning a {
 }
 
 .ide-boot-stage[data-ide-boot="bones"] .ide-boot-tabs,
-.ide-boot-stage[data-ide-boot="bones"] .ide-boot-editor > :not(.ide-boot-tabs),
+.ide-boot-stage[data-ide-boot="bones"] .ide-boot-chrome,
+.ide-boot-stage[data-ide-boot="bones"] .ide-boot-status,
+.ide-boot-stage[data-ide-boot="bones"] .ide-boot-editor,
 .ide-boot-stage[data-ide-boot="bones"] .ide-boot-sidecar {
   opacity: 0;
 }
 
-/* —— tabs phase: real tabs in; tab bones out; rest still bone —— */
-.ide-boot-stage[data-ide-boot="tabs"] .ide-boot-tabs {
+/* —— tabs phase: title/tabs/path in; tab bones out —— */
+.ide-boot-stage[data-ide-boot="tabs"] .ide-boot-tabs,
+.ide-boot-stage[data-ide-boot="tabs"] .ide-boot-chrome {
   animation: ide-boot-fade-up 160ms ease-out forwards;
 }
 
-.ide-boot-stage[data-ide-boot="tabs"] .ide-boot-editor > :not(.ide-boot-tabs),
+.ide-boot-stage[data-ide-boot="tabs"] .ide-boot-status,
+.ide-boot-stage[data-ide-boot="tabs"] .ide-boot-editor,
 .ide-boot-stage[data-ide-boot="tabs"] .ide-boot-sidecar {
   opacity: 0;
 }
 
-.ide-boot-stage[data-ide-boot="tabs"] .ide-bone-tab {
+.ide-boot-stage[data-ide-boot="tabs"] .ide-bone-tab,
+.ide-boot-stage[data-ide-boot="tabs"] .ide-bone-crumb {
   animation: ide-boot-bone-out 180ms ease-out forwards;
   animation-delay: calc(var(--b, 0) * 18ms);
 }
@@ -719,20 +755,21 @@ html.is-section-transitioning a {
   opacity: 0.7;
 }
 
-/* —— content phase: real lines/status/sidecar in; remaining bones out —— */
-.ide-boot-stage[data-ide-boot="content"] .ide-boot-tabs {
+/* —— content phase: lines/status/sidecar in —— */
+.ide-boot-stage[data-ide-boot="content"] .ide-boot-tabs,
+.ide-boot-stage[data-ide-boot="content"] .ide-boot-chrome {
   opacity: 1;
   transform: none;
+}
+
+.ide-boot-stage[data-ide-boot="content"] .ide-boot-editor {
+  opacity: 1;
 }
 
 .ide-boot-stage[data-ide-boot="content"] .ide-boot-line {
   opacity: 0;
   animation: ide-boot-line-in 220ms ease-out forwards;
   animation-delay: calc(var(--i, 0) * 14ms);
-}
-
-.ide-boot-stage[data-ide-boot="content"] .ide-boot-gutter .ide-boot-line {
-  animation-delay: max(0ms, calc(var(--i, 0) * 14ms - 40ms));
 }
 
 .ide-boot-stage[data-ide-boot="content"] .ide-boot-status {
@@ -745,7 +782,8 @@ html.is-section-transitioning a {
   animation: ide-boot-fade-up 320ms ease-out 280ms forwards;
 }
 
-.ide-boot-stage[data-ide-boot="content"] .ide-bone-tab {
+.ide-boot-stage[data-ide-boot="content"] .ide-bone-tab,
+.ide-boot-stage[data-ide-boot="content"] .ide-bone-crumb {
   opacity: 0;
 }
 
@@ -760,8 +798,10 @@ html.is-section-transitioning a {
 
 /* —— done —— */
 .ide-boot-stage[data-ide-boot="done"] .ide-boot-tabs,
+.ide-boot-stage[data-ide-boot="done"] .ide-boot-chrome,
 .ide-boot-stage[data-ide-boot="done"] .ide-boot-line,
 .ide-boot-stage[data-ide-boot="done"] .ide-boot-status,
+.ide-boot-stage[data-ide-boot="done"] .ide-boot-editor,
 .ide-boot-stage[data-ide-boot="done"] .ide-boot-sidecar {
   opacity: 1;
   transform: none;
@@ -774,10 +814,11 @@ html.is-section-transitioning a {
   }
 
   .ide-boot-stage .ide-boot-tabs,
+  .ide-boot-stage .ide-boot-chrome,
   .ide-boot-stage .ide-boot-line,
   .ide-boot-stage .ide-boot-status,
-  .ide-boot-stage .ide-boot-sidecar,
-  .ide-boot-stage[data-ide-boot] .ide-boot-editor > :not(.ide-boot-tabs) {
+  .ide-boot-stage .ide-boot-editor,
+  .ide-boot-stage .ide-boot-sidecar {
     opacity: 1 !important;
     transform: none !important;
     animation: none !important;

@@ -164,16 +164,26 @@ test.describe("book links and draft panel", () => {
     await expect(firstUrl).toHaveAttribute("aria-invalid", "true");
   });
 
-  test("Quick note rejects bare hostname fragments like asdf", async ({ page }) => {
+  test("Quick note rejects bare hostname fragments like asdf", async ({
+    browser,
+    baseURL,
+  }) => {
+    const context = await browser.newContext({
+      baseURL: baseURL ?? "http://localhost:3000",
+    });
+    const page = await context.newPage();
     await visit(page, "/book#quick");
     const quick = quickPanel(page);
     const url = linkUrl(quick, 1);
-    await url.fill("asdf");
+    await url.click();
+    await url.pressSequentially("asdf", { delay: 15 });
+    await expect(url).toHaveValue("asdf");
     await url.press("Tab");
+    await expect(url).toHaveAttribute("aria-invalid", "true");
     await expect(
       quick.getByRole("alert").filter({ hasText: /enter a web link/i }),
     ).toBeVisible();
-    await expect(url).toHaveAttribute("aria-invalid", "true");
+    await context.close();
   });
 
   test("copy address shows Copied then reverts", async ({ browser, baseURL }) => {
@@ -365,6 +375,54 @@ test.describe("book links and draft panel", () => {
     const copied = await page.evaluate(() => navigator.clipboard.readText());
     expect(copied).toContain("Subject: Pre-brief //TODO — Jordan Lee");
     expect(copied).not.toMatch(/Email address copied/i);
+    await context.close();
+  });
+
+  test("phone and email guardrails: format errors, phone pass, typo suggestion", async ({
+    browser,
+    baseURL,
+  }) => {
+    const context = await browser.newContext({
+      baseURL: baseURL ?? "http://localhost:3000",
+    });
+    const page = await context.newPage();
+    await visit(page, "/book#quick");
+    const quick = quickPanel(page);
+
+    await quick.getByRole("textbox", { name: "Name", exact: true }).fill("Sam Lead");
+    const email = quick.getByRole("textbox", { name: "Email", exact: true });
+    await email.click();
+    await email.pressSequentially("sam@company", { delay: 15 });
+    await email.blur();
+    await expect(
+      quick.getByRole("alert").filter({ hasText: /add an @ and a domain/i }),
+    ).toBeVisible();
+
+    await email.fill("sam@gmial.com");
+    await email.blur();
+    await expect(quick.locator("#quick-email-suggestion")).toBeVisible();
+    await expect(quick.locator("#quick-email-suggestion")).toContainText(/did you mean/i);
+    await quick.getByRole("button", { name: "sam@gmail.com" }).click();
+    await expect(email).toHaveValue("sam@gmail.com");
+
+    const phone = quick.getByLabel(/phone/i);
+    await phone.fill("abc");
+    await phone.blur();
+    await expect(
+      quick.getByRole("alert").filter({ hasText: /check the number/i }),
+    ).toBeVisible();
+
+    await phone.fill("+44 7700 900123");
+    await phone.blur();
+    await expect(
+      quick.getByRole("alert").filter({ hasText: /check the number/i }),
+    ).toHaveCount(0);
+
+    await phone.fill("");
+    await phone.blur();
+    await expect(
+      quick.getByRole("alert").filter({ hasText: /check the number/i }),
+    ).toHaveCount(0);
     await context.close();
   });
 });

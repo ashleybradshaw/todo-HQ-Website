@@ -20,6 +20,13 @@ export const bookPage = {
   lede: "We work with product and engineering leads who need an app, a system or AI built and running in production. Send a short note or a proper brief. An engineer reads both.",
   pathLead: "Two ways in. Pick one.",
 
+  // TEST COPY — shared field guardrails (Quick note + Pre-brief)
+  phoneHelper: "UK number, or start with your country code (e.g. +1).",
+  errorPhoneInvalid:
+    "Check the number: 7 to 15 digits, with + only at the start.",
+  errorEmailFormat: "Add an @ and a domain, like name@company.com.",
+  emailSuggestion: "Did you mean {suggestion}?",
+
   // TEST COPY
   paths: {
     quick: {
@@ -118,7 +125,6 @@ export const bookPage = {
     subjectPrefix: "Quick note //TODO —",
     bodyHeading: "Message:",
     errorNameShort: "Name needs at least 2 characters.",
-    errorEmailInvalid: "Enter a valid email.",
     errorHowHeard: "Pick one so we know how you found us.",
     errorMessageShort: "Add a bit more. A sentence is enough.",
     coffeePrefill:
@@ -140,7 +146,6 @@ export const bookPage = {
       "Opens your email app with everything filled in. Nothing is sent until you press Send.",
     subjectPrefix: "Pre-brief //TODO —",
     errorNameShort: "Name needs at least 2 characters.",
-    errorEmailInvalid: "Enter a valid email.",
     errorHowHeard: "Pick one so we know how you found us.",
     errorBriefShort: "Add a few more words. Three is the minimum.",
     steps: [

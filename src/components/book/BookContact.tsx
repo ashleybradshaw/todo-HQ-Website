@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { BookCopyEmail } from "@/components/book/BookCopyEmail";
 import { BookDraftPanel } from "@/components/book/BookDraftPanel";
 import { BookLinks } from "@/components/book/BookLinks";
@@ -15,8 +15,10 @@ import {
   isValidEmail,
   isValidMessage,
   isValidName,
+  isValidPhone,
   MAX_MESSAGE_CHARS,
   scrollMtHeaderClass,
+  suggestEmail,
 } from "@/lib/book-form";
 import {
   buildMailto,
@@ -45,13 +47,20 @@ const formColumnClass = "mt-8 w-full min-w-0";
 
 const { contact, howHeardOptions } = bookPage;
 
+const suggestionMailtoClass =
+  "font-jetbrains text-syn-string underline decoration-[color-mix(in_srgb,var(--foreground)_35%,transparent)] underline-offset-2 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
+
 const ID = {
   heading: "quick-contact-heading",
   name: "quick-name",
   nameError: "quick-name-error",
   email: "quick-email",
   emailError: "quick-email-error",
+  emailSuggestion: "quick-email-suggestion",
+  emailSuggestionLive: "quick-email-suggestion-live",
   phone: "quick-phone",
+  phoneHelper: "quick-phone-helper",
+  phoneError: "quick-phone-error",
   heard: "quick-heard",
   heardError: "quick-heard-error",
   message: "quick-message",
@@ -69,6 +78,7 @@ function messagePrefill(type?: string): string {
 type Touched = {
   name: boolean;
   email: boolean;
+  phone: boolean;
   howHeard: boolean;
   message: boolean;
 };
@@ -106,11 +116,14 @@ export function BookContact({
   const [touched, setTouched] = useState<Touched>({
     name: false,
     email: false,
+    phone: false,
     howHeard: false,
     message: false,
   });
   const [showAllErrors, setShowAllErrors] = useState(false);
+  const [emailSuggestionLive, setEmailSuggestionLive] = useState("");
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const emailInputRef = useRef<HTMLInputElement>(null);
 
   // Coffee / Hard talk: fill Quick note message only when empty — never overwrite typed text.
   if (bookingType !== prefillType) {
@@ -122,15 +135,28 @@ export function BookContact({
   }
   const nameOk = isValidName(name);
   const emailOk = isValidEmail(email);
+  const phoneOk = isValidPhone(phone);
   const howHeardOk = Boolean(howHeard);
   const messageOk = isValidMessage(message);
   const linksOk = !linksHaveInvalidRows(links);
+  const emailSuggestion = emailOk ? suggestEmail(email) : null;
 
   const emailOpen = nameOk;
   const optionalOpen = emailOk;
   const howHeardOpen = emailOk;
   const messageOpen = howHeardOk;
-  const formReady = nameOk && emailOk && howHeardOk && messageOk && linksOk;
+  const formReady =
+    nameOk && emailOk && phoneOk && howHeardOk && messageOk && linksOk;
+
+  useEffect(() => {
+    if (!emailSuggestion) {
+      setEmailSuggestionLive("");
+      return;
+    }
+    setEmailSuggestionLive(
+      bookPage.emailSuggestion.replace("{suggestion}", emailSuggestion),
+    );
+  }, [emailSuggestion]);
 
   function markTouched(key: keyof Touched) {
     setTouched((current) => ({ ...current, [key]: true }));
@@ -138,6 +164,13 @@ export function BookContact({
 
   function showError(key: keyof Touched) {
     return showAllErrors || touched[key];
+  }
+
+  function applyEmailSuggestion() {
+    if (!emailSuggestion) return;
+    onEmailChange(emailSuggestion);
+    setEmailSuggestionLive("");
+    queueMicrotask(() => emailInputRef.current?.focus());
   }
 
   function onEdit() {
@@ -154,6 +187,7 @@ export function BookContact({
       const order: string[] = [];
       if (!nameOk) order.push(ID.name);
       if (!emailOk) order.push(ID.email);
+      if (!phoneOk) order.push(ID.phone);
       if (!howHeardOk) order.push(ID.heard);
       if (!messageOk) order.push(ID.message);
       if (invalidLink >= 0) {
@@ -310,6 +344,7 @@ export function BookContact({
               {contact.emailLabel}
             </label>
             <input
+              ref={emailInputRef}
               id={ID.email}
               name="quick-visitor-email"
               type="email"
@@ -325,15 +360,40 @@ export function BookContact({
               }}
               aria-invalid={showError("email") && !emailOk}
               aria-describedby={
-                showError("email") && !emailOk ? ID.emailError : undefined
+                [
+                  showError("email") && !emailOk ? ID.emailError : null,
+                  emailSuggestion ? ID.emailSuggestion : null,
+                ]
+                  .filter(Boolean)
+                  .join(" ") || undefined
               }
               className={fieldClass}
             />
             {showError("email") && !emailOk ? (
               <p id={ID.emailError} className={fieldErrorClass} role="alert">
-                {contact.errorEmailInvalid}
+                {bookPage.errorEmailFormat}
               </p>
             ) : null}
+            {emailSuggestion ? (
+              <p id={ID.emailSuggestion} className={fieldHelperClass}>
+                {bookPage.emailSuggestion.split("{suggestion}")[0]}
+                <button
+                  type="button"
+                  className={suggestionMailtoClass}
+                  onClick={applyEmailSuggestion}
+                >
+                  {emailSuggestion}
+                </button>
+                {bookPage.emailSuggestion.split("{suggestion}")[1]}
+              </p>
+            ) : null}
+            <p
+              id={ID.emailSuggestionLive}
+              className="sr-only"
+              aria-live="polite"
+            >
+              {emailSuggestionLive}
+            </p>
           </div>
 
           <div
@@ -352,11 +412,30 @@ export function BookContact({
               id={ID.phone}
               name="phone"
               type="tel"
+              inputMode="tel"
               autoComplete="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              onBlur={() => markTouched("phone")}
+              aria-invalid={showError("phone") && !phoneOk}
+              aria-describedby={
+                [
+                  ID.phoneHelper,
+                  showError("phone") && !phoneOk ? ID.phoneError : null,
+                ]
+                  .filter(Boolean)
+                  .join(" ")
+              }
               className={fieldClass}
             />
+            <p id={ID.phoneHelper} className={fieldHelperClass}>
+              {bookPage.phoneHelper}
+            </p>
+            {showError("phone") && !phoneOk ? (
+              <p id={ID.phoneError} className={fieldErrorClass} role="alert">
+                {bookPage.errorPhoneInvalid}
+              </p>
+            ) : null}
           </div>
 
           <div className={optionalOpen ? fieldOpenClass : fieldQuietClass}>

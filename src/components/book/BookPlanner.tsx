@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, type FormEvent, type MouseEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type MouseEvent } from "react";
 import { BookCopyEmail } from "@/components/book/BookCopyEmail";
 import { BookDraftPanel } from "@/components/book/BookDraftPanel";
 import { BookLinks } from "@/components/book/BookLinks";
@@ -17,6 +17,7 @@ import {
   isValidName,
   MAX_BRIEF_CHARS,
   scrollMtHeaderClass,
+  suggestEmail,
 } from "@/lib/book-form";
 import {
   buildMailto,
@@ -48,6 +49,9 @@ const formColumnClass = "mt-8 w-full min-w-0";
 const { planner, howHeardOptions } = bookPage;
 const TOTAL_STEPS = planner.steps.length;
 
+const suggestionMailtoClass =
+  "font-jetbrains text-syn-string underline decoration-[color-mix(in_srgb,var(--foreground)_35%,transparent)] underline-offset-2 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
+
 const ID = {
   heading: "brief-planner-heading",
   stepHeading: "brief-step-heading",
@@ -56,6 +60,8 @@ const ID = {
   nameError: "brief-name-error",
   email: "brief-email",
   emailError: "brief-email-error",
+  emailSuggestion: "brief-email-suggestion",
+  emailSuggestionLive: "brief-email-suggestion-live",
   company: "brief-company",
   heard: "brief-heard",
   heardError: "brief-heard-error",
@@ -142,8 +148,10 @@ export function BookPlanner({
   const [showStep4Errors, setShowStep4Errors] = useState(false);
   const [showLinkErrors, setShowLinkErrors] = useState(false);
   const [briefTouched, setBriefTouched] = useState(false);
+  const [emailSuggestionLive, setEmailSuggestionLive] = useState("");
   const headingRef = useRef<HTMLHeadingElement>(null);
   const stepHeadingRef = useRef<HTMLHeadingElement>(null);
+  const emailInputRef = useRef<HTMLInputElement>(null);
   const [touched4, setTouched4] = useState({
     name: false,
     email: false,
@@ -158,6 +166,7 @@ export function BookPlanner({
   const howHeardOk = Boolean(howHeard);
   const briefOk = isValidBrief(brief);
   const linksOk = !linksHaveInvalidRows(links);
+  const emailSuggestion = emailOk ? suggestEmail(email) : null;
 
   const budgetOpen = Boolean(timeline);
   const needsOpen = Boolean(budget);
@@ -165,6 +174,16 @@ export function BookPlanner({
   const emailOpen = nameOk;
   const companyOpen = emailOk;
   const howHeardOpen = emailOk;
+
+  useEffect(() => {
+    if (!emailSuggestion) {
+      setEmailSuggestionLive("");
+      return;
+    }
+    setEmailSuggestionLive(
+      bookPage.emailSuggestion.replace("{suggestion}", emailSuggestion),
+    );
+  }, [emailSuggestion]);
 
   const canAdvance = useMemo(() => {
     if (step === 1) return Boolean(booking);
@@ -308,6 +327,13 @@ export function BookPlanner({
 
   function show4Error(key: keyof typeof touched4) {
     return showStep4Errors || touched4[key];
+  }
+
+  function applyEmailSuggestion() {
+    if (!emailSuggestion) return;
+    onEmailChange(emailSuggestion);
+    setEmailSuggestionLive("");
+    queueMicrotask(() => emailInputRef.current?.focus());
   }
 
   const primaryReady = canAdvance;
@@ -581,6 +607,7 @@ export function BookPlanner({
                   {planner.emailLabel}
                 </label>
                 <input
+                  ref={emailInputRef}
                   id={ID.email}
                   name="brief-visitor-email"
                   type="email"
@@ -596,15 +623,40 @@ export function BookPlanner({
                   }}
                   aria-invalid={show4Error("email") && !emailOk}
                   aria-describedby={
-                    show4Error("email") && !emailOk ? ID.emailError : undefined
+                    [
+                      show4Error("email") && !emailOk ? ID.emailError : null,
+                      emailSuggestion ? ID.emailSuggestion : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" ") || undefined
                   }
                   className={fieldClass}
                 />
                 {show4Error("email") && !emailOk ? (
                   <p id={ID.emailError} className={fieldErrorClass} role="alert">
-                    {planner.errorEmailInvalid}
+                    {bookPage.errorEmailFormat}
                   </p>
                 ) : null}
+                {emailSuggestion ? (
+                  <p id={ID.emailSuggestion} className={fieldHelperClass}>
+                    {bookPage.emailSuggestion.split("{suggestion}")[0]}
+                    <button
+                      type="button"
+                      className={suggestionMailtoClass}
+                      onClick={applyEmailSuggestion}
+                    >
+                      {emailSuggestion}
+                    </button>
+                    {bookPage.emailSuggestion.split("{suggestion}")[1]}
+                  </p>
+                ) : null}
+                <p
+                  id={ID.emailSuggestionLive}
+                  className="sr-only"
+                  aria-live="polite"
+                >
+                  {emailSuggestionLive}
+                </p>
               </div>
               <div
                 className={cn(

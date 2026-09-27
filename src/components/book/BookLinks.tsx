@@ -72,16 +72,14 @@ export function BookLinks({
   function handleUrlBlur(row: BookLinkRow, raw: string) {
     setBlurred((current) => ({ ...current, [row.id]: true }));
     const trimmed = raw.trim();
-    if (!trimmed) return;
-    const normalised = normaliseUrl(trimmed);
-    if (normalised) {
-      updateRow(row.id, { url: normalised });
+    // Commit DOM → state so Playwright fill / skipped onChange still validates.
+    if (trimmed === row.url) return;
+    if (!trimmed) {
+      updateRow(row.id, { url: "" });
       return;
     }
-    // Keep the typed value so validation can flag it (fill may have skipped onChange).
-    if (trimmed !== row.url) {
-      updateRow(row.id, { url: trimmed });
-    }
+    const normalised = normaliseUrl(trimmed);
+    updateRow(row.id, { url: normalised ?? trimmed });
   }
 
   function removeRow(index: number) {

@@ -4,8 +4,8 @@ import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
 import { useSpray } from "@/components/SprayProvider";
 import { MetricChips } from "@/components/ui-docs/spec/MetricChips";
 import { SpecSection } from "@/components/ui-docs/spec/SpecSection";
+import { contrastRatio } from "@/lib/accessibleColorPair";
 import {
-  contrastVsCanvasAndText,
   formatContrast,
   readCssVarHex,
 } from "@/lib/ui-docs/readCssVar";
@@ -22,9 +22,28 @@ const EFFECT_TOKEN_NAMES = new Set([
   "--media-elev-bloom",
 ]);
 
+type ContrastPair = {
+  /** CSS var to contrast against (without needing the swatch hex as both sides). */
+  againstToken: string;
+  /** Short chip label, e.g. "vs text" / "vs canvas" / "vs selection-bg". */
+  label: string;
+};
+
+/** Background-type tokens use their real pair; everything else vs powder canvas. */
+function contrastPairFor(token: string): ContrastPair {
+  if (token === "--bg-canvas") {
+    return { againstToken: "--foreground", label: "vs text" };
+  }
+  if (token === "--selection-fg") {
+    return { againstToken: "--selection-bg", label: "vs selection-bg" };
+  }
+  return { againstToken: "--bg-canvas", label: "vs canvas" };
+}
+
 type SwatchState = {
   hex: string | null;
-  vsCanvas: number | null;
+  ratio: number | null;
+  pairLabel: string;
 };
 
 function readLiveTokenMap(): Record<string, SwatchState> {
@@ -32,10 +51,14 @@ function readLiveTokenMap(): Record<string, SwatchState> {
   const next: Record<string, SwatchState> = {};
   for (const entry of TOKEN_REGISTRY) {
     const hex = readCssVarHex(entry.token);
-    const contrast = contrastVsCanvasAndText(hex);
+    const pair = contrastPairFor(entry.token);
+    const against = readCssVarHex(pair.againstToken);
+    const ratio =
+      hex && against ? contrastRatio(hex, against) : null;
     next[`${entry.group}:${entry.name}`] = {
       hex,
-      vsCanvas: contrast.vsCanvas,
+      ratio,
+      pairLabel: pair.label,
     };
   }
   return next;
@@ -45,11 +68,11 @@ function isEffectEntry(entry: TokenEntry, hex: string | null) {
   return EFFECT_TOKEN_NAMES.has(entry.token) || !hex;
 }
 
-function aaChip(vsCanvas: number | null): string {
-  const ratio = formatContrast(vsCanvas);
-  if (ratio === "—") return "AA —";
-  const pass = (vsCanvas ?? 0) >= 4.5;
-  return `AA ${ratio} ${pass ? "pass" : "fail"}`;
+function aaChip(ratio: number | null, pairLabel: string): string {
+  const formatted = formatContrast(ratio);
+  if (formatted === "—") return `AA ${pairLabel} —`;
+  const pass = (ratio ?? 0) >= 4.5;
+  return `AA ${pairLabel} ${formatted} ${pass ? "pass" : "fail"}`;
 }
 
 function SwatchBlock({
@@ -84,7 +107,7 @@ function SwatchBlock({
         <span className="text-foreground tabular-nums">{hex ?? "—"}</span>
         <MetricChips
           name="contrast"
-          values={[aaChip(state?.vsCanvas ?? null)]}
+          values={[aaChip(state?.ratio ?? null, state?.pairLabel ?? "vs canvas")]}
           className="mt-1"
         />
       </span>
@@ -136,7 +159,7 @@ export function ColourSpec() {
   const aaPass = mounted
     ? solids.filter((entry) => {
         const state = map[`${entry.group}:${entry.name}`];
-        return (state?.vsCanvas ?? 0) >= 4.5;
+        return (state?.ratio ?? 0) >= 4.5;
       }).length
     : null;
   const n = solids.length;

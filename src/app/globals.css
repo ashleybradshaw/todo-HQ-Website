@@ -1391,3 +1391,55 @@ html.is-section-transitioning a {
     transform: none;
   }
 }
+
+/* -------------------------------------------------------------------------- */
+/* /ui spec sheet motion demos — only when motion is allowed                  */
+/* -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes ui-spec-fade {
+    0%,
+    100% {
+      opacity: 0.25;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes ui-spec-slide {
+    0%,
+    100% {
+      transform: translateY(8px);
+      opacity: 0.4;
+    }
+    50% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes ui-spec-bone {
+    0%,
+    100% {
+      transform: scaleX(1);
+      opacity: 0.5;
+    }
+    50% {
+      transform: scaleX(1.15);
+      opacity: 1;
+    }
+  }
+
+  .ui-spec-fade {
+    animation: ui-spec-fade 1.6s ease-in-out infinite;
+  }
+
+  .ui-spec-slide {
+    animation: ui-spec-slide 1.6s ease-in-out infinite;
+  }
+
+  .ui-spec-bone {
+    animation: ui-spec-bone 1.6s ease-in-out infinite;
+    transform-origin: center;
+  }
+}

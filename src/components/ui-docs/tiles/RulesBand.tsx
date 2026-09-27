@@ -20,12 +20,11 @@ const KNOWN_DEBT = [
   "design-system.mdc still describes body as sans / controls as mono; runtime is Unbounded display + JetBrains body.",
   "Status online/building lack dedicated --status-* tokens (naming gap called out in Colour).",
   "PipelineRunner omitted from Components here so /ui does not pull Framer Motion weight onto this route.",
-  "snippets.ts kept for reference but unused by the tile showcase.",
 ] as const;
 
 export function RulesBand() {
   return (
-    <footer className="border-border-ide mt-8 min-w-0 border-t pt-8 sm:mt-10 sm:pt-10">
+    <footer className="border-border-ide mt-6 min-w-0 border-t pt-8 sm:mt-8 sm:pt-10">
       <h2 className="type-heading text-foreground mb-4">{uiPage.rules.title}</h2>
       <ol className="type-body-sm text-foreground list-decimal space-y-2.5 pl-5">
         {HOUSE_RULES.map((rule) => (

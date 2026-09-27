@@ -1,5 +1,5 @@
 /**
- * /ui design system showcase.
+ * /ui design system showcase — stacked spec sheet.
  * // TEST COPY
  */
 
@@ -13,60 +13,78 @@ export const uiPage = {
   },
 
   // TEST COPY
-  title: "TODO UI",
-  hqLinkLabel: "← HQ",
-  hqLinkHref: "/home",
-  intro:
-    "Live tokens and real HQ parts — powder canvas, electric lines, Unbounded titles, JetBrains labels.",
-  tokensNote: "tokens read live",
-  resetLabel: "Reset",
-  resetAria: "Reset colour palette to brand",
+  header: {
+    eyebrow: "// TODO UI",
+    barLabel: "LIVE TOKENS",
+    title: "Looks complex. Runs on simple code.",
+    subtitle:
+      "Every colour, type size, spacing step and motion curve on this site, read live from the code that ships it.",
+  },
 
-  tiles: {
+  // TEST COPY
+  sections: {
     brand: {
+      eyebrow: "// 01 BRAND",
       title: "Brand",
       description:
-        "Lockup on a construction grid, plus product marks from the factory roster.",
-    },
-    hawk: {
-      title: "Hawk",
-      description:
-        "Gateway ASCII hawk inside the project browser frame — loops, pauses offscreen.",
+        "Lockup, clear space and product marks on the powder canvas.",
+      metric: "LOCKUP · 3 MARKS",
     },
     colour: {
+      eyebrow: "// 02 COLOUR",
       title: "Colour",
       description:
-        "Tall swatches for every brand token with hex and contrast from live CSS vars.",
+        "Brand tokens read live from CSS variables — hex, contrast, click to copy.",
+      metricFallback: "TOKENS · AA —",
     },
     type: {
+      eyebrow: "// 03 TYPE",
       title: "Type",
       description:
-        "Unbounded display and JetBrains body, including the article .type-prose size.",
-    },
-    components: {
-      title: "Components",
-      description:
-        "Dense live strip of spray CTAs, menu, inputs, path toggle, chips, and more.",
-    },
-    icons: {
-      title: "Icons",
-      description:
-        "Lucide and SVG marks the site actually ships — not a catalogue dump.",
+        "Unbounded for display, JetBrains Mono for body — eight styles in use.",
+      metric: "2 FAMILIES · 8 STYLES",
     },
     grid: {
+      eyebrow: "// 04 GRID & SPACING",
       title: "Grid & spacing",
       description:
-        "Layout grid with crosshair corners, spacing steps, 4px radius, 3px focus.",
+        "Twelve columns on a 4px base — gutters and the spacing ladder.",
+      metric: "12 COL · 4PX BASE",
+    },
+    icons: {
+      eyebrow: "// 05 ICONOGRAPHY",
+      title: "Iconography",
+      description:
+        "Lucide at three sizes — same stroke, same colour as the live UI.",
+      metric: "LUCIDE · 3 SIZES",
+    },
+    buttons: {
+      eyebrow: "// 06 BUTTONS",
+      title: "Buttons",
+      description:
+        "Four styles across four forced states — default, hover, focus, disabled.",
+      metric: "4 STYLES · 4 STATES",
+    },
+    inputs: {
+      eyebrow: "// 07 INPUTS",
+      title: "Inputs",
+      description:
+        "Three interaction states and four addon variants — static specimens.",
+      metric: "3 STATES · 4 VARIANTS",
+    },
+    components: {
+      eyebrow: "// 08 COMPONENTS",
+      title: "Components",
+      description:
+        "Ghost bones of the parts that ship — frame, card, chips, status, nav.",
+      metric: "6 PARTS",
     },
     motion: {
+      eyebrow: "// 09 MOTION",
       title: "Motion",
       description:
-        "400ms transitions, bone load-in, and selection colour — CSS only.",
-    },
-    inTheWild: {
-      title: "In the wild",
-      description:
-        "Home, About, and a project page as captured stills in browser frames.",
+        "One curve, 400ms ease-in-out — fade, slide and bone morph loops.",
+      metric: "400MS · EASE-IN-OUT",
     },
   },
 
@@ -74,27 +92,5 @@ export const uiPage = {
     title: "Rules",
     debtTitle: "Known debt",
     debtNote: "Documented only — do not apply without an explicit GO.",
-  },
-
-  previews: {
-    home: {
-      src: "/ui/previews/home.webp",
-      alt: "Home factory dashboard still. TEST COPY.",
-      caption: "home",
-    },
-    about: {
-      src: "/ui/previews/about.webp",
-      alt: "About page still. TEST COPY.",
-      caption: "about",
-    },
-    project: {
-      src: "/ui/previews/project.webp",
-      alt: "RepDaily project page still. TEST COPY.",
-      caption: "work / repdaily",
-    },
-    hawkPoster: {
-      src: "/ui/previews/hawk-poster.webp",
-      alt: "Hawk still frame for reduced motion. TEST COPY.",
-    },
   },
 } as const;

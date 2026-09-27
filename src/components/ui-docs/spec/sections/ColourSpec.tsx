@@ -1,16 +1,16 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useSyncExternalStore } from "react";
 import { useSpray } from "@/components/SprayProvider";
-import { UiTile } from "@/components/ui-docs/UiTile";
+import { MetricChips } from "@/components/ui-docs/spec/MetricChips";
+import { SpecGrid } from "@/components/ui-docs/spec/SpecGrid";
+import { SpecSection } from "@/components/ui-docs/spec/SpecSection";
 import {
   contrastVsCanvasAndText,
-  detectBrandDrift,
   formatContrast,
   readCssVarHex,
 } from "@/lib/ui-docs/readCssVar";
 import { TOKEN_REGISTRY, type TokenEntry } from "@/lib/ui-docs/tokenRegistry";
-import { isInnerBrandPair } from "@/lib/accessibleColorPair";
 import { cn } from "@/lib/cn";
 import { uiPage } from "@/content/pages/ui";
 
@@ -35,7 +35,16 @@ function readLiveTokenMap(): Record<string, SwatchState> {
   return next;
 }
 
-function SwatchPill({
+function countAa(map: Record<string, SwatchState>) {
+  let pass = 0;
+  for (const state of Object.values(map)) {
+    const best = Math.max(state.vsCanvas ?? 0, state.vsText ?? 0);
+    if (best >= 4.5) pass += 1;
+  }
+  return pass;
+}
+
+function SwatchBlock({
   entry,
   state,
   onCopy,
@@ -51,34 +60,43 @@ function SwatchPill({
       onClick={() => hex && onCopy(hex)}
       disabled={!hex}
       className={cn(
-        "flex min-w-0 items-stretch overflow-hidden rounded-[4px] border border-border-ide text-left transition-opacity duration-[400ms] ease-in-out hover:opacity-90 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none",
+        "border-border-ide flex min-w-0 flex-col overflow-hidden rounded-[4px] border text-left transition-opacity duration-[400ms] ease-in-out hover:opacity-90 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none",
         !hex && "cursor-default opacity-60",
       )}
       aria-label={hex ? `Copy ${entry.name} ${hex}` : `${entry.name} — unresolved`}
     >
       <span
-        className="w-3 shrink-0 self-stretch sm:w-4"
+        className="border-border-ide block h-24 w-full border-b"
         style={{ backgroundColor: hex ? `var(${entry.token})` : "transparent" }}
         aria-hidden="true"
       />
-      <span className="font-jetbrains flex min-w-0 flex-1 flex-col gap-0.5 px-2.5 py-2 text-[10px] leading-4 tracking-wide">
+      <span className="font-jetbrains flex min-w-0 flex-col gap-1 p-3 text-[10px] leading-4 tracking-wide">
         <span className="text-foreground break-words font-bold">{entry.name}</span>
+        <span className="text-muted break-words">{entry.token}</span>
         <span className="text-foreground tabular-nums">{hex ?? "—"}</span>
-        <span className="text-muted tabular-nums">
-          canvas {formatContrast(state?.vsCanvas ?? null)} · text{" "}
-          {formatContrast(state?.vsText ?? null)}
-        </span>
+        <MetricChips
+          name="contrast"
+          values={[
+            `canvas ${formatContrast(state?.vsCanvas ?? null)}`,
+            `text ${formatContrast(state?.vsText ?? null)}`,
+          ]}
+          className="mt-1"
+        />
       </span>
     </button>
   );
 }
 
-export function ColourTile() {
-  const { colour } = uiPage.tiles;
+export function ColourSpec() {
+  const { colour } = uiPage.sections;
   const { pair } = useSpray();
-  // Spray updates remount CSS vars; this re-renders and re-reads.
-  const map = readLiveTokenMap();
-  const drift = detectBrandDrift(pair);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+  const map = mounted ? readLiveTokenMap() : {};
+  void pair;
   const [copied, setCopied] = useState<string | null>(null);
 
   const onCopy = useCallback((hex: string) => {
@@ -88,31 +106,34 @@ export function ColourTile() {
     });
   }, []);
 
+  const n = TOKEN_REGISTRY.length;
+  const aa = mounted ? countAa(map) : null;
+  const metric = mounted
+    ? `${n} TOKENS · AA ${aa}/${n}`
+    : colour.metricFallback;
+
   return (
-    <UiTile title={colour.title} description={colour.description}>
-      <div className="flex max-h-[28rem] min-w-0 flex-col gap-2 overflow-y-auto pr-1">
-        {isInnerBrandPair(pair) && drift.drifted ? (
-          <p
-            role="status"
-            className="font-jetbrains border border-[color-mix(in_srgb,var(--status-pending)_50%,transparent)] bg-[color-mix(in_srgb,var(--status-pending)_12%,transparent)] px-2 py-1.5 text-[10px] text-foreground"
-          >
-            drift: {drift.details.join("; ")}
-          </p>
-        ) : null}
-        {copied ? (
-          <p role="status" className="font-jetbrains type-caption text-syn-string">
-            Copied {copied}
-          </p>
-        ) : null}
+    <SpecSection
+      eyebrow={colour.eyebrow}
+      metric={metric}
+      title={colour.title}
+      description={colour.description}
+    >
+      {copied ? (
+        <p role="status" className="font-jetbrains type-caption text-syn-string mb-3">
+          Copied {copied}
+        </p>
+      ) : null}
+      <SpecGrid cols={4}>
         {TOKEN_REGISTRY.map((entry) => (
-          <SwatchPill
+          <SwatchBlock
             key={`${entry.group}:${entry.name}`}
             entry={entry}
             state={map[`${entry.group}:${entry.name}`]}
             onCopy={onCopy}
           />
         ))}
-      </div>
-    </UiTile>
+      </SpecGrid>
+    </SpecSection>
   );
 }

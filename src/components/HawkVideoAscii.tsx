@@ -29,8 +29,6 @@ import {
 
 type HawkVideoAsciiProps = {
   onFallback?: () => void;
-  /** When false, pause video and stop the draw loop. Default true. */
-  active?: boolean;
 };
 
 const VS = `attribute vec2 a;varying vec2 v;void main(){v=a*0.5+0.5;gl_Position=vec4(a,0.,1.);}`;
@@ -175,32 +173,15 @@ function applyMutedInline(video: HTMLVideoElement) {
   video.setAttribute("playsinline", "");
 }
 
-export function HawkVideoAscii({
-  onFallback,
-  active = true,
-}: HawkVideoAsciiProps) {
+export function HawkVideoAscii({ onFallback }: HawkVideoAsciiProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const onFallbackRef = useRef(onFallback);
-  const activeRef = useRef(active);
-  const controlsRef = useRef<{
-    pause: () => void;
-    resume: () => void;
-  } | null>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     onFallbackRef.current = onFallback;
   }, [onFallback]);
-
-  useEffect(() => {
-    activeRef.current = active;
-    if (active) {
-      controlsRef.current?.resume();
-    } else {
-      controlsRef.current?.pause();
-    }
-  }, [active]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -441,7 +422,7 @@ export function HawkVideoAscii({
     };
 
     const start = () => {
-      if (running || disposed || document.hidden || !activeRef.current) {
+      if (running || disposed || document.hidden) {
         return;
       }
       running = true;
@@ -456,29 +437,6 @@ export function HawkVideoAscii({
       } else {
         raf = window.requestAnimationFrame(onRaf);
       }
-    };
-
-    const pausePlayback = () => {
-      stop();
-      video.pause();
-    };
-
-    const resumePlayback = () => {
-      if (disposed || document.hidden || !activeRef.current) {
-        return;
-      }
-      if (!usingPoster) {
-        applyMutedInline(video);
-        void video.play().catch(() => {
-          /* keep current frame */
-        });
-      }
-      start();
-    };
-
-    controlsRef.current = {
-      pause: pausePlayback,
-      resume: resumePlayback,
     };
 
     const switchToVideo = () => {
@@ -657,11 +615,18 @@ export function HawkVideoAscii({
     };
 
     const onVisibility = () => {
-      if (document.hidden || !activeRef.current) {
-        pausePlayback();
+      if (document.hidden) {
+        stop();
+        video.pause();
         return;
       }
-      resumePlayback();
+      if (!usingPoster) {
+        applyMutedInline(video);
+        void video.play().catch(() => {
+          /* keep current frame — no Stipple */
+        });
+      }
+      start();
     };
 
     const observer = new ResizeObserver(() => {
@@ -691,7 +656,6 @@ export function HawkVideoAscii({
 
     return () => {
       disposed = true;
-      controlsRef.current = null;
       window.clearTimeout(loadTimeout);
       cancelIdle(idleHandle);
       stop();

@@ -40,9 +40,13 @@ function readReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+function subscribeNever() {
+  return () => {};
+}
+
 /**
  * Quick letter build for // section titles — logo kinship, not a cascade.
- * Non-// text renders static. IO once; reduced-motion shows the full string.
+ * Non-// text renders static. IO once; reduced-motion / no-JS / SSR show the full string.
  */
 export function TypeComment({
   text,
@@ -50,19 +54,29 @@ export function TypeComment({
   as: Tag = "p",
   id,
 }: TypeCommentProps) {
+  const hydrated = useSyncExternalStore(
+    subscribeNever,
+    () => true,
+    () => false,
+  );
   const reduceMotion = useSyncExternalStore(
     subscribeReducedMotion,
     readReducedMotion,
     () => false,
   );
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(text.length);
+  const [typing, setTyping] = useState(false);
   const startedRef = useRef(false);
   const rootRef = useRef<HTMLElement | null>(null);
-  const animate = isCommentTitle(text) && !reduceMotion;
-  const visible = animate ? text.slice(0, count) : text;
+
+  const wantsAnimate =
+    hydrated && isCommentTitle(text) && !reduceMotion;
+  // Full string until a JS typing run starts — SSR, no-JS, reduced-motion, pre-IO.
+  const visible =
+    !wantsAnimate || !typing ? text : text.slice(0, count);
 
   useEffect(() => {
-    if (!animate) {
+    if (!wantsAnimate) {
       return;
     }
 
@@ -83,6 +97,7 @@ export function TypeComment({
       startedRef.current = true;
       observer?.disconnect();
 
+      setTyping(true);
       let i = 1;
       setCount(1);
       if (text.length <= 1) {
@@ -117,7 +132,7 @@ export function TypeComment({
         window.clearInterval(timer);
       }
     };
-  }, [animate, text]);
+  }, [wantsAnimate, text]);
 
   return (
     <Tag

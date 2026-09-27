@@ -1,9 +1,8 @@
 "use client";
 
-import { useCallback, useState, useSyncExternalStore } from "react";
+import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
 import { useSpray } from "@/components/SprayProvider";
 import { MetricChips } from "@/components/ui-docs/spec/MetricChips";
-import { SpecGrid } from "@/components/ui-docs/spec/SpecGrid";
 import { SpecSection } from "@/components/ui-docs/spec/SpecSection";
 import {
   contrastVsCanvasAndText,
@@ -14,10 +13,18 @@ import { TOKEN_REGISTRY, type TokenEntry } from "@/lib/ui-docs/tokenRegistry";
 import { cn } from "@/lib/cn";
 import { uiPage } from "@/content/pages/ui";
 
+/** Named non-fill / effect tokens — always MetricChips, never swatches. */
+const EFFECT_TOKEN_NAMES = new Set([
+  "--syn-bracket",
+  "--border-ide",
+  "--page-bridge",
+  "--media-elev-shadow",
+  "--media-elev-bloom",
+]);
+
 type SwatchState = {
   hex: string | null;
   vsCanvas: number | null;
-  vsText: number | null;
 };
 
 function readLiveTokenMap(): Record<string, SwatchState> {
@@ -29,19 +36,20 @@ function readLiveTokenMap(): Record<string, SwatchState> {
     next[`${entry.group}:${entry.name}`] = {
       hex,
       vsCanvas: contrast.vsCanvas,
-      vsText: contrast.vsText,
     };
   }
   return next;
 }
 
-function countAa(map: Record<string, SwatchState>) {
-  let pass = 0;
-  for (const state of Object.values(map)) {
-    const best = Math.max(state.vsCanvas ?? 0, state.vsText ?? 0);
-    if (best >= 4.5) pass += 1;
-  }
-  return pass;
+function isEffectEntry(entry: TokenEntry, hex: string | null) {
+  return EFFECT_TOKEN_NAMES.has(entry.token) || !hex;
+}
+
+function aaChip(vsCanvas: number | null): string {
+  const ratio = formatContrast(vsCanvas);
+  if (ratio === "—") return "AA —";
+  const pass = (vsCanvas ?? 0) >= 4.5;
+  return `AA ${ratio} ${pass ? "pass" : "fail"}`;
 }
 
 function SwatchBlock({
@@ -66,7 +74,7 @@ function SwatchBlock({
       aria-label={hex ? `Copy ${entry.name} ${hex}` : `${entry.name} — unresolved`}
     >
       <span
-        className="border-border-ide block h-24 w-full border-b"
+        className="border-border-ide block h-16 w-full border-b md:h-24"
         style={{ backgroundColor: hex ? `var(${entry.token})` : "transparent" }}
         aria-hidden="true"
       />
@@ -76,10 +84,7 @@ function SwatchBlock({
         <span className="text-foreground tabular-nums">{hex ?? "—"}</span>
         <MetricChips
           name="contrast"
-          values={[
-            `canvas ${formatContrast(state?.vsCanvas ?? null)}`,
-            `text ${formatContrast(state?.vsText ?? null)}`,
-          ]}
+          values={[aaChip(state?.vsCanvas ?? null)]}
           className="mt-1"
         />
       </span>
@@ -95,8 +100,13 @@ export function ColourSpec() {
     () => true,
     () => false,
   );
-  const map = mounted ? readLiveTokenMap() : {};
-  void pair;
+  const map = useMemo(
+    () => (mounted ? readLiveTokenMap() : {}),
+    // pair forces re-read when Spray remaps CSS vars
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- pair identity drives live CSS
+    [mounted, pair.bg, pair.text],
+  );
+
   const [copied, setCopied] = useState<string | null>(null);
 
   const onCopy = useCallback((hex: string) => {
@@ -106,11 +116,35 @@ export function ColourSpec() {
     });
   }, []);
 
-  const n = TOKEN_REGISTRY.length;
-  const aa = mounted ? countAa(map) : null;
+  const { solids, effects } = useMemo(() => {
+    const solids: TokenEntry[] = [];
+    const effects: TokenEntry[] = [];
+    for (const entry of TOKEN_REGISTRY) {
+      const key = `${entry.group}:${entry.name}`;
+      const hex = mounted ? (map[key]?.hex ?? null) : null;
+      if (!mounted) {
+        if (EFFECT_TOKEN_NAMES.has(entry.token)) effects.push(entry);
+        else solids.push(entry);
+        continue;
+      }
+      if (isEffectEntry(entry, hex)) effects.push(entry);
+      else solids.push(entry);
+    }
+    return { solids, effects };
+  }, [map, mounted]);
+
+  const aaPass = mounted
+    ? solids.filter((entry) => {
+        const state = map[`${entry.group}:${entry.name}`];
+        return (state?.vsCanvas ?? 0) >= 4.5;
+      }).length
+    : null;
+  const n = solids.length;
   const metric = mounted
-    ? `${n} TOKENS · AA ${aa}/${n}`
+    ? `${n} TOKENS · AA ${aaPass}/${n}`
     : colour.metricFallback;
+
+  const effectLabels = effects.map((e) => e.token.replace(/^--/, ""));
 
   return (
     <SpecSection
@@ -120,12 +154,15 @@ export function ColourSpec() {
       description={colour.description}
     >
       {copied ? (
-        <p role="status" className="font-jetbrains type-caption text-syn-string mb-3">
+        <p
+          role="status"
+          className="font-jetbrains type-caption text-syn-string mb-3"
+        >
           Copied {copied}
         </p>
       ) : null}
-      <SpecGrid cols={4}>
-        {TOKEN_REGISTRY.map((entry) => (
+      <div className="grid min-w-0 grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        {solids.map((entry) => (
           <SwatchBlock
             key={`${entry.group}:${entry.name}`}
             entry={entry}
@@ -133,7 +170,14 @@ export function ColourSpec() {
             onCopy={onCopy}
           />
         ))}
-      </SpecGrid>
+      </div>
+      {effectLabels.length > 0 ? (
+        <MetricChips
+          name="// EFFECT TOKENS"
+          values={effectLabels}
+          className="mt-4"
+        />
+      ) : null}
     </SpecSection>
   );
 }

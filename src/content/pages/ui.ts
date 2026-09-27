@@ -89,8 +89,9 @@ export const uiPage = {
   },
 
   rules: {
+    eyebrow: "// 10 RULES",
     title: "Rules",
-    debtTitle: "Known debt",
-    debtNote: "Documented only — do not apply without an explicit GO.",
+    description: "House lock for colour, type, motion and UI chrome.",
+    metric: "9 RULES",
   },
 } as const;

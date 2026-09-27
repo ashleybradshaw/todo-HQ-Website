@@ -47,8 +47,8 @@ export function GridSpacingSpec() {
               >
                 <MetricChips name={step.px} values={[step.rem]} />
                 <Bone
-                  className="h-3 max-w-full min-w-0 shrink"
-                  style={{ width: step.rem }}
+                  className="h-3 shrink-0"
+                  style={{ width: step.px, height: "12px" }}
                 />
               </li>
             ))}

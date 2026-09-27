@@ -24,6 +24,30 @@ const SPEC_STYLES: readonly {
   { className: "type-meta", sample: "Meta · timestamp" },
 ];
 
+function formatPx(raw: string): string {
+  const n = Number.parseFloat(raw);
+  if (!Number.isFinite(n)) return raw || "—";
+  return `${Math.round(n * 100) / 100}px`;
+}
+
+function readTypeMetrics(el: HTMLElement) {
+  const styles = getComputedStyle(el);
+  const family =
+    styles.fontFamily.split(",")[0]?.replace(/['"]/g, "").trim() || "—";
+  const size = formatPx(styles.fontSize);
+  const lead =
+    styles.lineHeight === "normal"
+      ? "normal"
+      : formatPx(styles.lineHeight);
+  const tracking =
+    styles.letterSpacing === "normal" ? "0px" : formatPx(styles.letterSpacing);
+  return {
+    family,
+    sizeLead: `${size} / ${lead}`,
+    tracking,
+  };
+}
+
 function TypeRow({
   className,
   sample,
@@ -48,18 +72,32 @@ function TypeRow({
     if (!mounted) return;
     const el = ref.current;
     if (!el) return;
-    const frame = requestAnimationFrame(() => {
-      const styles = getComputedStyle(el);
-      const family =
-        styles.fontFamily.split(",")[0]?.replace(/['"]/g, "") ?? "—";
-      setChips({
-        family,
-        sizeLead: `${styles.fontSize} / ${styles.lineHeight}`,
-        tracking: styles.letterSpacing === "normal" ? "0" : styles.letterSpacing,
+
+    let cancelled = false;
+    let raf1 = 0;
+    let raf2 = 0;
+
+    const apply = () => {
+      if (cancelled || !ref.current) return;
+      setChips(readTypeMetrics(ref.current));
+    };
+
+    // Double rAF so layout + webfonts have settled after the mounted gate.
+    raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        apply();
+        void document.fonts.ready.then(() => {
+          if (!cancelled) apply();
+        });
       });
     });
-    return () => cancelAnimationFrame(frame);
-  }, [mounted, pair.bg, pair.text]);
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
+  }, [mounted, className, pair.bg, pair.text, sample]);
 
   return (
     <div className="border-border-ide flex min-w-0 flex-col gap-3 border-b py-4 last:border-b-0">

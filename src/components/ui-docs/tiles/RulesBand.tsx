@@ -1,3 +1,4 @@
+import { SpecSection } from "@/components/ui-docs/spec/SpecSection";
 import { uiPage } from "@/content/pages/ui";
 
 const HOUSE_RULES = [
@@ -12,20 +13,16 @@ const HOUSE_RULES = [
   "Spray randomize is unchanged on other pages; reset() only restores INNER_BRAND_PAIR.",
 ] as const;
 
-const KNOWN_DEBT = [
-  "Triple source of truth: globals.css, accessibleColorPair.ts brand constants, and hard-coded landing hexes can drift — Colour tile flags brand-state CSS ≠ INNER_BRAND_PAIR.",
-  "No --radius, --focus, or spacing CSS tokens yet — conventions only; focus split between ring-[3px] and outline-2.",
-  "No shared Button primitive — CTA class strings are copy-pasted across Book, About, 404, Work.",
-  "SectionTransitionGate still has a hard-coded BRIDGE_FALLBACK instead of always using --page-bridge.",
-  "design-system.mdc still describes body as sans / controls as mono; runtime is Unbounded display + JetBrains body.",
-  "Status online/building lack dedicated --status-* tokens (naming gap called out in Colour).",
-  "PipelineRunner omitted from Components here so /ui does not pull Framer Motion weight onto this route.",
-] as const;
-
 export function RulesBand() {
+  const { rules } = uiPage;
+
   return (
-    <footer className="border-border-ide mt-6 min-w-0 border-t pt-8 sm:mt-8 sm:pt-10">
-      <h2 className="type-heading text-foreground mb-4">{uiPage.rules.title}</h2>
+    <SpecSection
+      eyebrow={rules.eyebrow}
+      metric={rules.metric}
+      title={rules.title}
+      description={rules.description}
+    >
       <ol className="type-body-sm text-foreground list-decimal space-y-2.5 pl-5">
         {HOUSE_RULES.map((rule) => (
           <li key={rule} className="min-w-0 break-words">
@@ -33,23 +30,6 @@ export function RulesBand() {
           </li>
         ))}
       </ol>
-      <h3 className="type-subhead text-foreground mt-8 mb-2">
-        {uiPage.rules.debtTitle}{" "}
-        <span className="type-meta text-syn-comment font-normal">
-          {"// next pass"}
-        </span>
-      </h3>
-      <p className="type-caption text-syn-comment mb-3">
-        {/* // TEST COPY */}
-        {uiPage.rules.debtNote}
-      </p>
-      <ul className="type-body-sm text-foreground list-disc space-y-2.5 pl-5">
-        {KNOWN_DEBT.map((item) => (
-          <li key={item} className="min-w-0 break-words">
-            {item}
-          </li>
-        ))}
-      </ul>
-    </footer>
+    </SpecSection>
   );
 }

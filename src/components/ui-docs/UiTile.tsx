@@ -27,7 +27,7 @@ export function UiTile({
   return (
     <article
       className={cn(
-        "flex min-w-0 flex-col bg-canvas",
+        "flex min-w-0 flex-col bg-bg-canvas",
         span === "full" && "md:col-span-2",
         className,
       )}

@@ -21,7 +21,7 @@ import { TypeTile } from "@/components/ui-docs/tiles/TypeTile";
  */
 export function UiShowcase() {
   return (
-    <div className="bg-canvas text-foreground min-h-dvh min-w-0 overflow-x-hidden">
+    <div className="bg-bg-canvas text-foreground min-h-dvh min-w-0 overflow-x-hidden">
       <div className="mx-auto w-full max-w-6xl min-w-0 px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
         <UiShowcaseHeader />
         <UiShowcaseGrid>

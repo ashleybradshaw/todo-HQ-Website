@@ -29,9 +29,12 @@ export const homePage = {
       word: "Working", // TEST COPY
       rest: "software out.", // TEST COPY — kept nowrap so "out." never stands alone
     },
-    lead: "A two-person design and AI engineering studio.", // TEST COPY
-    primaryCta: { label: "About the studio", href: "/about" }, // TEST COPY
+    lead: "The AI Design and Engineering Product Factory.", // TEST COPY
+    primaryCta: { label: "About the factory", href: "/about" }, // TEST COPY
     secondaryCta: { label: "See the work", href: "/work" }, // TEST COPY
+    /** Soft axis labels for the hero flow field. */
+    flowIn: "in", // TEST COPY
+    flowOut: "out", // TEST COPY
   },
 
   // TEST COPY — three-column feature strip

@@ -18,7 +18,7 @@ test.describe("/home IDE", () => {
     ).toBeVisible();
 
     await expect(
-      page.getByRole("link", { name: "About the studio" }),
+      page.getByRole("link", { name: "About the factory" }),
     ).toHaveAttribute("href", "/about");
     await expect(
       page.getByRole("link", { name: "See the work" }),

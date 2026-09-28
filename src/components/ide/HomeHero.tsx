@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useLayoutEffect, useRef } from "react";
 import { homePage } from "@/content/pages/home";
+import { HeroFlowField } from "@/components/ide/HeroFlowField";
 import { HOME_FRAME } from "@/components/ide/homeFrame";
 
 const { hero } = homePage;
@@ -51,6 +52,7 @@ export function HomeHero() {
       ref={rootRef}
       className={`${HOME_FRAME} relative z-10 flex flex-col items-center pt-[12vh] pb-10 text-center md:pt-[24vh] md:pb-12`}
     >
+      <HeroFlowField />
       {/*
         Mobile: ~28px at 360 → ~30–32px at 390 so line 1 stays one line.
         Line 2 may wrap after "Working"; "software out." stays nowrap.
@@ -63,7 +65,7 @@ export function HomeHero() {
           <span className="whitespace-nowrap">{hero.h1Line2.rest}</span>
         </span>
       </h1>
-      <p className="type-body text-foreground mt-5 max-w-[40rem]">
+      <p className="type-body text-foreground mt-5 max-w-[40rem] text-balance">
         {hero.lead}
       </p>
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">

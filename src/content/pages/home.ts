@@ -9,15 +9,22 @@ import type { ProjectStatus } from "@/lib/projects";
 export const homePage = {
   // TEST COPY
   seo: {
-    title: "Design and AI engineering studio", // TEST COPY
+    title: "AI product engineering factory", // TEST COPY
     description:
-      "Two engineers who design and build apps, CMS and software systems, and hardware-connected products for regulated teams. RepDaily is live. Book a call.", // TEST COPY
+      "Two engineers and AI agents run one line from hard problem to shipped product: apps, systems and hardware. Human checkpoints. RepDaily is live.", // TEST COPY
+  },
+
+  // TEST COPY — /home Open Graph + Twitter card
+  og: {
+    title: "Hard problems in. Working software out.", // TEST COPY
+    subtitle:
+      "A small product factory: two engineers, AI agents, five human checkpoints.", // TEST COPY
   },
 
   // TEST COPY
   landmarks: {
     editorAria: "Editor", // TEST COPY
-    sidecarAria: "Pipeline and projects", // TEST COPY
+    sidecarAria: "Shift log and projects", // TEST COPY
   },
 
   // TEST COPY — page hero above the IDE
@@ -39,7 +46,7 @@ export const homePage = {
 
   // TEST COPY — three-column feature strip
   strip: {
-    aria: "What we build", // TEST COPY
+    aria: "What comes off the line", // TEST COPY
     items: [
       {
         title: "Apps", // TEST COPY
@@ -72,7 +79,7 @@ export const homePage = {
     },
     pipelineDot: "●", // TEST COPY
     /** {n} = 1-based padded stage index, {total} = stage count. */
-    pipelineLabel: "pipeline {n}/{total}", // TEST COPY
+    pipelineLabel: "checkpoint {n}/{total}", // TEST COPY
     agentsPrefix: "agents (sim)", // TEST COPY
     /** {n} = total line count in the pane. */
     showAllLines: "Show all {n} lines", // TEST COPY
@@ -86,13 +93,13 @@ export const homePage = {
     hook: "todo-hq", // TEST COPY
     whoWeAre:
       "One design engineer and one backend and AI engineer, working with agents.", // TEST COPY
-    whatWeDoBest: "We take complex domains apart and build what runs them.", // TEST COPY
+    whatWeDoBest: "We run a small product factory. Every build goes down the same line.", // TEST COPY
     primaryCta: { label: "About", href: "/about" }, // TEST COPY
     secondaryCta: { label: "Blog", href: "/blog" }, // TEST COPY
 
-    whatWeBuildHeading: "What we build", // TEST COPY
+    whatWeBuildHeading: "Output", // TEST COPY
     whatWeBuild: [
-      "Apps, systems and hardware-connected products. Detail in services.md.", // TEST COPY
+      "Apps, systems and hardware-connected products. Specs in services.md.", // TEST COPY
     ],
 
     whoWeShipForHeading: "Who it's for", // TEST COPY
@@ -103,26 +110,26 @@ export const homePage = {
 
     howWeWorkHeading: "How we work", // TEST COPY
     howWeWork: [
-      "Inside your stack, with your team", // TEST COPY
-      "Or end to end, signed off at each checkpoint", // TEST COPY
+      "On your line: inside your stack, with your team", // TEST COPY
+      "On ours: end to end, signed off at each checkpoint", // TEST COPY
     ],
 
-    pipelineHeading: "How it runs", // TEST COPY
+    pipelineHeading: "The line", // TEST COPY
     pipelineIntro:
-      "Every product we ship goes through the same five checkpoints. Our own apps go first.", // TEST COPY  [NEEDS: confirm client builds use the same checkpoints]
+      "Five checkpoints, same order, every build. Our own products go first.", // TEST COPY
     pipeline: [
-      { fn: "findMoment()", line: "Spot the moment worth building." }, // TEST COPY
-      { fn: "checkMarket()", line: "Ideate, then check someone actually wants it." }, // TEST COPY
-      { fn: "shipMvp()", line: "MVP, homepage and light marketing, out the door." }, // TEST COPY
-      { fn: "buildInPublic()", line: "v1.5, in the open." }, // TEST COPY
-      { fn: "parkOrPush()", line: "No users: parked. Users: back on." }, // TEST COPY
+      { fn: "findMoment()", line: "Find the moment worth building." }, // TEST COPY
+      { fn: "checkMarket()", line: "Check the market. Someone has to want it." }, // TEST COPY
+      { fn: "shipMvp()", line: "Ship the MVP, a homepage and light marketing." }, // TEST COPY
+      { fn: "buildInPublic()", line: "Build v1.5 in public." }, // TEST COPY
+      { fn: "parkOrPush()", line: "No users: parked. Users: back on the line." }, // TEST COPY
     ],
-    methodologyAria: "runPipeline(): replay the pipeline graph", // TEST COPY
-    methodologyLabel: "runPipeline()", // TEST COPY
+    methodologyAria: "runLine(): replay the shift log", // TEST COPY
+    methodologyLabel: "runLine()", // TEST COPY
 
-    inProductionHeading: "Projects", // TEST COPY
+    inProductionHeading: "On the line", // TEST COPY
     /** Table rows derived from PROJECTS; these are the column headers and labels. */
-    inProductionColumns: { project: "Project", status: "Status" }, // TEST COPY
+    inProductionColumns: { project: "Product", status: "Status" }, // TEST COPY
     inProductionStatus: {
       shipped: "Shipped", // TEST COPY
       live: "Live", // TEST COPY
@@ -143,7 +150,7 @@ export const homePage = {
   // TEST COPY — services.md
   offer: {
     fileComment: "# services.md", // TEST COPY
-    ourOfferHeading: "What we build", // TEST COPY
+    ourOfferHeading: "What comes off the line", // TEST COPY
     ourOfferBody:
       "Apps, systems and hardware-connected products, designed and coded by the same two people. No handover gap between the design file and production.", // TEST COPY
     services: [
@@ -152,19 +159,19 @@ export const homePage = {
       { name: "Hardware", line: "Apps that pair over BLE and run models at the edge." }, // TEST COPY
       {
         name: "AI",
-        line: "Agents and workflows that do one job, with a human checkpoint before anything ships.",
+        line: "Agents do one job each, with human QC before anything ships.",
       }, // TEST COPY
     ],
     howWeWorkHeading: "How a build runs", // TEST COPY
     howWeWorkSteps: [
       "Hard talk. We take the domain apart and find the part that matters.", // TEST COPY
-      "Scope and checkpoints, agreed before work starts. NDA first if you need one.", // TEST COPY
+      "Spec and checkpoints agreed before work starts. NDA first if you need one.", // TEST COPY
       "Design and code in one pass. Figma to production.", // TEST COPY
-      "Ship at a checkpoint you sign off.", // TEST COPY
+      "QC at each checkpoint. It ships when you sign off.", // TEST COPY
       "Hand over, or keep building.", // TEST COPY  [NEEDS: handover terms (repo ownership, docs)]
     ],
-    stackHeading: "Toolkit", // TEST COPY
-    stackAria: "Toolkit", // TEST COPY
+    stackHeading: "Tooling", // TEST COPY
+    stackAria: "Tooling", // TEST COPY
     /** Tool ids match StackIconRow STACK ids and /public/stack/*.svg. Empty groups don't render. */
     stackGroups: [
       { id: "design", label: "Design", tools: ["figma"] }, // TEST COPY
@@ -230,7 +237,7 @@ export const homePage = {
   // TEST COPY
   projectCards: {
     sectionAria: "Projects", // TEST COPY
-    header: "projects", // TEST COPY
+    header: "on the line", // TEST COPY
     viewLink: "View", // TEST COPY
     items: [
       {
@@ -265,13 +272,13 @@ export const homePage = {
       live: "live", // TEST COPY
       pipeline: "in pipeline", // TEST COPY
     },
-    rosterPrefix: "Projects: ", // TEST COPY
+    rosterPrefix: "On the line: ", // TEST COPY
   },
 
-  // TEST COPY — pipeline.log stages
+  // TEST COPY — shift.log stages
   pipelineRunner: {
-    sectionAria: "Pipeline", // TEST COPY
-    header: "pipeline.log", // TEST COPY
+    sectionAria: "Production line, five checkpoints", // TEST COPY
+    header: "shift.log", // TEST COPY
     compiling: "[ AGENT_COMPILING... ]", // TEST COPY
     mode: {
       reboot: "REBOOT", // TEST COPY
@@ -279,37 +286,37 @@ export const homePage = {
       live: "LIVE", // TEST COPY
     },
     rebootLogs: [
-      "> REPLAYING PIPELINE...", // TEST COPY
-      "> flushing stage buffers...", // TEST COPY
-      "> handshake ok.", // TEST COPY
+      "> RESTARTING THE LINE...", // TEST COPY
+      "> clearing the last run...", // TEST COPY
+      "> checkpoints ok.", // TEST COPY
     ],
     stages: [
       {
         id: "moment",
         code: "01",
         phase: "FIND",
-        name: "MAGIC_MOMENT",
+        name: "THE_MOMENT",
         logs: ["Something should feel obvious.", "It doesn't yet."], // TEST COPY
       },
       {
         id: "check",
         code: "02",
         phase: "CHECK",
-        name: "MARKET_CHECK",
-        logs: ["Ideas: many", "People who want it: checking...", "Checkpoint: PASS"], // TEST COPY
+        name: "THE_MARKET",
+        logs: ["Ideas: many", "People who want it: checking...", "QC: PASS"], // TEST COPY
       },
       {
         id: "mvp",
         code: "03",
-        phase: "BUILD",
-        name: "MVP",
+        phase: "SHIP",
+        name: "THE_MVP",
         logs: ["App + homepage + light marketing", "Shipping core features"], // TEST COPY
         hasProgress: true,
       },
       {
         id: "public",
         code: "04",
-        phase: "SHIP",
+        phase: "BUILD",
         name: "V1.5_IN_PUBLIC",
         logs: ["Building in the open", "Watching real usage"], // TEST COPY
       },
@@ -318,7 +325,7 @@ export const homePage = {
         code: "05",
         phase: "DECIDE",
         name: "PARK_OR_PUSH",
-        logs: ["No users → parked", "Users → back on"], // TEST COPY
+        logs: ["No users → parked", "Users → back on the line"], // TEST COPY
       },
     ] as const,
   },

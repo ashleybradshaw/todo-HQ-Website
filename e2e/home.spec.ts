@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("/home IDE", () => {
-  test("hero, strip, tabs, project cards, empty reply, pipeline.log", async ({
+  test("hero, strip, tabs, project cards, empty reply, shift.log", async ({
     page,
   }) => {
     await page.goto("/home", { waitUntil: "domcontentloaded" });
@@ -32,7 +32,7 @@ test.describe("/home IDE", () => {
     ).toBeVisible();
     await expect(page.getByRole("tab", { name: /book\.ts/ })).toBeVisible();
 
-    await expect(page.getByText(/pipeline\.log/)).toBeVisible();
+    await expect(page.getByText(/shift\.log/)).toBeVisible();
     await expect(page.getByText(/v1\.5/)).toBeVisible();
 
     await expect(
@@ -54,17 +54,20 @@ test.describe("/home IDE", () => {
     await page.goto("/home", { waitUntil: "domcontentloaded" });
 
     const status = page.locator(".ide-boot-status");
-    await status.scrollIntoViewIfNeeded();
     await expect(status.getByText("Markdown", { exact: true })).toBeVisible();
 
     const bookTab = page.getByRole("tab", { name: /book\.ts/ });
-    await bookTab.scrollIntoViewIfNeeded();
-    await bookTab.click();
+    await expect(async () => {
+      await bookTab.click();
+      await expect(bookTab).toHaveAttribute("aria-selected", "true");
+    }).toPass();
     await expect(status.getByText("TypeScript", { exact: true })).toBeVisible();
 
     const servicesTab = page.getByRole("tab", { name: /services\.md/ });
-    await servicesTab.scrollIntoViewIfNeeded();
-    await servicesTab.click();
+    await expect(async () => {
+      await servicesTab.click();
+      await expect(servicesTab).toHaveAttribute("aria-selected", "true");
+    }).toPass();
     await expect(status.getByText("Markdown", { exact: true })).toBeVisible();
   });
 
@@ -83,7 +86,7 @@ test.describe("/home IDE", () => {
     expect(html).not.toMatch(/<h1[^>]*sr-only/);
     expect(html).toContain('data-readme-source="true"');
     expect(html).toContain("ide-readme-gutter");
-    expect(html).toContain("pipeline.log");
+    expect(html).toContain("shift.log");
     expect(html).toContain("v1.5");
   });
 });

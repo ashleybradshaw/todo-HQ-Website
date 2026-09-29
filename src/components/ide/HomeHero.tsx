@@ -60,6 +60,7 @@ export function HomeHero() {
       */}
       <h1 className="font-unbounded text-foreground w-full max-w-none text-[clamp(1.75rem,7.78vw,2.25rem)] leading-[1.12] font-bold tracking-tight md:max-w-[22ch] md:text-[36px] md:leading-[40px]">
         <span className="block whitespace-nowrap">{hero.h1Lines[0]}</span>
+        {" "}
         <span className="block md:whitespace-nowrap">
           {hero.h1Line2.word}{" "}
           <span className="whitespace-nowrap">{hero.h1Line2.rest}</span>

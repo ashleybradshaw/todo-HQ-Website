@@ -133,10 +133,7 @@ export function IdeStatusStrip({
         <span className="hidden shrink-0 opacity-40 md:inline" aria-hidden="true">
           ·
         </span>
-        <span
-          className="text-muted hidden shrink-0 items-center gap-1 md:inline-flex"
-          aria-live="polite"
-        >
+        <span className="text-muted hidden shrink-0 items-center gap-1 md:inline-flex">
           <span className="text-syn-string" aria-hidden="true">
             {chrome.pipelineDot}
           </span>

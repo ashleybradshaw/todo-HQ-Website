@@ -4,8 +4,20 @@ const SPRAY_NAME = "Spray a new accessible colour palette";
 const BRAND_BG = "#DFDFFF";
 const BRAND_FG = "#4545FF";
 
+async function waitForHydration(page: Page) {
+  await page.waitForFunction(
+    () =>
+      [...document.querySelectorAll("button")].some((el) =>
+        Object.keys(el).some((key) => key.startsWith("__react")),
+      ),
+    undefined,
+    { timeout: 30_000 },
+  );
+}
+
 async function visit(page: Page, path: string) {
   await page.goto(path, { waitUntil: "domcontentloaded" });
+  await waitForHydration(page);
 }
 
 function expandHex(value: string) {
@@ -95,13 +107,24 @@ test.describe("site smoke", () => {
     await expect.poll(async () => rootBackground(page)).toBe(BRAND_BG);
     await expect.poll(async () => rootToken(page, "--foreground")).toBe(BRAND_FG);
 
+    // SprayProvider must have applied brand tokens before click is meaningful.
+    await expect
+      .poll(
+        () =>
+          page.evaluate(() =>
+            document.documentElement.style.getPropertyValue("--background").trim(),
+          ),
+        { timeout: 15_000 },
+      )
+      .not.toBe("");
+
     const spray = page.getByRole("button", { name: SPRAY_NAME });
     await expect(spray).toBeVisible();
-    await spray.click();
+    await expect(async () => {
+      await spray.click();
+      expect(await rootBackground(page)).not.toBe(BRAND_BG);
+    }).toPass({ timeout: 15_000 });
 
-    await expect
-      .poll(async () => rootBackground(page))
-      .not.toBe(BRAND_BG);
     const sprayedBg = await rootBackground(page);
     await expect
       .poll(async () =>
@@ -127,6 +150,7 @@ test.describe("site smoke", () => {
     await expect.poll(async () => rootBackground(page)).toBe(sprayedBg);
 
     await page.reload({ waitUntil: "domcontentloaded" });
+    await waitForHydration(page);
     await expect.poll(async () => rootBackground(page)).toBe(BRAND_BG);
   });
 });

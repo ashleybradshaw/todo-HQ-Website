@@ -41,6 +41,14 @@ test("gateway Ready? Yes/No landing uses NavOverlay trigger, not factory Spray",
   page,
 }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.waitForFunction(
+    () =>
+      [...document.querySelectorAll("button")].some((el) =>
+        Object.keys(el).some((key) => key.startsWith("__react")),
+      ),
+    undefined,
+    { timeout: 30_000 },
+  );
 
   await expect(page.getByRole("button", { name: SPRAY_NAME })).toHaveCount(0);
   await expect(

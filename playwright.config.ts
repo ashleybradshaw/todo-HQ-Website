@@ -27,10 +27,12 @@ export default defineConfig({
       },
     },
   ],
+  // Production server avoids next-dev cold-compile timeouts on first hits
+  // (mobile-nav gateway, site-smoke multi-route). Build once, then serve.
   webServer: {
-    command: "npm run dev",
+    command: "npm run build && npm run start",
     url: baseURL,
     reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
+    timeout: 300 * 1000,
   },
 });

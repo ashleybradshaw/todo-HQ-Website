@@ -136,6 +136,20 @@ test.describe("blog loop", () => {
     await page.reload({ waitUntil: "domcontentloaded" });
     await waitForHydration(page);
 
+    // SprayProvider applies category tokens on mount; wait until root inline
+    // style is set so pill/badge aren't mid-race against static CSS defaults.
+    await expect
+      .poll(
+        () =>
+          page.evaluate(() =>
+            document.documentElement.style
+              .getPropertyValue("--blog-cat-projects")
+              .trim(),
+          ),
+        { timeout: 15_000 },
+      )
+      .not.toBe("");
+
     const before = await page.evaluate(() => {
       const style = getComputedStyle(document.documentElement);
       return {
@@ -147,30 +161,39 @@ test.describe("blog loop", () => {
     });
     expect(new Set(Object.values(before)).size).toBe(4);
 
-    const pillColor = await page
-      .locator('button[data-category="projects"]')
-      .evaluate((el) => getComputedStyle(el).color);
-    const badgeColor = await page
-      .locator('[data-category-label="projects"]')
-      .first()
-      .evaluate((el) => getComputedStyle(el).color);
-    expect(badgeColor).toBe(pillColor);
-
-    await page.getByRole("button", {
-      name: "Spray a new accessible colour palette",
-    }).click();
-
+    // Filter pills transition color over 400ms when Spray tokens apply; wait
+    // until pill and badge resolved colors match.
     await expect
       .poll(
         async () =>
-          page.evaluate(() =>
-            getComputedStyle(document.documentElement)
-              .getPropertyValue("--blog-cat-projects")
-              .trim(),
-          ),
+          page.evaluate(() => {
+            const pill = document.querySelector(
+              'button[data-category="projects"]',
+            ) as HTMLElement | null;
+            const badge = document.querySelector(
+              '[data-category-label="projects"]',
+            ) as HTMLElement | null;
+            if (!pill || !badge) return false;
+            return (
+              getComputedStyle(pill).color === getComputedStyle(badge).color
+            );
+          }),
         { timeout: 15_000 },
       )
-      .not.toBe(before.projects);
+      .toBe(true);
+
+    const spray = page.getByRole("button", {
+      name: "Spray a new accessible colour palette",
+    });
+    await expect(async () => {
+      await spray.click();
+      const next = await page.evaluate(() =>
+        getComputedStyle(document.documentElement)
+          .getPropertyValue("--blog-cat-projects")
+          .trim(),
+      );
+      expect(next).not.toBe(before.projects);
+    }).toPass({ timeout: 15_000 });
   });
 
   test("More stays hidden when the note pool fits one page", async ({

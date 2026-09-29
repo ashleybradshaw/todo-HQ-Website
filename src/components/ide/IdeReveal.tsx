@@ -13,13 +13,13 @@ import { cn } from "@/lib/cn";
 
 type IdeRevealProps = {
   bootPhase: IdeBootPhase;
+  /** Bumped when hairlines should start (orchestrator or repeat path). */
+  revealNonce: number;
   /** Forwarded to the outer window element (boot / IO target). */
   windowRef: RefObject<HTMLDivElement | null>;
   className?: string;
   "aria-label"?: string;
   children: ReactNode;
-  /** Fired once when reveal starts (or immediately under reduced motion). */
-  onRevealStart?: () => void;
 };
 
 function subscribeReducedMotion(onStoreChange: () => void) {
@@ -32,22 +32,19 @@ function readReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-function bootReady(phase: IdeBootPhase) {
-  return phase === "done" || phase === "content";
-}
-
 /**
- * One-shot internal hairline draw + content fade when the IDE enters view.
- * Outer frame is the page grid — never stroked here (avoids 2px stack).
- * prefers-reduced-motion: static visible, no draw.
+ * Internal hairline draw for the IDE window.
+ * Driven by orchestrator when `bootPhase === "lines"`; on repeat visits
+ * (`done` without a lines pass) draws once when in view.
+ * Finish timer is sticky (not cleared by boot phase churn).
  */
 export function IdeReveal({
   bootPhase,
+  revealNonce,
   windowRef,
   className,
   "aria-label": ariaLabel,
   children,
-  onRevealStart,
 }: IdeRevealProps) {
   const reduceMotion = useSyncExternalStore(
     subscribeReducedMotion,
@@ -57,35 +54,58 @@ export function IdeReveal({
   const [phase, setPhase] = useState<"idle" | "drawing" | "done">(() =>
     reduceMotion ? "done" : "idle",
   );
-  const startedRef = useRef(reduceMotion);
+  const drawingRef = useRef(false);
+  const finishTimerRef = useRef(0);
+  const lastNonceRef = useRef(0);
+  const sawLinesRef = useRef(false);
+
+  useEffect(() => {
+    if (bootPhase === "lines") sawLinesRef.current = true;
+  }, [bootPhase]);
 
   useEffect(() => {
     if (reduceMotion) {
-      if (!startedRef.current) {
-        startedRef.current = true;
-        onRevealStart?.();
-      }
       return;
     }
 
-    const el = windowRef.current;
-    if (!el || startedRef.current) return;
-
-    let finishTimer = 0;
-
-    const start = () => {
-      if (startedRef.current || !bootReady(bootPhase)) return;
-      startedRef.current = true;
+    const beginDraw = () => {
+      drawingRef.current = true;
       setPhase("drawing");
-      onRevealStart?.();
-      finishTimer = window.setTimeout(() => setPhase("done"), 1200);
+      window.clearTimeout(finishTimerRef.current);
+      finishTimerRef.current = window.setTimeout(() => {
+        setPhase("done");
+        drawingRef.current = false;
+      }, 520);
     };
+
+    // First boot / replay: start with lines phase (nonce advances each run).
+    if (
+      bootPhase === "lines" &&
+      revealNonce > 0 &&
+      revealNonce !== lastNonceRef.current
+    ) {
+      lastNonceRef.current = revealNonce;
+      window.clearTimeout(finishTimerRef.current);
+      drawingRef.current = false;
+      beginDraw();
+      return;
+    }
+
+    // Repeat visit: never saw lines — one-shot IO draw (nonce > 0 means
+    // orchestrator confirmed skip-to-done / reduced path).
+    if (bootPhase !== "done" || sawLinesRef.current || revealNonce === 0) {
+      return;
+    }
+    if (drawingRef.current || phase === "done" || phase === "drawing") return;
+
+    const el = windowRef.current;
+    if (!el) return;
 
     const io = new IntersectionObserver(
       (entries) => {
         if (entries.some((e) => e.isIntersecting)) {
           io.disconnect();
-          start();
+          beginDraw();
         }
       },
       { threshold: 0.2 },
@@ -93,18 +113,22 @@ export function IdeReveal({
     io.observe(el);
 
     const rect = el.getBoundingClientRect();
-    const inView =
-      rect.top < window.innerHeight * 0.85 && rect.bottom > 0;
-    if (inView && bootReady(bootPhase)) {
+    const inView = rect.top < window.innerHeight * 0.85 && rect.bottom > 0;
+    if (inView) {
       io.disconnect();
-      start();
+      beginDraw();
     }
 
     return () => {
       io.disconnect();
-      if (finishTimer) window.clearTimeout(finishTimer);
     };
-  }, [bootPhase, reduceMotion, windowRef, onRevealStart]);
+  }, [bootPhase, reduceMotion, revealNonce, windowRef, phase]);
+
+  useEffect(() => {
+    return () => {
+      window.clearTimeout(finishTimerRef.current);
+    };
+  }, []);
 
   return (
     <div
@@ -117,6 +141,7 @@ export function IdeReveal({
         className,
       )}
       data-ide-reveal={phase}
+      data-ide-boot={bootPhase}
       aria-label={ariaLabel}
     >
       <span

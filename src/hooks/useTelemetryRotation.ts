@@ -82,7 +82,8 @@ function readReducedMotion() {
 }
 
 /** Rotating project status for the IDE status bar (was Telemetry panel). */
-export function useTelemetryRotation() {
+export function useTelemetryRotation(options?: { armed?: boolean }) {
+  const armed = options?.armed ?? true;
   const reduceMotion = useSyncExternalStore(
     subscribeReducedMotion,
     readReducedMotion,
@@ -92,7 +93,7 @@ export function useTelemetryRotation() {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
-    if (reduceMotion) {
+    if (reduceMotion || !armed) {
       return;
     }
 
@@ -140,7 +141,7 @@ export function useTelemetryRotation() {
       clearTimers();
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [reduceMotion]);
+  }, [reduceMotion, armed]);
 
   const project = PROJECTS[reduceMotion ? 0 : index] ?? PROJECTS[0];
   const infra = infraForStatus(project.status);

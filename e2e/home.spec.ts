@@ -100,4 +100,58 @@ test.describe("/home IDE", () => {
     expect(html).toContain("shift.log");
     expect(html).toContain("v1.5");
   });
+
+  test("fresh session: bones hide editor, reveal ends done, hero draws first", async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      try {
+        sessionStorage.removeItem("todo-ide-boot-v8");
+        sessionStorage.removeItem("todo-ide-boot-force");
+      } catch {
+        /* private mode */
+      }
+    });
+
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/home", { waitUntil: "domcontentloaded" });
+
+    const stage = page.locator(".ide-boot-stage[data-ide-boot]");
+    await expect(stage).toHaveCount(1);
+
+    // Hero should draw independently of IDE boot.
+    await expect(page.locator("[data-hero-drawn]")).toHaveAttribute(
+      "data-hero-drawn",
+      "1",
+      { timeout: 5000 },
+    );
+
+    // Force replay so we reliably catch bones (IDE may already be past trigger).
+    await page.evaluate(() => {
+      sessionStorage.setItem("todo-ide-boot-force", "1");
+      window.dispatchEvent(new Event("todo-ide-boot-replay"));
+    });
+
+    await expect(stage).toHaveAttribute("data-ide-boot", "bones", {
+      timeout: 2000,
+    });
+
+    const opacity = await page.locator(".ide-boot-editor").evaluate((el) => {
+      return window.getComputedStyle(el).opacity;
+    });
+    expect(Number(opacity)).toBe(0);
+
+    await expect(stage).toHaveAttribute("data-ide-boot", "done", {
+      timeout: 8000,
+    });
+    await expect(page.locator("[data-ide-reveal]")).toHaveAttribute(
+      "data-ide-reveal",
+      "done",
+      { timeout: 8000 },
+    );
+
+    await expect(
+      page.getByRole("tab", { name: /README\.md/ }),
+    ).toBeVisible();
+  });
 });

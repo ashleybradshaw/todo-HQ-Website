@@ -64,6 +64,8 @@ type TelemetryProps = {
   pipelineTotal: number;
   /** Bump when IDE reveal should scramble sidecar labels. */
   revealPlayKey?: number;
+  /** When false, agents/rotation ticks stay frozen (boot content step). */
+  ticksArmed?: boolean;
 };
 
 /**
@@ -74,13 +76,14 @@ export function Telemetry({
   pipelineIndex,
   pipelineTotal,
   revealPlayKey = 0,
+  ticksArmed = true,
 }: TelemetryProps) {
   const reduceMotion = useSyncExternalStore(
     subscribeReducedMotion,
     readReducedMotion,
     () => false,
   );
-  const telem = useTelemetryRotation();
+  const telem = useTelemetryRotation({ armed: ticksArmed });
   const [agents, setAgents] = useState(3);
   const [agentsPlayKey, setAgentsPlayKey] = useState(0);
   const [infraPlayKey, setInfraPlayKey] = useState(0);
@@ -92,7 +95,7 @@ export function Telemetry({
     .replace("{total}", String(pipelineTotal).padStart(2, "0"));
 
   useEffect(() => {
-    if (reduceMotion) {
+    if (reduceMotion || !ticksArmed) {
       return;
     }
     const id = window.setInterval(() => {
@@ -103,20 +106,20 @@ export function Telemetry({
       });
     }, AGENTS_TICK_MS);
     return () => window.clearInterval(id);
-  }, [reduceMotion]);
+  }, [reduceMotion, ticksArmed]);
 
   useEffect(() => {
-    if (telem.reduceMotion) return;
+    if (telem.reduceMotion || !ticksArmed) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- scramble when rotating project/infra changes
     setInfraPlayKey((k) => k + 1);
     setSprintPlayKey((k) => k + 1);
-  }, [telem.infra.label, telem.projectName, telem.reduceMotion]);
+  }, [telem.infra.label, telem.projectName, telem.reduceMotion, ticksArmed]);
 
   useEffect(() => {
-    if (reduceMotion) return;
+    if (reduceMotion || !ticksArmed) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- scramble when checkpoint advances
     setCheckpointPlayKey((k) => k + 1);
-  }, [checkpoint, reduceMotion]);
+  }, [checkpoint, reduceMotion, ticksArmed]);
 
   const agentsValue = String(agents).padStart(2, "0");
   const fadeClass = cn(
@@ -134,7 +137,7 @@ export function Telemetry({
 
       {/* Combined header: quiet label + agents spinner/count (no drift meter) */}
       <div className="border-b border-border-ide flex items-center justify-between gap-3 px-3 py-1.5">
-        <p className="font-jetbrains text-muted text-[10px] tracking-wide lg:text-[11px]">
+        <p className="font-jetbrains text-muted min-w-[8ch] text-[10px] tracking-wide tabular-nums lg:text-[11px]">
           <DecodeLabel
             text={telemetry.header}
             playKey={revealPlayKey}
@@ -150,7 +153,9 @@ export function Telemetry({
             style={{ ["--mirage-size" as string]: "24px" }}
           />
           <span className="text-muted sr-only">{telemetry.keys.agents}</span>
-          <DecodeLabel text={agentsValue} playKey={agentsPlayKey} />
+          <span className="inline-block min-w-[2ch] text-right tabular-nums">
+            <DecodeLabel text={agentsValue} playKey={agentsPlayKey} />
+          </span>
         </p>
       </div>
 
@@ -159,14 +164,14 @@ export function Telemetry({
           <dt className="text-muted shrink-0">{telemetry.keys.infra}</dt>
           <dd
             className={cn(
-              "text-foreground flex shrink-0 items-center gap-1.5 tabular-nums",
+              "text-foreground flex min-w-[9ch] shrink-0 items-center justify-end gap-1.5 tabular-nums",
               fadeClass,
             )}
             style={fadeStyle}
           >
             <StatusDot
               tone={telem.infra.tone}
-              pulse={!telem.reduceMotion}
+              pulse={!telem.reduceMotion && ticksArmed}
               delayMs={0}
             />
             <DecodeLabel text={telem.infra.label} playKey={infraPlayKey} />
@@ -177,7 +182,7 @@ export function Telemetry({
           <dt className="text-muted shrink-0">{telemetry.keys.sprint}</dt>
           <dd
             className={cn(
-              "text-foreground shrink-0 text-right tabular-nums",
+              "text-foreground min-w-[10ch] shrink-0 text-right tabular-nums",
               fadeClass,
             )}
             style={fadeStyle}
@@ -188,10 +193,10 @@ export function Telemetry({
 
         <div className="flex items-center justify-between gap-3 px-3 py-2">
           <dt className="text-muted shrink-0">{telemetry.keys.checkpoint}</dt>
-          <dd className="text-foreground flex shrink-0 items-center gap-1.5 tabular-nums">
+          <dd className="text-foreground flex min-w-[12ch] shrink-0 items-center justify-end gap-1.5 tabular-nums">
             <StatusDot
               tone="online"
-              pulse={!reduceMotion}
+              pulse={!reduceMotion && ticksArmed}
               delayMs={0}
             />
             <DecodeLabel text={checkpoint} playKey={checkpointPlayKey} />

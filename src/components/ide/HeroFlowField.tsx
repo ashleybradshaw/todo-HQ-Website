@@ -111,9 +111,9 @@ const LEVEL_INSIDE = 255;
 const LEVEL_SKIP = 254;
 
 const FRAME_MS = 1000 / 30;
-const BOOT_GRACE_MS = 100;
 const MD_QUERY = "(min-width: 768px)";
 const STILL_STEPS = 150;
+const HERO_IDLE_TIMEOUT_MS = 300;
 
 type Rgba = { r: number; g: number; b: number; a: number };
 
@@ -446,7 +446,6 @@ export function HeroFlowField() {
   const reduced = useSyncExternalStore(subscribeReduced, readReduced, () => false);
   const { pair } = useSpray();
   const pairRef = useRef(pair);
-  const bootedRef = useRef(false);
 
   useEffect(() => {
     pairRef.current = pair;
@@ -1547,6 +1546,9 @@ export function HeroFlowField() {
       if (lastDraw !== 0 && now - lastDraw < FRAME_MS) return;
       const dt = lastDraw === 0 ? 1 / 30 : Math.min(0.05, (now - lastDraw) / 1000);
       lastDraw = now;
+      if (!root.hasAttribute("data-hero-drawn")) {
+        root.setAttribute("data-hero-drawn", "1");
+      }
       syncColors();
       const f = field;
       if (!f || !styles) return;
@@ -1581,6 +1583,7 @@ export function HeroFlowField() {
       rippleAt = -1;
       for (let i = 0; i < STILL_STEPS; i += 1) update(f, 1 / 30, false);
       render(f);
+      root.setAttribute("data-hero-drawn", "1");
     };
 
     const start = () => {
@@ -1595,12 +1598,6 @@ export function HeroFlowField() {
     const stop = () => {
       running = false;
       window.cancelAnimationFrame(raf);
-    };
-
-    const conceal = () => {
-      window.cancelAnimationFrame(revealRaf);
-      root.style.transition = "none";
-      root.style.opacity = "0";
     };
 
     const reveal = () => {
@@ -1652,59 +1649,42 @@ export function HeroFlowField() {
       if (!cancelled) onResize();
     });
 
-    /* ---------- boot gate ---------- */
-
-    const stage = root
-      .closest("main")
-      ?.querySelector<HTMLElement>("[data-ide-boot]");
-    let grace = 0;
+    /* ---------- start after first paint (independent of IDE boot) ---------- */
 
     const go = () => {
       if (cancelled || active) return;
       active = true;
-      bootedRef.current = true;
       start();
       reveal();
     };
 
-    const halt = () => {
-      window.clearTimeout(grace);
-      active = false;
-      stop();
-      conceal();
-    };
+    type IdleDeadlineLike = { didTimeout: boolean; timeRemaining: () => number };
+    type IdleCb = (deadline: IdleDeadlineLike) => void;
+    const ric = (
+      window as Window & {
+        requestIdleCallback?: (cb: IdleCb, opts?: { timeout: number }) => number;
+        cancelIdleCallback?: (id: number) => void;
+      }
+    ).requestIdleCallback;
+    const cic = (
+      window as Window & {
+        cancelIdleCallback?: (id: number) => void;
+      }
+    ).cancelIdleCallback;
 
-    const phaseNow = () => stage?.getAttribute("data-ide-boot") ?? "done";
-
-    const arm = () => {
-      window.clearTimeout(grace);
-      grace = window.setTimeout(
-        () => {
-          if (!cancelled && phaseNow() === "done") go();
-        },
-        bootedRef.current ? 0 : BOOT_GRACE_MS,
-      );
-    };
-
-    const onBoot = () => {
-      if (phaseNow() !== "done") halt();
-      else arm();
-    };
-
-    const bootObserver = new MutationObserver(onBoot);
-    if (stage) {
-      bootObserver.observe(stage, {
-        attributes: true,
-        attributeFilter: ["data-ide-boot"],
-      });
+    let idleId = 0;
+    let fallbackId = 0;
+    if (typeof ric === "function") {
+      idleId = ric(() => go(), { timeout: HERO_IDLE_TIMEOUT_MS });
+    } else {
+      fallbackId = window.setTimeout(go, HERO_IDLE_TIMEOUT_MS);
     }
-    arm();
 
     return () => {
       cancelled = true;
-      window.clearTimeout(grace);
+      window.clearTimeout(fallbackId);
+      if (typeof cic === "function" && idleId) cic(idleId);
       stop();
-      bootObserver.disconnect();
       ro.disconnect();
       io.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);

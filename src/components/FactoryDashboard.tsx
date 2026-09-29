@@ -6,6 +6,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
   type ReactNode,
 } from "react";
 import { useIdeBoot } from "@/hooks/useIdeBoot";
@@ -69,13 +70,22 @@ export function FactoryDashboard() {
   const [activeTab, setActiveTab] = useState<IdeTabId>("todo");
   const [editorLine, setEditorLine] = useState(DEFAULT_LINE);
   const [pipelineIndex, setPipelineIndex] = useState(0);
-  const [revealPlayKey, setRevealPlayKey] = useState(0);
   const [ideInView, setIdeInView] = useState(true);
   const [sectionHeading, setSectionHeading] = useState<string | null>(null);
   const [sectionId, setSectionId] = useState<string | null>(null);
   const [sectionPlayKey, setSectionPlayKey] = useState(0);
   const ideRef = useRef<HTMLDivElement>(null);
-  const bootPhase = useIdeBoot(ideRef);
+
+  const headingLineIndexes = useMemo(() => {
+    const lines = buildReadmeSourceLines();
+    const indexes: number[] = [];
+    lines.forEach((line, i) => {
+      if (/^## /.test(line)) indexes.push(i);
+    });
+    return indexes;
+  }, []);
+
+  const boot = useIdeBoot(ideRef, headingLineIndexes);
 
   const outlineEntries = useMemo(
     () => buildReadmeOutline(buildReadmeSourceLines()),
@@ -84,10 +94,6 @@ export function FactoryDashboard() {
 
   const rebootPipeline = useCallback(() => {
     setRebootSignal((current) => current + 1);
-  }, []);
-
-  const onRevealStart = useCallback(() => {
-    setRevealPlayKey((k) => k + 1);
   }, []);
 
   const onLiveChange = useCallback((state: ReadmeLiveState) => {
@@ -111,6 +117,8 @@ export function FactoryDashboard() {
     return () => io.disconnect();
   }, []);
 
+  const scrambleOk = ideInView;
+
   return (
     <main className="bg-bg-canvas text-syn-property relative min-h-screen w-full">
       <HomePageGrid />
@@ -121,26 +129,27 @@ export function FactoryDashboard() {
 
         <div className={`${HOME_FRAME} relative z-10 pb-10 md:pb-14`}>
           <IdeReveal
-            bootPhase={bootPhase}
+            bootPhase={boot.phase}
+            revealNonce={boot.revealNonce}
             windowRef={ideRef}
             className="ide-window ide-boot-stage relative flex w-full flex-col overflow-hidden"
             aria-label={homePage.chrome.aria}
-            onRevealStart={onRevealStart}
           >
-            <div
-              className="relative flex min-h-0 w-full flex-1 flex-col"
-              data-ide-boot={bootPhase}
-            >
-              <IdeBoneOverlay phase={bootPhase} />
+            <div className="relative flex min-h-0 w-full flex-1 flex-col">
+              <IdeBoneOverlay phase={boot.phase} windowRef={ideRef} />
 
-              <IdeTabBar activeTab={activeTab} onChange={setActiveTab} />
-              <IdePathBar
-                activeTab={activeTab}
-                sectionHeading={
-                  activeTab === "todo" ? sectionHeading : null
-                }
-                sectionPlayKey={sectionPlayKey}
-              />
+              <div data-bone="tabs">
+                <IdeTabBar activeTab={activeTab} onChange={setActiveTab} />
+              </div>
+              <div data-bone="path">
+                <IdePathBar
+                  activeTab={activeTab}
+                  sectionHeading={
+                    activeTab === "todo" ? sectionHeading : null
+                  }
+                  sectionPlayKey={sectionPlayKey}
+                />
+              </div>
 
               <div className="relative flex min-h-0 flex-1 flex-col md:flex-row">
                 <section
@@ -156,7 +165,9 @@ export function FactoryDashboard() {
                     <ReadmeCodePane
                       onExecutePipeline={rebootPipeline}
                       onActiveLineChange={setEditorLine}
-                      scramblePlayKey={revealPlayKey}
+                      headingPlayKeys={
+                        scrambleOk ? boot.scramble.headingByLine : {}
+                      }
                       onLiveChange={onLiveChange}
                       ideInView={ideInView && activeTab === "todo"}
                     />
@@ -184,38 +195,75 @@ export function FactoryDashboard() {
                   aria-label={landmarks.sidecarAria}
                   data-ide-sidecar
                 >
-                  <PipelineRunner
-                    rebootSignal={rebootSignal}
-                    onActiveIndexChange={setPipelineIndex}
-                    labelPlayKey={revealPlayKey}
-                  />
-                  <Telemetry
-                    pipelineIndex={pipelineIndex}
-                    pipelineTotal={PIPELINE_TOTAL}
-                    revealPlayKey={revealPlayKey}
-                  />
-                  <IdeOutline
-                    entries={outlineEntries}
-                    activeId={
-                      activeTab === "todo" ? sectionId : null
-                    }
-                    labelPlayKey={revealPlayKey}
-                  />
+                  <div
+                    className="ide-boot-sidecar-block"
+                    data-bone="sidecar"
+                    style={{ "--s": 0 } as CSSProperties}
+                  >
+                    <PipelineRunner
+                      rebootSignal={rebootSignal}
+                      onActiveIndexChange={setPipelineIndex}
+                      labelPlayKey={
+                        scrambleOk ? boot.scramble.pipeline : 0
+                      }
+                    />
+                  </div>
+                  <div
+                    className="ide-boot-sidecar-block"
+                    data-bone="sidecar"
+                    style={{ "--s": 1 } as CSSProperties}
+                  >
+                    <Telemetry
+                      pipelineIndex={pipelineIndex}
+                      pipelineTotal={PIPELINE_TOTAL}
+                      revealPlayKey={
+                        scrambleOk ? boot.scramble.telemetry : 0
+                      }
+                      ticksArmed={boot.ticksArmed}
+                    />
+                  </div>
+                  <div
+                    className="ide-boot-sidecar-block"
+                    data-bone="sidecar"
+                    style={{ "--s": 2 } as CSSProperties}
+                  >
+                    <IdeOutline
+                      entries={outlineEntries}
+                      activeId={
+                        activeTab === "todo" ? sectionId : null
+                      }
+                      labelPlayKey={
+                        scrambleOk ? boot.scramble.outline : 0
+                      }
+                    />
+                  </div>
                   <div
                     className="min-h-0 flex-1"
                     aria-hidden="true"
                     data-ide-sidecar-spacer
                   />
-                  <IdeProjectCards labelPlayKey={revealPlayKey} />
+                  <div
+                    className="ide-boot-sidecar-block"
+                    data-bone="sidecar"
+                    style={{ "--s": 3 } as CSSProperties}
+                  >
+                    <IdeProjectCards
+                      labelPlayKey={
+                        scrambleOk ? boot.scramble.projects : 0
+                      }
+                    />
+                  </div>
                 </aside>
               </div>
 
-              <IdeStatusStrip
-                line={editorLine}
-                activeTab={activeTab}
-                pipelineIndex={pipelineIndex}
-                pipelineTotal={PIPELINE_TOTAL}
-              />
+              <div data-bone="status">
+                <IdeStatusStrip
+                  line={editorLine}
+                  activeTab={activeTab}
+                  pipelineIndex={pipelineIndex}
+                  pipelineTotal={PIPELINE_TOTAL}
+                />
+              </div>
             </div>
           </IdeReveal>
         </div>

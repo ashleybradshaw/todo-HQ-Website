@@ -26,8 +26,6 @@ import type { OutlineEntry } from "@/components/ide/IdeOutline";
 
 const { todoHq } = homePage;
 
-const HEADING_SCRAMBLE_STAGGER_MS = 60;
-
 export type ReadmeLiveState = {
   activeLine: number;
   sectionHeading: string | null;
@@ -38,8 +36,8 @@ export type ReadmeLiveState = {
 type ReadmeCodePaneProps = {
   onExecutePipeline: () => void;
   onActiveLineChange: (line: number) => void;
-  /** IDE reveal play key — scrambles ## headings once. */
-  scramblePlayKey?: number;
+  /** Per-line ## scramble keys scheduled by the boot orchestrator. */
+  headingPlayKeys?: Readonly<Record<number, number>>;
   /** Fired when section-in-view or centre line changes (IO only). */
   onLiveChange?: (state: ReadmeLiveState) => void;
   /** When false, current-line band stays off (IDE out of viewport). */
@@ -91,16 +89,13 @@ export function buildReadmeOutline(lines: readonly string[]): OutlineEntry[] {
 export function ReadmeCodePane({
   onExecutePipeline,
   onActiveLineChange,
-  scramblePlayKey = 0,
+  headingPlayKeys = {},
   onLiveChange,
   ideInView = true,
 }: ReadmeCodePaneProps) {
   const lines = useMemo(() => buildReadmeSourceLines(), []);
   const methodIndex = methodologySourceLineIndex(lines);
   const [activeIndex, setActiveIndex] = useState(methodIndex);
-  const [headingPlayKeys, setHeadingPlayKeys] = useState<
-    Record<number, number>
-  >({});
   const [sectionPlayKey, setSectionPlayKey] = useState(0);
   const [sectionId, setSectionId] = useState<string | null>(null);
   const [sectionHeading, setSectionHeading] = useState<string | null>(null);
@@ -124,24 +119,6 @@ export function ReadmeCodePane({
   }, [lines]);
 
   const outline = useMemo(() => buildReadmeOutline(lines), [lines]);
-
-  useEffect(() => {
-    if (scramblePlayKey === 0) return;
-    const timers: number[] = [];
-    headingOrder.forEach((order, lineIndex) => {
-      timers.push(
-        window.setTimeout(() => {
-          setHeadingPlayKeys((prev) => ({
-            ...prev,
-            [lineIndex]: scramblePlayKey,
-          }));
-        }, order * HEADING_SCRAMBLE_STAGGER_MS),
-      );
-    });
-    return () => {
-      for (const id of timers) window.clearTimeout(id);
-    };
-  }, [scramblePlayKey, headingOrder]);
 
   const setActive = useCallback(
     (index: number) => {
@@ -324,6 +301,7 @@ export function ReadmeCodePane({
                 lineRefs.current[index] = node;
               }}
               data-line-index={index}
+              data-bone="line"
               role="row"
               tabIndex={activeIndex === index ? 0 : -1}
               className={`ide-boot-line group/line grid min-w-0 outline-none ${

@@ -211,14 +211,14 @@ export function PipelineRunner({
       aria-label={pipelineRunner.sectionAria}
     >
       <div className="border-b border-border-ide flex shrink-0 items-center justify-between px-3 py-1.5">
-        <p className="font-jetbrains text-muted text-[10px] tracking-wide lg:text-[11px]">
+        <p className="font-jetbrains text-muted min-w-[8ch] text-[10px] tracking-wide tabular-nums lg:text-[11px]">
           <DecodeLabel
             text={pipelineRunner.header}
             playKey={labelPlayKey}
             settleColor="var(--text-muted)"
           />
         </p>
-        <p className="font-jetbrains text-[10px] tabular-nums lg:text-[11px]">
+        <p className="font-jetbrains min-w-[10ch] text-right text-[10px] tabular-nums lg:text-[11px]">
           {isLoading ? (
             <span className="text-syn-number">
               {pipelineRunner.compiling}

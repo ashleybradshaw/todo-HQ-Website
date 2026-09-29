@@ -62,12 +62,25 @@ export const metadata: Metadata = {
   },
 };
 
+/** Pre-paint /home IDE hide — scoped pathname; failsafe clears in 4s. */
+const IDE_FIRST_BOOT_SCRIPT = `(function(){try{var p=location.pathname;if(p!=="/home"&&p!=="/home/")return;if(window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;try{if(sessionStorage.getItem("todo-ide-boot-v8")==="1")return;if(sessionStorage.getItem("todo-ide-boot-force")==="1")return;}catch(e){}document.documentElement.setAttribute("data-ide-first","");setTimeout(function(){try{if(!document.documentElement.hasAttribute("data-ide-first"))return;var b=document.querySelector("[data-ide-boot]");if(!b||b.getAttribute("data-ide-boot")!=="done")document.documentElement.removeAttribute("data-ide-first");}catch(e){}},4000);}catch(e){}})();`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
       className={`${unbounded.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        <script
+          // Pre-paint only — must stay tiny; try/catch for private mode.
+          dangerouslySetInnerHTML={{ __html: IDE_FIRST_BOOT_SCRIPT }}
+        />
+        <noscript>
+          <style>{`[data-ide-first] .ide-boot-tabs,[data-ide-first] .ide-boot-chrome,[data-ide-first] .ide-boot-status,[data-ide-first] .ide-boot-editor,[data-ide-first] .ide-boot-sidecar,[data-ide-first] .ide-boot-line{opacity:1!important;transform:none!important;animation:none!important}.ide-bone-overlay{display:none!important}`}</style>
+        </noscript>
+      </head>
       <body className="min-h-full bg-[#4545FF] text-[#DFDFFF]">
         <JsonLd data={organizationGraph()} />
         <SprayProvider>

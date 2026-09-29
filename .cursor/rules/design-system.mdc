@@ -1,6 +1,7 @@
 ---
-description: Visual identity for //TODO — inverted inner house palette, landing electric blue, structural grid, sans + mono type, humble Framer Motion reveals.
-alwaysApply: true
+description: Visual identity for //TODO — inverted inner house palette, landing electric blue, structural grid, Unbounded + JetBrains Mono, humble Framer Motion reveals.
+globs: src/components/**,src/app/**/*.tsx,src/app/globals.css
+alwaysApply: false
 ---
 
 # Design System
@@ -52,20 +53,20 @@ Treat layout as an engineering drawing: visible edges, aligned columns, no soft 
 
 ## Typography
 
-- **Display / body:** sans-serif.
-- **Metadata, labels, code snippets, UI controls** (buttons, inputs, nav, badges, timestamps): `font-mono` only.
+- **Display** (headlines, titles): Unbounded (`type-display` / `type-title` / `type-heading` / `type-subhead`).
+- **Body and UI** (prose, buttons, inputs, nav, badges, labels, metadata): JetBrains Mono (`type-body` / `type-prose` / `font-jetbrains` / `font-mono`).
 
-Never set body copy in mono. Never set labels or controls in a rounded/display face.
+Never set display copy in JetBrains. Never set body or controls in Unbounded.
 
 ```tsx
 // ❌ BAD
-<button className="font-sans">Submit</button>
-<p className="font-mono">We build software factories.</p>
+<button className="font-unbounded">Submit</button>
+<p className="type-display">We build software factories.</p>
 
 // ✅ GOOD
-<button className="font-mono">Submit</button>
-<p className="font-sans">We build software factories.</p>
-<span className="font-mono text-sm">RepDaily · in production</span>
+<button className="font-jetbrains">Submit</button>
+<p className="type-body">We build software factories.</p>
+<span className="type-meta">RepDaily · in production</span>
 ```
 
 ## Motion

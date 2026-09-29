@@ -1,0 +1,13 @@
+package-lock.json
+src/assets/phyllotaxisBloomMarkup.ts
+public/
+docs/shots/
+test-results/
+playwright-report/
+.next/
+*.png
+*.webp
+*.mp4
+*.webm
+*.woff
+*.woff2

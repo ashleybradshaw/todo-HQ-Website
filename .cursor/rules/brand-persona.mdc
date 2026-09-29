@@ -1,6 +1,7 @@
 ---
 description: Copy and voice for //TODO Engineering — team attribution, audience, software-factory positioning, and app roster.
-alwaysApply: true
+globs: src/content/**,src/lib/seo.ts
+alwaysApply: false
 ---
 
 # Brand Persona

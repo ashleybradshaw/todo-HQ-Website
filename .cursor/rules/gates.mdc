@@ -1,20 +1,12 @@
 ---
-description: Verification gates — run the smallest tier that covers the change
+description: Verification gates — smallest covering tier
 alwaysApply: true
 ---
 
-# Verification gates
+# Gates
 
-Run the smallest tier that covers the change.
+- **T1** copy/docs: `npx tsc --noEmit` + eslint touched files.
+- **T2** one page/component: T1 + `npm run build` + matching spec(s) with `PW_NO_BUILD=1`.
+- **T3** shared / "full gates": T1 + build + `PW_NO_BUILD=1 npm run test:e2e`.
 
-- **Tier 1** — copy/content only (`src/content/**`, strings, docs): `npx tsc --noEmit` + eslint on touched files. No build, no e2e.
-- **Tier 2** — one component/page: Tier 1 + `npm run build` + only the matching spec(s) (e.g. `npx playwright test e2e/home.spec.ts`).
-- **Tier 3** — shared surface (nav, layout, routing, forms, Spray/tokens, middleware) or when the prompt says "full gates": Tier 1 + build + full `npm run test:e2e`.
-
-## Probe scripts
-
-No `/tmp` probe scripts unless the prompt asks for them.
-
-## Report
-
-Which tier ran, pass/fail per gate, nothing else. No screenshots unless asked.
+No `/tmp` probes unless asked. Report tier + pass/fail only. No screenshots unless asked.

@@ -350,7 +350,7 @@ export function ReadmeCodePane({
               >
                 {index + 1}
               </span>
-              <pre className="relative min-w-0 whitespace-pre-wrap py-0.5 pr-6 pl-4">
+              <pre className="relative min-w-0 overflow-x-auto whitespace-pre py-0.5 pr-6 pl-4">
                 {indents > 0 ? (
                   <span
                     aria-hidden="true"

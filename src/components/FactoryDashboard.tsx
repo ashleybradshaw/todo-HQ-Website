@@ -201,12 +201,12 @@ export function FactoryDashboard() {
                     }
                     labelPlayKey={revealPlayKey}
                   />
-                  <IdeProjectCards labelPlayKey={revealPlayKey} />
                   <div
                     className="min-h-0 flex-1"
                     aria-hidden="true"
                     data-ide-sidecar-spacer
                   />
+                  <IdeProjectCards labelPlayKey={revealPlayKey} />
                 </aside>
               </div>
 

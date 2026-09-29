@@ -12,52 +12,40 @@ function productionStatusLabel(slug: string, status: keyof typeof todoHq.inProdu
   return todoHq.inProductionDetail[slug] ?? todoHq.inProductionStatus[status];
 }
 
-/** Raw markdown lines generated from the same todoHq keys as Preview. */
+/**
+ * Raw markdown lines for the /home README pane — dense, no trailing blank.
+ * Outline headings come from these lines (## rows), not hard-coded numbers.
+ */
 export function buildReadmeSourceLines(): string[] {
-  const lines: string[] = [
+  return [
     todoHq.fileComment,
-    "",
     `# ${todoHq.hook}`,
     "",
     todoHq.whoWeAre,
-    "",
-    todoHq.whatWeDoBest,
-    "",
     `[${todoHq.primaryCta.label}](${todoHq.primaryCta.href}) · [${todoHq.secondaryCta.label}](${todoHq.secondaryCta.href})`,
     "",
     `## ${todoHq.whatWeBuildHeading}`,
-    "",
     ...todoHq.whatWeBuild.map((item) => `- ${item}`),
     "",
     `## ${todoHq.whoWeShipForHeading}`,
-    "",
     ...todoHq.whoWeShipFor.map((item) => `- ${item}`),
     "",
     `## ${todoHq.howWeWorkHeading}`,
-    "",
     ...todoHq.howWeWork.map((item) => `- ${item}`),
     "",
     `## ${todoHq.pipelineHeading}`,
-    "",
     todoHq.pipelineIntro,
-    "",
     ...todoHq.pipeline.map((step) => `- \`${step.fn}\` — ${step.line}`),
-    "",
     todoHq.methodologyLabel,
     "",
     `## ${todoHq.inProductionHeading}`,
-    "",
     `| ${todoHq.inProductionColumns.project} | ${todoHq.inProductionColumns.status} |`,
     "| --- | --- |",
     ...inProductionProjects().map(
       (project) =>
         `| ${project.name} | ${productionStatusLabel(project.slug, project.status)} |`,
     ),
-    "",
-    todoHq.promise,
   ];
-
-  return lines;
 }
 
 export function methodologySourceLineIndex(lines: readonly string[]): number {

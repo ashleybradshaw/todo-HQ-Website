@@ -90,8 +90,7 @@ export const homePage = {
       "<!-- designed by devs. built by designers. don't tell the linter. -->", // TEST COPY
     hook: "todo-hq", // TEST COPY
     whoWeAre:
-      "One design engineer and one backend and AI engineer, working with agents.", // TEST COPY
-    whatWeDoBest: "We run a small product factory. Every build goes down the same line.", // TEST COPY
+      "Two engineers and a set of AI agents, running one small product factory.", // TEST COPY
     primaryCta: { label: "About", href: "/about" }, // TEST COPY
     secondaryCta: { label: "Blog", href: "/blog" }, // TEST COPY
 
@@ -102,14 +101,12 @@ export const homePage = {
 
     whoWeShipForHeading: "Who it's for", // TEST COPY
     whoWeShipFor: [
-      "Enterprise and regulated teams.", // TEST COPY  [NEEDS: sectors to name, if any]
-      "The problems that take a whole meeting just to explain.", // TEST COPY
+      "Enterprise and regulated teams with problems that take a meeting to explain.", // TEST COPY  [NEEDS: sectors to name, if any]
     ],
 
     howWeWorkHeading: "How we work", // TEST COPY
     howWeWork: [
-      "On your line: inside your stack, with your team", // TEST COPY
-      "On ours: end to end, signed off at each checkpoint", // TEST COPY
+      "Inside your stack, or end to end on ours. Signed off at every checkpoint.", // TEST COPY
     ],
 
     pipelineHeading: "The line", // TEST COPY
@@ -141,8 +138,6 @@ export const homePage = {
     } as Record<string, string>,
     /** Kept for sr-only / schema sync; the table is derived from PROJECTS. */
     inProduction: ["RepDaily", "ReadyGo", "Contentic"], // TEST COPY
-
-    promise: "Build from understanding, not assumptions.", // TEST COPY
   },
 
   // TEST COPY — services.md

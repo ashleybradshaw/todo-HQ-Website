@@ -71,14 +71,11 @@ export const homePage = {
     pathFolder: "content", // TEST COPY
     pathSeparator: "›", // TEST COPY
     statusBranch: "main", // TEST COPY
-    statusProblems: "0 0", // TEST COPY — counts only; icons are SVG in IdeStatusStrip
     languageByTab: {
       todo: "Markdown", // TEST COPY
       offer: "Markdown", // TEST COPY
       discovery: "TypeScript", // TEST COPY
     },
-    /** Unused in UI — checkpoint uses a CSS circle. Kept for copy inventory. */
-    pipelineDot: "", // TEST COPY
     /** {n} = 1-based padded stage index, {total} = stage count. */
     pipelineLabel: "checkpoint {n}/{total}", // TEST COPY
     agentsPrefix: "agents (sim)", // TEST COPY

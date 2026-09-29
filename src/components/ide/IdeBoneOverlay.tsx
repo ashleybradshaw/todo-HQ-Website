@@ -22,7 +22,7 @@ export function IdeBoneOverlay({ phase }: IdeBoneOverlayProps) {
       aria-hidden="true"
     >
       {/* Tabs — top of window */}
-      <div className="ide-bone-tabs flex h-[var(--ide-tab-strip-height)] shrink-0 items-center gap-2 border-b border-transparent px-3">
+      <div className="ide-bone-tabs flex h-[var(--ide-tab-strip-height)] shrink-0 items-center gap-2 border-b border-transparent">
         {[0, 1, 2].map((i) => (
           <span
             key={i}

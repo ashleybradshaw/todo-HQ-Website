@@ -65,7 +65,7 @@ function FileBadge({
   return (
     <span
       aria-hidden="true"
-      className={`font-jetbrains ${ink} rounded-[4px] px-1 text-[9px] leading-none tracking-wide uppercase`}
+      className={`font-jetbrains ${ink} rounded-[4px] px-1.5 py-0.5 text-[9px] leading-none tracking-wide uppercase`}
       style={{ backgroundColor: tint }}
     >
       {label}
@@ -113,7 +113,7 @@ export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
       role="tablist"
       aria-label={homePage.ideTabs.aria}
       onKeyDown={onKeyDown}
-      className="ide-boot-tabs bg-ide-chrome flex shrink-0 items-stretch px-3"
+      className="ide-boot-tabs bg-ide-chrome flex shrink-0 items-stretch"
     >
       {TABS.map((tab, index) => {
         const selected = tab.id === activeTab;

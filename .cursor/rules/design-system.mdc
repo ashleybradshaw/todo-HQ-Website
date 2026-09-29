@@ -44,7 +44,7 @@ Use a 1px high-contrast structural grid. Borders and dividers on inner pages:
 color-mix(in srgb, #4545FF 22%, transparent)
 ```
 
-Treat layout as an engineering drawing: visible edges, aligned columns, no soft drop shadows or glassmorphism. IDE chrome uses `--border-ide` / `--border-ide-strong` / `--ide-chrome` (22% / 42% / 8%).
+Treat layout as an engineering drawing: visible edges, aligned columns, no soft drop shadows or glassmorphism. IDE chrome uses `--border-ide` / `--ide-chrome` (18% / 8%).
 
 ```tsx
 // ✅ GOOD

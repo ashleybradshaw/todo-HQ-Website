@@ -56,10 +56,6 @@ function applyPair(pair: AccessibleColorPair) {
     `color-mix(in srgb, ${pair.text} 18%, transparent)`,
   );
   root.setProperty(
-    "--border-ide-strong",
-    `color-mix(in srgb, ${pair.text} 42%, transparent)`,
-  );
-  root.setProperty(
     "--ide-chrome",
     `color-mix(in srgb, ${pair.text} 8%, ${pair.bg})`,
   );

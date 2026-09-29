@@ -9,7 +9,6 @@
   --brand-logo: #0B0CB4;
   /* 18% — unified page-grid + IDE hairline (22% fought HeroFlowField through hero) */
   --border-ide: color-mix(in srgb, #4545FF 18%, transparent);
-  --border-ide-strong: color-mix(in srgb, #4545FF 42%, transparent);
   --ide-chrome: color-mix(in srgb, #4545FF 8%, #DFDFFF);
   --media-elev-shadow: color-mix(in srgb, #4545FF 16%, transparent);
   --media-elev-bloom: color-mix(in srgb, #4545FF 12%, transparent);
@@ -52,7 +51,6 @@
   --color-bg-canvas: var(--bg-canvas);
   --color-brand-logo: var(--brand-logo);
   --color-border-ide: var(--border-ide);
-  --color-border-ide-strong: var(--border-ide-strong);
   --color-ide-chrome: var(--ide-chrome);
   --color-muted: var(--text-muted);
   --color-on-tint: var(--text-on-tint);

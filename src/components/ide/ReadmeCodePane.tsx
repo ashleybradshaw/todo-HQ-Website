@@ -104,7 +104,6 @@ export function ReadmeCodePane({
   const [sectionPlayKey, setSectionPlayKey] = useState(0);
   const [sectionId, setSectionId] = useState<string | null>(null);
   const [sectionHeading, setSectionHeading] = useState<string | null>(null);
-  const rootRef = useRef<HTMLDivElement>(null);
   const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
   const reduceMotion = useSyncExternalStore(
     subscribeReducedMotion,
@@ -300,7 +299,6 @@ export function ReadmeCodePane({
   return (
     <IdePaneCollapse lineCount={lines.length}>
       <div
-        ref={rootRef}
         className="font-jetbrains relative flex min-h-0 flex-col text-xs leading-6 lg:text-sm lg:leading-6"
         data-readme-source="true"
       >

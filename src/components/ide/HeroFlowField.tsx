@@ -35,7 +35,11 @@ const TRACK_MAX = 40;
 const CHAR_MAX = 32;
 const CHAR2_MAX = 24;
 const SRC_LINES = 3;
-const DOT_COLS_MAX = 8;
+const DOT_COLS_MAX = 10;
+/** Resting soft-dot tones: fg, muted, hue2. */
+const DOT_REST_TONES = 3;
+/** Lit flash tones: accent, hue2, string. */
+const DOT_LIT_TONES = 3;
 const BAR_POOL = 80;
 const TRAV_POOL = 80;
 const POOL_PULSES = 3;
@@ -115,13 +119,20 @@ type Rgba = { r: number; g: number; b: number; a: number };
 
 type Rect = { x: number; y: number; w: number; h: number };
 
-type Palette = { muted: Rgba; fg: Rgba; accent: Rgba; hue2: Rgba };
+type Palette = {
+  muted: Rgba;
+  fg: Rgba;
+  accent: Rgba;
+  hue2: Rgba;
+  string: Rgba;
+};
 
 type Styles = {
   fg: string[];
   muted: string[];
   accent: string[];
   hue2: string[];
+  string: string[];
   fgSolid: string;
   mutedSolid: string;
   accentSolid: string;
@@ -257,8 +268,9 @@ function readPalette(): Palette | null {
   const fg = readToken("--foreground");
   const accent = readToken("--brand-logo");
   const hue2 = readToken("--syn-number");
-  if (!muted || !fg || !accent || !hue2) return null;
-  return { muted, fg, accent, hue2 };
+  const string = readToken("--syn-string");
+  if (!muted || !fg || !accent || !hue2 || !string) return null;
+  return { muted, fg, accent, hue2, string };
 }
 
 /** Style strings for every quantised alpha level, built once per palette. */
@@ -267,18 +279,21 @@ function buildStyles(palette: Palette): Styles {
   const muted: string[] = [];
   const accent: string[] = [];
   const hue2: string[] = [];
+  const string: string[] = [];
   for (let i = 0; i < LEVELS; i += 1) {
     const alpha = Math.round(i * ALPHA_STEP * 100) / 100;
     fg.push(rgba(palette.fg, alpha));
     muted.push(rgba(palette.muted, alpha));
     accent.push(rgba(palette.accent, alpha));
     hue2.push(rgba(palette.hue2, alpha));
+    string.push(rgba(palette.string, alpha));
   }
   return {
     fg,
     muted,
     accent,
     hue2,
+    string,
     fgSolid: rgba(palette.fg, 1),
     mutedSolid: rgba(palette.muted, 1),
     accentSolid: rgba(palette.accent, 1),
@@ -494,7 +509,11 @@ export function HeroFlowField() {
     const dotNext = new Float32Array(dotN);
     const dotTau = new Float32Array(dotN);
     const dotLit = new Float32Array(dotN);
-    const dotLv = new Uint8Array(dotN);
+    /** Resting tone: 0=fg, 1=muted, 2=hue2. */
+    const dotTone = new Uint8Array(dotN);
+    /** Lit flash tone: 0=accent, 1=hue2, 2=string. */
+    const dotLitTone = new Uint8Array(dotN);
+    const dotLv = new Uint16Array(dotN);
 
     const barCur = new Float32Array(BAR_POOL);
     const barTarget = new Float32Array(BAR_POOL);
@@ -506,7 +525,7 @@ export function HeroFlowField() {
     const barAccentUntil = new Float32Array(BAR_POOL);
     const barBucket = new Uint8Array(BAR_POOL);
     const usedTrack = new Uint8Array(LEVELS * 2);
-    const usedDot = new Uint8Array(LEVELS * 2);
+    const usedDot = new Uint8Array(LEVELS * (DOT_REST_TONES + DOT_LIT_TONES));
     const usedBar = new Uint8Array(BAR_LEVELS.length * 4);
     const pos = new Float32Array(2);
     const srcOff = document.createElement("canvas");
@@ -630,6 +649,11 @@ export function HeroFlowField() {
         dotNext[d] = time + hash(d * 6.7 + 9) * 0.9;
         dotTau[d] = DOT_TAU_MIN + hash(d * 2.2 + 1) * DOT_TAU_SPAN;
         dotLit[d] = -1;
+        // Bias toward fg so the field stays house-blue; muted + hue2 add spice.
+        const toneRoll = hash(d * 4.3 + 13);
+        dotTone[d] = toneRoll < 0.55 ? 0 : toneRoll < 0.8 ? 1 : 2;
+        const litRoll = hash(d * 8.1 + 17);
+        dotLitTone[d] = litRoll < 0.4 ? 0 : litRoll < 0.7 ? 1 : 2;
       }
 
       for (let j = 0; j < f.barRows; j += 1) {
@@ -1320,51 +1344,70 @@ export function HeroFlowField() {
       if (!styles || f.cols <= 0) return;
       usedDot.fill(0);
       const dots = f.tracks * f.cols;
+      const restBase = 0;
+      const litBase = DOT_REST_TONES * LEVELS;
       for (let d = 0; d < dots; d += 1) {
         let alpha = dotAlpha[d];
         const litAt = dotLit[d];
-        let accent = false;
+        let lit = false;
         if (litAt >= 0) {
           const age = ((time - litAt) * 1000) / LIT_MS;
           if (age < 1) {
-            accent = true;
+            lit = true;
             const ease = (1 - age) * (1 - age);
             alpha = lerp(alpha, DOT_LIT_ALPHA, ease);
           }
         }
         const level = alpha > 0.005 ? levelOf(alpha) : 0;
-        dotLv[d] = accent ? LEVELS + level : level;
-        if (level > 0) usedDot[accent ? LEVELS + level : level] = 1;
-      }
-      for (let level = 1; level < LEVELS; level += 1) {
-        if (!usedDot[level]) continue;
-        ctx.beginPath();
-        for (let d = 0; d < dots; d += 1) {
-          if (dotLv[d] !== level) continue;
-          const k = (d / f.cols) | 0;
-          const c = d - k * f.cols;
-          const x = f.dotX0 + c * DOT_PITCH + DOT_RADIUS;
-          const y = rowY[k];
-          ctx.moveTo(x + DOT_RADIUS, y);
-          ctx.arc(x, y, DOT_RADIUS, 0, Math.PI * 2);
+        if (level === 0) {
+          dotLv[d] = 0;
+          continue;
         }
-        ctx.fillStyle = styles.fg[level];
-        ctx.fill();
+        const bucket = lit
+          ? litBase + dotLitTone[d] * LEVELS + level
+          : restBase + dotTone[d] * LEVELS + level;
+        dotLv[d] = bucket;
+        usedDot[bucket] = 1;
       }
-      for (let level = 1; level < LEVELS; level += 1) {
-        if (!usedDot[LEVELS + level]) continue;
-        ctx.beginPath();
-        for (let d = 0; d < dots; d += 1) {
-          if (dotLv[d] !== LEVELS + level) continue;
-          const k = (d / f.cols) | 0;
-          const c = d - k * f.cols;
-          const x = f.dotX0 + c * DOT_PITCH + DOT_RADIUS;
-          const y = rowY[k];
-          ctx.moveTo(x + DOT_RADIUS, y);
-          ctx.arc(x, y, DOT_RADIUS, 0, Math.PI * 2);
+      const restSets = [styles.fg, styles.muted, styles.hue2];
+      const litSets = [styles.accent, styles.hue2, styles.string];
+      for (let tone = 0; tone < DOT_REST_TONES; tone += 1) {
+        const set = restSets[tone];
+        for (let level = 1; level < LEVELS; level += 1) {
+          const bucket = restBase + tone * LEVELS + level;
+          if (!usedDot[bucket]) continue;
+          ctx.beginPath();
+          for (let d = 0; d < dots; d += 1) {
+            if (dotLv[d] !== bucket) continue;
+            const k = (d / f.cols) | 0;
+            const c = d - k * f.cols;
+            const x = f.dotX0 + c * DOT_PITCH + DOT_RADIUS;
+            const y = rowY[k];
+            ctx.moveTo(x + DOT_RADIUS, y);
+            ctx.arc(x, y, DOT_RADIUS, 0, Math.PI * 2);
+          }
+          ctx.fillStyle = set[level];
+          ctx.fill();
         }
-        ctx.fillStyle = styles.accent[level];
-        ctx.fill();
+      }
+      for (let tone = 0; tone < DOT_LIT_TONES; tone += 1) {
+        const set = litSets[tone];
+        for (let level = 1; level < LEVELS; level += 1) {
+          const bucket = litBase + tone * LEVELS + level;
+          if (!usedDot[bucket]) continue;
+          ctx.beginPath();
+          for (let d = 0; d < dots; d += 1) {
+            if (dotLv[d] !== bucket) continue;
+            const k = (d / f.cols) | 0;
+            const c = d - k * f.cols;
+            const x = f.dotX0 + c * DOT_PITCH + DOT_RADIUS;
+            const y = rowY[k];
+            ctx.moveTo(x + DOT_RADIUS, y);
+            ctx.arc(x, y, DOT_RADIUS, 0, Math.PI * 2);
+          }
+          ctx.fillStyle = set[level];
+          ctx.fill();
+        }
       }
     };
 

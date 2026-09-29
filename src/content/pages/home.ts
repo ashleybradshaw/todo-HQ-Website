@@ -248,12 +248,12 @@ export const homePage = {
       {
         slug: "readygo",
         name: "ReadyGo",
-        blurb: "Pre-activity planning for runners and cyclists. MVP in build.", // TEST COPY
+        blurb: "Pre-ride and pre-run planning. MVP now in build.", // TEST COPY
       },
       {
         slug: "contentic",
         name: "Contentic",
-        blurb: "Content ops: intake, review, publish. Live.", // TEST COPY
+        blurb: "Content ops for intake, review and publish. Live.", // TEST COPY
       },
     ],
   },

@@ -192,9 +192,18 @@ export function Telemetry({
             <StatusDot
               tone="online"
               pulse={!reduceMotion}
-              delayMs={800}
+              delayMs={0}
             />
-            <span className="text-syn-string" aria-hidden="true">
+            <span
+              className={cn(
+                "text-syn-string inline-block leading-none",
+                !reduceMotion && "status-dot-pulse",
+              )}
+              style={
+                reduceMotion ? undefined : { animationDelay: "1.2s" }
+              }
+              aria-hidden="true"
+            >
               {chrome.pipelineDot}
             </span>
             <DecodeLabel text={checkpoint} playKey={checkpointPlayKey} />

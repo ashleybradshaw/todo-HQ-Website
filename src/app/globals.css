@@ -141,7 +141,8 @@
 
 /*
  * Mobile README wrap (< lg): soft wrap, no sideways scroll.
- * Bullet hang: continued lines sit under the text after "- ".
+ * Hanging indent ONLY on bullet lines ("- ") — headings / prose / code
+ * wrap flush to the line start (no negative text-indent).
  * Desktop (lg+) keeps whitespace-pre + horizontal scroll if needed.
  */
 @media (max-width: 1023px) {
@@ -165,13 +166,12 @@
     overflow-wrap: anywhere;
     overflow-x: hidden;
     word-break: break-word;
-    /* hanging indent for continued wrap rows */
-    padding-left: calc(1rem + 2ch);
-    text-indent: -2ch;
+    padding-left: 1rem;
+    text-indent: 0;
   }
 
   .ide-readme-line-pre--bullet {
-    /* hang under text after "- " (leading spaces + 2ch) */
+    /* hang under text after "- " (leading spaces + dash+space) */
     padding-left: calc(1rem + var(--ide-bullet-hang, 2ch));
     text-indent: calc(-1 * var(--ide-bullet-hang, 2ch));
   }

@@ -232,5 +232,37 @@ test.describe("/home IDE", () => {
     });
     expect(wrap.whiteSpace).toMatch(/pre-wrap/);
     expect(wrap.overflowWrap).toBe("anywhere");
+
+    // Heading "## " must not overlap the title (space is real, no absolute mark).
+    // Also: headings must not use hanging indent (bullet-only).
+    const headingGaps = await readme.evaluate((root) => {
+      const rows = root.querySelectorAll(".ide-readme-heading");
+      const gaps: {
+        markRight: number;
+        textLeft: number;
+        ok: boolean;
+        textIndent: string;
+      }[] = [];
+      for (const row of rows) {
+        const mark = row.querySelector("[data-readme-heading-mark]");
+        const text = row.querySelector("[data-readme-heading-text]");
+        const pre = row.querySelector(".ide-readme-line-pre");
+        if (!mark || !text || !pre) continue;
+        const mr = mark.getBoundingClientRect();
+        const tr = text.getBoundingClientRect();
+        gaps.push({
+          markRight: Math.round(mr.right * 100) / 100,
+          textLeft: Math.round(tr.left * 100) / 100,
+          ok: mr.right <= tr.left + 0.5,
+          textIndent: getComputedStyle(pre).textIndent,
+        });
+      }
+      return gaps;
+    });
+    expect(headingGaps.length).toBeGreaterThan(0);
+    for (const gap of headingGaps) {
+      expect(gap.ok).toBe(true);
+      expect(gap.textIndent).toBe("0px");
+    }
   });
 });

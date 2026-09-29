@@ -373,13 +373,20 @@ export function ReadmeCodePane({
                 </button>
               ) : isHeading ? (
                 <code className="relative inline max-w-full">
-                  <span className="text-syn-keyword">## </span>
-                  <DecodeLabel
-                    text={headingTitle}
-                    playKey={headingPlayKeys[index] ?? 0}
-                    chroma
-                    settleColor="var(--syn-heading)"
-                  />
+                  <span
+                    className="text-syn-keyword"
+                    data-readme-heading-mark
+                  >
+                    ##{" "}
+                  </span>
+                  <span data-readme-heading-text>
+                    <DecodeLabel
+                      text={headingTitle}
+                      playKey={headingPlayKeys[index] ?? 0}
+                      chroma
+                      settleColor="var(--syn-heading)"
+                    />
+                  </span>
                 </code>
               ) : isH1 ? (
                 <code className="relative inline max-w-full">

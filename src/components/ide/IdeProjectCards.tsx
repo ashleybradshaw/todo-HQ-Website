@@ -61,7 +61,7 @@ export function IdeProjectCards({ labelPlayKey = 0 }: IdeProjectCardsProps) {
       className="shrink-0 border-t border-border-ide"
       aria-label={projectCards.sectionAria}
     >
-      <div className="border-b border-border-ide px-2 py-1.5">
+      <div className="border-b border-border-ide px-3 py-1.5">
         <p className="font-jetbrains text-muted text-[10px] tracking-wide lg:text-[11px]">
           <DecodeLabel
             text={projectCards.header}
@@ -84,7 +84,7 @@ export function IdeProjectCards({ labelPlayKey = 0 }: IdeProjectCardsProps) {
             <Link
               href={`/work/${project.slug}`}
               aria-label={projectCards.viewLink}
-              className="group/row relative flex items-center justify-between gap-3 px-2.5 py-3 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none"
+              className="group/row relative flex items-center justify-between gap-3 px-3 py-3 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none"
             >
               <span
                 aria-hidden="true"

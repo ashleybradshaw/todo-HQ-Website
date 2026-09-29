@@ -7,7 +7,8 @@
   --foreground: #4545FF;
   --bg-canvas: #DFDFFF;
   --brand-logo: #0B0CB4;
-  --border-ide: color-mix(in srgb, #4545FF 22%, transparent);
+  /* 18% — unified page-grid + IDE hairline (22% fought HeroFlowField through hero) */
+  --border-ide: color-mix(in srgb, #4545FF 18%, transparent);
   --border-ide-strong: color-mix(in srgb, #4545FF 42%, transparent);
   --ide-chrome: color-mix(in srgb, #4545FF 8%, #DFDFFF);
   --media-elev-shadow: color-mix(in srgb, #4545FF 16%, transparent);
@@ -18,6 +19,10 @@
   --text-on-tint: #3636FF;
   --syn-keyword: #4545FF;
   --syn-property: #5A5A99;
+  /* Body prose — one step below foreground toward muted; 4.73:1 on powder */
+  --syn-body: #4a4ae6;
+  /* ## / # title text — foreground weight applied in components */
+  --syn-heading: #4545FF;
   --syn-string: #047351;
   --syn-number: #985304;
   /* Telemetry PENDING status dot only — label stays --foreground for AA.
@@ -53,6 +58,8 @@
   --color-on-tint: var(--text-on-tint);
   --color-syn-keyword: var(--syn-keyword);
   --color-syn-property: var(--syn-property);
+  --color-syn-body: var(--syn-body);
+  --color-syn-heading: var(--syn-heading);
   --color-syn-string: var(--syn-string);
   --color-syn-number: var(--syn-number);
   --color-status-pending: var(--status-pending);
@@ -120,23 +127,52 @@
   }
 }
 
-/* /home IDE line-draw reveal — content readable by ~600ms; stroke ≤1.2s */
+/* /home IDE reveal — content fade; stroke only internal hairlines (never outer grid) */
 .ide-reveal {
   --ide-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.ide-reveal-frame {
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  border-radius: 4px;
-  border: 1px solid var(--border-ide-strong);
-  clip-path: inset(0 100% 100% 0);
+.ide-window pre,
+.ide-window code {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
 }
 
-.ide-reveal-idle .ide-reveal-frame {
-  clip-path: inset(0 100% 100% 0);
+.ide-readme-heading {
+  scroll-margin-top: var(--site-header-offset);
+}
+
+/* Internal hairlines drawn during reveal — path bottom, editor|sidecar, status top */
+.ide-reveal-stroke {
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+  background-color: var(--border-ide);
+  opacity: 0;
+}
+
+.ide-reveal-stroke-path {
+  top: calc(var(--ide-tab-strip-height) + 1.75rem);
+  right: 0;
+  left: 0;
+  height: 1px;
+}
+
+.ide-reveal-stroke-divider {
+  top: calc(var(--ide-tab-strip-height) + 1.75rem);
+  bottom: var(--ide-status-height, 1.75rem);
+  left: 66.666%;
+  width: 1px;
+}
+
+.ide-reveal-stroke-status {
+  right: 0;
+  bottom: var(--ide-status-height, 1.75rem);
+  left: 0;
+  height: 1px;
+}
+
+.ide-reveal-idle .ide-reveal-stroke {
+  opacity: 0;
 }
 
 .ide-reveal-idle .ide-reveal-content {
@@ -144,16 +180,23 @@
   transform: none;
 }
 
-.ide-reveal-drawing .ide-reveal-frame {
-  animation: ide-reveal-stroke 1.1s var(--ide-reveal-ease) forwards;
+.ide-reveal-drawing .ide-reveal-stroke-path {
+  animation: ide-reveal-h-stroke 0.45s var(--ide-reveal-ease) forwards;
+}
+
+.ide-reveal-drawing .ide-reveal-stroke-divider {
+  animation: ide-reveal-v-stroke 0.5s var(--ide-reveal-ease) 0.2s forwards;
+}
+
+.ide-reveal-drawing .ide-reveal-stroke-status {
+  animation: ide-reveal-h-stroke 0.4s var(--ide-reveal-ease) 0.45s forwards;
 }
 
 .ide-reveal-drawing .ide-reveal-content {
   animation: ide-reveal-content 0.55s var(--ide-reveal-ease) forwards;
 }
 
-.ide-reveal-done .ide-reveal-frame {
-  clip-path: inset(0 0 0 0);
+.ide-reveal-done .ide-reveal-stroke {
   opacity: 0;
 }
 
@@ -162,17 +205,24 @@
   transform: none;
 }
 
-@keyframes ide-reveal-stroke {
+@keyframes ide-reveal-h-stroke {
   0% {
-    clip-path: inset(0 100% 100% 0);
-  }
-  28% {
-    clip-path: inset(0 0 100% 0);
-  }
-  62% {
-    clip-path: inset(0 0 0 0);
+    opacity: 1;
+    clip-path: inset(0 100% 0 0);
   }
   100% {
+    opacity: 0;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes ide-reveal-v-stroke {
+  0% {
+    opacity: 1;
+    clip-path: inset(0 0 100% 0);
+  }
+  100% {
+    opacity: 0;
     clip-path: inset(0 0 0 0);
   }
 }
@@ -189,11 +239,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ide-reveal-idle .ide-reveal-frame,
-  .ide-reveal-drawing .ide-reveal-frame,
-  .ide-reveal-done .ide-reveal-frame {
+  .ide-reveal-idle .ide-reveal-stroke,
+  .ide-reveal-drawing .ide-reveal-stroke,
+  .ide-reveal-done .ide-reveal-stroke {
     animation: none;
-    clip-path: inset(0 0 0 0);
     opacity: 0;
   }
 
@@ -203,6 +252,12 @@
     animation: none;
     opacity: 1;
     transform: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  .ide-reveal-stroke-divider {
+    display: none;
   }
 }
 

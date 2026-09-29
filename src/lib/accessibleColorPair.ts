@@ -10,6 +10,8 @@ const WCAG_AAA_PREFER = 7;
 const MUTED_MIN_CONTRAST = 4.5;
 /** Brand soft tier — matches --text-muted / syn-comment / syn-property. */
 export const BRAND_TEXT_MUTED = "#5A5A99";
+/** Body prose — one step below foreground toward muted; 4.73:1 on powder. */
+export const BRAND_SYN_BODY = "#4a4ae6";
 /** Brand text on tinted card/CTA fills — matches --text-on-tint. */
 export const BRAND_TEXT_ON_TINT = "#3636FF";
 /** Brand syn-string / syn-number solids (smallest AA step on powder). */

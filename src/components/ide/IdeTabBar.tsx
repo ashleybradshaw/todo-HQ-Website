@@ -9,30 +9,37 @@ import { homePage } from "@/content/pages/home";
 
 export type IdeTabId = "todo" | "offer" | "discovery";
 
-const TABS: readonly {
+type TabMeta = {
   id: IdeTabId;
   label: string;
   panelId: string;
-  accent: string;
+  badge: string;
+  /** md → syn-string tint; ts → accent */
+  badgeTone: "md" | "ts";
   dirty?: boolean;
-}[] = [
+};
+
+const TABS: readonly TabMeta[] = [
   {
     id: "todo",
     label: homePage.ideTabs.tabs.todo,
     panelId: "ide-panel-todo",
-    accent: "var(--foreground)",
+    badge: "md",
+    badgeTone: "md",
   },
   {
     id: "offer",
     label: homePage.ideTabs.tabs.offer,
     panelId: "ide-panel-offer",
-    accent: "var(--blog-cat-agents)",
+    badge: "md",
+    badgeTone: "md",
   },
   {
     id: "discovery",
     label: homePage.ideTabs.tabs.discovery,
     panelId: "ide-panel-discovery",
-    accent: "var(--syn-string)",
+    badge: "ts",
+    badgeTone: "ts",
     dirty: true,
   },
 ];
@@ -42,7 +49,31 @@ type IdeTabBarProps = {
   onChange: (tab: IdeTabId) => void;
 };
 
-/** Flat Zed-style tab strip — no sticky, no file-type badges. */
+function FileBadge({
+  label,
+  tone,
+}: {
+  label: string;
+  tone: "md" | "ts";
+}) {
+  const tint =
+    tone === "md"
+      ? "color-mix(in srgb, var(--syn-string) 18%, transparent)"
+      : "color-mix(in srgb, var(--brand-logo) 18%, transparent)";
+  const ink = tone === "md" ? "text-syn-string" : "text-brand-logo";
+
+  return (
+    <span
+      aria-hidden="true"
+      className={`font-jetbrains ${ink} rounded-[4px] px-1 text-[9px] leading-none tracking-wide uppercase`}
+      style={{ backgroundColor: tint }}
+    >
+      {label}
+    </span>
+  );
+}
+
+/** Editor-feel tab strip — chrome tint, type badges, top accent on active. */
 export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -82,7 +113,7 @@ export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
       role="tablist"
       aria-label={homePage.ideTabs.aria}
       onKeyDown={onKeyDown}
-      className="ide-boot-tabs border-border-ide flex shrink-0 items-stretch border-b"
+      className="ide-boot-tabs bg-ide-chrome flex shrink-0 items-stretch px-3"
     >
       {TABS.map((tab, index) => {
         const selected = tab.id === activeTab;
@@ -100,25 +131,25 @@ export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
             aria-controls={tab.panelId}
             tabIndex={selected ? 0 : -1}
             onClick={() => onChange(tab.id)}
-            className={`font-jetbrains relative -mb-px flex min-h-9 items-center gap-1.5 border-b-2 px-3 py-2 text-xs transition-[color,border-color,opacity] duration-[400ms] ease-in-out focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none ${
+            className={`font-jetbrains relative flex min-h-9 items-center gap-1.5 border-r border-border-ide px-3 py-2 text-xs transition-[color,background-color,opacity] duration-[400ms] ease-in-out focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none ${
               selected
-                ? "text-syn-keyword font-medium"
-                : "text-syn-comment border-transparent font-normal"
+                ? "bg-bg-canvas text-syn-keyword font-medium"
+                : "text-syn-comment hover:bg-foreground/5 font-normal"
             }`}
-            style={
-              selected
-                ? { borderBottomColor: tab.accent }
-                : undefined
-            }
           >
+            {selected ? (
+              <span
+                aria-hidden="true"
+                className="bg-foreground absolute inset-x-0 top-0 h-0.5"
+              />
+            ) : null}
+            <FileBadge label={tab.badge} tone={tab.badgeTone} />
             <span>{tab.label}</span>
             {tab.dirty ? (
               <span
                 aria-hidden="true"
-                className="ml-0.5 text-[10px] leading-none opacity-70"
-              >
-                ●
-              </span>
+                className="bg-syn-string ml-0.5 inline-block size-1.5 shrink-0 rounded-full opacity-80"
+              />
             ) : null}
           </button>
         );

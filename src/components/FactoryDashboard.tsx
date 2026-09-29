@@ -2,7 +2,8 @@
 
 import {
   useCallback,
-  useLayoutEffect,
+  useEffect,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
@@ -15,10 +16,15 @@ import { IdeStatusStrip } from "@/components/ide/IdeStatusStrip";
 import { IdeBoneOverlay } from "@/components/ide/IdeBoneOverlay";
 import { IdePathBar } from "@/components/ide/IdePathBar";
 import { IdeReveal } from "@/components/ide/IdeReveal";
-import { ReadmeCodePane } from "@/components/ide/ReadmeCodePane";
+import {
+  ReadmeCodePane,
+  buildReadmeOutline,
+  type ReadmeLiveState,
+} from "@/components/ide/ReadmeCodePane";
 import { OfferPane } from "@/components/ide/OfferPane";
 import { DiscoveryPane } from "@/components/ide/DiscoveryPane";
 import { IdeProjectCards } from "@/components/ide/IdeProjectCards";
+import { IdeOutline } from "@/components/ide/IdeOutline";
 import { HomeHero } from "@/components/ide/HomeHero";
 import { HomeFeatureStrip } from "@/components/ide/HomeFeatureStrip";
 import { HomePageGrid } from "@/components/ide/HomePageGrid";
@@ -64,8 +70,17 @@ export function FactoryDashboard() {
   const [editorLine, setEditorLine] = useState(DEFAULT_LINE);
   const [pipelineIndex, setPipelineIndex] = useState(0);
   const [revealPlayKey, setRevealPlayKey] = useState(0);
+  const [ideInView, setIdeInView] = useState(true);
+  const [sectionHeading, setSectionHeading] = useState<string | null>(null);
+  const [sectionId, setSectionId] = useState<string | null>(null);
+  const [sectionPlayKey, setSectionPlayKey] = useState(0);
   const ideRef = useRef<HTMLDivElement>(null);
   const bootPhase = useIdeBoot(ideRef);
+
+  const outlineEntries = useMemo(
+    () => buildReadmeOutline(buildReadmeSourceLines()),
+    [],
+  );
 
   const rebootPipeline = useCallback(() => {
     setRebootSignal((current) => current + 1);
@@ -75,38 +90,25 @@ export function FactoryDashboard() {
     setRevealPlayKey((k) => k + 1);
   }, []);
 
-  // Sync IDE band into page grid so verticals skip the window.
-  useLayoutEffect(() => {
+  const onLiveChange = useCallback((state: ReadmeLiveState) => {
+    setEditorLine(state.activeLine);
+    setSectionHeading(state.sectionHeading);
+    setSectionId(state.sectionId);
+    setSectionPlayKey(state.sectionPlayKey);
+  }, []);
+
+  // Current-line band / live IO only while the IDE window is in view.
+  useEffect(() => {
     const el = ideRef.current;
     if (!el) return;
-
-    const sync = () => {
-      const grid = el
-        .closest("main")
-        ?.querySelector<HTMLElement>("[data-home-grid]");
-      if (!grid) return;
-      const gridTop = grid.getBoundingClientRect().top;
-      const rect = el.getBoundingClientRect();
-      grid.style.setProperty(
-        "--home-ide-top",
-        `${Math.round(rect.top - gridTop)}px`,
-      );
-      grid.style.setProperty(
-        "--home-ide-bottom",
-        `${Math.round(rect.bottom - gridTop)}px`,
-      );
-    };
-
-    sync();
-    const ro = new ResizeObserver(sync);
-    ro.observe(el);
-    window.addEventListener("resize", sync);
-    window.addEventListener("scroll", sync, { passive: true });
-    return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", sync);
-      window.removeEventListener("scroll", sync);
-    };
+    const io = new IntersectionObserver(
+      (entries) => {
+        setIdeInView(entries.some((e) => e.isIntersecting));
+      },
+      { threshold: 0.05 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
 
   return (
@@ -121,7 +123,7 @@ export function FactoryDashboard() {
           <IdeReveal
             bootPhase={bootPhase}
             windowRef={ideRef}
-            className="ide-window ide-boot-stage border-border-ide-strong relative flex w-full flex-col overflow-hidden rounded-[4px] border"
+            className="ide-window ide-boot-stage relative flex w-full flex-col overflow-hidden"
             aria-label={homePage.chrome.aria}
             onRevealStart={onRevealStart}
           >
@@ -132,12 +134,19 @@ export function FactoryDashboard() {
               <IdeBoneOverlay phase={bootPhase} />
 
               <IdeTabBar activeTab={activeTab} onChange={setActiveTab} />
-              <IdePathBar activeTab={activeTab} />
+              <IdePathBar
+                activeTab={activeTab}
+                sectionHeading={
+                  activeTab === "todo" ? sectionHeading : null
+                }
+                sectionPlayKey={sectionPlayKey}
+              />
 
               <div className="relative flex min-h-0 flex-1 flex-col md:flex-row">
                 <section
-                  className="ide-boot-editor border-border-ide relative min-w-0 flex-1 border-b md:w-[70%] md:flex-none md:border-r md:border-b-0"
+                  className="ide-boot-editor border-border-ide relative min-w-0 flex-1 border-b md:w-[70%] md:flex-none md:border-r md:border-b-0 lg:w-2/3"
                   aria-label={landmarks.editorAria}
+                  data-ide-editor
                 >
                   <IdePanel
                     tab="todo"
@@ -148,6 +157,8 @@ export function FactoryDashboard() {
                       onExecutePipeline={rebootPipeline}
                       onActiveLineChange={setEditorLine}
                       scramblePlayKey={revealPlayKey}
+                      onLiveChange={onLiveChange}
+                      ideInView={ideInView && activeTab === "todo"}
                     />
                   </IdePanel>
 
@@ -169,7 +180,7 @@ export function FactoryDashboard() {
                 </section>
 
                 <aside
-                  className="ide-boot-sidecar flex min-w-0 flex-col md:w-[30%] md:flex-none"
+                  className="ide-boot-sidecar flex min-w-0 flex-col md:w-[30%] md:flex-none lg:w-1/3"
                   aria-label={landmarks.sidecarAria}
                   data-ide-sidecar
                 >
@@ -183,8 +194,19 @@ export function FactoryDashboard() {
                     pipelineTotal={PIPELINE_TOTAL}
                     revealPlayKey={revealPlayKey}
                   />
+                  <IdeOutline
+                    entries={outlineEntries}
+                    activeId={
+                      activeTab === "todo" ? sectionId : null
+                    }
+                    labelPlayKey={revealPlayKey}
+                  />
                   <IdeProjectCards labelPlayKey={revealPlayKey} />
-                  <div className="min-h-0 flex-1" aria-hidden="true" />
+                  <div
+                    className="min-h-0 flex-1"
+                    aria-hidden="true"
+                    data-ide-sidecar-spacer
+                  />
                 </aside>
               </div>
 

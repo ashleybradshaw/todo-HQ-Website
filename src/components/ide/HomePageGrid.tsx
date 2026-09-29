@@ -1,12 +1,14 @@
 import { HOME_FRAME } from "@/components/ide/homeFrame";
 
-const lineColor =
-  "color-mix(in srgb, var(--foreground) 10%, transparent)";
-const hairlineColor =
-  "color-mix(in srgb, var(--foreground) 22%, transparent)";
-const crossColor =
+/** Unified page-grid + IDE hairline — 18% keeps hero verticals from fighting HeroFlowField. */
+const HAIRLINE =
+  "color-mix(in srgb, var(--foreground) 18%, transparent)";
+const CROSS =
   "color-mix(in srgb, var(--foreground) 12%, transparent)";
 
+/**
+ * Pixel-snapped crosshair — 12×12 host, 1px arms, integer offsets (no 50% translate blur).
+ */
 function Crosshair({
   side,
   topVar,
@@ -16,23 +18,24 @@ function Crosshair({
 }) {
   const sideStyle =
     side === "left"
-      ? { left: "1.5rem" as const }
-      : { right: "1.5rem" as const };
+      ? { left: "calc(1.5rem - 6px)" as const }
+      : { right: "calc(1.5rem - 6px)" as const };
 
   return (
     <span
-      className={`absolute size-3 -translate-y-1/2 ${
-        side === "left" ? "-translate-x-1/2" : "translate-x-1/2"
-      }`}
-      style={{ ...sideStyle, top: topVar }}
+      className="absolute size-3"
+      style={{
+        ...sideStyle,
+        top: `calc(${topVar} - 6px)`,
+      }}
     >
       <span
-        className="absolute top-1/2 left-0 h-px w-full -translate-y-1/2"
-        style={{ backgroundColor: crossColor }}
+        className="absolute top-[5px] left-0 h-px w-full"
+        style={{ backgroundColor: CROSS }}
       />
       <span
-        className="absolute top-0 left-1/2 h-full w-px -translate-x-1/2"
-        style={{ backgroundColor: crossColor }}
+        className="absolute top-0 left-[5px] h-full w-px"
+        style={{ backgroundColor: CROSS }}
       />
     </span>
   );
@@ -40,8 +43,8 @@ function Crosshair({
 
 /**
  * Decorative page grid for /home — below nav, above footer.
- * Verticals stop at the IDE window (no lines through the frame).
- * Crosshairs only at the hero/strip join — not at strip bottom / IDE.
+ * Continuous L/R verticals are the IDE window sides (same 18% hairline).
+ * Crosshairs only at the hero/strip join.
  */
 export function HomePageGrid() {
   return (
@@ -51,54 +54,14 @@ export function HomePageGrid() {
       aria-hidden="true"
     >
       <div className={`${HOME_FRAME} relative h-full`}>
-        {/* Verticals above the shared hero/strip join */}
+        {/* Continuous verticals — hero through IDE to footer */}
         <span
-          className="absolute top-0 left-6 w-px"
-          style={{
-            height: "var(--home-hero-rule-top, var(--home-strip-top, 0px))",
-            backgroundColor: lineColor,
-          }}
+          className="absolute inset-y-0 left-6 w-px"
+          style={{ backgroundColor: HAIRLINE }}
         />
         <span
-          className="absolute top-0 right-6 w-px"
-          style={{
-            height: "var(--home-hero-rule-top, var(--home-strip-top, 0px))",
-            backgroundColor: lineColor,
-          }}
-        />
-        {/* Verticals: strip bottom → IDE top (plain gap has no frame) */}
-        <span
-          className="absolute left-6 w-px"
-          style={{
-            top: "var(--home-strip-bottom, 100%)",
-            height:
-              "max(0px, calc(var(--home-ide-top, 100%) - var(--home-strip-bottom, 100%)))",
-            backgroundColor: lineColor,
-          }}
-        />
-        <span
-          className="absolute right-6 w-px"
-          style={{
-            top: "var(--home-strip-bottom, 100%)",
-            height:
-              "max(0px, calc(var(--home-ide-top, 100%) - var(--home-strip-bottom, 100%)))",
-            backgroundColor: lineColor,
-          }}
-        />
-        {/* Verticals below IDE */}
-        <span
-          className="absolute bottom-0 left-6 w-px"
-          style={{
-            top: "var(--home-ide-bottom, 100%)",
-            backgroundColor: lineColor,
-          }}
-        />
-        <span
-          className="absolute bottom-0 right-6 w-px"
-          style={{
-            top: "var(--home-ide-bottom, 100%)",
-            backgroundColor: lineColor,
-          }}
+          className="absolute inset-y-0 right-6 w-px"
+          style={{ backgroundColor: HAIRLINE }}
         />
 
         {/* Shared hero-bottom / strip-top hairline */}
@@ -106,7 +69,7 @@ export function HomePageGrid() {
           className="absolute right-6 left-6 h-px"
           style={{
             top: "var(--home-hero-rule-top, var(--home-strip-top, 0px))",
-            backgroundColor: hairlineColor,
+            backgroundColor: HAIRLINE,
           }}
         />
 

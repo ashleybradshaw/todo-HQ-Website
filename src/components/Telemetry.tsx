@@ -133,7 +133,7 @@ export function Telemetry({
       <p className="sr-only">{telem.rosterSummary}</p>
 
       {/* Combined header: quiet label + agents spinner/count (no drift meter) */}
-      <div className="border-b border-border-ide flex items-center justify-between gap-3 px-2 py-1.5">
+      <div className="border-b border-border-ide flex items-center justify-between gap-3 px-3 py-1.5">
         <p className="font-jetbrains text-muted text-[10px] tracking-wide lg:text-[11px]">
           <DecodeLabel
             text={telemetry.header}
@@ -155,7 +155,7 @@ export function Telemetry({
       </div>
 
       <dl className="font-jetbrains text-[10px] leading-5 lg:text-[11px]">
-        <div className="border-b border-border-ide flex items-center justify-between gap-3 px-2 py-2">
+        <div className="border-b border-border-ide flex items-center justify-between gap-3 px-3 py-2">
           <dt className="text-muted shrink-0">{telemetry.keys.infra}</dt>
           <dd
             className={cn(
@@ -173,7 +173,7 @@ export function Telemetry({
           </dd>
         </div>
 
-        <div className="border-b border-border-ide flex items-center justify-between gap-3 px-2 py-2">
+        <div className="border-b border-border-ide flex items-center justify-between gap-3 px-3 py-2">
           <dt className="text-muted shrink-0">{telemetry.keys.sprint}</dt>
           <dd
             className={cn(
@@ -186,7 +186,7 @@ export function Telemetry({
           </dd>
         </div>
 
-        <div className="flex items-center justify-between gap-3 px-2 py-2">
+        <div className="flex items-center justify-between gap-3 px-3 py-2">
           <dt className="text-muted shrink-0">{telemetry.keys.checkpoint}</dt>
           <dd className="text-foreground flex shrink-0 items-center gap-1.5 tabular-nums">
             <StatusDot
@@ -194,18 +194,6 @@ export function Telemetry({
               pulse={!reduceMotion}
               delayMs={0}
             />
-            <span
-              className={cn(
-                "text-syn-string inline-block leading-none",
-                !reduceMotion && "status-dot-pulse",
-              )}
-              style={
-                reduceMotion ? undefined : { animationDelay: "1.2s" }
-              }
-              aria-hidden="true"
-            >
-              {chrome.pipelineDot}
-            </span>
             <DecodeLabel text={checkpoint} playKey={checkpointPlayKey} />
           </dd>
         </div>

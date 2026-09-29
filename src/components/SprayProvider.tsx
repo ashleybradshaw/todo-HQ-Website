@@ -11,6 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import {
+  BRAND_SYN_BODY,
   BRAND_SYN_NUMBER,
   BRAND_SYN_STRING,
   BRAND_TEXT_MUTED,
@@ -52,7 +53,7 @@ function applyPair(pair: AccessibleColorPair) {
   root.setProperty("--brand-logo", brand ? "#0B0CB4" : pair.text);
   root.setProperty(
     "--border-ide",
-    `color-mix(in srgb, ${pair.text} 22%, transparent)`,
+    `color-mix(in srgb, ${pair.text} 18%, transparent)`,
   );
   root.setProperty(
     "--border-ide-strong",
@@ -72,11 +73,13 @@ function applyPair(pair: AccessibleColorPair) {
   );
 
   root.setProperty("--syn-keyword", pair.text);
+  root.setProperty("--syn-heading", pair.text);
 
   if (brand) {
     root.setProperty("--text-muted", BRAND_TEXT_MUTED);
     root.setProperty("--syn-property", BRAND_TEXT_MUTED);
     root.setProperty("--syn-comment", BRAND_TEXT_MUTED);
+    root.setProperty("--syn-body", BRAND_SYN_BODY);
     root.setProperty("--syn-string", BRAND_SYN_STRING);
     root.setProperty("--syn-number", BRAND_SYN_NUMBER);
     root.setProperty("--text-on-tint", BRAND_TEXT_ON_TINT);
@@ -85,6 +88,10 @@ function applyPair(pair: AccessibleColorPair) {
     root.setProperty("--text-muted", muted);
     root.setProperty("--syn-property", muted);
     root.setProperty("--syn-comment", muted);
+    root.setProperty(
+      "--syn-body",
+      `color-mix(in srgb, ${pair.text} 75%, ${muted})`,
+    );
     root.setProperty(
       "--syn-string",
       fitHueAgainstBackground(pair.bg, 160, 70, 55),

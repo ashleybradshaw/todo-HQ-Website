@@ -70,14 +70,15 @@ export const homePage = {
     pathRoot: "todo-hq", // TEST COPY
     pathFolder: "content", // TEST COPY
     pathSeparator: "›", // TEST COPY
-    statusBranch: "⎇ main", // TEST COPY
-    statusProblems: "⊘ 0 ⚠ 0", // TEST COPY
+    statusBranch: "main", // TEST COPY
+    statusProblems: "0 0", // TEST COPY — counts only; icons are SVG in IdeStatusStrip
     languageByTab: {
       todo: "Markdown", // TEST COPY
       offer: "Markdown", // TEST COPY
       discovery: "TypeScript", // TEST COPY
     },
-    pipelineDot: "●", // TEST COPY
+    /** Unused in UI — checkpoint uses a CSS circle. Kept for copy inventory. */
+    pipelineDot: "", // TEST COPY
     /** {n} = 1-based padded stage index, {total} = stage count. */
     pipelineLabel: "checkpoint {n}/{total}", // TEST COPY
     agentsPrefix: "agents (sim)", // TEST COPY
@@ -280,6 +281,12 @@ export const homePage = {
       pipeline: "in pipeline", // TEST COPY
     },
     rosterPrefix: "On the line: ", // TEST COPY
+  },
+
+  // TEST COPY — README outline in sidecar (lg+)
+  outline: {
+    sectionAria: "README outline", // TEST COPY
+    header: "outline", // TEST COPY
   },
 
   // TEST COPY — shift.log stages

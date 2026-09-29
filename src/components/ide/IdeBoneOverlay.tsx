@@ -42,7 +42,7 @@ export function IdeBoneOverlay({ phase }: IdeBoneOverlayProps) {
 
       {/* Body — grows with window; no full-viewport fill */}
       <div className="flex flex-col md:flex-row">
-        <div className="ide-bone-body flex flex-1 px-0 py-3 md:w-[70%]">
+        <div className="ide-bone-body flex flex-1 px-0 py-3 md:w-[70%] lg:w-2/3">
           <div className="ide-bone-gutter flex w-8 shrink-0 flex-col items-end gap-[0.65rem] border-r border-transparent pr-2 lg:w-10 lg:pr-3">
             {Array.from({ length: 10 }, (_, i) => (
               <span
@@ -68,7 +68,7 @@ export function IdeBoneOverlay({ phase }: IdeBoneOverlayProps) {
           </div>
         </div>
 
-        <div className="ide-bone-sidecar-col hidden flex-col gap-4 border-l border-transparent p-4 md:flex md:w-[30%]">
+        <div className="ide-bone-sidecar-col hidden flex-col gap-4 border-l border-transparent p-4 md:flex md:w-[30%] lg:w-1/3">
           {[0, 1].map((card) => (
             <div
               key={card}

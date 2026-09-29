@@ -18,8 +18,6 @@ const SKELETON_BAR_WIDTHS = ["w-[92%]", "w-[68%]", "w-[84%]", "w-[54%]"] as cons
 
 /** Tallest stage body (BUILD: 2 lines + progress). Fixed slot — no layout thrash. */
 const DETAIL_SLOT = "5.25rem";
-/** Header × 5 + detail + reboot — fits at 1280/390 with overflow-hidden (no grow). */
-const LOG_VIEWPORT = "17.5rem";
 
 const { pipelineRunner } = homePage;
 const REBOOT_LOGS = pipelineRunner.rebootLogs;
@@ -212,7 +210,7 @@ export function PipelineRunner({
       className="bg-bg-canvas text-foreground flex shrink-0 flex-col transition-[background-color,color] duration-[400ms] ease-in-out"
       aria-label={pipelineRunner.sectionAria}
     >
-      <div className="border-b border-border-ide flex shrink-0 items-center justify-between px-2 py-1.5">
+      <div className="border-b border-border-ide flex shrink-0 items-center justify-between px-3 py-1.5">
         <p className="font-jetbrains text-muted text-[10px] tracking-wide lg:text-[11px]">
           <DecodeLabel
             text={pipelineRunner.header}
@@ -240,10 +238,7 @@ export function PipelineRunner({
         </p>
       </div>
 
-      <div
-        className="overflow-hidden px-2 py-1"
-        style={{ height: LOG_VIEWPORT }}
-      >
+      <div className="px-3 py-1">
         <AnimatePresence>
           {rebooting ? (
             <motion.div

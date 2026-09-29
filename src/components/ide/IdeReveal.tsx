@@ -37,8 +37,8 @@ function bootReady(phase: IdeBootPhase) {
 }
 
 /**
- * One-shot line-draw + content fade when the IDE enters view.
- * Content is fully readable by ~600ms; frame stroke can finish by ~1.2s.
+ * One-shot internal hairline draw + content fade when the IDE enters view.
+ * Outer frame is the page grid — never stroked here (avoids 2px stack).
  * prefers-reduced-motion: static visible, no draw.
  */
 export function IdeReveal({
@@ -119,7 +119,18 @@ export function IdeReveal({
       data-ide-reveal={phase}
       aria-label={ariaLabel}
     >
-      <span aria-hidden="true" className="ide-reveal-frame" />
+      <span
+        aria-hidden="true"
+        className="ide-reveal-stroke ide-reveal-stroke-path"
+      />
+      <span
+        aria-hidden="true"
+        className="ide-reveal-stroke ide-reveal-stroke-divider hidden lg:block"
+      />
+      <span
+        aria-hidden="true"
+        className="ide-reveal-stroke ide-reveal-stroke-status"
+      />
       <div className="ide-reveal-content relative z-[1] flex min-h-0 flex-1 flex-col">
         {children}
       </div>

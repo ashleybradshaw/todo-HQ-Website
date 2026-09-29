@@ -24,13 +24,13 @@ const TOKEN_CLASS: Record<IdeTokenKind, string> = {
   function: "text-[color:var(--blog-cat-agents)]",
   // Use syn-property (4.81:1 on canvas) — raw foreground@55% fails AA.
   punct: "text-syn-property",
-  comment: "text-muted italic",
-  heading: "text-foreground font-medium",
-  bold: "text-foreground font-medium",
+  comment: "text-syn-comment italic",
+  heading: "text-syn-heading font-semibold",
+  bold: "text-syn-heading font-semibold",
   code: "text-syn-string",
   bullet: "text-muted",
   link: "text-syn-string underline decoration-[color-mix(in_srgb,var(--foreground)_35%,transparent)] underline-offset-2",
-  plain: "text-syn-property",
+  plain: "text-syn-body",
 };
 
 type Token =
@@ -75,7 +75,7 @@ export function tokenizeMarkdownLine(line: string): Token[] {
   const heading = /^(#{1,6})(\s+)(.*)$/.exec(line);
   if (heading) {
     return [
-      { kind: "heading", text: heading[1] },
+      { kind: "keyword", text: heading[1] },
       { kind: "plain", text: heading[2] },
       { kind: "heading", text: heading[3] },
     ];

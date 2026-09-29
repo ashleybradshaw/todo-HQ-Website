@@ -4,7 +4,9 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
+  useSyncExternalStore,
   type CSSProperties,
   type KeyboardEvent,
   type MouseEvent,
@@ -20,16 +22,28 @@ import {
   tokenizeMarkdownLine,
 } from "@/components/ide/ideHighlight";
 import { IdePaneCollapse } from "@/components/ide/IdePaneCollapse";
+import type { OutlineEntry } from "@/components/ide/IdeOutline";
 
 const { todoHq } = homePage;
 
 const HEADING_SCRAMBLE_STAGGER_MS = 60;
+
+export type ReadmeLiveState = {
+  activeLine: number;
+  sectionHeading: string | null;
+  sectionId: string | null;
+  sectionPlayKey: number;
+};
 
 type ReadmeCodePaneProps = {
   onExecutePipeline: () => void;
   onActiveLineChange: (line: number) => void;
   /** IDE reveal play key — scrambles ## headings once. */
   scramblePlayKey?: number;
+  /** Fired when section-in-view or centre line changes (IO only). */
+  onLiveChange?: (state: ReadmeLiveState) => void;
+  /** When false, current-line band stays off (IDE out of viewport). */
+  ideInView?: boolean;
 };
 
 function indentLevel(line: string): number {
@@ -42,10 +56,44 @@ function isMarkdownHeading(line: string): boolean {
   return /^## /.test(line);
 }
 
+function slugifyHeading(title: string): string {
+  return `readme-${title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")}`;
+}
+
+function subscribeReducedMotion(onStoreChange: () => void) {
+  const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+  media.addEventListener("change", onStoreChange);
+  return () => media.removeEventListener("change", onStoreChange);
+}
+
+function readReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+/** Build outline entries from README source lines. */
+export function buildReadmeOutline(lines: readonly string[]): OutlineEntry[] {
+  const entries: OutlineEntry[] = [];
+  lines.forEach((line, index) => {
+    if (!isMarkdownHeading(line)) return;
+    const title = line.slice(3).trim();
+    entries.push({
+      id: slugifyHeading(title),
+      title,
+      line: index + 1,
+    });
+  });
+  return entries;
+}
+
 export function ReadmeCodePane({
   onExecutePipeline,
   onActiveLineChange,
   scramblePlayKey = 0,
+  onLiveChange,
+  ideInView = true,
 }: ReadmeCodePaneProps) {
   const lines = useMemo(() => buildReadmeSourceLines(), []);
   const methodIndex = methodologySourceLineIndex(lines);
@@ -53,6 +101,16 @@ export function ReadmeCodePane({
   const [headingPlayKeys, setHeadingPlayKeys] = useState<
     Record<number, number>
   >({});
+  const [sectionPlayKey, setSectionPlayKey] = useState(0);
+  const [sectionId, setSectionId] = useState<string | null>(null);
+  const [sectionHeading, setSectionHeading] = useState<string | null>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const reduceMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    readReducedMotion,
+    () => false,
+  );
 
   const headingOrder = useMemo(() => {
     const map = new Map<number, number>();
@@ -65,6 +123,8 @@ export function ReadmeCodePane({
     });
     return map;
   }, [lines]);
+
+  const outline = useMemo(() => buildReadmeOutline(lines), [lines]);
 
   useEffect(() => {
     if (scramblePlayKey === 0) return;
@@ -92,11 +152,117 @@ export function ReadmeCodePane({
     [onActiveLineChange],
   );
 
+  // Heading IO → breadcrumb section; centre-line IO only while IDE in view.
+  useEffect(() => {
+    const headingEls = outline
+      .map((entry) => {
+        const lineIndex = entry.line - 1;
+        return { entry, el: lineRefs.current[lineIndex] };
+      })
+      .filter((row): row is { entry: OutlineEntry; el: HTMLDivElement } =>
+        Boolean(row.el),
+      );
+
+    if (headingEls.length === 0) return;
+
+    const headingIo = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort(
+            (a, b) =>
+              a.boundingClientRect.top - b.boundingClientRect.top,
+          );
+        if (visible.length === 0) return;
+        const top = visible[0].target as HTMLElement;
+        const id = top.id;
+        const match = outline.find((e) => e.id === id);
+        if (!match) return;
+        setSectionId((prev) => {
+          if (prev === match.id) return prev;
+          if (!reduceMotion) setSectionPlayKey((k) => k + 1);
+          setSectionHeading(match.title);
+          return match.id;
+        });
+      },
+      { root: null, rootMargin: "-20% 0px -55% 0px", threshold: 0 },
+    );
+
+    for (const { el } of headingEls) headingIo.observe(el);
+
+    return () => headingIo.disconnect();
+  }, [outline, reduceMotion, lines.length]);
+
+  // Centre-line band: only while IDE in viewport; no scroll listeners.
+  useEffect(() => {
+    if (!ideInView || reduceMotion) {
+      onLiveChange?.({
+        activeLine: activeIndex + 1,
+        sectionHeading,
+        sectionId,
+        sectionPlayKey,
+      });
+      return;
+    }
+
+    const els = lineRefs.current.filter(Boolean) as HTMLDivElement[];
+    if (els.length === 0) return;
+
+    const lineIo = new IntersectionObserver(
+      (entries) => {
+        const mid = window.innerHeight / 2;
+        let best: { index: number; dist: number } | null = null;
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const rect = entry.boundingClientRect;
+          const center = rect.top + rect.height / 2;
+          const dist = Math.abs(center - mid);
+          const index = Number(
+            (entry.target as HTMLElement).dataset.lineIndex,
+          );
+          if (!Number.isFinite(index)) continue;
+          if (!best || dist < best.dist) best = { index, dist };
+        }
+        if (best) setActive(best.index);
+      },
+      { root: null, rootMargin: "-45% 0px -45% 0px", threshold: 0 },
+    );
+
+    for (const el of els) lineIo.observe(el);
+    return () => lineIo.disconnect();
+  }, [
+    ideInView,
+    reduceMotion,
+    lines.length,
+    setActive,
+    activeIndex,
+    sectionHeading,
+    sectionId,
+    sectionPlayKey,
+    onLiveChange,
+  ]);
+
+  useEffect(() => {
+    onLiveChange?.({
+      activeLine: activeIndex + 1,
+      sectionHeading,
+      sectionId,
+      sectionPlayKey,
+    });
+  }, [
+    activeIndex,
+    sectionHeading,
+    sectionId,
+    sectionPlayKey,
+    onLiveChange,
+  ]);
+
   const onLineEnter = useCallback(
     (index: number) => {
+      if (!ideInView) return;
       setActive(index);
     },
-    [setActive],
+    [ideInView, setActive],
   );
 
   const onLineKey = useCallback(
@@ -129,24 +295,42 @@ export function ReadmeCodePane({
     [lines.length, methodIndex, onExecutePipeline, setActive],
   );
 
+  const showBand = ideInView && !reduceMotion;
+
   return (
     <IdePaneCollapse lineCount={lines.length}>
       <div
-        className="font-jetbrains flex flex-col py-3 text-xs leading-6 lg:text-sm lg:leading-7"
+        ref={rootRef}
+        className="font-jetbrains relative flex min-h-0 flex-col text-xs leading-6 lg:text-sm lg:leading-6"
         data-readme-source="true"
       >
+        {/* Full-height gutter rule — absolute so it isn’t cut by row padding */}
+        <span
+          aria-hidden="true"
+          className="border-border-ide pointer-events-none absolute top-0 bottom-0 w-8 border-r lg:w-10"
+        />
         {lines.map((line, index) => {
-          const active = index === activeIndex;
+          const active = showBand && index === activeIndex;
           const isMethod = index === methodIndex;
           const indents = indentLevel(line);
           const isHeading = headingOrder.has(index);
+          const headingTitle = isHeading ? line.slice(3).trim() : "";
+          const headingId = isHeading ? slugifyHeading(headingTitle) : undefined;
+          const isH1 = /^# /.test(line) && !/^## /.test(line);
 
           return (
             <div
               key={index}
+              id={headingId}
+              ref={(node) => {
+                lineRefs.current[index] = node;
+              }}
+              data-line-index={index}
               role="row"
-              tabIndex={active ? 0 : -1}
-              className="ide-boot-line group/line grid min-w-0 outline-none"
+              tabIndex={activeIndex === index ? 0 : -1}
+              className={`ide-boot-line group/line grid min-w-0 outline-none ${
+                isHeading || isH1 ? "ide-readme-heading" : ""
+              }`}
               style={
                 {
                   "--i": index,
@@ -162,13 +346,13 @@ export function ReadmeCodePane({
             >
               <span
                 aria-hidden="true"
-                className={`ide-readme-gutter w-8 shrink-0 border-r border-border-ide pr-2 text-right tabular-nums select-none lg:w-10 lg:pr-3 ${
+                className={`ide-readme-gutter w-8 shrink-0 pr-2 text-right tabular-nums select-none lg:w-10 lg:pr-3 ${
                   active ? "text-foreground" : "text-syn-number"
                 }`}
               >
                 {index + 1}
               </span>
-              <pre className="relative min-w-0 whitespace-pre-wrap pr-6 pl-4">
+              <pre className="relative min-w-0 whitespace-pre-wrap py-0.5 pr-6 pl-4">
                 {indents > 0 ? (
                   <span
                     aria-hidden="true"
@@ -200,10 +384,18 @@ export function ReadmeCodePane({
                   <code className="relative inline-block">
                     <span className="text-syn-keyword">## </span>
                     <DecodeLabel
-                      text={line.slice(3)}
+                      text={headingTitle}
                       playKey={headingPlayKeys[index] ?? 0}
                       chroma
+                      settleColor="var(--syn-heading)"
                     />
+                  </code>
+                ) : isH1 ? (
+                  <code className="relative inline-block">
+                    <span className="text-syn-keyword"># </span>
+                    <span className="text-syn-heading font-semibold">
+                      {line.slice(2)}
+                    </span>
                   </code>
                 ) : (
                   <code className="relative">

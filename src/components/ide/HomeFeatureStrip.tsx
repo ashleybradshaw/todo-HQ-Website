@@ -45,16 +45,16 @@ export function HomeFeatureStrip() {
   return (
     <section
       ref={rootRef}
-      className={`${HOME_FRAME} relative z-10 mb-8 md:mb-10`}
+      className={`${HOME_FRAME} relative z-10`}
       aria-label={strip.aria}
     >
-      {/* Bottom hairline only — top is the shared hero/strip rule from the grid */}
+      {/* Bottom hairline = IDE tab-bar top edge (flush, no gap) */}
       <span
         aria-hidden="true"
         className="pointer-events-none absolute right-6 bottom-0 left-6 h-px"
         style={{
           backgroundColor:
-            "color-mix(in srgb, var(--foreground) 22%, transparent)",
+            "color-mix(in srgb, var(--foreground) 18%, transparent)",
         }}
       />
 

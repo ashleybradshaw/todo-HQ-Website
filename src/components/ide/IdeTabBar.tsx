@@ -113,7 +113,7 @@ export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
       role="tablist"
       aria-label={homePage.ideTabs.aria}
       onKeyDown={onKeyDown}
-      className="ide-boot-tabs bg-ide-chrome flex shrink-0 items-stretch"
+      className="ide-boot-tabs bg-ide-chrome flex min-w-0 shrink-0 items-stretch overflow-hidden"
     >
       {TABS.map((tab, index) => {
         const selected = tab.id === activeTab;
@@ -131,7 +131,7 @@ export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
             aria-controls={tab.panelId}
             tabIndex={selected ? 0 : -1}
             onClick={() => onChange(tab.id)}
-            className={`font-jetbrains relative flex min-h-9 items-center gap-1.5 border-r border-border-ide px-3 py-2 text-xs transition-[color,background-color,opacity] duration-[400ms] ease-in-out focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none ${
+            className={`font-jetbrains relative flex min-h-9 min-w-0 flex-1 items-center gap-1.5 overflow-hidden border-r border-border-ide px-2 py-2 text-xs transition-[color,background-color,opacity] duration-[400ms] ease-in-out focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none sm:px-3 ${
               selected
                 ? "bg-bg-canvas text-syn-keyword font-medium"
                 : "text-syn-comment hover:bg-foreground/5 font-normal"
@@ -144,7 +144,7 @@ export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
               />
             ) : null}
             <FileBadge label={tab.badge} tone={tab.badgeTone} />
-            <span>{tab.label}</span>
+            <span className="min-w-0 truncate">{tab.label}</span>
             {tab.dirty ? (
               <span
                 aria-hidden="true"

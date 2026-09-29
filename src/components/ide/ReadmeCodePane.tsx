@@ -21,10 +21,16 @@ import {
   renderTokens,
   tokenizeMarkdownLine,
 } from "@/components/ide/ideHighlight";
-import { IdePaneCollapse } from "@/components/ide/IdePaneCollapse";
 import type { OutlineEntry } from "@/components/ide/IdeOutline";
 
 const { todoHq } = homePage;
+
+/** Leading spaces before "- " → hang width in ch (spaces + dash+space). */
+function bulletHangCh(line: string): number | null {
+  const match = /^( *)- /.exec(line);
+  if (!match) return null;
+  return match[1].length + 2;
+}
 
 export type ReadmeLiveState = {
   activeLine: number;
@@ -274,121 +280,129 @@ export function ReadmeCodePane({
   const showBand = ideInView && !reduceMotion;
 
   return (
-    <IdePaneCollapse lineCount={lines.length}>
-      <div
-        className="font-jetbrains relative flex min-h-0 flex-col text-xs leading-6 lg:text-sm lg:leading-6"
-        data-readme-source="true"
-      >
-        {/* Full-height gutter rule — absolute so it isn’t cut by row padding */}
-        <span
-          aria-hidden="true"
-          className="border-border-ide pointer-events-none absolute top-0 bottom-0 w-8 border-r lg:w-10"
-        />
-        {lines.map((line, index) => {
-          const active = showBand && index === activeIndex;
-          const isMethod = index === methodIndex;
-          const indents = indentLevel(line);
-          const isHeading = headingOrder.has(index);
-          const headingTitle = isHeading ? line.slice(3).trim() : "";
-          const headingId = isHeading ? slugifyHeading(headingTitle) : undefined;
-          const isH1 = /^# /.test(line) && !/^## /.test(line);
+    <div
+      className="font-jetbrains relative flex min-h-0 flex-col text-sm leading-6"
+      data-readme-source="true"
+    >
+      {/* Full-height gutter rule — absolute so it isn’t cut by row padding */}
+      <span
+        aria-hidden="true"
+        className="border-border-ide pointer-events-none absolute top-0 bottom-0 w-8 border-r lg:w-10"
+      />
+      {lines.map((line, index) => {
+        const active = showBand && index === activeIndex;
+        const isMethod = index === methodIndex;
+        const indents = indentLevel(line);
+        const isHeading = headingOrder.has(index);
+        const headingTitle = isHeading ? line.slice(3).trim() : "";
+        const headingId = isHeading ? slugifyHeading(headingTitle) : undefined;
+        const isH1 = /^# /.test(line) && !/^## /.test(line);
+        const hangCh = bulletHangCh(line);
 
-          return (
-            <div
-              key={index}
-              id={headingId}
-              ref={(node) => {
-                lineRefs.current[index] = node;
-              }}
-              data-line-index={index}
-              data-bone="line"
-              role="row"
-              tabIndex={activeIndex === index ? 0 : -1}
-              className={`ide-boot-line group/line grid min-w-0 outline-none ${
-                isHeading || isH1 ? "ide-readme-heading" : ""
+        return (
+          <div
+            key={index}
+            id={headingId}
+            ref={(node) => {
+              lineRefs.current[index] = node;
+            }}
+            data-line-index={index}
+            data-bone="line"
+            role="row"
+            tabIndex={activeIndex === index ? 0 : -1}
+            className={`ide-boot-line group/line grid min-w-0 outline-none ${
+              isHeading || isH1 ? "ide-readme-heading" : ""
+            }`}
+            style={
+              {
+                "--i": index,
+                gridTemplateColumns: "auto 1fr",
+                backgroundColor: active
+                  ? "color-mix(in srgb, var(--foreground) 6%, transparent)"
+                  : undefined,
+              } as CSSProperties
+            }
+            onMouseEnter={() => onLineEnter(index)}
+            onFocus={() => onLineEnter(index)}
+            onKeyDown={(event) => onLineKey(index, event)}
+          >
+            <span
+              aria-hidden="true"
+              className={`ide-readme-gutter w-8 shrink-0 pr-2 text-right tabular-nums select-none lg:w-10 lg:pr-3 ${
+                active ? "text-foreground" : "text-syn-number"
+              }`}
+            >
+              {index + 1}
+            </span>
+            <pre
+              className={`ide-readme-line-pre relative min-w-0 py-0.5 pr-6 ${
+                hangCh !== null ? "ide-readme-line-pre--bullet" : ""
               }`}
               style={
-                {
-                  "--i": index,
-                  gridTemplateColumns: "auto 1fr",
-                  backgroundColor: active
-                    ? "color-mix(in srgb, var(--foreground) 6%, transparent)"
-                    : undefined,
-                } as CSSProperties
+                hangCh !== null
+                  ? ({ "--ide-bullet-hang": `${hangCh}ch` } as CSSProperties)
+                  : undefined
               }
-              onMouseEnter={() => onLineEnter(index)}
-              onFocus={() => onLineEnter(index)}
-              onKeyDown={(event) => onLineKey(index, event)}
             >
-              <span
-                aria-hidden="true"
-                className={`ide-readme-gutter w-8 shrink-0 pr-2 text-right tabular-nums select-none lg:w-10 lg:pr-3 ${
-                  active ? "text-foreground" : "text-syn-number"
-                }`}
-              >
-                {index + 1}
-              </span>
-              <pre className="relative min-w-0 overflow-x-auto whitespace-pre py-0.5 pr-6 pl-4">
-                {indents > 0 ? (
-                  <span
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-y-0 left-4 hidden md:block"
-                  >
-                    {Array.from({ length: indents }, (_, i) => (
-                      <span
-                        key={i}
-                        className="absolute inset-y-0 w-px bg-border-ide"
-                        style={{ left: `${i * 2}ch` }}
-                      />
-                    ))}
-                  </span>
-                ) : null}
-                {isMethod ? (
-                  <button
-                    type="button"
-                    onClick={onExecutePipeline}
-                    onMouseEnter={(event: MouseEvent) => {
-                      event.stopPropagation();
-                      onExecutePipeline();
-                    }}
-                    aria-label={todoHq.methodologyAria}
-                    className="relative rounded-[4px] bg-transparent p-0 font-medium text-[color:var(--blog-cat-agents)] transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none"
-                  >
-                    {todoHq.methodologyLabel}
-                  </button>
-                ) : isHeading ? (
-                  <code className="relative inline-block">
-                    <span className="text-syn-keyword">## </span>
-                    <DecodeLabel
-                      text={headingTitle}
-                      playKey={headingPlayKeys[index] ?? 0}
-                      chroma
-                      settleColor="var(--syn-heading)"
+              {indents > 0 ? (
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-y-0 left-4 hidden lg:block"
+                >
+                  {Array.from({ length: indents }, (_, i) => (
+                    <span
+                      key={i}
+                      className="absolute inset-y-0 w-px bg-border-ide"
+                      style={{ left: `${i * 2}ch` }}
                     />
-                  </code>
-                ) : isH1 ? (
-                  <code className="relative inline-block">
-                    <span className="text-syn-keyword"># </span>
-                    <span className="text-syn-heading font-semibold">
-                      {line.slice(2)}
-                    </span>
-                  </code>
-                ) : (
-                  <code className="relative">
-                    {renderTokens(tokenizeMarkdownLine(line))}
-                  </code>
-                )}
-                {active ? (
-                  <span
-                    aria-hidden="true"
-                    className="ide-caret bg-foreground ml-0.5 inline-block h-[0.85em] w-px translate-y-px align-text-bottom"
+                  ))}
+                </span>
+              ) : null}
+              {isMethod ? (
+                <button
+                  type="button"
+                  onClick={onExecutePipeline}
+                  onMouseEnter={(event: MouseEvent) => {
+                    event.stopPropagation();
+                    onExecutePipeline();
+                  }}
+                  aria-label={todoHq.methodologyAria}
+                  className="relative rounded-[4px] bg-transparent p-0 font-medium text-[color:var(--blog-cat-agents)] transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none"
+                >
+                  {todoHq.methodologyLabel}
+                </button>
+              ) : isHeading ? (
+                <code className="relative inline max-w-full">
+                  <span className="text-syn-keyword">## </span>
+                  <DecodeLabel
+                    text={headingTitle}
+                    playKey={headingPlayKeys[index] ?? 0}
+                    chroma
+                    settleColor="var(--syn-heading)"
                   />
-                ) : null}
-              </pre>
-            </div>
-          );
-        })}
-      </div>
-    </IdePaneCollapse>
+                </code>
+              ) : isH1 ? (
+                <code className="relative inline max-w-full">
+                  <span className="text-syn-keyword"># </span>
+                  <span className="text-syn-heading font-semibold">
+                    {line.slice(2)}
+                  </span>
+                </code>
+              ) : (
+                <code className="relative inline max-w-full">
+                  {renderTokens(tokenizeMarkdownLine(line))}
+                </code>
+              )}
+              {active ? (
+                <span
+                  aria-hidden="true"
+                  className="ide-caret bg-foreground ml-0.5 inline-block h-[0.85em] w-px translate-y-px align-text-bottom"
+                />
+              ) : null}
+            </pre>
+          </div>
+        );
+      })}
+    </div>
   );
 }

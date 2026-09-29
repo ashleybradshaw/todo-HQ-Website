@@ -154,4 +154,83 @@ test.describe("/home IDE", () => {
       page.getByRole("tab", { name: /README\.md/ }),
     ).toBeVisible();
   });
+
+  test("mobile README wraps without collapse or sideways scroll", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/home", { waitUntil: "domcontentloaded" });
+
+    await expect(
+      page.getByRole("button", { name: /Show all \d+ lines/i }),
+    ).toHaveCount(0);
+
+    const readme = page.locator('[data-readme-source="true"]');
+    await expect(readme).toBeVisible();
+    await expect(readme.locator("[data-line-index]")).toHaveCount(30);
+
+    await page.locator(".ide-window").evaluate((el) => {
+      el.scrollIntoView({ block: "start" });
+    });
+
+    const overflow = await page.locator(".ide-window").evaluate((root) => {
+      if (root.scrollWidth > root.clientWidth + 1) {
+        return {
+          overflow: true,
+          where: "ide-window",
+          scrollWidth: root.scrollWidth,
+          clientWidth: root.clientWidth,
+        };
+      }
+      for (const node of root.querySelectorAll("*")) {
+        const el = node as HTMLElement;
+        if (el.classList.contains("sr-only")) continue;
+        const cs = window.getComputedStyle(el);
+        // Clipped / scroll containers (truncate, overflow-x hidden) are fine.
+        if (
+          cs.overflowX === "hidden" ||
+          cs.overflowX === "clip" ||
+          cs.overflowX === "auto" ||
+          cs.overflowX === "scroll" ||
+          cs.overflow === "hidden"
+        ) {
+          continue;
+        }
+        if (el.scrollWidth > el.clientWidth + 1) {
+          return {
+            overflow: true,
+            where: "unclipped",
+            tag: el.tagName,
+            className: el.className?.toString?.().slice(0, 80) ?? "",
+            scrollWidth: el.scrollWidth,
+            clientWidth: el.clientWidth,
+          };
+        }
+      }
+      // README lines themselves must not scroll sideways.
+      for (const pre of root.querySelectorAll(".ide-readme-line-pre")) {
+        const el = pre as HTMLElement;
+        if (el.scrollWidth > el.clientWidth + 1) {
+          return {
+            overflow: true,
+            where: "readme-pre",
+            scrollWidth: el.scrollWidth,
+            clientWidth: el.clientWidth,
+          };
+        }
+      }
+      return { overflow: false };
+    });
+    expect(overflow).toEqual({ overflow: false });
+
+    const wrap = await page.locator('[data-line-index="10"] pre').evaluate((pre) => {
+      const cs = getComputedStyle(pre);
+      return {
+        whiteSpace: cs.whiteSpace,
+        overflowWrap: cs.overflowWrap,
+      };
+    });
+    expect(wrap.whiteSpace).toMatch(/pre-wrap/);
+    expect(wrap.overflowWrap).toBe("anywhere");
+  });
 });

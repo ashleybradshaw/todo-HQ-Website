@@ -139,6 +139,67 @@
   scroll-margin-top: var(--site-header-offset);
 }
 
+/*
+ * Mobile README wrap (< lg): soft wrap, no sideways scroll.
+ * Bullet hang: continued lines sit under the text after "- ".
+ * Desktop (lg+) keeps whitespace-pre + horizontal scroll if needed.
+ */
+@media (max-width: 1023px) {
+  .ide-window,
+  .ide-window .ide-reveal-content,
+  .ide-boot-editor,
+  .ide-boot-editor [data-readme-source],
+  .ide-boot-editor .ide-boot-line {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  .ide-boot-tabs {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .ide-readme-line-pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    overflow-x: hidden;
+    word-break: break-word;
+    /* hanging indent for continued wrap rows */
+    padding-left: calc(1rem + 2ch);
+    text-indent: -2ch;
+  }
+
+  .ide-readme-line-pre--bullet {
+    /* hang under text after "- " (leading spaces + 2ch) */
+    padding-left: calc(1rem + var(--ide-bullet-hang, 2ch));
+    text-indent: calc(-1 * var(--ide-bullet-hang, 2ch));
+  }
+
+  .ide-boot-line {
+    align-items: baseline;
+  }
+
+  .ide-readme-gutter {
+    align-self: baseline;
+    line-height: 1.5rem; /* match leading-6 first visual row */
+  }
+}
+
+@media (min-width: 1024px) {
+  .ide-readme-line-pre {
+    white-space: pre;
+    overflow-x: auto;
+    padding-left: 1rem;
+    text-indent: 0;
+  }
+
+  .ide-readme-line-pre--bullet {
+    padding-left: 1rem;
+    text-indent: 0;
+  }
+}
+
 /* Internal hairlines drawn during reveal — path bottom, editor|sidecar, status top */
 .ide-reveal-stroke {
   pointer-events: none;

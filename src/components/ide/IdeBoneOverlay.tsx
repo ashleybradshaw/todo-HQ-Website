@@ -60,12 +60,17 @@ export function IdeBoneOverlay({ phase, windowRef }: IdeBoneOverlayProps) {
             if (rect.bottom > er.bottom + 1 || rect.top < er.top - 1) return;
           }
         }
+        // Line bones follow wrapped logical-line height; chrome bones stay slim.
+        const height =
+          kind === "line"
+            ? Math.max(8, rect.height)
+            : Math.max(6, Math.min(rect.height, 22));
         next.push({
           key: `${kind ?? "b"}-${i}`,
           top: rect.top - origin.top,
           left: rect.left - origin.left,
           width: rect.width,
-          height: Math.max(6, Math.min(rect.height, 22)),
+          height,
           index: index++,
         });
       });
@@ -94,10 +99,15 @@ export function IdeBoneOverlay({ phase, windowRef }: IdeBoneOverlayProps) {
             className="ide-bone absolute rounded-[4px] bg-foreground/20"
             style={
               {
-                top: bone.top + (bone.height > 14 ? 4 : 0),
+                top: bone.top + (bone.height > 28 ? 4 : bone.height > 14 ? 4 : 0),
                 left: bone.left + 8,
                 width: Math.max(24, bone.width - 16),
-                height: bone.height > 14 ? bone.height - 8 : bone.height,
+                height:
+                  bone.height > 28
+                    ? bone.height - 8
+                    : bone.height > 14
+                      ? bone.height - 8
+                      : bone.height,
                 "--b": bone.index,
               } as CSSProperties
             }

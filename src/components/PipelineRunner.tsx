@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { DecodeLabel } from "@/components/DecodeLabel";
 import { cn } from "@/lib/cn";
 import { homePage } from "@/content/pages/home";
 
@@ -111,11 +112,14 @@ type PipelineRunnerProps = {
   rebootSignal?: number;
   /** Lifted for status-bar "pipeline 0n/05". */
   onActiveIndexChange?: (index: number) => void;
+  /** Scramble the shift.log label when IDE reveal fires. */
+  labelPlayKey?: number;
 };
 
 export function PipelineRunner({
   rebootSignal = 0,
   onActiveIndexChange,
+  labelPlayKey = 0,
 }: PipelineRunnerProps) {
   const reduceMotion = useReducedMotion();
   const [activeIndex, setActiveIndex] = useState(0);
@@ -210,7 +214,11 @@ export function PipelineRunner({
     >
       <div className="border-b border-border-ide flex shrink-0 items-center justify-between px-2 py-1.5">
         <p className="font-jetbrains text-muted text-[10px] tracking-wide lg:text-[11px]">
-          {pipelineRunner.header}
+          <DecodeLabel
+            text={pipelineRunner.header}
+            playKey={labelPlayKey}
+            settleColor="var(--text-muted)"
+          />
         </p>
         <p className="font-jetbrains text-[10px] tabular-nums lg:text-[11px]">
           {isLoading ? (

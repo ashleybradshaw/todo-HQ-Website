@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DecodeLabel } from "@/components/DecodeLabel";
 import { homePage } from "@/content/pages/home";
 
 /**
@@ -42,7 +43,11 @@ function ProjectLogo({ src }: { src: string }) {
   );
 }
 
-export function IdeProjectCards() {
+type IdeProjectCardsProps = {
+  labelPlayKey?: number;
+};
+
+export function IdeProjectCards({ labelPlayKey = 0 }: IdeProjectCardsProps) {
   const { projectCards } = homePage;
   const projects = PROJECT_META.map((meta, index) => ({
     ...meta,
@@ -57,7 +62,11 @@ export function IdeProjectCards() {
     >
       <div className="border-b border-border-ide px-2 py-1.5">
         <p className="font-jetbrains text-muted text-[10px] tracking-wide lg:text-[11px]">
-          {projectCards.header}
+          <DecodeLabel
+            text={projectCards.header}
+            playKey={labelPlayKey}
+            settleColor="var(--text-muted)"
+          />
         </p>
       </div>
       <ul className="flex flex-col gap-1.5 p-2">

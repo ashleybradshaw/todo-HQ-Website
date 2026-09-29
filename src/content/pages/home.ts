@@ -258,11 +258,18 @@ export const homePage = {
     ],
   },
 
-  // TEST COPY — agent count is simulated; rotation lives in the status bar
+  // TEST COPY — sidecar telemetry panel (live); status bar keeps a quiet checkpoint chip
   telemetry: {
-    sectionAria: "Project status. Agent count is a simulation.", // TEST COPY
+    sectionAria: "Factory telemetry. Agent count is a simulation.", // TEST COPY
+    header: "telemetry", // TEST COPY
+    keys: {
+      agents: "agents (sim)", // TEST COPY
+      infra: "line", // TEST COPY
+      sprint: "current run", // TEST COPY
+      checkpoint: "checkpoint", // TEST COPY
+    },
     infra: {
-      online: "LIVE", // TEST COPY
+      online: "ONLINE", // TEST COPY
       building: "IN BUILD", // TEST COPY
       pending: "QUEUED", // TEST COPY
     },

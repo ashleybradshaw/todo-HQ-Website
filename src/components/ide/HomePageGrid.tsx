@@ -40,7 +40,8 @@ function Crosshair({
 
 /**
  * Decorative page grid for /home — below nav, above footer.
- * One shared hairline at the hero/strip join; crosshairs only there + strip bottom.
+ * Verticals stop at the IDE window (no lines through the frame).
+ * Crosshairs only at the hero/strip join — not at strip bottom / IDE.
  */
 export function HomePageGrid() {
   return (
@@ -65,18 +66,37 @@ export function HomePageGrid() {
             backgroundColor: lineColor,
           }}
         />
-        {/* Verticals below the strip */}
+        {/* Verticals: strip bottom → IDE top (plain gap has no frame) */}
+        <span
+          className="absolute left-6 w-px"
+          style={{
+            top: "var(--home-strip-bottom, 100%)",
+            height:
+              "max(0px, calc(var(--home-ide-top, 100%) - var(--home-strip-bottom, 100%)))",
+            backgroundColor: lineColor,
+          }}
+        />
+        <span
+          className="absolute right-6 w-px"
+          style={{
+            top: "var(--home-strip-bottom, 100%)",
+            height:
+              "max(0px, calc(var(--home-ide-top, 100%) - var(--home-strip-bottom, 100%)))",
+            backgroundColor: lineColor,
+          }}
+        />
+        {/* Verticals below IDE */}
         <span
           className="absolute bottom-0 left-6 w-px"
           style={{
-            top: "var(--home-strip-bottom, 100%)",
+            top: "var(--home-ide-bottom, 100%)",
             backgroundColor: lineColor,
           }}
         />
         <span
           className="absolute bottom-0 right-6 w-px"
           style={{
-            top: "var(--home-strip-bottom, 100%)",
+            top: "var(--home-ide-bottom, 100%)",
             backgroundColor: lineColor,
           }}
         />
@@ -98,8 +118,6 @@ export function HomePageGrid() {
           side="right"
           topVar="var(--home-hero-rule-top, var(--home-strip-top, 0px))"
         />
-        <Crosshair side="left" topVar="var(--home-strip-bottom, 100%)" />
-        <Crosshair side="right" topVar="var(--home-strip-bottom, 100%)" />
       </div>
     </div>
   );

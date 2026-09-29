@@ -45,7 +45,7 @@ export function HomeFeatureStrip() {
   return (
     <section
       ref={rootRef}
-      className={`${HOME_FRAME} relative z-10 mb-16 md:mb-20`}
+      className={`${HOME_FRAME} relative z-10 mb-8 md:mb-10`}
       aria-label={strip.aria}
     >
       {/* Bottom hairline only — top is the shared hero/strip rule from the grid */}

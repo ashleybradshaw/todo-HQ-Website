@@ -32,8 +32,19 @@ test.describe("/home IDE", () => {
     ).toBeVisible();
     await expect(page.getByRole("tab", { name: /book\.ts/ })).toBeVisible();
 
-    await expect(page.getByText(/shift\.log/)).toBeVisible();
+    await expect(
+      page.getByRole("region", { name: /Production line/i }),
+    ).toContainText("shift.log");
     await expect(page.getByText(/v1\.5/)).toBeVisible();
+    const telemetry = page.getByRole("region", { name: /Factory telemetry/i });
+    await expect(telemetry).toBeVisible();
+    await expect(telemetry).toContainText("telemetry");
+    await expect(
+      page.getByRole("region", { name: "Projects" }),
+    ).toContainText("on the line");
+    await expect(
+      page.locator(".ide-boot-status").getByText(/checkpoint/),
+    ).toBeVisible();
 
     await expect(
       page.getByRole("link", { name: "View" }).nth(0),

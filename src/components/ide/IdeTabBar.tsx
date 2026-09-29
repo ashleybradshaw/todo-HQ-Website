@@ -82,7 +82,7 @@ export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
       role="tablist"
       aria-label={homePage.ideTabs.aria}
       onKeyDown={onKeyDown}
-      className="ide-boot-tabs border-border-ide-strong flex shrink-0 items-stretch border-b"
+      className="ide-boot-tabs border-border-ide flex shrink-0 items-stretch border-b"
     >
       {TABS.map((tab, index) => {
         const selected = tab.id === activeTab;

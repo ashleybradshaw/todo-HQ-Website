@@ -2,12 +2,14 @@
 
 import {
   useCallback,
+  useEffect,
   useMemo,
   useState,
   type CSSProperties,
   type KeyboardEvent,
   type MouseEvent,
 } from "react";
+import { DecodeLabel } from "@/components/DecodeLabel";
 import { homePage } from "@/content/pages/home";
 import {
   buildReadmeSourceLines,
@@ -21,9 +23,13 @@ import { IdePaneCollapse } from "@/components/ide/IdePaneCollapse";
 
 const { todoHq } = homePage;
 
+const HEADING_SCRAMBLE_STAGGER_MS = 60;
+
 type ReadmeCodePaneProps = {
   onExecutePipeline: () => void;
   onActiveLineChange: (line: number) => void;
+  /** IDE reveal play key — scrambles ## headings once. */
+  scramblePlayKey?: number;
 };
 
 function indentLevel(line: string): number {
@@ -32,13 +38,51 @@ function indentLevel(line: string): number {
   return Math.floor(match[1].length / 2);
 }
 
+function isMarkdownHeading(line: string): boolean {
+  return /^## /.test(line);
+}
+
 export function ReadmeCodePane({
   onExecutePipeline,
   onActiveLineChange,
+  scramblePlayKey = 0,
 }: ReadmeCodePaneProps) {
   const lines = useMemo(() => buildReadmeSourceLines(), []);
   const methodIndex = methodologySourceLineIndex(lines);
   const [activeIndex, setActiveIndex] = useState(methodIndex);
+  const [headingPlayKeys, setHeadingPlayKeys] = useState<
+    Record<number, number>
+  >({});
+
+  const headingOrder = useMemo(() => {
+    const map = new Map<number, number>();
+    let order = 0;
+    lines.forEach((line, index) => {
+      if (isMarkdownHeading(line)) {
+        map.set(index, order);
+        order += 1;
+      }
+    });
+    return map;
+  }, [lines]);
+
+  useEffect(() => {
+    if (scramblePlayKey === 0) return;
+    const timers: number[] = [];
+    headingOrder.forEach((order, lineIndex) => {
+      timers.push(
+        window.setTimeout(() => {
+          setHeadingPlayKeys((prev) => ({
+            ...prev,
+            [lineIndex]: scramblePlayKey,
+          }));
+        }, order * HEADING_SCRAMBLE_STAGGER_MS),
+      );
+    });
+    return () => {
+      for (const id of timers) window.clearTimeout(id);
+    };
+  }, [scramblePlayKey, headingOrder]);
 
   const setActive = useCallback(
     (index: number) => {
@@ -87,86 +131,96 @@ export function ReadmeCodePane({
 
   return (
     <IdePaneCollapse lineCount={lines.length}>
-    <div
-      className="font-jetbrains flex flex-col py-3 text-xs leading-6 lg:text-sm lg:leading-7"
-      data-readme-source="true"
-    >
-      {lines.map((line, index) => {
-        const active = index === activeIndex;
-        const isMethod = index === methodIndex;
-        const indents = indentLevel(line);
+      <div
+        className="font-jetbrains flex flex-col py-3 text-xs leading-6 lg:text-sm lg:leading-7"
+        data-readme-source="true"
+      >
+        {lines.map((line, index) => {
+          const active = index === activeIndex;
+          const isMethod = index === methodIndex;
+          const indents = indentLevel(line);
+          const isHeading = headingOrder.has(index);
 
-        return (
-          <div
-            key={index}
-            role="row"
-            tabIndex={active ? 0 : -1}
-            className="ide-boot-line group/line grid min-w-0 outline-none"
-            style={
-              {
-                "--i": index,
-                gridTemplateColumns: "auto 1fr",
-                backgroundColor: active
-                  ? "color-mix(in srgb, var(--foreground) 6%, transparent)"
-                  : undefined,
-              } as CSSProperties
-            }
-            onMouseEnter={() => onLineEnter(index)}
-            onFocus={() => onLineEnter(index)}
-            onKeyDown={(event) => onLineKey(index, event)}
-          >
-            <span
-              aria-hidden="true"
-              className={`ide-readme-gutter w-8 shrink-0 border-r border-border-ide pr-2 text-right tabular-nums select-none lg:w-10 lg:pr-3 ${
-                active ? "text-foreground" : "text-syn-number"
-              }`}
+          return (
+            <div
+              key={index}
+              role="row"
+              tabIndex={active ? 0 : -1}
+              className="ide-boot-line group/line grid min-w-0 outline-none"
+              style={
+                {
+                  "--i": index,
+                  gridTemplateColumns: "auto 1fr",
+                  backgroundColor: active
+                    ? "color-mix(in srgb, var(--foreground) 6%, transparent)"
+                    : undefined,
+                } as CSSProperties
+              }
+              onMouseEnter={() => onLineEnter(index)}
+              onFocus={() => onLineEnter(index)}
+              onKeyDown={(event) => onLineKey(index, event)}
             >
-              {index + 1}
-            </span>
-            <pre className="relative min-w-0 whitespace-pre-wrap pr-6 pl-4">
-              {indents > 0 ? (
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-y-0 left-4 hidden md:block"
-                >
-                  {Array.from({ length: indents }, (_, i) => (
-                    <span
-                      key={i}
-                      className="absolute inset-y-0 w-px bg-border-ide"
-                      style={{ left: `${i * 2}ch` }}
+              <span
+                aria-hidden="true"
+                className={`ide-readme-gutter w-8 shrink-0 border-r border-border-ide pr-2 text-right tabular-nums select-none lg:w-10 lg:pr-3 ${
+                  active ? "text-foreground" : "text-syn-number"
+                }`}
+              >
+                {index + 1}
+              </span>
+              <pre className="relative min-w-0 whitespace-pre-wrap pr-6 pl-4">
+                {indents > 0 ? (
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-y-0 left-4 hidden md:block"
+                  >
+                    {Array.from({ length: indents }, (_, i) => (
+                      <span
+                        key={i}
+                        className="absolute inset-y-0 w-px bg-border-ide"
+                        style={{ left: `${i * 2}ch` }}
+                      />
+                    ))}
+                  </span>
+                ) : null}
+                {isMethod ? (
+                  <button
+                    type="button"
+                    onClick={onExecutePipeline}
+                    onMouseEnter={(event: MouseEvent) => {
+                      event.stopPropagation();
+                      onExecutePipeline();
+                    }}
+                    aria-label={todoHq.methodologyAria}
+                    className="relative rounded-[4px] bg-transparent p-0 font-medium text-[color:var(--blog-cat-agents)] transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none"
+                  >
+                    {todoHq.methodologyLabel}
+                  </button>
+                ) : isHeading ? (
+                  <code className="relative inline-block">
+                    <span className="text-syn-keyword">## </span>
+                    <DecodeLabel
+                      text={line.slice(3)}
+                      playKey={headingPlayKeys[index] ?? 0}
+                      chroma
                     />
-                  ))}
-                </span>
-              ) : null}
-              {isMethod ? (
-                <button
-                  type="button"
-                  onClick={onExecutePipeline}
-                  onMouseEnter={(event: MouseEvent) => {
-                    event.stopPropagation();
-                    onExecutePipeline();
-                  }}
-                  aria-label={todoHq.methodologyAria}
-                  className="relative rounded-[4px] bg-transparent p-0 font-medium text-[color:var(--blog-cat-agents)] transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none"
-                >
-                  {todoHq.methodologyLabel}
-                </button>
-              ) : (
-                <code className="relative">
-                  {renderTokens(tokenizeMarkdownLine(line))}
-                </code>
-              )}
-              {active ? (
-                <span
-                  aria-hidden="true"
-                  className="ide-caret bg-foreground ml-0.5 inline-block h-[0.85em] w-px translate-y-px align-text-bottom"
-                />
-              ) : null}
-            </pre>
-          </div>
-        );
-      })}
-    </div>
+                  </code>
+                ) : (
+                  <code className="relative">
+                    {renderTokens(tokenizeMarkdownLine(line))}
+                  </code>
+                )}
+                {active ? (
+                  <span
+                    aria-hidden="true"
+                    className="ide-caret bg-foreground ml-0.5 inline-block h-[0.85em] w-px translate-y-px align-text-bottom"
+                  />
+                ) : null}
+              </pre>
+            </div>
+          );
+        })}
+      </div>
     </IdePaneCollapse>
   );
 }

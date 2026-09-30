@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 const linkClass =
-  "type-label font-normal normal-case tracking-normal underline decoration-[color-mix(in_srgb,var(--foreground)_35%,transparent)] underline-offset-2 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
+  "type-label inline-flex min-h-6 items-center font-normal normal-case tracking-normal underline decoration-[color-mix(in_srgb,var(--foreground)_35%,transparent)] underline-offset-2 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
 
 const ctaClass =
   "type-label inline-flex min-h-11 items-center justify-center rounded-[4px] border border-border-ide bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] px-4 py-2 text-on-tint transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
@@ -21,7 +21,7 @@ const ctaClass =
  */
 export default function NotFound() {
   return (
-    <main className="relative min-h-screen bg-background px-6 pt-28 pb-16 text-foreground transition-[background-color,color] duration-[400ms] ease-in-out">
+    <main id="main" className="relative min-h-screen bg-background px-6 pt-28 pb-16 text-foreground transition-[background-color,color] duration-[400ms] ease-in-out">
       <div className="relative z-10 mx-auto flex max-w-[960px] flex-col items-center gap-10 lg:flex-row lg:items-end lg:justify-center lg:gap-12">
         {/* Ghosts above editor on mobile; beside (left) on lg+. Eyes use powder fill. */}
         <div

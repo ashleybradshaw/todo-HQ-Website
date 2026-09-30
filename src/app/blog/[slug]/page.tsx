@@ -7,7 +7,6 @@ import { BlogMediaCraft } from "@/components/blog/BlogMediaCraft";
 import { ReadMinutes } from "@/components/blog/BlogNoteCard";
 import { BlogReadingProgress } from "@/components/blog/BlogReadingProgress";
 import { BlogWriterBand } from "@/components/blog/BlogWriterBand";
-import { WriterAvatar } from "@/components/blog/WriterAvatar";
 import { JsonLd } from "@/components/JsonLd";
 import { SiteCloser } from "@/components/SiteCloser";
 import {
@@ -16,6 +15,7 @@ import {
   getAdjacentPosts,
   getAllPosts,
   getPostBySlug,
+  isMockPost,
   moreByWriter,
   type BlogPost,
 } from "@/lib/blog";
@@ -24,7 +24,10 @@ import {
   BLOG_OG_WIDTH,
   formatBlogDate,
 } from "@/lib/blog-shared";
+import { metadataDate } from "@/lib/metadata-date";
 import { pageMetadata } from "@/lib/seo";
+import { breadcrumbGraph } from "@/lib/schema";
+import { CONTENT_BYLINE } from "@/lib/site";
 import { BlogPostFeedback } from "./BlogPostFeedback";
 
 type BlogPostParams = {
@@ -52,21 +55,23 @@ export async function generateMetadata({
     });
   }
 
+  const published = metadataDate(post.date);
   const base = pageMetadata({
     title: post.title,
     description: post.excerpt,
     path: `/blog/${post.slug}`,
+    index: !isMockPost(post),
   });
   const image = blogShareImageSrc(post);
 
   return {
     ...base,
-    authors: [{ name: post.writer.name }],
+    authors: [{ name: CONTENT_BYLINE }],
     openGraph: {
       ...base.openGraph,
       type: "article",
-      publishedTime: `${post.date}T00:00:00.000Z`,
-      authors: [post.writer.name],
+      ...(published ? { publishedTime: `${published}T00:00:00.000Z` } : {}),
+      authors: [CONTENT_BYLINE],
       images: [
         {
           url: image,
@@ -125,7 +130,13 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
     <>
       <BlogReadingProgress />
       <div className="mx-auto w-full max-w-[800px] px-6 pt-28 pb-16">
-        <JsonLd data={blogPostingGraph(post)} />
+        {isMockPost(post) ? null : <JsonLd data={blogPostingGraph(post)} />}
+        <JsonLd
+          data={breadcrumbGraph([
+            { name: "Blog", path: "/blog" },
+            { name: post.title, path: `/blog/${post.slug}` },
+          ])}
+        />
         <article>
           <Breadcrumbs
             id="blog-breadcrumb"
@@ -136,16 +147,11 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
             {post.title}
           </h1>
           <div className="type-caption mt-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
-            <WriterAvatar
-              name={post.writer.name}
-              src={post.avatarSrc}
-              size={16}
-            />
-            <span>{post.writer.name}</span>
+            <span>{CONTENT_BYLINE}</span>
             <span aria-hidden="true">·</span>
-            <span>{post.writer.role}</span>
-            <span aria-hidden="true">·</span>
-            <time dateTime={post.date}>{formatBlogDate(post.date)}</time>
+            <time dateTime={metadataDate(post.date) ?? undefined}>
+              {formatBlogDate(post.date)}
+            </time>
             <span aria-hidden="true">·</span>
             <ReadMinutes minutes={post.readMinutes} />
           </div>
@@ -157,7 +163,7 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
           />
           <div className="mx-auto w-full max-w-[688px]">
             <BlogAdjacentNav prev={prev} next={next} />
-            <BlogWriterBand post={post} more={more} />
+            <BlogWriterBand more={more} />
             <BlogPostFeedback slug={post.slug} title={post.title} />
           </div>
         </article>

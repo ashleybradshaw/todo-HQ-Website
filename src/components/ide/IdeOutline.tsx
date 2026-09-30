@@ -46,7 +46,7 @@ export function IdeOutline({
             <li key={entry.id}>
               <a
                 href={`#${entry.id}`}
-                className={`flex items-baseline gap-2 rounded-[2px] px-0.5 py-0.5 transition-colors duration-[400ms] ease-in-out focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none ${
+                className={`inline-flex min-h-6 w-full items-center gap-2 rounded-[2px] px-1 transition-colors duration-[400ms] ease-in-out focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none ${
                   active
                     ? "text-foreground"
                     : "text-muted hover:text-syn-property"

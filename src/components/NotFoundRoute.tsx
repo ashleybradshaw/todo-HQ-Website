@@ -1,8 +1,16 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { usePathname } from "next/navigation";
 import { notFoundPage } from "@/content/pages/not-found";
+
+function subscribePath(onStoreChange: () => void) {
+  window.addEventListener("popstate", onStoreChange);
+  return () => window.removeEventListener("popstate", onStoreChange);
+}
+
+function readPath() {
+  return window.location.pathname;
+}
 
 function subscribeReducedMotion(onStoreChange: () => void) {
   const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -26,7 +34,8 @@ function Gutter({ n }: { n: number }) {
  * 404 editor body — visited path via usePathname, blinking caret (off for reduced motion).
  */
 export function NotFoundRoute() {
-  const pathname = usePathname() || "/";
+  // Server and the hydration render both use "" so /_not-found never mismatches.
+  const path = useSyncExternalStore(subscribePath, readPath, () => "");
   const reduceMotion = useSyncExternalStore(
     subscribeReducedMotion,
     readReducedMotion,
@@ -46,7 +55,7 @@ export function NotFoundRoute() {
       <p className="mt-1 flex gap-2">
         <Gutter n={2} />
         <span>
-          <span className="text-syn-string">{`"${pathname}"`}</span>
+          <span className="text-syn-string">{`"${path}"`}</span>
           <span className="text-foreground">;</span>
         </span>
       </p>

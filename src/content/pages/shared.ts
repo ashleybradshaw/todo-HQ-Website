@@ -99,7 +99,6 @@ export const nav = {
 // TEST COPY
 export const footer = {
   copyright: "© 2026 TODO DESIGN & ENGINEERING",
-  github: "GITHUB",
   x: "X",
   workTogether: "BOOK A CALL",
   workTogetherHref: "/book",

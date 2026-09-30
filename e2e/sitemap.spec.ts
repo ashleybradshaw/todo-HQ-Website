@@ -13,7 +13,7 @@ const FILLER_BLOG_SLUGS = [
   "factory-roster",
 ] as const;
 
-test("sitemap.xml is 200 with four keep blog locs and no fillers", async ({
+test("sitemap.xml is 200 with no mock blog locs and no fillers", async ({
   request,
 }) => {
   const res = await request.get("/sitemap.xml");
@@ -29,12 +29,19 @@ test("sitemap.xml is 200 with four keep blog locs and no fillers", async ({
     ...body.matchAll(/<loc>([^<]*\/blog\/[^<]+)<\/loc>/g),
   ].map((match) => match[1]);
 
-  // Exclude bare /blog index — only article paths under /blog/{slug}.
-  expect(blogArticleLocs).toHaveLength(4);
+  // Mock posts stay off the sitemap until a real note ships.
+  expect(blogArticleLocs).toHaveLength(0);
 
   for (const slug of KEEP_BLOG_SLUGS) {
-    expect(body).toContain(`/blog/${slug}`);
+    expect(body).not.toContain(`/blog/${slug}`);
   }
+
+  const locs = [...body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
+  const home = locs.find((loc) => loc.endsWith("/home"));
+  expect(home).toBeTruthy();
+  const origin = home!.replace(/\/home$/, "");
+  expect(locs).not.toContain(origin);
+  expect(locs).not.toContain(`${origin}/`);
 
   for (const slug of FILLER_BLOG_SLUGS) {
     expect(body).not.toContain(`/blog/${slug}`);

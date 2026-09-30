@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { WriterAvatar } from "@/components/blog/WriterAvatar";
 import { cn } from "@/lib/cn";
 import {
   BLOG_CATEGORY_LABELS,
@@ -8,6 +7,7 @@ import {
   type BlogCategory,
   type BlogIndexPost,
 } from "@/lib/blog-shared";
+import { metadataDate } from "@/lib/metadata-date";
 
 function categoryTone(category: BlogCategory, filled: boolean) {
   const token = `var(${BLOG_CATEGORY_VARS[category]})`;
@@ -27,30 +27,18 @@ function categoryTone(category: BlogCategory, filled: boolean) {
 
 export function WriterMeta({
   name,
-  avatarSrc,
   date,
-  compact = false,
 }: {
   name: string;
-  avatarSrc: string | null;
+  avatarSrc?: string | null;
   date: string;
   compact?: boolean;
 }) {
   return (
-    <div
-      className={cn(
-        "type-caption flex items-center gap-x-1.5",
-        compact
-          ? "min-w-0 flex-nowrap overflow-hidden"
-          : "flex-wrap gap-y-1",
-      )}
-    >
-      <WriterAvatar name={name} src={avatarSrc} size={16} />
-      <span className={compact ? "min-w-0 truncate" : undefined}>{name}</span>
+    <div className="type-caption flex flex-wrap items-center gap-x-1.5 gap-y-1">
+      <span>{name}</span>
       <span aria-hidden="true">·</span>
-      <time className={compact ? "shrink-0" : undefined} dateTime={date}>
-        {formatBlogDate(date)}
-      </time>
+      <time dateTime={metadataDate(date) ?? undefined}>{formatBlogDate(date)}</time>
     </div>
   );
 }

@@ -265,4 +265,56 @@ test.describe("/home IDE", () => {
       expect(gap.textIndent).toBe("0px");
     }
   });
+
+  test("README stays visible when JavaScript is off", async ({ browser }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    const page = await context.newPage();
+    await page.goto("/home", { waitUntil: "domcontentloaded" });
+    await expect(
+      page.getByText(
+        "Two engineers and a set of AI agents, running one small product factory.",
+      ),
+    ).toBeVisible();
+    const editorOpacity = await page
+      .locator(".ide-boot-editor")
+      .evaluate((el) => getComputedStyle(el).opacity);
+    expect(editorOpacity).toBe("1");
+    const armed = await page.evaluate(() =>
+      document.documentElement.hasAttribute("data-ide-first"),
+    );
+    expect(armed).toBe(false);
+    await context.close();
+  });
+
+  test("pipeline log fits the fixed slot at 768 and 390", async ({ page }) => {
+    for (const width of [768, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/home", { waitUntil: "domcontentloaded" });
+      const stage = page.getByRole("button", { name: /THE_MVP/ });
+      await expect(stage).toBeVisible();
+      await stage.click();
+      const slot = page.locator("[data-pipeline-detail]").filter({
+        hasText: "App + homepage + light marketing",
+      });
+      await expect(slot).toBeVisible();
+      const fit = await slot.evaluate((el) => {
+        const line = [...el.querySelectorAll("p")].find((node) =>
+          node.textContent?.includes("App + homepage + light marketing"),
+        );
+        const lineHeight = line
+          ? Number.parseFloat(getComputedStyle(line).lineHeight)
+          : 16;
+        const lines = line
+          ? Math.round(line.getBoundingClientRect().height / lineHeight)
+          : 0;
+        return {
+          lines,
+          overflows: el.scrollHeight > el.clientHeight + 1,
+        };
+      });
+      expect(fit.lines).toBeGreaterThan(0);
+      expect(fit.lines).toBeLessThanOrEqual(2);
+      expect(fit.overflows).toBe(false);
+    }
+  });
 });

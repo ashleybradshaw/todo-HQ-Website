@@ -23,6 +23,10 @@
   /* ## / # title text — foreground weight applied in components */
   --syn-heading: #4545FF;
   --syn-string: #047351;
+  /* md file badge on an 18% --syn-string chip. #047351 was ~3.57:1. */
+  --badge-md-ink: #0f5741;
+  /* ts file badge already clears AA as --brand-logo; token so Spray can refit. */
+  --badge-ts-ink: #0b0cb4;
   --syn-number: #985304;
   /* Telemetry PENDING status dot only — label stays --foreground for AA.
      Deep amber ≥4.5:1 on powder #DFDFFF (was #F08C00 @ ~1.9:1). */
@@ -34,8 +38,9 @@
   --site-header-offset: 7rem;
   --syn-comment: #5A5A99;
   --syn-bracket: color-mix(in srgb, #4545FF 82%, #0B0CB4);
-  --blog-cat-projects: #89551a;
-  --blog-cat-leaps: #156f4a;
+  /* Darkened so small labels clear AA on IDE chrome, not only flat powder. */
+  --blog-cat-projects: #815018;
+  --blog-cat-leaps: #146b47;
   --blog-cat-agents: #8921ab;
   --blog-cat-deep-cuts: #ab2154;
   /* Soft mid-tone under content during section fades (never raw house blue) */
@@ -59,6 +64,8 @@
   --color-syn-body: var(--syn-body);
   --color-syn-heading: var(--syn-heading);
   --color-syn-string: var(--syn-string);
+  --color-badge-md-ink: var(--badge-md-ink);
+  --color-badge-ts-ink: var(--badge-ts-ink);
   --color-syn-number: var(--syn-number);
   --color-status-pending: var(--status-pending);
   --color-syn-comment: var(--syn-comment);
@@ -939,95 +946,124 @@ html.is-section-transitioning a {
   }
 }
 
-/* Default: overlay hidden until first-boot / active phase (avoids repeat flash) */
+@keyframes ide-failsafe-hide {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* Overlay stays hidden unless the pre-paint script set data-ide-first.
+   SSR and no-JS therefore ship the IDE readable. */
 .ide-bone-overlay {
   opacity: 0;
   visibility: hidden;
 }
 
-/* Pre-paint hide (inline head script) — failsafe restores at 5s */
-[data-ide-first] .ide-boot-tabs,
-[data-ide-first] .ide-boot-chrome,
-[data-ide-first] .ide-boot-status,
-[data-ide-first] .ide-boot-editor,
-[data-ide-first] .ide-boot-sidecar,
-[data-ide-first] .ide-boot-line {
-  opacity: 0;
+/* 5s CSS failsafe if the attribute sticks and boot never finishes. */
+html[data-ide-first] .ide-boot-tabs,
+html[data-ide-first] .ide-boot-chrome,
+html[data-ide-first] .ide-boot-status,
+html[data-ide-first] .ide-boot-editor,
+html[data-ide-first] .ide-boot-sidecar,
+html[data-ide-first] .ide-boot-sidecar-block,
+html[data-ide-first] .ide-boot-line {
   animation: ide-failsafe-show 0s 5s forwards;
 }
 
-[data-ide-first] .ide-bone-overlay,
-.ide-boot-stage[data-ide-boot="bones"] .ide-bone-overlay,
-.ide-boot-stage[data-ide-boot="lines"] .ide-bone-overlay,
-.ide-boot-stage[data-ide-boot="content"] .ide-bone-overlay {
+html[data-ide-first] .ide-bone-overlay {
+  animation: ide-failsafe-hide 0s 5s forwards;
+}
+
+html[data-ide-first] .ide-boot-stage[data-ide-boot="idle"] .ide-bone-overlay,
+html[data-ide-first] .ide-boot-stage[data-ide-boot="bones"] .ide-bone-overlay,
+html[data-ide-first] .ide-boot-stage[data-ide-boot="lines"] .ide-bone-overlay,
+html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-bone-overlay {
   opacity: 1;
   visibility: visible;
 }
 
+/* Idle, before the scroll trigger: frame stays up, body bones sit quiet. */
+html[data-ide-first] .ide-boot-stage[data-ide-boot="idle"] .ide-boot-editor,
+html[data-ide-first] .ide-boot-stage[data-ide-boot="idle"] .ide-boot-line,
+html[data-ide-first] .ide-boot-stage[data-ide-boot="idle"] .ide-boot-sidecar,
+html[data-ide-first] .ide-boot-stage[data-ide-boot="idle"] .ide-boot-sidecar-block {
+  opacity: 0;
+}
+
+html[data-ide-first] .ide-boot-stage[data-ide-boot="idle"] .ide-bone-chrome {
+  display: none;
+}
+
+html[data-ide-first] .ide-boot-stage[data-ide-boot="idle"] .ide-bone-body {
+  opacity: 0.25;
+  animation: none;
+}
+
 /* —— bones: overlay holds / pulses; real chrome hidden —— */
-.ide-boot-stage[data-ide-boot="bones"] .ide-bone-overlay .ide-bone {
+html[data-ide-first] .ide-boot-stage[data-ide-boot="bones"] .ide-bone-overlay .ide-bone {
   animation: ide-boot-bone-pulse 1.6s ease-in-out infinite;
 }
 
-.ide-boot-stage[data-ide-boot="bones"] .ide-boot-tabs,
-.ide-boot-stage[data-ide-boot="bones"] .ide-boot-chrome,
-.ide-boot-stage[data-ide-boot="bones"] .ide-boot-status,
-.ide-boot-stage[data-ide-boot="bones"] .ide-boot-editor,
-.ide-boot-stage[data-ide-boot="bones"] .ide-boot-sidecar {
+html[data-ide-first] .ide-boot-stage[data-ide-boot="bones"] .ide-boot-tabs,
+html[data-ide-first] .ide-boot-stage[data-ide-boot="bones"] .ide-boot-chrome,
+html[data-ide-first] .ide-boot-stage[data-ide-boot="bones"] .ide-boot-status,
+html[data-ide-first] .ide-boot-stage[data-ide-boot="bones"] .ide-boot-editor,
+html[data-ide-first] .ide-boot-stage[data-ide-boot="bones"] .ide-boot-sidecar {
   opacity: 0;
 }
 
 /* —— lines: bones out while hairlines draw; content still hidden —— */
-.ide-boot-stage[data-ide-boot="lines"] .ide-boot-tabs,
-.ide-boot-stage[data-ide-boot="lines"] .ide-boot-chrome,
-.ide-boot-stage[data-ide-boot="lines"] .ide-boot-status,
-.ide-boot-stage[data-ide-boot="lines"] .ide-boot-editor,
-.ide-boot-stage[data-ide-boot="lines"] .ide-boot-sidecar {
+html[data-ide-first] .ide-boot-stage[data-ide-boot="lines"] .ide-boot-tabs,
+html[data-ide-first] .ide-boot-stage[data-ide-boot="lines"] .ide-boot-chrome,
+html[data-ide-first] .ide-boot-stage[data-ide-boot="lines"] .ide-boot-status,
+html[data-ide-first] .ide-boot-stage[data-ide-boot="lines"] .ide-boot-editor,
+html[data-ide-first] .ide-boot-stage[data-ide-boot="lines"] .ide-boot-sidecar {
   opacity: 0;
 }
 
-.ide-boot-stage[data-ide-boot="lines"] .ide-bone-overlay .ide-bone {
+html[data-ide-first] .ide-boot-stage[data-ide-boot="lines"] .ide-bone-overlay .ide-bone {
   animation: ide-boot-bone-out 200ms ease-out forwards;
   animation-delay: calc(var(--b, 0) * 12ms);
 }
 
 /* —— content: fade-up chrome; scrambles scheduled in JS —— */
-.ide-boot-stage[data-ide-boot="content"] .ide-boot-tabs,
-.ide-boot-stage[data-ide-boot="content"] .ide-boot-chrome {
+html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-boot-tabs,
+html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-boot-chrome {
   animation: ide-boot-fade-up 280ms ease-out forwards;
 }
 
-.ide-boot-stage[data-ide-boot="content"] .ide-boot-editor {
+html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-boot-editor {
   opacity: 1;
 }
 
-.ide-boot-stage[data-ide-boot="content"] .ide-boot-line {
+html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-boot-line {
   opacity: 0;
   animation: ide-boot-fade-up 280ms ease-out forwards;
   animation-delay: min(calc(var(--i, 0) * 12ms), 360ms);
 }
 
-.ide-boot-stage[data-ide-boot="content"] .ide-boot-sidecar-block {
+html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-boot-sidecar-block {
   opacity: 0;
   animation: ide-boot-fade-up 280ms ease-out forwards;
   animation-delay: calc(var(--s, 0) * 80ms);
 }
 
-.ide-boot-stage[data-ide-boot="content"] .ide-boot-sidecar {
+html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-boot-sidecar {
   opacity: 1;
 }
 
-.ide-boot-stage[data-ide-boot="content"] .ide-boot-status {
+html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-boot-status {
   opacity: 0;
   animation: ide-boot-fade-up 280ms ease-out forwards;
   animation-delay: 400ms;
 }
 
-.ide-boot-stage[data-ide-boot="content"] .ide-bone-overlay {
+html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-bone-overlay {
   pointer-events: none;
 }
 
-.ide-boot-stage[data-ide-boot="content"] .ide-bone-overlay .ide-bone {
+html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-bone-overlay .ide-bone {
   opacity: 0;
 }
 

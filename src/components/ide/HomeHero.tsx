@@ -9,7 +9,7 @@ import { HOME_FRAME } from "@/components/ide/homeFrame";
 const { hero } = homePage;
 
 const sharedCta =
-  "inline-flex h-9 w-fit cursor-pointer items-center justify-center rounded-[4px] px-4 font-jetbrains text-xs font-bold tracking-wider uppercase transition-[background-color,border-color,color] duration-[400ms] ease-in-out focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
+  "inline-flex h-9 w-fit cursor-pointer items-center justify-center rounded-[4px] px-4 font-jetbrains text-xs font-bold tracking-wider uppercase transition-[background-color,border-color,color] duration-[400ms] ease-in-out focus-visible:ring-[3px] focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-bg-canvas focus-visible:outline-none";
 
 const primaryCta = `${sharedCta} border border-transparent bg-foreground text-bg-canvas hover:bg-[color-mix(in_srgb,var(--foreground)_90%,var(--bg-canvas))]`;
 

@@ -18,6 +18,7 @@ import {
   isGatewayPath,
 } from "@/components/nav/nav-links";
 import { cn } from "@/lib/cn";
+import { useNavClearance } from "@/components/nav/useNavClearance";
 
 const SOLID_SCROLL_Y = 48;
 
@@ -62,16 +63,12 @@ export function SiteNav() {
   const wasOpenRef = useRef(false);
   const firstLinkRef = useRef<HTMLAnchorElement | null>(null);
   const headerRef = useRef<HTMLElement | null>(null);
+  useNavClearance(headerRef, !isGatewayPath(pathname));
 
   if (menuPath !== pathname) {
     setMenuPath(pathname);
     setMenuOpen(false);
   }
-
-  useEffect(() => {
-    const img = new Image();
-    img.src = "/nav/menu-founders.webp";
-  }, []);
 
   useEffect(() => {
     if (!menuOpen) {

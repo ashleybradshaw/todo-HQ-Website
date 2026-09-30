@@ -1,20 +1,13 @@
 import type { MetadataRoute } from "next";
 import { getAllPosts } from "@/lib/blog";
+import { metadataDate } from "@/lib/metadata-date";
 import { getListedProjectSlugs } from "@/lib/projects";
 import { SITE_URL } from "@/lib/site";
 
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
-
-function safePostLastModified(date: string, fallback: Date): Date {
-  if (!ISO_DATE.test(date)) {
-    return fallback;
-  }
-  const parsed = new Date(`${date}T00:00:00.000Z`);
-  return Number.isFinite(parsed.getTime()) ? parsed : fallback;
-}
+/** Static pages do not use "now" — crawlers were seeing a fresh stamp on every build. */
+const STATIC_LAST_MODIFIED = new Date("2026-09-30T00:00:00.000Z");
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const lastModified = new Date();
   let posts: Awaited<ReturnType<typeof getAllPosts>> = [];
   try {
     posts = await getAllPosts();
@@ -25,56 +18,64 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     );
   }
   const workSlugs = getListedProjectSlugs();
+  const indexablePosts = posts.filter((post) => post.status !== "mock");
 
   return [
-    { url: SITE_URL, lastModified, changeFrequency: "weekly", priority: 1 },
     {
       url: `${SITE_URL}/home`,
-      lastModified,
+      lastModified: STATIC_LAST_MODIFIED,
       changeFrequency: "weekly",
-      priority: 0.9,
+      priority: 1,
     },
     {
       url: `${SITE_URL}/about`,
-      lastModified,
+      lastModified: STATIC_LAST_MODIFIED,
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
       url: `${SITE_URL}/ui`,
-      lastModified,
+      lastModified: STATIC_LAST_MODIFIED,
       changeFrequency: "monthly",
       priority: 0.5,
     },
     {
       url: `${SITE_URL}/work`,
-      lastModified,
+      lastModified: STATIC_LAST_MODIFIED,
       changeFrequency: "weekly",
       priority: 0.8,
     },
     ...workSlugs.map((slug) => ({
       url: `${SITE_URL}/work/${slug}`,
-      lastModified,
+      lastModified: STATIC_LAST_MODIFIED,
       changeFrequency: "monthly" as const,
       priority: 0.7,
     })),
     {
       url: `${SITE_URL}/blog`,
-      lastModified,
+      lastModified: STATIC_LAST_MODIFIED,
       changeFrequency: "weekly",
       priority: 0.7,
     },
     {
       url: `${SITE_URL}/book`,
-      lastModified,
+      lastModified: STATIC_LAST_MODIFIED,
       changeFrequency: "monthly",
       priority: 0.7,
     },
-    ...posts.map((post) => ({
-      url: `${SITE_URL}/blog/${post.slug}`,
-      lastModified: safePostLastModified(post.date, lastModified),
-      changeFrequency: "monthly" as const,
-      priority: 0.5,
-    })),
+    ...indexablePosts.flatMap((post) => {
+      const published = metadataDate(post.date);
+      if (!published) {
+        return [];
+      }
+      return [
+        {
+          url: `${SITE_URL}/blog/${post.slug}`,
+          lastModified: new Date(`${published}T00:00:00.000Z`),
+          changeFrequency: "monthly" as const,
+          priority: 0.5,
+        },
+      ];
+    }),
   ];
 }

@@ -6,26 +6,24 @@ declare global {
   }
 }
 
+const BYLINE = "TODO Engineering content team";
+
 const POSTS = [
   {
     slug: "design-engineer-evolution",
     title: "The design engineer, evolving",
-    author: "Riley Chen",
   },
   {
     slug: "tool-off-week",
     title: "Tool-off week",
-    author: "Casey Moreau",
   },
   {
     slug: "readygo-deep-dive",
     title: "ReadyGo: the next lap",
-    author: "Avery Nishimura",
   },
   {
     slug: "repdaily-our-first-time",
     title: "Our first time",
-    author: "Avery Nishimura",
   },
 ] as const;
 
@@ -90,7 +88,7 @@ test.describe("blog loop", () => {
       await expect(
         page.getByRole("heading", { name: post.title, level: 1 }),
       ).toBeVisible();
-      await expect(page.getByText(post.author, { exact: true }).first()).toBeVisible();
+      await expect(page.getByText(BYLINE, { exact: true }).first()).toBeVisible();
       await expect(page.getByText(/\/\/ \d+m/)).toBeVisible();
       await expect(page.locator("time").first()).toBeVisible();
       await page
@@ -440,13 +438,16 @@ test.describe("blog loop", () => {
         window.localStorage.removeItem(`todo-blog-rate:${slug}`);
       }, post.slug);
       await visit(page, `/blog/${post.slug}`);
-      await expect(page.getByText(post.author, { exact: true }).first()).toBeVisible();
+      await expect(page.getByText(BYLINE, { exact: true }).first()).toBeVisible();
       await expect(page.getByText(/\/\/ \d+m/)).toBeVisible();
 
       await page.getByRole("button", { name: "Copy link" }).click();
       await expect(page.getByRole("button", { name: "Copied" })).toBeVisible();
       const copied = await page.evaluate(() => navigator.clipboard.readText());
-      expect(copied).toMatch(new RegExp(`/blog/${post.slug}$`));
+      const canonical = await page
+        .locator('link[rel="canonical"]')
+        .getAttribute("href");
+      expect(copied).toBe(canonical);
 
       await page.getByRole("button", { name: "Good" }).click();
       await expect(page.getByText("Thanks — that's noted.")).toBeVisible();
@@ -515,7 +516,7 @@ test.describe("blog loop", () => {
     await expect(
       article.getByRole("heading", { name: POSTS[0].title, level: 1 }),
     ).toBeVisible();
-    await expect(article.getByText("Growth Editor, //TODO").first()).toBeVisible();
+    await expect(article.getByText(BYLINE).first()).toBeVisible();
     const hero = article.locator("#blog-post-hero");
     await expect(hero).toBeVisible();
     await expect(hero.locator("img")).toHaveAttribute(
@@ -526,11 +527,8 @@ test.describe("blog loop", () => {
     await expect(article.getByText(/MOCK — outline only/)).toBeVisible();
     await expect(article.locator("#blog-adjacent-nav")).toBeVisible();
     await expect(article.locator("#blog-writer-band")).toBeVisible();
-    await expect(
-      article.getByText(
-        "Edits factory notes for technical founders and product leads evaluating how the floor actually ships.",
-      ),
-    ).toBeVisible();
+    await expect(article.locator("#blog-writer-band")).toContainText(BYLINE);
+    await expect(article.getByText(/Growth Editor/)).toHaveCount(0);
     await expect(
       page.getByRole("region", { name: "Work together" }),
     ).toBeVisible();
@@ -657,5 +655,22 @@ test.describe("blog loop", () => {
     expect(bodyWidth).toBeGreaterThanOrEqual(280);
     expect(bodyWidth).toBeLessThanOrEqual(390);
     await expect(body).toHaveCSS("font-size", "18px");
+  });
+
+  test("featured card stacks at 768 and the byline is not truncated", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 768, height: 900 });
+    await visit(page, "/blog");
+    const row = page.locator("#blog-featured-row");
+    const columns = await row.evaluate(
+      (el) => getComputedStyle(el).gridTemplateColumns,
+    );
+    expect(columns.split(" ").filter(Boolean)).toHaveLength(1);
+
+    const byline = row.getByText(BYLINE);
+    await expect(byline).toBeVisible();
+    const clipped = await byline.evaluate((el) => el.scrollWidth > el.clientWidth + 1);
+    expect(clipped).toBe(false);
   });
 });

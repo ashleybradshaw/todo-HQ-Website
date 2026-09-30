@@ -5,6 +5,7 @@
 
 import { close, faq } from "@/content/pages/shared";
 
+// TEST COPY — modelled figures, not signed-off proof
 export const STAT_MOCKS = [
   { figure: "£30M+", label: "Pipeline value", source: "// modelled capacity" },
   {
@@ -15,7 +16,7 @@ export const STAT_MOCKS = [
   { figure: "12", label: "Products shipped", source: "// roster + clients" },
 ] as const;
 
-/** Simulated floor telemetry — panel titled // FLOOR SIM; not real analytics. */
+/** // TEST COPY — simulated floor telemetry. Panel titled // FLOOR SIM; not real analytics. */
 export const LIVE_FLOOR_SIM = [
   {
     id: "api-min",

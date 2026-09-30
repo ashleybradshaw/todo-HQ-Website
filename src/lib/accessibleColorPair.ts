@@ -121,7 +121,7 @@ function hslToHex(hue: number, saturation: number, lightness: number) {
 }
 
 /** Approximate `color-mix(in srgb, fg p%, bg)` in sRGB. */
-function mixHex(foreground: string, background: string, foregroundWeight: number) {
+export function mixHex(foreground: string, background: string, foregroundWeight: number) {
   const fg = hexToRgb(foreground);
   const bg = hexToRgb(background);
   const t = Math.min(1, Math.max(0, foregroundWeight));
@@ -207,6 +207,19 @@ export function fitMutedAgainstBackground(background: string, text: string) {
   const desaturated = Math.max(18, Math.min(45, s * 0.42));
   const preferred = Math.min(55, Math.max(28, l * 0.85));
   return fitHueAgainstBackground(background, h, desaturated, preferred);
+}
+
+/**
+ * Ink for an 18% tint chip of `source` on `canvas`.
+ * Keeps `source` when it already clears AA on that chip.
+ */
+export function fitBadgeInk(canvas: string, source: string) {
+  const chip = mixHex(source, canvas, 0.18);
+  if (contrastRatio(source, chip) >= WCAG_AA_CONTRAST) {
+    return source;
+  }
+  const { h, s } = hexToHsl(source);
+  return fitHueAgainstBackground(chip, h, Math.min(100, s), 20);
 }
 
 /** Darker same-hue text for ~10% tinted fills (cards / CTAs). */

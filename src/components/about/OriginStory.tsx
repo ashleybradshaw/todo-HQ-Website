@@ -13,6 +13,7 @@ export function OriginStory() {
             key={item.src}
             src={item.src}
             alt={item.alt}
+            priority={index === 0}
             delayMs={index === 1 ? 150 : 0}
           />
         ))}

@@ -14,7 +14,7 @@ export type BreadcrumbsProps = {
 };
 
 const crumbLinkClass =
-  "underline transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
+  "inline-flex min-h-6 items-center underline transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
 
 /**
  * Shared trail: Parent → Current (JetBrains type-meta).

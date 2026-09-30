@@ -63,6 +63,14 @@ export const homePage = {
     ],
   },
 
+  // TEST COPY — way into the public /ui spec, under the IDE
+  uiCard: {
+    title: "Built to spec.", // TEST COPY
+    sub: "Colour, type and the parts this site is made of, read live from the tokens.", // TEST COPY
+    cta: "Open TODO UI", // TEST COPY
+    href: "/ui",
+  },
+
   // TEST COPY — contained IDE chrome
   chrome: {
     aria: "IDE window", // TEST COPY
@@ -216,6 +224,12 @@ export const homePage = {
       todo: "README.md", // TEST COPY
       offer: "services.md", // TEST COPY
       discovery: "book.ts", // TEST COPY
+    },
+    /** Visible below 480px. Accessible name stays the full filename. */
+    shortTabs: {
+      todo: "README", // TEST COPY
+      offer: "services", // TEST COPY
+      discovery: "book", // TEST COPY
     },
   },
 

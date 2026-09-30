@@ -9,7 +9,6 @@ import {
   useSyncExternalStore,
   type CSSProperties,
   type KeyboardEvent,
-  type MouseEvent,
 } from "react";
 import { DecodeLabel } from "@/components/DecodeLabel";
 import { homePage } from "@/content/pages/home";
@@ -178,12 +177,6 @@ export function ReadmeCodePane({
   // Centre-line band: only while IDE in viewport; no scroll listeners.
   useEffect(() => {
     if (!ideInView || reduceMotion) {
-      onLiveChange?.({
-        activeLine: activeIndex + 1,
-        sectionHeading,
-        sectionId,
-        sectionPlayKey,
-      });
       return;
     }
 
@@ -212,17 +205,7 @@ export function ReadmeCodePane({
 
     for (const el of els) lineIo.observe(el);
     return () => lineIo.disconnect();
-  }, [
-    ideInView,
-    reduceMotion,
-    lines.length,
-    setActive,
-    activeIndex,
-    sectionHeading,
-    sectionId,
-    sectionPlayKey,
-    onLiveChange,
-  ]);
+  }, [ideInView, reduceMotion, lines.length, setActive]);
 
   useEffect(() => {
     onLiveChange?.({
@@ -308,7 +291,6 @@ export function ReadmeCodePane({
             }}
             data-line-index={index}
             data-bone="line"
-            role="row"
             tabIndex={activeIndex === index ? 0 : -1}
             className={`ide-boot-line group/line grid min-w-0 outline-none ${
               isHeading || isH1 ? "ide-readme-heading" : ""
@@ -362,10 +344,6 @@ export function ReadmeCodePane({
                 <button
                   type="button"
                   onClick={onExecutePipeline}
-                  onMouseEnter={(event: MouseEvent) => {
-                    event.stopPropagation();
-                    onExecutePipeline();
-                  }}
                   aria-label={todoHq.methodologyAria}
                   className="relative rounded-[4px] bg-transparent p-0 font-medium text-[color:var(--blog-cat-agents)] transition-opacity duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none"
                 >

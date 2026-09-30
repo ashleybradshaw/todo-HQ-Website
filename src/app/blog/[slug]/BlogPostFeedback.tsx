@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { SITE_URL } from "@/lib/site";
 
 const RATINGS = ["Good", "Fine", "Boring"] as const;
 type Rating = (typeof RATINGS)[number];
@@ -15,7 +16,7 @@ function storageKey(slug: string) {
 }
 
 function canonicalPostUrl(slug: string) {
-  return new URL(`/blog/${slug}`, window.location.origin).toString();
+  return `${SITE_URL}/blog/${slug}`;
 }
 
 function isRating(value: string | null): value is Rating {

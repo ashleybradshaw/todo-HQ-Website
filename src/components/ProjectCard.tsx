@@ -83,7 +83,7 @@ export function ProjectCard({
             href={`/work/${project.slug}`}
             // Stretched link: ::before is clipped to this article (relative + isolate),
             // so neighbouring pipeline cards never receive the hit target.
-            className="type-label w-max cursor-pointer underline-offset-2 before:absolute before:inset-0 before:z-[1] before:content-[''] [text-decoration:underline_1px_wavy] [text-decoration-color:color-mix(in_srgb,var(--foreground)_55%,transparent)] [text-underline-position:from-font] transition-opacity hover:opacity-80 focus-visible:outline-none"
+            className="type-label inline-flex min-h-6 w-max cursor-pointer items-center underline-offset-2 before:absolute before:inset-0 before:z-[1] before:content-[''] [text-decoration:underline_1px_wavy] [text-decoration-color:color-mix(in_srgb,var(--foreground)_55%,transparent)] [text-underline-position:from-font] transition-opacity hover:opacity-80 focus-visible:outline-none"
           >
             <span className="relative z-[2]">Open {project.name}</span>
           </Link>

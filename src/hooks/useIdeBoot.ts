@@ -8,7 +8,7 @@ import {
   type RefObject,
 } from "react";
 
-export type IdeBootPhase = "bones" | "lines" | "content" | "done";
+export type IdeBootPhase = "idle" | "bones" | "lines" | "content" | "done";
 
 export type IdeBootScramble = {
   headingByLine: Readonly<Record<number, number>>;
@@ -106,6 +106,14 @@ function clearIdeFirst(): void {
   }
 }
 
+function armIdeFirst(): void {
+  try {
+    document.documentElement.setAttribute("data-ide-first", "");
+  } catch {
+    /* ignore */
+  }
+}
+
 function lineFadeDelay(lineIndex: number): number {
   return Math.min(lineIndex * LINE_STAGGER_MS, LINE_STAGGER_CAP_MS);
 }
@@ -128,17 +136,16 @@ function bonesOutDurationMs(boneCount: number): number {
 /**
  * One orchestrator for /home IDE boot: wait → bones hold → lines+bones-out →
  * content fade + scheduled scrambles → done.
- * Initial phase is `bones` so SSR includes the overlay for `data-ide-first`.
- * Repeat / reduced motion flip to `done` on mount (overlay unmounts; CSS
- * also hides bones without `data-ide-first`).
+ * Initial phase is `idle`: the frame is readable unless `html[data-ide-first]`
+ * is set (pre-paint script or a replay). Repeat / reduced motion flip to
+ * `done` and clear that attribute.
  */
 export function useIdeBoot(
   targetRef: RefObject<HTMLElement | null>,
   headingLineIndexes: readonly number[] = [],
 ): IdeBootState {
-  // SSR + first client paint: bones so overlay is in the tree for data-ide-first.
-  // Repeat visits flip to done in the effect before paint is noticeable (CSS-hidden).
-  const [phase, setPhase] = useState<IdeBootPhase>("bones");
+  // SSR + first paint: idle. Chrome stays visible until data-ide-first.
+  const [phase, setPhase] = useState<IdeBootPhase>("idle");
   const [ticksArmed, setTicksArmed] = useState(false);
   const [revealNonce, setRevealNonce] = useState(0);
   const [scramble, setScramble] = useState<IdeBootScramble>(EMPTY_SCRAMBLE);
@@ -234,7 +241,7 @@ export function useIdeBoot(
         return;
       }
 
-      // Replays never set data-ide-first; overlay hides via phase=bones.
+      armIdeFirst();
       setTicksArmed(false);
       setScramble(EMPTY_SCRAMBLE);
       setPhase("bones");

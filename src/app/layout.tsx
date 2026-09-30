@@ -8,6 +8,7 @@ import { SiteFooterBar } from "@/components/SiteFooterBar";
 import { SiteFooterGate } from "@/components/SiteFooterGate";
 import { SprayProvider } from "@/components/SprayProvider";
 import { organizationGraph } from "@/lib/schema";
+import { DEFAULT_SHARE_IMAGE } from "@/lib/seo";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
@@ -50,11 +51,13 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title: `${SITE_NAME} — Design and AI Engineering Studio`,
     description: SITE_DESCRIPTION,
+    images: [DEFAULT_SHARE_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: `${SITE_NAME} — Design and AI Engineering Studio`,
     description: SITE_DESCRIPTION,
+    images: [DEFAULT_SHARE_IMAGE.url],
   },
   robots: {
     index: true,
@@ -68,7 +71,7 @@ const IDE_FIRST_BOOT_SCRIPT = `(function(){try{var p=location.pathname;if(p!=="/
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="en"
+      lang="en-GB"
       className={`${unbounded.variable} ${jetbrainsMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
@@ -78,10 +81,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           dangerouslySetInnerHTML={{ __html: IDE_FIRST_BOOT_SCRIPT }}
         />
         <noscript>
-          <style>{`[data-ide-first] .ide-boot-tabs,[data-ide-first] .ide-boot-chrome,[data-ide-first] .ide-boot-status,[data-ide-first] .ide-boot-editor,[data-ide-first] .ide-boot-sidecar,[data-ide-first] .ide-boot-line{opacity:1!important;transform:none!important;animation:none!important}.ide-bone-overlay{display:none!important}`}</style>
+          <style>{`.ide-bone-overlay{display:none!important}.ide-boot-tabs,.ide-boot-chrome,.ide-boot-status,.ide-boot-editor,.ide-boot-sidecar,.ide-boot-sidecar-block,.ide-boot-line{opacity:1!important;transform:none!important;animation:none!important}`}</style>
         </noscript>
       </head>
       <body className="min-h-full bg-[#4545FF] text-[#DFDFFF]">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[80] focus:inline-flex focus:min-h-11 focus:items-center focus:bg-bg-canvas focus:px-3 focus:py-2 focus:text-sm focus:text-foreground focus:ring-[3px] focus:ring-foreground focus:outline-none"
+        >
+          Skip to main content
+        </a>
         <JsonLd data={organizationGraph()} />
         <SprayProvider>
           <NoiseOverlay />

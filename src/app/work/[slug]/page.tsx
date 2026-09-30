@@ -21,6 +21,7 @@ import {
 import { workDetailPage } from "@/content/pages/work";
 import { cn } from "@/lib/cn";
 import { pageMetadata } from "@/lib/seo";
+import { breadcrumbGraph } from "@/lib/schema";
 import { SITE_URL } from "@/lib/site";
 
 type WorkProjectParams = {
@@ -52,6 +53,14 @@ export async function generateMetadata({
     description: project.description,
     path: `/work/${project.slug}`,
     index: project.listed,
+    images: [
+      {
+        url: `/work/${project.slug}/opengraph-image`,
+        width: 1200,
+        height: 630,
+        alt: project.name,
+      },
+    ],
   });
 }
 
@@ -111,7 +120,7 @@ void ladderClass;
 const ESSAY_FRAME = "w-full max-w-[688px] mx-auto";
 
 const linkClass =
-  "type-label font-normal normal-case tracking-normal underline decoration-[color-mix(in_srgb,var(--foreground)_35%,transparent)] underline-offset-2 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
+  "type-label inline-flex min-h-6 items-center font-normal normal-case tracking-normal underline decoration-[color-mix(in_srgb,var(--foreground)_35%,transparent)] underline-offset-2 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
 
 function adjacentProjects(slug: string) {
   const pages = getPageProjects();
@@ -137,6 +146,12 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
   return (
     <>
       <JsonLd data={projectJsonLd(project)} />
+      <JsonLd
+        data={breadcrumbGraph([
+          { name: workDetailPage.breadcrumbWork, path: "/work" },
+          { name: project.name, path: `/work/${project.slug}` },
+        ])}
+      />
       <PageShell
         variant="essay"
         title={project.name}

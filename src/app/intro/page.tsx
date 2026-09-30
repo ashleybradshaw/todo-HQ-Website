@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { RSVPIntro } from "@/components/RSVPIntro";
+import { introPage } from "@/content/pages/intro";
 import { requestIdeBootReplay } from "@/hooks/useIdeBoot";
 
 export default function IntroPage() {
@@ -13,11 +14,14 @@ export default function IntroPage() {
   }, [router]);
 
   return (
-    <RSVPIntro
-      onComplete={() => {
-        requestIdeBootReplay();
-        router.replace("/home");
-      }}
-    />
+    <main id="main">
+      <h1 className="sr-only">{introPage.seo.title}</h1>
+      <RSVPIntro
+        onComplete={() => {
+          requestIdeBootReplay();
+          router.replace("/home");
+        }}
+      />
+    </main>
   );
 }

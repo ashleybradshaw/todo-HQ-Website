@@ -16,6 +16,7 @@ import {
   BRAND_SYN_STRING,
   BRAND_TEXT_MUTED,
   BRAND_TEXT_ON_TINT,
+  fitBadgeInk,
   fitHueAgainstBackground,
   fitMutedAgainstBackground,
   fitTextOnTint,
@@ -49,8 +50,6 @@ function applyPair(pair: AccessibleColorPair) {
   // Selection always inverts the live pair (brand defaults or sprayed).
   root.setProperty("--selection-bg", pair.text);
   root.setProperty("--selection-fg", pair.bg);
-  // Brand lockup stays #0B0CB4 until Spray; sprayed routes ride pair.text.
-  root.setProperty("--brand-logo", brand ? "#0B0CB4" : pair.text);
   root.setProperty(
     "--border-ide",
     `color-mix(in srgb, ${pair.text} 18%, transparent)`,
@@ -71,12 +70,18 @@ function applyPair(pair: AccessibleColorPair) {
   root.setProperty("--syn-keyword", pair.text);
   root.setProperty("--syn-heading", pair.text);
 
+  const logo = brand ? "#0B0CB4" : pair.text;
+  root.setProperty("--brand-logo", logo);
+  const synString = brand
+    ? BRAND_SYN_STRING
+    : fitHueAgainstBackground(pair.bg, 160, 70, 55);
+
   if (brand) {
     root.setProperty("--text-muted", BRAND_TEXT_MUTED);
     root.setProperty("--syn-property", BRAND_TEXT_MUTED);
     root.setProperty("--syn-comment", BRAND_TEXT_MUTED);
     root.setProperty("--syn-body", BRAND_SYN_BODY);
-    root.setProperty("--syn-string", BRAND_SYN_STRING);
+    root.setProperty("--syn-string", synString);
     root.setProperty("--syn-number", BRAND_SYN_NUMBER);
     root.setProperty("--text-on-tint", BRAND_TEXT_ON_TINT);
   } else {
@@ -88,16 +93,16 @@ function applyPair(pair: AccessibleColorPair) {
       "--syn-body",
       `color-mix(in srgb, ${pair.text} 75%, ${muted})`,
     );
-    root.setProperty(
-      "--syn-string",
-      fitHueAgainstBackground(pair.bg, 160, 70, 55),
-    );
+    root.setProperty("--syn-string", synString);
     root.setProperty(
       "--syn-number",
       fitHueAgainstBackground(pair.bg, 35, 80, 60),
     );
     root.setProperty("--text-on-tint", fitTextOnTint(pair.bg, pair.text));
   }
+
+  root.setProperty("--badge-md-ink", fitBadgeInk(pair.bg, synString));
+  root.setProperty("--badge-ts-ink", fitBadgeInk(pair.bg, logo));
 
   // Brand: mix toward logo blue; sprayed: mix toward canvas.
   root.setProperty(

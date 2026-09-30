@@ -101,6 +101,7 @@ export function TypeComment({
       let i = 1;
       setCount(1);
       if (text.length <= 1) {
+        setTyping(false);
         return;
       }
 
@@ -108,6 +109,7 @@ export function TypeComment({
         i += 1;
         if (i >= text.length) {
           setCount(text.length);
+          setTyping(false);
           window.clearInterval(timer);
           timer = 0;
           return;
@@ -140,16 +142,20 @@ export function TypeComment({
       id={id}
       className={cn("type-label", className)}
     >
-      <span className="sr-only">{text}</span>
-      <span
-        className="relative inline-grid max-w-full justify-items-stretch text-left"
-        aria-hidden="true"
-      >
-        <span className="invisible col-start-1 row-start-1 whitespace-pre">
-          {text}
-        </span>
-        <span className="col-start-1 row-start-1 whitespace-pre">{visible}</span>
-      </span>
+      {typing ? (
+        <>
+          <span className="sr-only">{text}</span>
+          <span
+            aria-hidden="true"
+            className="inline-block whitespace-pre text-left"
+            style={{ minWidth: `${text.length}ch` }}
+          >
+            {visible}
+          </span>
+        </>
+      ) : (
+        text
+      )}
     </Tag>
   );
 }

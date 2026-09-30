@@ -9,6 +9,17 @@ export const SITE_NAME = "//TODO Engineering";
 
 export const CONTACT_EMAIL = "team@todo.engineering";
 
+/** Organisation byline until writer profiles exist. */
+export const CONTENT_BYLINE = "TODO Engineering content team";
+
+/**
+ * Public social URLs. An empty string hides the footer link and is omitted
+ * from Organization sameAs.
+ */
+export const SOCIAL = {
+  x: "",
+} as const;
+
 export const SITE_DESCRIPTION =
   "//TODO Engineering designs and builds apps, software systems and hardware-connected products for teams with hard problems.";
 

@@ -27,6 +27,7 @@ import { DiscoveryPane } from "@/components/ide/DiscoveryPane";
 import { IdeProjectCards } from "@/components/ide/IdeProjectCards";
 import { IdeOutline } from "@/components/ide/IdeOutline";
 import { HomeHero } from "@/components/ide/HomeHero";
+import { UiSpecimenCard } from "@/components/ide/UiSpecimenCard";
 import { HomeFeatureStrip } from "@/components/ide/HomeFeatureStrip";
 import { HomePageGrid } from "@/components/ide/HomePageGrid";
 import { HOME_FRAME } from "@/components/ide/homeFrame";
@@ -120,7 +121,7 @@ export function FactoryDashboard() {
   const scrambleOk = ideInView;
 
   return (
-    <main className="bg-bg-canvas text-syn-property relative min-h-screen w-full">
+    <main id="main" className="bg-bg-canvas text-syn-property relative min-h-screen w-full">
       <HomePageGrid />
 
       <div className="relative z-10 flex w-full flex-col pt-[var(--site-header-offset)]">
@@ -267,6 +268,7 @@ export function FactoryDashboard() {
             </div>
           </IdeReveal>
         </div>
+        <UiSpecimenCard />
       </div>
     </main>
   );

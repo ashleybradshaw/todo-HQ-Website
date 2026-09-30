@@ -61,6 +61,18 @@ export const TOKEN_REGISTRY: readonly TokenEntry[] = [
   { name: "Syn keyword", token: "--syn-keyword", group: "syntax" },
   { name: "Syn property", token: "--syn-property", group: "syntax" },
   { name: "Syn string", token: "--syn-string", group: "syntax" },
+  {
+    name: "Badge md ink",
+    token: "--badge-md-ink",
+    group: "syntax",
+    note: "File-badge ink on an 18% string chip. Clears AA where --syn-string does not.",
+  },
+  {
+    name: "Badge ts ink",
+    token: "--badge-ts-ink",
+    group: "syntax",
+    note: "File-badge ink on an 18% logo chip.",
+  },
   { name: "Syn number", token: "--syn-number", group: "syntax" },
   { name: "Syn comment", token: "--syn-comment", group: "syntax" },
   { name: "Syn body", token: "--syn-body", group: "syntax" },

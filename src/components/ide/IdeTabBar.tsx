@@ -60,7 +60,7 @@ function FileBadge({
     tone === "md"
       ? "color-mix(in srgb, var(--syn-string) 18%, transparent)"
       : "color-mix(in srgb, var(--brand-logo) 18%, transparent)";
-  const ink = tone === "md" ? "text-syn-string" : "text-brand-logo";
+  const ink = tone === "md" ? "text-badge-md-ink" : "text-badge-ts-ink";
 
   return (
     <span
@@ -131,7 +131,8 @@ export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
             aria-controls={tab.panelId}
             tabIndex={selected ? 0 : -1}
             onClick={() => onChange(tab.id)}
-            className={`font-jetbrains relative flex min-h-9 min-w-0 flex-1 items-center gap-1.5 overflow-hidden border-r border-border-ide px-2 py-2 text-xs transition-[color,background-color,opacity] duration-[400ms] ease-in-out focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none sm:px-3 ${
+            aria-label={tab.label}
+            className={`font-jetbrains relative flex min-h-9 shrink-0 items-center gap-1 overflow-hidden border-r border-border-ide px-1.5 py-2 text-xs transition-[color,background-color,opacity] duration-[400ms] ease-in-out focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none min-[480px]:min-w-0 min-[480px]:flex-1 min-[480px]:gap-1.5 min-[480px]:px-2 sm:px-3 ${
               selected
                 ? "bg-bg-canvas text-syn-keyword font-medium"
                 : "text-syn-comment hover:bg-foreground/5 font-normal"
@@ -144,7 +145,12 @@ export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
               />
             ) : null}
             <FileBadge label={tab.badge} tone={tab.badgeTone} />
-            <span className="min-w-0 truncate">{tab.label}</span>
+            <span className="hidden min-w-0 truncate min-[480px]:inline">
+              {tab.label}
+            </span>
+            <span className="shrink-0 min-[480px]:hidden" aria-hidden="true">
+              {homePage.ideTabs.shortTabs[tab.id]}
+            </span>
             {tab.dirty ? (
               <span
                 aria-hidden="true"

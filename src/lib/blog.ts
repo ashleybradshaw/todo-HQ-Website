@@ -3,7 +3,8 @@ import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { cache } from "react";
 import { getWriter, type GhostWriter } from "../../content/blog/writers";
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { metadataDate } from "@/lib/metadata-date";
+import { CONTENT_BYLINE, SITE_URL } from "@/lib/site";
 import {
   BLOG_OG_DEFAULT_SRC,
   isBlogCategory,
@@ -317,8 +318,8 @@ export function toBlogIndexPost(post: BlogPost): BlogIndexPost {
     readMinutes: post.readMinutes,
     category: post.category,
     featured: post.featured,
-    writerName: post.writer.name,
-    avatarSrc: post.avatarSrc,
+    writerName: CONTENT_BYLINE,
+    avatarSrc: null,
     imageSrc: post.heroSrc ?? post.ogImageSrc,
     imageAlt: post.imageAlt,
   };
@@ -370,25 +371,25 @@ export function blogShareImageSrc(
   return post.ogImageSrc ?? post.heroSrc ?? BLOG_OG_DEFAULT_SRC;
 }
 
+export function isMockPost(post: Pick<BlogPost, "status">) {
+  return post.status === "mock";
+}
+
 export function blogPostingGraph(post: BlogPost) {
   const image = `${SITE_URL}${blogShareImageSrc(post)}`;
+  const published = metadataDate(post.date);
   return {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: post.title,
     description: post.excerpt,
-    datePublished: post.date,
+    ...(published
+      ? { datePublished: published, dateModified: published }
+      : {}),
     image,
-    author: {
-      "@type": "Person",
-      name: post.writer.name,
-      jobTitle: post.writer.role,
-    },
-    publisher: {
-      "@type": "Organization",
-      name: SITE_NAME,
-      url: SITE_URL,
-    },
+    author: { "@id": `${SITE_URL}/#content-team` },
+    publisher: { "@id": `${SITE_URL}/#organization` },
+    isPartOf: { "@id": `${SITE_URL}/#website` },
     mainEntityOfPage: `${SITE_URL}/blog/${post.slug}`,
     url: `${SITE_URL}/blog/${post.slug}`,
   };

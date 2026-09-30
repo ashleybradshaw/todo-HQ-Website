@@ -74,6 +74,7 @@ export function PageShell({
 
   return (
     <main
+      id="main"
       className={cn(
         "relative min-h-screen bg-background px-6 pt-28 pb-16 text-foreground transition-[background-color,color] duration-[400ms] ease-in-out",
         overflow === "hidden" ? "overflow-hidden" : "overflow-x-hidden",

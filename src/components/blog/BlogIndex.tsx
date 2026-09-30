@@ -61,7 +61,7 @@ function FeaturedCover({ src }: { src: string | null }) {
             alt=""
             fill
             priority
-            sizes="(max-width: 768px) 100vw, 33vw"
+            sizes="(max-width: 1023px) 100vw, 33vw"
             className="object-cover object-center"
           />
         </BlogMediaCraft>
@@ -190,7 +190,7 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
           {featured ? (
             <div
               id="blog-featured-row"
-              className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_2fr] md:items-stretch"
+              className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_2fr] lg:items-stretch"
             >
               <article id="blog-featured" className="min-w-0">
                 <Link

@@ -315,6 +315,7 @@ export function PipelineRunner({
                   className="overflow-hidden"
                 >
                   <div
+                    data-pipeline-detail=""
                     className="text-foreground space-y-0.5 overflow-hidden pb-1 pl-5 text-xs leading-4"
                     style={{ height: DETAIL_SLOT }}
                     aria-hidden={!active}
@@ -327,7 +328,7 @@ export function PipelineRunner({
                         {lines.map((line, lineIndex) => (
                           <motion.p
                             key={`${stage.id}-${line}`}
-                            className="whitespace-pre"
+                            className="whitespace-pre-wrap"
                             initial={reduceMotion ? false : { opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{

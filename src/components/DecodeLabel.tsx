@@ -73,7 +73,8 @@ function settleCells(target: string): DecodeCell[] {
  * Short LTR decode — TypeComment kinship.
  * `chroma`: syntax-color noise while scrambling; settles to syn-comment.
  * Skips on first paint and under prefers-reduced-motion.
- * Screen readers see the invisible real `text`; scramble layer is aria-hidden.
+ * At rest the string is in the DOM once. While scrambling, that copy is
+ * visibility-hidden (layout) and the glyph layer is aria-hidden.
  */
 export function DecodeLabel({
   text,
@@ -146,42 +147,34 @@ export function DecodeLabel({
     <span
       className={cn(
         "relative",
-        wrap
-          ? "block w-full max-w-full"
-          : "inline-grid justify-items-stretch",
+        wrap ? "block w-full max-w-full" : "inline-block",
         className,
       )}
     >
       <span
-        className={cn(
-          "invisible",
-          wrap ? "block" : "col-start-1 row-start-1",
-          whiteSpace,
-        )}
+        className={cn(whiteSpace, scrambling && "invisible")}
+        style={!scrambling && chroma ? { color: settle } : undefined}
       >
         {text}
       </span>
-      <span
-        className={cn(
-          wrap
-            ? "absolute inset-0 text-center"
-            : "col-start-1 row-start-1",
-          whiteSpace,
-        )}
-        aria-hidden="true"
-        style={chroma && !scrambling ? { color: settle } : undefined}
-      >
-        {inheritOnly
-          ? cells.map((cell) => cell.ch).join("")
-          : cells.map((cell, i) => (
-              <span
-                key={i}
-                style={scrambling ? { color: cell.color } : undefined}
-              >
-                {cell.ch}
-              </span>
-            ))}
-      </span>
+      {scrambling ? (
+        <span
+          aria-hidden="true"
+          className={cn(
+            "absolute inset-0",
+            whiteSpace,
+            wrap && "text-center",
+          )}
+        >
+          {inheritOnly
+            ? cells.map((cell) => cell.ch).join("")
+            : cells.map((cell, i) => (
+                <span key={i} style={{ color: cell.color }}>
+                  {cell.ch}
+                </span>
+              ))}
+        </span>
+      ) : null}
     </span>
   );
 }

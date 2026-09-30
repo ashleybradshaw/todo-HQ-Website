@@ -15,6 +15,7 @@ type BoneRect = {
   width: number;
   height: number;
   index: number;
+  chrome: boolean;
 };
 
 type IdeBoneOverlayProps = {
@@ -28,6 +29,7 @@ const STATIC_SIDECAR = 5;
 const TAB_H = 36;
 const PATH_H = 28;
 const STATUS_H = 28;
+const CHROME_KINDS = new Set(["tabs", "path", "status"]);
 
 /**
  * Static first-paint bones (SSR / pre-measure), then swap to measured
@@ -52,7 +54,7 @@ export function IdeBoneOverlay({ phase, windowRef }: IdeBoneOverlayProps) {
       nodes.forEach((node, i) => {
         const rect = node.getBoundingClientRect();
         if (rect.width < 2 || rect.height < 2) return;
-        const kind = node.getAttribute("data-bone");
+        const kind = node.getAttribute("data-bone") ?? "";
         if (kind === "line") {
           const editor = root.querySelector("[data-ide-editor]");
           if (editor) {
@@ -72,6 +74,7 @@ export function IdeBoneOverlay({ phase, windowRef }: IdeBoneOverlayProps) {
           width: rect.width,
           height,
           index: index++,
+          chrome: CHROME_KINDS.has(kind),
         });
       });
       if (next.length > 0) {
@@ -96,7 +99,9 @@ export function IdeBoneOverlay({ phase, windowRef }: IdeBoneOverlayProps) {
         measured.map((bone) => (
           <span
             key={bone.key}
-            className="ide-bone absolute rounded-[4px] bg-foreground/20"
+            className={`ide-bone absolute rounded-[4px] bg-foreground/20 ${
+              bone.chrome ? "ide-bone-chrome" : "ide-bone-body"
+            }`}
             style={
               {
                 top: bone.top + (bone.height > 28 ? 4 : bone.height > 14 ? 4 : 0),
@@ -132,7 +137,7 @@ function StaticFallbackBones() {
         {[0, 1, 2].map((i) => (
           <span
             key={i}
-            className="ide-bone h-5 w-20 rounded-[4px] bg-foreground/20 lg:w-24"
+            className="ide-bone ide-bone-chrome h-5 w-20 rounded-[4px] bg-foreground/20 lg:w-24"
             style={{ "--b": b++ } as CSSProperties}
           />
         ))}
@@ -142,7 +147,7 @@ function StaticFallbackBones() {
         style={{ height: PATH_H }}
       >
         <span
-          className="ide-bone h-2.5 w-48 rounded-[4px] bg-foreground/20"
+          className="ide-bone ide-bone-chrome h-2.5 w-48 rounded-[4px] bg-foreground/20"
           style={{ "--b": b++ } as CSSProperties}
         />
       </div>
@@ -151,7 +156,7 @@ function StaticFallbackBones() {
           {Array.from({ length: STATIC_ROWS }, (_, i) => (
             <span
               key={i}
-              className="ide-bone absolute left-10 h-2.5 rounded-[4px] bg-foreground/20 lg:left-12"
+              className="ide-bone ide-bone-body absolute left-10 h-2.5 rounded-[4px] bg-foreground/20 lg:left-12"
               style={
                 {
                   top: 12 + i * STATIC_ROW_PITCH,
@@ -167,7 +172,7 @@ function StaticFallbackBones() {
           {Array.from({ length: STATIC_SIDECAR }, (_, i) => (
             <span
               key={i}
-              className="ide-bone h-10 w-full rounded-[4px] bg-foreground/20"
+              className="ide-bone ide-bone-body h-10 w-full rounded-[4px] bg-foreground/20"
               style={{ "--b": b++ } as CSSProperties}
             />
           ))}
@@ -178,7 +183,7 @@ function StaticFallbackBones() {
         style={{ height: STATUS_H }}
       >
         <span
-          className="ide-bone h-2.5 w-full rounded-[4px] bg-foreground/20"
+          className="ide-bone ide-bone-chrome h-2.5 w-full rounded-[4px] bg-foreground/20"
           style={{ "--b": b++ } as CSSProperties}
         />
       </div>

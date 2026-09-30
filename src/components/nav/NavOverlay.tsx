@@ -44,7 +44,6 @@ function FoundersPlate({ className }: { className?: string }) {
       <AsciiReveal
         src="/nav/menu-founders.webp"
         alt=""
-        priority
         className="rounded-[4px]"
       />
     </div>
@@ -71,7 +70,7 @@ export function NavOverlay({
       data-open={open ? "" : undefined}
       inert={!open ? true : undefined}
       className={cn(
-        "bg-bg-canvas text-foreground fixed inset-0 z-0 flex flex-col overflow-y-auto pt-[4.5rem]",
+        "bg-bg-canvas text-foreground fixed inset-x-0 bottom-0 top-[var(--nav-bar-bottom,5rem)] z-0 flex flex-col overflow-y-auto",
         !open && "invisible pointer-events-none",
       )}
     >
@@ -139,14 +138,14 @@ export function NavOverlay({
           </div>
 
           {/* Mobile — single mount (no lg:hidden twin racing scramble at 0×0) */}
-          {!isLg ? (
+          {open && !isLg ? (
             <FoundersPlate className="mt-2 w-full max-w-[240px]" />
           ) : null}
         </div>
 
         {isLg ? (
           <div className="lg:col-span-4 lg:flex lg:flex-col lg:justify-center lg:border-l lg:border-border-ide lg:pl-8">
-            <FoundersPlate className="w-full" />
+            {open ? <FoundersPlate className="w-full" /> : null}
           </div>
         ) : null}
       </div>

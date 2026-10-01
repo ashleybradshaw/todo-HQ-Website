@@ -20,6 +20,7 @@ import {
 } from "@/lib/projects";
 import { workDetailPage } from "@/content/pages/work";
 import { cn } from "@/lib/cn";
+import { NavTrail } from "@/components/nav/NavTrail";
 import { pageMetadata } from "@/lib/seo";
 import { breadcrumbGraph } from "@/lib/schema";
 import { SITE_URL } from "@/lib/site";
@@ -164,6 +165,13 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
           />
         }
       >
+        <NavTrail
+          parentHref="/work"
+          parentLabel={workDetailPage.breadcrumbWork}
+          current={project.name}
+          progressId="work-article-body"
+        />
+        <div id="work-article-body">
         {/* Micro-study — blog-article Essay rhythm (centred header + column). */}
         <div className="mt-4 flex flex-col items-center gap-3">
           <ProjectStatusChip status={project.status} />
@@ -268,6 +276,7 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
             </Link>
           ) : null}
         </nav>
+        </div>
 
         <SiteCloser route="work-detail" />
       </PageShell>

@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 
 test.describe("/home IDE", () => {
   test("hero, strip, tabs, project cards, empty reply, shift.log", async ({
@@ -23,6 +24,9 @@ test.describe("/home IDE", () => {
     await expect(
       page.getByRole("link", { name: "See the work" }),
     ).toHaveAttribute("href", "/work");
+    await expect(page.getByRole("link", { name: "Open TODO UI" })).toHaveCount(0);
+    await expect(page.locator("[data-nav-breadcrumb]")).toHaveCount(0);
+    await expect(page.locator("[data-nav-progress]")).toHaveCount(0);
 
     await expect(
       page.getByRole("tab", { name: /README\.md/ }),
@@ -316,5 +320,64 @@ test.describe("/home IDE", () => {
       expect(fit.lines).toBeLessThanOrEqual(2);
       expect(fit.overflows).toBe(false);
     }
+  });
+
+  test("feed.x opens five posts, fits at 360 and 390, and passes axe", async ({
+    page,
+  }) => {
+    await page.goto("/home", { waitUntil: "domcontentloaded" });
+    const feed = page.getByRole("tab", { name: "feed.x" });
+    await expect(feed).toBeVisible();
+
+    for (const width of [360, 390]) {
+      await page.setViewportSize({ width, height: 800 });
+      const fit = await page.locator('[role="tablist"]').evaluate((list) => {
+        const tabs = [...list.querySelectorAll<HTMLElement>('[role="tab"]')];
+        return {
+          count: tabs.length,
+          listScrolls: list.scrollWidth > list.clientWidth + 1,
+          tabs: tabs.map((tab) => {
+            const shown = [...tab.querySelectorAll<HTMLElement>("span")].filter(
+              (span) => getComputedStyle(span).display !== "none",
+            );
+            return {
+              name: tab.getAttribute("aria-label"),
+              clips: tab.scrollWidth > tab.clientWidth + 1,
+              ellipsis: shown.some(
+                (span) =>
+                  getComputedStyle(span).textOverflow === "ellipsis" &&
+                  span.scrollWidth > span.clientWidth + 1,
+              ),
+              text: shown.map((span) => span.textContent).join(""),
+            };
+          }),
+        };
+      });
+      expect(fit.count).toBe(4);
+      expect(fit.listScrolls).toBe(false);
+      for (const tab of fit.tabs) {
+        expect(tab.clips, `${width} ${tab.name}`).toBe(false);
+        expect(tab.ellipsis, `${width} ${tab.name}`).toBe(false);
+      }
+      expect(fit.tabs.map((tab) => tab.text)).toEqual([
+        "mdREADME",
+        "mdservices",
+        "tsbook",
+        "x",
+      ]);
+    }
+
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await feed.click();
+    const panel = page.locator("#ide-panel-feed");
+    await expect(panel.locator("[data-x-feed] li")).toHaveCount(5);
+    await expect(panel.getByText("view on x ↗")).toHaveCount(5);
+    await expect(panel.locator('a[href^="http"]')).toHaveCount(0);
+
+    const axe = await new AxeBuilder({ page })
+      .include("#ide-tab-feed")
+      .include("#ide-panel-feed")
+      .analyze();
+    expect(axe.violations).toEqual([]);
   });
 });

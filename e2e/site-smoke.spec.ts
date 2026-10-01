@@ -82,6 +82,13 @@ test.describe("site smoke", () => {
       page.getByRole("button", { name: SPRAY_NAME }),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Open menu" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Open TODO UI" })).toHaveAttribute(
+      "href",
+      "/ui",
+    );
+    await expect(page.getByRole("heading", { name: "Built to spec." })).toBeVisible();
+    await expect(page.locator("[data-nav-breadcrumb]")).toHaveCount(0);
+    await expect(page.locator("[data-nav-progress]")).toHaveCount(0);
 
     await visit(page, "/work");
     await expect(

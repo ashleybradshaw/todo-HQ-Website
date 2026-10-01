@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { JetBrains_Mono, Unbounded } from "next/font/google";
 import { JsonLd } from "@/components/JsonLd";
 import { Navigation } from "@/components/Navigation";
+import { NavTrailProvider } from "@/components/nav/NavTrail";
 import { NoiseOverlay } from "@/components/NoiseOverlay";
 import { SectionTransitionGate } from "@/components/SectionTransitionGate";
 import { SiteFooterBar } from "@/components/SiteFooterBar";
@@ -93,12 +94,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </a>
         <JsonLd data={organizationGraph()} />
         <SprayProvider>
-          <NoiseOverlay />
-          <Navigation />
-          <SectionTransitionGate>{children}</SectionTransitionGate>
-          <SiteFooterGate>
-            <SiteFooterBar />
-          </SiteFooterGate>
+          <NavTrailProvider>
+            <NoiseOverlay />
+            <Navigation />
+            <SectionTransitionGate>{children}</SectionTransitionGate>
+            <SiteFooterGate>
+              <SiteFooterBar />
+            </SiteFooterGate>
+          </NavTrailProvider>
         </SprayProvider>
       </body>
     </html>

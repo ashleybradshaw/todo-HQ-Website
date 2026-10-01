@@ -7,6 +7,7 @@ import { MenuIcon } from "@/components/nav/MenuIcon";
 import { PRIMARY_LINKS, isActivePath } from "@/components/nav/nav-links";
 import { cn } from "@/lib/cn";
 import { requestIdeBootReplay } from "@/hooks/useIdeBoot";
+import type { NavTrailValue } from "@/components/nav/NavTrail";
 
 type NavBarProps = {
   solid: boolean;
@@ -16,6 +17,9 @@ type NavBarProps = {
   simple?: boolean;
   onToggle: () => void;
   onNavigate?: () => void;
+  trail: NavTrailValue | null;
+  crumbVisible: boolean;
+  progress: number;
 };
 
 export function NavBar({
@@ -26,6 +30,9 @@ export function NavBar({
   simple = false,
   onToggle,
   onNavigate,
+  trail,
+  crumbVisible,
+  progress,
 }: NavBarProps) {
   return (
     <div
@@ -73,12 +80,23 @@ export function NavBar({
           </div>
         </>
       ) : (
-        <div className="ml-auto flex items-center gap-3 lg:contents">
+        <div
+          className={cn(
+            "ml-auto flex items-center gap-3",
+            !crumbVisible && "lg:contents",
+          )}
+        >
           <div className="lg:hidden">
             <SprayButton compact />
           </div>
 
-          <div className="lg:absolute lg:top-1/2 lg:left-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2">
+          <div
+            className={cn(
+              crumbVisible
+                ? "relative"
+                : "lg:absolute lg:top-1/2 lg:left-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2",
+            )}
+          >
             <MenuButton
               open={open}
               menuId={menuId}
@@ -92,6 +110,17 @@ export function NavBar({
           </div>
         </div>
       )}
+      {trail ? (
+        <NavCrumb trail={trail} visible={crumbVisible} />
+      ) : null}
+      {trail ? (
+        <div
+          data-nav-progress=""
+          aria-hidden="true"
+          className="bg-brand-logo pointer-events-none absolute inset-x-0 bottom-0 z-20 h-px origin-left"
+          style={{ transform: `scaleX(${progress})` }}
+        />
+      ) : null}
     </div>
   );
 }
@@ -160,5 +189,51 @@ function SimpleNavLink({
     >
       {label}
     </Link>
+  );
+}
+
+function NavCrumb({
+  trail,
+  visible,
+}: {
+  trail: NavTrailValue;
+  visible: boolean;
+}) {
+  return (
+    <nav
+      data-nav-breadcrumb=""
+      aria-label={visible ? "Breadcrumb" : undefined}
+      aria-hidden={visible ? undefined : true}
+      inert={visible ? undefined : true}
+      className={cn(
+        "font-jetbrains pointer-events-none absolute top-1/2 left-1/2 z-20 max-w-[min(28rem,calc(100%-12rem))] -translate-x-1/2 -translate-y-1/2 text-xs text-foreground opacity-0 transition-opacity duration-[400ms] ease-in-out motion-reduce:transition-none",
+        visible && "pointer-events-auto opacity-100",
+      )}
+    >
+      <ol className="flex min-w-0 items-center gap-2">
+        <li className="md:hidden">
+          <Link
+            href={trail.parentHref}
+            className="inline-flex min-h-6 items-center hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]"
+          >
+            ← {trail.parentLabel}
+          </Link>
+        </li>
+        <li className="hidden shrink-0 md:block">
+          <Link
+            href={trail.parentHref}
+            className="inline-flex min-h-6 items-center hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]"
+          >
+            {trail.parentLabel}
+          </Link>
+        </li>
+        <li className="hidden shrink-0 md:block" aria-hidden="true">
+          →
+        </li>
+        <li className="hidden min-w-0 truncate md:block" aria-current="page">
+          {trail.current}
+        </li>
+      </ol>
+    </nav>
   );
 }

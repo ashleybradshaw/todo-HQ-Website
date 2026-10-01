@@ -657,6 +657,34 @@ test.describe("blog loop", () => {
     await expect(body).toHaveCSS("font-size", "18px");
   });
 
+  test("nav breadcrumb appears after the h1 and progress tracks the article", async ({
+    page,
+  }) => {
+    await visit(page, `/blog/${POSTS[0].slug}`);
+    const navCrumb = page.locator("header [data-nav-breadcrumb]");
+    await expect(navCrumb).toHaveCount(1);
+    await expect(navCrumb).toHaveCSS("opacity", "0");
+
+    await page.locator("h1").evaluate((el) => {
+      const bottom = el.getBoundingClientRect().bottom + window.scrollY;
+      window.scrollTo(0, bottom + 8);
+    });
+    await expect(navCrumb).toHaveCSS("opacity", "1");
+    await expect(navCrumb.getByRole("link", { name: "Blog" })).toHaveAttribute(
+      "href",
+      "/blog",
+    );
+
+    const before = await page.locator("[data-nav-progress]").evaluate((el) => {
+      return new DOMMatrix(getComputedStyle(el).transform).a;
+    });
+    await page.evaluate(() => window.scrollBy(0, 900));
+    const after = await page.locator("[data-nav-progress]").evaluate((el) => {
+      return new DOMMatrix(getComputedStyle(el).transform).a;
+    });
+    expect(after).toBeGreaterThan(before);
+  });
+
   test("featured card stacks at 768 and the byline is not truncated", async ({
     page,
   }) => {

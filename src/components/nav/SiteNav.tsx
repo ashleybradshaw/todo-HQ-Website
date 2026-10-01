@@ -17,8 +17,13 @@ import {
   isActivePath,
   isGatewayPath,
 } from "@/components/nav/nav-links";
-import { cn } from "@/lib/cn";
+import { useNavTrail } from "@/components/nav/NavTrail";
+import {
+  useH1ScrolledAway,
+  useReadingProgress,
+} from "@/components/nav/useReadingProgress";
 import { useNavClearance } from "@/components/nav/useNavClearance";
+import { cn } from "@/lib/cn";
 
 const SOLID_SCROLL_Y = 48;
 
@@ -46,6 +51,7 @@ function readScrolledSolid() {
 
 export function SiteNav() {
   const pathname = usePathname();
+  const { trail } = useNavTrail();
   const [menuOpen, setMenuOpen] = useState(false);
   const simple = useSyncExternalStore(
     subscribeNavMode,
@@ -57,6 +63,8 @@ export function SiteNav() {
     readScrolledSolid,
     () => false,
   );
+  const crumbVisible = useH1ScrolledAway(trail !== null, pathname);
+  const progress = useReadingProgress(trail?.progressId ?? null);
   const solid = !simple && scrolledSolid;
   const [menuPath, setMenuPath] = useState(pathname);
   const menuId = useId();
@@ -156,6 +164,9 @@ export function SiteNav() {
         simple={simple}
         onToggle={toggleMenu}
         onNavigate={closeMenu}
+        trail={trail}
+        crumbVisible={crumbVisible}
+        progress={progress}
       />
 
       {simple ? (

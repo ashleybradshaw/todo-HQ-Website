@@ -6,16 +6,16 @@ import {
   type KeyboardEvent,
 } from "react";
 import { homePage } from "@/content/pages/home";
+import { SHOW_X_FEED } from "@/lib/site";
 
-export type IdeTabId = "todo" | "offer" | "discovery";
+export type IdeTabId = "todo" | "offer" | "discovery" | "feed";
 
 type TabMeta = {
   id: IdeTabId;
   label: string;
+  shortLabel: string;
   panelId: string;
-  badge: string;
-  /** md → syn-string tint; ts → accent */
-  badgeTone: "md" | "ts";
+  badge: "md" | "ts" | "x";
   dirty?: boolean;
 };
 
@@ -23,25 +23,36 @@ const TABS: readonly TabMeta[] = [
   {
     id: "todo",
     label: homePage.ideTabs.tabs.todo,
+    shortLabel: homePage.ideTabs.shortTabs.todo,
     panelId: "ide-panel-todo",
     badge: "md",
-    badgeTone: "md",
   },
   {
     id: "offer",
     label: homePage.ideTabs.tabs.offer,
+    shortLabel: homePage.ideTabs.shortTabs.offer,
     panelId: "ide-panel-offer",
     badge: "md",
-    badgeTone: "md",
   },
   {
     id: "discovery",
     label: homePage.ideTabs.tabs.discovery,
+    shortLabel: homePage.ideTabs.shortTabs.discovery,
     panelId: "ide-panel-discovery",
     badge: "ts",
-    badgeTone: "ts",
     dirty: true,
   },
+  ...(SHOW_X_FEED
+    ? [
+        {
+          id: "feed" as const,
+          label: homePage.ideTabs.tabs.feed,
+          shortLabel: homePage.ideTabs.shortTabs.feed,
+          panelId: "ide-panel-feed",
+          badge: "x" as const,
+        },
+      ]
+    : []),
 ];
 
 type IdeTabBarProps = {
@@ -49,13 +60,7 @@ type IdeTabBarProps = {
   onChange: (tab: IdeTabId) => void;
 };
 
-function FileBadge({
-  label,
-  tone,
-}: {
-  label: string;
-  tone: "md" | "ts";
-}) {
+function FileBadge({ tone }: { tone: "md" | "ts" }) {
   const tint =
     tone === "md"
       ? "color-mix(in srgb, var(--syn-string) 18%, transparent)"
@@ -68,7 +73,17 @@ function FileBadge({
       className={`font-jetbrains ${ink} rounded-[4px] px-1.5 py-0.5 text-[9px] leading-none tracking-wide uppercase`}
       style={{ backgroundColor: tint }}
     >
-      {label}
+      {tone}
+    </span>
+  );
+}
+
+function XBadge() {
+  return (
+    <span aria-hidden="true" className="text-foreground inline-flex shrink-0">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.727-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+      </svg>
     </span>
   );
 }
@@ -144,12 +159,12 @@ export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
                 className="bg-foreground absolute inset-x-0 top-0 h-0.5"
               />
             ) : null}
-            <FileBadge label={tab.badge} tone={tab.badgeTone} />
+            {tab.badge === "x" ? <XBadge /> : <FileBadge tone={tab.badge} />}
             <span className="hidden min-w-0 truncate min-[480px]:inline">
               {tab.label}
             </span>
             <span className="shrink-0 min-[480px]:hidden" aria-hidden="true">
-              {homePage.ideTabs.shortTabs[tab.id]}
+              {tab.shortLabel}
             </span>
             {tab.dirty ? (
               <span

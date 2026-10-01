@@ -24,14 +24,15 @@ import {
 } from "@/components/ide/ReadmeCodePane";
 import { OfferPane } from "@/components/ide/OfferPane";
 import { DiscoveryPane } from "@/components/ide/DiscoveryPane";
+import { XFeedPane } from "@/components/ide/XFeedPane";
 import { IdeProjectCards } from "@/components/ide/IdeProjectCards";
 import { IdeOutline } from "@/components/ide/IdeOutline";
 import { HomeHero } from "@/components/ide/HomeHero";
-import { UiSpecimenCard } from "@/components/ide/UiSpecimenCard";
 import { HomeFeatureStrip } from "@/components/ide/HomeFeatureStrip";
 import { HomePageGrid } from "@/components/ide/HomePageGrid";
 import { HOME_FRAME } from "@/components/ide/homeFrame";
 import { homePage } from "@/content/pages/home";
+import { SHOW_X_FEED } from "@/lib/site";
 import {
   buildReadmeSourceLines,
   methodologySourceLineIndex,
@@ -189,6 +190,15 @@ export function FactoryDashboard() {
                   >
                     <DiscoveryPane />
                   </IdePanel>
+                  {SHOW_X_FEED ? (
+                    <IdePanel
+                      tab="feed"
+                      activeTab={activeTab}
+                      className="flex flex-col"
+                    >
+                      <XFeedPane />
+                    </IdePanel>
+                  ) : null}
                 </section>
 
                 <aside
@@ -268,7 +278,6 @@ export function FactoryDashboard() {
             </div>
           </IdeReveal>
         </div>
-        <UiSpecimenCard />
       </div>
     </main>
   );

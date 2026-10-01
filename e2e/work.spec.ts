@@ -75,4 +75,32 @@ test.describe("work roster", () => {
       0,
     );
   });
+
+  test("nav breadcrumb appears after the h1 and progress tracks the essay", async ({
+    page,
+  }) => {
+    await page.goto("/work/repdaily", { waitUntil: "domcontentloaded" });
+    const navCrumb = page.locator("header [data-nav-breadcrumb]");
+    await expect(navCrumb).toHaveCount(1);
+    await expect(navCrumb).toHaveCSS("opacity", "0");
+
+    await page.locator("h1").evaluate((el) => {
+      const bottom = el.getBoundingClientRect().bottom + window.scrollY;
+      window.scrollTo(0, bottom + 8);
+    });
+    await expect(navCrumb).toHaveCSS("opacity", "1");
+    await expect(navCrumb.getByRole("link", { name: "Work" })).toHaveAttribute(
+      "href",
+      "/work",
+    );
+
+    const before = await page.locator("[data-nav-progress]").evaluate((el) => {
+      return new DOMMatrix(getComputedStyle(el).transform).a;
+    });
+    await page.evaluate(() => window.scrollBy(0, 700));
+    const after = await page.locator("[data-nav-progress]").evaluate((el) => {
+      return new DOMMatrix(getComputedStyle(el).transform).a;
+    });
+    expect(after).toBeGreaterThan(before);
+  });
 });

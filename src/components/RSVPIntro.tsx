@@ -15,30 +15,25 @@ import { initRsvpAudio, playBeep } from "@/lib/rsvp-audio";
 
 type Phase = "countdown" | "reading" | "done";
 
-/**
- * Keep Up reading ramp — early/mid tokens ~15–25% shorter than the prior
- * ladder; sentence-end holds lengthened; Working. unchanged hold.
- */
-const rsvpSequence = [
-  { text: "Most teams", ms: 300 },
-  { text: "just", ms: 155 },
-  { text: "write", ms: 155 },
-  { text: "code.", ms: 720 },
-  { text: "We", ms: 135 },
-  { text: "take", ms: 155 },
-  { text: "the", ms: 120 },
-  { text: "problem", ms: 190 },
-  { text: "apart.", ms: 800 },
-  { text: "Autonomous", ms: 220 },
-  { text: "agents.", ms: 620 },
-  { text: "Human", ms: 205 },
-  { text: "checkpoints.", ms: 620 },
-  { text: "We", ms: 110 },
-  { text: "design,", ms: 220 },
-  { text: "build", ms: 220 },
-  { text: "and ship", ms: 190 },
-  { text: "to", ms: 240 },
-  { text: "production.", ms: 720 },
+const rsvpSequence = [ // TEST COPY
+  { text: "Most", ms: 300 },
+  { text: "teams", ms: 200 },
+  { text: "write", ms: 200 },
+  { text: "code.", ms: 620 },
+  { text: "We", ms: 200 },
+  { text: "ship", ms: 200 },
+  { text: "products.", ms: 620 },
+  { text: "Apps.", ms: 360 },
+  { text: "Systems.", ms: 360 },
+  { text: "Hardware.", ms: 620 },
+  { text: "Two", ms: 200 },
+  { text: "people,", ms: 320 },
+  { text: "AI", ms: 200 },
+  { text: "agents,", ms: 320 },
+  { text: "human", ms: 200 },
+  { text: "checks.", ms: 620 },
+  { text: "One", ms: 200 },
+  { text: "factory.", ms: 800 },
   { text: "Working.", ms: 1200 },
 ] as const;
 

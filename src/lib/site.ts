@@ -20,6 +20,9 @@ export const SOCIAL = {
   x: "",
 } as const;
 
+/** Mock X log in the /home IDE. Turn off when the tab should disappear. */
+export const SHOW_X_FEED = true;
+
 export const SITE_DESCRIPTION =
   "//TODO Engineering designs and builds apps, software systems and hardware-connected products for teams with hard problems.";
 

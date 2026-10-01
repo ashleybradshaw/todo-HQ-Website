@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { homePage } from "@/content/pages/home";
-import { HOME_FRAME } from "@/components/ide/homeFrame";
+import { about } from "@/content/pages/about";
+import { cn } from "@/lib/cn";
 
 const SWATCHES = [
   "--foreground",
@@ -40,22 +40,25 @@ function Specimen() {
   );
 }
 
-/** Blog-card entrance to /ui. Sits under the IDE, not inside it. */
-export function UiSpecimenCard() {
-  const { uiCard } = homePage;
+/** Blog-card call to action for /ui. */
+export function UiSpecimenCard({ className }: { className?: string }) {
+  const { uiCard } = about.operating;
 
   return (
-    <section className={`${HOME_FRAME} pb-16`}>
-      <article className="blog-note-link border-border-ide grid max-w-3xl grid-cols-1 gap-5 border p-4 sm:p-5 md:grid-cols-[16rem_1fr] md:items-center">
-        <Specimen />
-        <div className="flex min-w-0 flex-col gap-3">
-          <h2 className="type-subhead tracking-tight">{uiCard.title}</h2>
-          <p className="type-body-sm text-balance">{uiCard.sub}</p>
-          <Link href={uiCard.href} className={buttonClass}>
-            {uiCard.cta}
-          </Link>
-        </div>
-      </article>
-    </section>
+    <article
+      className={cn(
+        "blog-note-link border-border-ide grid grid-cols-1 gap-5 border p-4 sm:p-5 md:grid-cols-[16rem_1fr] md:items-center",
+        className,
+      )}
+    >
+      <Specimen />
+      <div className="flex min-w-0 flex-col gap-3">
+        <h2 className="type-subhead tracking-tight">{uiCard.title}</h2>
+        <p className="type-body-sm text-balance">{uiCard.sub}</p>
+        <Link href={uiCard.href} className={buttonClass}>
+          {uiCard.cta}
+        </Link>
+      </div>
+    </article>
   );
 }

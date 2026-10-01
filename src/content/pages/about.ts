@@ -141,7 +141,13 @@ export const about = {
       "Speed, without architecture we'll have to throw away.",
       "Done means running in production, not a demo link.",
     ],
-    uiLink: { href: "/ui", label: "TODO UI" },
+    // TEST COPY — page CTA, in place of the old TODO UI text button
+    uiCard: {
+      title: "Built to spec.", // TEST COPY
+      sub: "Colour, type and the parts this site is made of, read live from the tokens.", // TEST COPY
+      cta: "Open TODO UI", // TEST COPY
+      href: "/ui",
+    },
     media: [
       {
         src: "/about/operating-01.webp",

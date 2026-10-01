@@ -5,7 +5,6 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { BlogAdjacentNav } from "@/components/blog/BlogAdjacentNav";
 import { BlogMediaCraft } from "@/components/blog/BlogMediaCraft";
 import { ReadMinutes } from "@/components/blog/BlogNoteCard";
-import { BlogReadingProgress } from "@/components/blog/BlogReadingProgress";
 import { BlogWriterBand } from "@/components/blog/BlogWriterBand";
 import { JsonLd } from "@/components/JsonLd";
 import { SiteCloser } from "@/components/SiteCloser";
@@ -25,6 +24,7 @@ import {
   formatBlogDate,
 } from "@/lib/blog-shared";
 import { metadataDate } from "@/lib/metadata-date";
+import { NavTrail } from "@/components/nav/NavTrail";
 import { pageMetadata } from "@/lib/seo";
 import { breadcrumbGraph } from "@/lib/schema";
 import { CONTENT_BYLINE } from "@/lib/site";
@@ -128,7 +128,12 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
 
   return (
     <>
-      <BlogReadingProgress />
+      <NavTrail
+        parentHref="/blog"
+        parentLabel="Blog"
+        current={post.title}
+        progressId="blog-article-body"
+      />
       <div className="mx-auto w-full max-w-[800px] px-6 pt-28 pb-16">
         {isMockPost(post) ? null : <JsonLd data={blogPostingGraph(post)} />}
         <JsonLd

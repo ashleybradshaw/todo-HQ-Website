@@ -80,32 +80,19 @@ export function NavBar({
           </div>
         </>
       ) : (
-        <div
-          className={cn(
-            "ml-auto flex items-center gap-3",
-            !crumbVisible && "lg:contents",
-          )}
-        >
+        <div className="ml-auto flex items-center gap-3">
           <div className="lg:hidden">
             <SprayButton compact />
           </div>
 
-          <div
-            className={cn(
-              crumbVisible
-                ? "relative"
-                : "lg:absolute lg:top-1/2 lg:left-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2",
-            )}
-          >
-            <MenuButton
-              open={open}
-              menuId={menuId}
-              onToggle={onToggle}
-              showLabel
-            />
-          </div>
+          <MenuButton
+            open={open}
+            menuId={menuId}
+            onToggle={onToggle}
+            showLabel
+          />
 
-          <div className="hidden lg:ml-auto lg:block">
+          <div className="hidden lg:block">
             <SprayButton />
           </div>
         </div>
@@ -206,8 +193,10 @@ function NavCrumb({
       aria-hidden={visible ? undefined : true}
       inert={visible ? undefined : true}
       className={cn(
-        "font-jetbrains pointer-events-none absolute top-1/2 left-1/2 z-20 max-w-[min(28rem,calc(100%-12rem))] -translate-x-1/2 -translate-y-1/2 text-xs text-foreground opacity-0 transition-opacity duration-[400ms] ease-in-out motion-reduce:transition-none",
-        visible && "pointer-events-auto opacity-100",
+        "font-jetbrains pointer-events-none absolute top-1/2 left-1/2 z-20 max-w-[min(28rem,calc(100%-12rem))] -translate-x-1/2 text-xs text-foreground transition-[opacity,transform] duration-[400ms] ease-in-out motion-reduce:transition-none",
+        visible
+          ? "pointer-events-auto -translate-y-1/2 opacity-100"
+          : "-translate-y-[calc(50%-0.375rem)] opacity-0",
       )}
     >
       <ol className="flex min-w-0 items-center gap-2">

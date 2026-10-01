@@ -14,7 +14,7 @@ export default function GatewayPage() {
   const { srOnly, noscript } = landingPage;
 
   return (
-    <main id="main" className="landing-shell relative min-h-screen bg-[#4545FF] text-[#DFDFFF]">
+    <main id="main" tabIndex={-1} className="landing-shell relative min-h-screen bg-[#4545FF] text-[#DFDFFF]">
       <article className="sr-only">
         <h1>{srOnly.h1}</h1>
         <p>{srOnly.description}</p>

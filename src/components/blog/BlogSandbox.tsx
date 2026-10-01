@@ -153,7 +153,7 @@ export function BlogSandbox({
       id="blog-sandbox"
       className={cn(
         "border border-border-ide",
-        fillHeight && "flex min-h-0 flex-col md:h-full",
+        fillHeight && "flex min-h-0 flex-col lg:h-full",
         className,
       )}
       aria-label="Sandbox playground"
@@ -177,7 +177,7 @@ export function BlogSandbox({
         className={cn(
           "relative w-full bg-background transition-[background-color] duration-[400ms] ease-in-out",
           fillHeight
-            ? "aspect-video min-h-0 md:aspect-auto md:flex-1"
+            ? "aspect-video lg:aspect-auto lg:min-h-0 lg:flex-1"
             : "aspect-video",
         )}
       >

@@ -70,7 +70,7 @@ function FileBadge({ tone }: { tone: "md" | "ts" }) {
   return (
     <span
       aria-hidden="true"
-      className={`font-jetbrains ${ink} rounded-[4px] px-1.5 py-0.5 text-[9px] leading-none tracking-wide uppercase`}
+      className={`font-jetbrains ${ink} rounded-[4px] px-1 py-0.5 text-[9px] leading-none tracking-wide uppercase`}
       style={{ backgroundColor: tint }}
     >
       {tone}
@@ -147,7 +147,7 @@ export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
             tabIndex={selected ? 0 : -1}
             onClick={() => onChange(tab.id)}
             aria-label={tab.label}
-            className={`font-jetbrains relative flex min-h-9 shrink-0 items-center gap-1 overflow-hidden border-r border-border-ide px-1.5 py-2 text-xs transition-[color,background-color,opacity] duration-[400ms] ease-in-out focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none min-[480px]:min-w-0 min-[480px]:flex-1 min-[480px]:gap-1.5 min-[480px]:px-2 sm:px-3 ${
+            className={`font-jetbrains relative flex min-h-9 shrink-0 items-center gap-0.5 overflow-hidden border-r border-border-ide px-1 py-2 text-xs transition-[color,background-color,opacity] duration-[400ms] ease-in-out focus-visible:ring-inset focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none min-[480px]:min-w-0 min-[480px]:flex-1 min-[480px]:gap-1.5 min-[480px]:px-2 sm:px-3 ${
               selected
                 ? "bg-bg-canvas text-syn-keyword font-medium"
                 : "text-syn-comment hover:bg-foreground/5 font-normal"
@@ -159,7 +159,13 @@ export function IdeTabBar({ activeTab, onChange }: IdeTabBarProps) {
                 className="bg-foreground absolute inset-x-0 top-0 h-0.5"
               />
             ) : null}
-            {tab.badge === "x" ? <XBadge /> : <FileBadge tone={tab.badge} />}
+            {tab.badge === "x" ? (
+              <span className="hidden shrink-0 min-[480px]:inline-flex">
+                <XBadge />
+              </span>
+            ) : (
+              <FileBadge tone={tab.badge} />
+            )}
             <span className="hidden min-w-0 truncate min-[480px]:inline">
               {tab.label}
             </span>

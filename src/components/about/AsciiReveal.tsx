@@ -22,6 +22,19 @@ const COLS = 54;
 const SCRAMBLE_MS = 550;
 const SETTLE_MS = 200;
 const FADE_MS = 250;
+/** About stills: half of the 800px essay at lg, full column below. */
+const ABOUT_STILL_SIZES =
+  "(min-width: 1024px) 384px, min(800px, calc(100vw - 3rem))";
+
+function aboutStillSources(src: string) {
+  if (!src.startsWith("/about/") || !src.endsWith(".webp")) return null;
+  const base = src.slice(0, -".webp".length);
+  return {
+    avif: `${base}-384.avif 384w, ${base}-768.avif 768w`,
+    webp: `${base}-384.webp 384w, ${base}-768.webp 768w`,
+    src: `${base}-768.webp`,
+  };
+}
 
 type AsciiRevealProps = {
   src: string;
@@ -354,6 +367,7 @@ export function AsciiReveal({
   } satisfies CSSProperties;
 
   const imageVisible = reduceMotion || showImage;
+  const still = aboutStillSources(src);
 
   return (
     <div
@@ -364,21 +378,31 @@ export function AsciiReveal({
       )}
       style={fadeStyle}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element -- same-origin sample + reveal */}
-      <img
-        ref={imgRef}
-        src={src}
-        alt={alt}
-        decoding={priority ? "sync" : "async"}
-        loading={priority ? "eager" : "lazy"}
-        fetchPriority={priority ? "high" : undefined}
-        className={cn(
-          "absolute inset-0 z-[1] h-full w-full object-cover object-center saturate-[0.8] transition-opacity ease-out",
-          imageVisible ? "opacity-100" : "opacity-0",
-          "motion-reduce:opacity-100 motion-reduce:transition-none",
-        )}
-        style={{ transitionDuration: "var(--ascii-fade-ms)" }}
-      />
+      <picture className="absolute inset-0 z-[1]">
+        {still ? (
+          <source type="image/avif" srcSet={still.avif} sizes={ABOUT_STILL_SIZES} />
+        ) : null}
+        {still ? (
+          <source type="image/webp" srcSet={still.webp} sizes={ABOUT_STILL_SIZES} />
+        ) : null}
+        <img
+          ref={imgRef}
+          src={still?.src ?? src}
+          alt={alt}
+          width={still ? 768 : undefined}
+          height={still ? 960 : undefined}
+          sizes={still ? ABOUT_STILL_SIZES : undefined}
+          decoding={priority ? "sync" : "async"}
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : undefined}
+          className={cn(
+            "h-full w-full object-cover object-center saturate-[0.8] transition-opacity ease-out",
+            imageVisible ? "opacity-100" : "opacity-0",
+            "motion-reduce:opacity-100 motion-reduce:transition-none",
+          )}
+          style={{ transitionDuration: "var(--ascii-fade-ms)" }}
+        />
+      </picture>
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-[2] bg-[color-mix(in_srgb,var(--foreground)_10%,transparent)]"

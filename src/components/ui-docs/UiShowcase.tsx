@@ -17,7 +17,7 @@ import { RulesBand } from "@/components/ui-docs/tiles/RulesBand";
  */
 export function UiShowcase() {
   return (
-    <main id="main" className="bg-bg-canvas text-foreground min-h-dvh min-w-0 overflow-x-hidden">
+    <main id="main" tabIndex={-1} className="bg-bg-canvas text-foreground min-h-dvh min-w-0 overflow-x-hidden">
       <div className="mx-auto max-w-[1336px] px-6 pt-28 pb-16">
         <UiShowcaseHeader />
         <BrandSpec />

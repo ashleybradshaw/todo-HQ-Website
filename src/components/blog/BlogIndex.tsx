@@ -219,7 +219,7 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
               </article>
               <BlogSandbox
                 fillHeight
-                className="min-h-0 md:h-full"
+                className="min-h-0 lg:h-full"
               />
             </div>
           ) : (

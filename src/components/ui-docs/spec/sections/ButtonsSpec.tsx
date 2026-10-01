@@ -19,11 +19,11 @@ type ForceState = "default" | "hover" | "focus" | "disabled";
 function forceClass(state: ForceState) {
   switch (state) {
     case "hover":
-      return "opacity-80";
+      return "text-brand-logo";
     case "focus":
       return "ring-[3px] ring-current outline-none";
     case "disabled":
-      return "cursor-not-allowed opacity-40";
+      return "cursor-not-allowed text-muted";
     default:
       return "";
   }

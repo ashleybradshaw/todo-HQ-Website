@@ -126,7 +126,7 @@ export function PipelineRunner({
   const [rebooting, setRebooting] = useState(false);
   const compileKey = `${rebooting ? "reboot" : "live"}-${rebootSignal}-${activeIndex}-${reduceMotion ? "still" : "motion"}`;
   const [loadingKey, setLoadingKey] = useState(compileKey);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const lastRebootSignal = useRef(rebootSignal);
 
   if (loadingKey !== compileKey) {

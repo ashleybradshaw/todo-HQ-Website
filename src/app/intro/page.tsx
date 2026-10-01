@@ -14,7 +14,7 @@ export default function IntroPage() {
   }, [router]);
 
   return (
-    <main id="main">
+    <main id="main" tabIndex={-1}>
       <h1 className="sr-only">{introPage.seo.title}</h1>
       <RSVPIntro
         onComplete={() => {

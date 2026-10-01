@@ -21,7 +21,7 @@ const ctaClass =
  */
 export default function NotFound() {
   return (
-    <main id="main" className="relative min-h-screen bg-background px-6 pt-28 pb-16 text-foreground transition-[background-color,color] duration-[400ms] ease-in-out">
+    <main id="main" tabIndex={-1} className="relative min-h-screen bg-background px-6 pt-28 pb-16 text-foreground transition-[background-color,color] duration-[400ms] ease-in-out">
       <div className="relative z-10 mx-auto flex max-w-[960px] flex-col items-center gap-10 lg:flex-row lg:items-end lg:justify-center lg:gap-12">
         {/* Ghosts above editor on mobile; beside (left) on lg+. Eyes use powder fill. */}
         <div

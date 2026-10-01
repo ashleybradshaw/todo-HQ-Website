@@ -24,20 +24,24 @@ export function IdePathBar({
   return (
     <nav
       aria-label={chrome.pathAria}
-      className="ide-boot-chrome border-border-ide font-jetbrains text-muted flex shrink-0 items-center gap-1.5 border-b px-3 py-1.5 text-[11px] lg:text-xs"
+      className="ide-boot-chrome border-border-ide font-jetbrains text-muted flex shrink-0 flex-nowrap items-center gap-1.5 overflow-hidden border-b px-3 py-1.5 text-[11px] whitespace-nowrap lg:text-xs"
     >
-      <span>{chrome.pathRoot}</span>
-      <span aria-hidden="true">{chrome.pathSeparator}</span>
-      <span>{chrome.pathFolder}</span>
-      <span aria-hidden="true">{chrome.pathSeparator}</span>
+      <span className="max-[399px]:hidden">{chrome.pathRoot}</span>
+      <span aria-hidden="true" className="max-[399px]:hidden">
+        {chrome.pathSeparator}
+      </span>
+      <span className="max-[399px]:hidden">{chrome.pathFolder}</span>
+      <span aria-hidden="true" className="max-[399px]:hidden">
+        {chrome.pathSeparator}
+      </span>
       <span
-        className={`truncate ${showSection ? "text-muted" : "text-syn-property"}`}
+        className={`min-w-0 truncate ${showSection ? "text-muted" : "text-syn-property"}`}
         aria-current={showSection ? undefined : "page"}
       >
         {file}
       </span>
       {showSection ? (
-        <>
+        <span className="flex min-w-0 items-center gap-1.5 max-[399px]:hidden">
           <span aria-hidden="true">{chrome.pathSeparator}</span>
           <span className="text-syn-property flex min-w-0 items-center gap-1 truncate" aria-current="page">
             <span aria-hidden="true" className="text-syn-keyword shrink-0">
@@ -49,7 +53,7 @@ export function IdePathBar({
               settleColor="var(--syn-heading)"
             />
           </span>
-        </>
+        </span>
       ) : null}
     </nav>
   );

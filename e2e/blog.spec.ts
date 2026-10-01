@@ -664,12 +664,34 @@ test.describe("blog loop", () => {
     const navCrumb = page.locator("header [data-nav-breadcrumb]");
     await expect(navCrumb).toHaveCount(1);
     await expect(navCrumb).toHaveCSS("opacity", "0");
+    const menuBefore = await page.evaluate(() => {
+      const header = document.querySelector("header")!.getBoundingClientRect();
+      const menu = document
+        .querySelector('header button[aria-label="Open menu"]')!
+        .getBoundingClientRect();
+      return {
+        gap: header.right - menu.right,
+        height: header.height,
+      };
+    });
 
     await page.locator("h1").evaluate((el) => {
       const bottom = el.getBoundingClientRect().bottom + window.scrollY;
       window.scrollTo(0, bottom + 8);
     });
     await expect(navCrumb).toHaveCSS("opacity", "1");
+    const menuAfter = await page.evaluate(() => {
+      const header = document.querySelector("header")!.getBoundingClientRect();
+      const menu = document
+        .querySelector('header button[aria-label="Open menu"]')!
+        .getBoundingClientRect();
+      return {
+        gap: header.right - menu.right,
+        height: header.height,
+      };
+    });
+    expect(Math.abs(menuAfter.gap - menuBefore.gap)).toBeLessThan(2);
+    expect(Math.abs(menuAfter.height - menuBefore.height)).toBeLessThan(2);
     await expect(navCrumb.getByRole("link", { name: "Blog" })).toHaveAttribute(
       "href",
       "/blog",
@@ -679,10 +701,13 @@ test.describe("blog loop", () => {
       return new DOMMatrix(getComputedStyle(el).transform).a;
     });
     await page.evaluate(() => window.scrollBy(0, 900));
-    const after = await page.locator("[data-nav-progress]").evaluate((el) => {
-      return new DOMMatrix(getComputedStyle(el).transform).a;
-    });
-    expect(after).toBeGreaterThan(before);
+    await expect
+      .poll(async () =>
+        page.locator("[data-nav-progress]").evaluate((el) => {
+          return new DOMMatrix(getComputedStyle(el).transform).a;
+        }),
+      )
+      .toBeGreaterThan(before);
   });
 
   test("featured card stacks at 768 and the byline is not truncated", async ({
@@ -700,5 +725,14 @@ test.describe("blog loop", () => {
     await expect(byline).toBeVisible();
     const clipped = await byline.evaluate((el) => el.scrollWidth > el.clientWidth + 1);
     expect(clipped).toBe(false);
+
+    const stage = page.locator("#blog-featured-row [data-blog-sandbox-stage]");
+    const stageBox = await stage.boundingBox();
+    const play = await stage.getByRole("button", { name: "CLICK TO PLAY" }).boundingBox();
+    expect(stageBox).not.toBeNull();
+    expect(play).not.toBeNull();
+    expect(stageBox!.height).toBeGreaterThanOrEqual(320);
+    expect(play!.y).toBeGreaterThan(stageBox!.y + 24);
+    expect(play!.y + play!.height).toBeLessThan(stageBox!.y + stageBox!.height - 24);
   });
 });

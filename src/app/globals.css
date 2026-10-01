@@ -12,22 +12,22 @@
   --ide-chrome: color-mix(in srgb, #4545FF 8%, #DFDFFF);
   --media-elev-shadow: color-mix(in srgb, #4545FF 16%, transparent);
   --media-elev-bloom: color-mix(in srgb, #4545FF 12%, transparent);
-  /* Soft readable tier — 4.81:1 on powder; also drives syn-comment / syn-property */
-  --text-muted: #5A5A99;
+  /* Soft readable tier — 5.13:1 on powder, 4.62:1 on IDE chrome */
+  --text-muted: #565693;
   /* Darker blue for text on tinted card/CTA fills only — not --foreground */
   --text-on-tint: #3636FF;
   --syn-keyword: #4545FF;
-  --syn-property: #5A5A99;
-  /* Body prose — one step below foreground toward muted; 4.73:1 on powder */
-  --syn-body: #4a4ae6;
+  --syn-property: #565693;
+  /* Body prose — one step below foreground toward muted; 5.18:1 on powder, 4.67:1 on chrome */
+  --syn-body: #4141e5;
   /* ## / # title text — foreground weight applied in components */
   --syn-heading: #4545FF;
-  --syn-string: #047351;
-  /* md file badge on an 18% --syn-string chip. #047351 was ~3.57:1. */
-  --badge-md-ink: #0f5741;
+  --syn-string: #04694a;
+  /* md file badge on an 18% --syn-string chip over IDE chrome. */
+  --badge-md-ink: #03583e;
   /* ts file badge already clears AA as --brand-logo; token so Spray can refit. */
   --badge-ts-ink: #0b0cb4;
-  --syn-number: #985304;
+  --syn-number: #894b04;
   /* Telemetry PENDING status dot only — label stays --foreground for AA.
      Deep amber ≥4.5:1 on powder #DFDFFF (was #F08C00 @ ~1.9:1). */
   --status-pending: #8B5100;
@@ -36,7 +36,7 @@
   --color-error: #A31818;
   /* Sticky/fixed site header clearance — single source for scroll-margin / page pad */
   --site-header-offset: 7rem;
-  --syn-comment: #5A5A99;
+  --syn-comment: #565693;
   --syn-bracket: color-mix(in srgb, #4545FF 82%, #0B0CB4);
   /* Darkened so small labels clear AA on IDE chrome, not only flat powder. */
   --blog-cat-projects: #815018;
@@ -1000,25 +1000,26 @@ html[data-ide-first] .ide-boot-stage[data-ide-boot="idle"] .ide-bone-body {
   animation: none;
 }
 
-/* —— bones: overlay holds / pulses; real chrome hidden —— */
-html[data-ide-first] .ide-boot-stage[data-ide-boot="bones"] .ide-bone-overlay .ide-bone {
+/* —— bones: tabs, path, and status stay up. Only editor and sidecar bodies skeleton. —— */
+html[data-ide-first] .ide-boot-stage[data-ide-boot="bones"] .ide-bone-overlay .ide-bone-body {
   animation: ide-boot-bone-pulse 1.6s ease-in-out infinite;
 }
 
-html[data-ide-first] .ide-boot-stage[data-ide-boot="bones"] .ide-boot-tabs,
-html[data-ide-first] .ide-boot-stage[data-ide-boot="bones"] .ide-boot-chrome,
-html[data-ide-first] .ide-boot-stage[data-ide-boot="bones"] .ide-boot-status,
+html[data-ide-first] .ide-boot-stage[data-ide-boot="bones"] .ide-bone-chrome,
+html[data-ide-first] .ide-boot-stage[data-ide-boot="lines"] .ide-bone-chrome {
+  display: none;
+}
+
 html[data-ide-first] .ide-boot-stage[data-ide-boot="bones"] .ide-boot-editor,
-html[data-ide-first] .ide-boot-stage[data-ide-boot="bones"] .ide-boot-sidecar {
+html[data-ide-first] .ide-boot-stage[data-ide-boot="bones"] .ide-boot-sidecar,
+html[data-ide-first] .ide-boot-stage[data-ide-boot="bones"] .ide-boot-sidecar-block {
   opacity: 0;
 }
 
-/* —— lines: bones out while hairlines draw; content still hidden —— */
-html[data-ide-first] .ide-boot-stage[data-ide-boot="lines"] .ide-boot-tabs,
-html[data-ide-first] .ide-boot-stage[data-ide-boot="lines"] .ide-boot-chrome,
-html[data-ide-first] .ide-boot-stage[data-ide-boot="lines"] .ide-boot-status,
+/* —— lines: bones out while hairlines draw; chrome that was already visible stays up —— */
 html[data-ide-first] .ide-boot-stage[data-ide-boot="lines"] .ide-boot-editor,
-html[data-ide-first] .ide-boot-stage[data-ide-boot="lines"] .ide-boot-sidecar {
+html[data-ide-first] .ide-boot-stage[data-ide-boot="lines"] .ide-boot-sidecar,
+html[data-ide-first] .ide-boot-stage[data-ide-boot="lines"] .ide-boot-sidecar-block {
   opacity: 0;
 }
 
@@ -1027,12 +1028,7 @@ html[data-ide-first] .ide-boot-stage[data-ide-boot="lines"] .ide-bone-overlay .i
   animation-delay: calc(var(--b, 0) * 12ms);
 }
 
-/* —— content: fade-up chrome; scrambles scheduled in JS —— */
-html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-boot-tabs,
-html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-boot-chrome {
-  animation: ide-boot-fade-up 280ms ease-out forwards;
-}
-
+/* —— content: editor and sidecar fade up. Tabs, path, and status were already opaque. —— */
 html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-boot-editor {
   opacity: 1;
 }
@@ -1051,12 +1047,6 @@ html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-boot-sidecar-
 
 html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-boot-sidecar {
   opacity: 1;
-}
-
-html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-boot-status {
-  opacity: 0;
-  animation: ide-boot-fade-up 280ms ease-out forwards;
-  animation-delay: 400ms;
 }
 
 html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-bone-overlay {

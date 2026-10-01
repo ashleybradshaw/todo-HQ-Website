@@ -219,12 +219,12 @@ export const homePage = {
       discovery: "book.ts", // TEST COPY
       feed: "feed.x", // TEST COPY
     },
-    /** Visible below 480px. Accessible name stays the full filename. */
+    /** Visible below 480px. Accessible name is the filename, which starts with this text. */
     shortTabs: {
       todo: "README", // TEST COPY
       offer: "services", // TEST COPY
       discovery: "book", // TEST COPY
-      feed: "x", // TEST COPY
+      feed: "feed", // TEST COPY
     },
   },
 

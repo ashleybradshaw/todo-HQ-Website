@@ -145,6 +145,13 @@ test.describe("/home IDE", () => {
     });
     expect(Number(opacity)).toBe(0);
 
+    const chromeOpacity = await page.evaluate(() => ({
+      tabs: getComputedStyle(document.querySelector(".ide-boot-tabs")!).opacity,
+      path: getComputedStyle(document.querySelector(".ide-boot-chrome")!).opacity,
+    }));
+    expect(Number(chromeOpacity.tabs)).toBe(1);
+    expect(Number(chromeOpacity.path)).toBe(1);
+
     await expect(stage).toHaveAttribute("data-ide-boot", "done", {
       timeout: 8000,
     });
@@ -287,6 +294,8 @@ test.describe("/home IDE", () => {
       document.documentElement.hasAttribute("data-ide-first"),
     );
     expect(armed).toBe(false);
+    await expect(page.getByText("Something should feel obvious.")).toBeVisible();
+    await expect(page.locator(".animate-shimmer")).toHaveCount(0);
     await context.close();
   });
 
@@ -363,8 +372,29 @@ test.describe("/home IDE", () => {
         "mdREADME",
         "mdservices",
         "tsbook",
-        "x",
+        "feed",
       ]);
+      expect(fit.tabs.map((tab) => tab.name)).toEqual([
+        "README.md",
+        "services.md",
+        "book.ts",
+        "feed.x",
+      ]);
+      for (const tab of fit.tabs) {
+        const visible = tab.text.replace(/^(md|ts)/, "");
+        expect(tab.name?.startsWith(visible), `${width} ${tab.name}`).toBe(true);
+      }
+      if (width < 400) {
+        const pathText = await page
+          .getByRole("navigation", { name: "File path" })
+          .innerText();
+        expect(pathText.replace(/\s+/g, " ").trim()).toBe("README.md");
+      }
+
+      const readme = page.getByRole("tab", { name: "README.md" });
+      await readme.focus();
+      const ring = await readme.evaluate((el) => getComputedStyle(el).boxShadow);
+      expect(ring).toContain("inset");
     }
 
     await page.setViewportSize({ width: 1280, height: 800 });
@@ -379,5 +409,15 @@ test.describe("/home IDE", () => {
       .include("#ide-panel-feed")
       .analyze();
     expect(axe.violations).toEqual([]);
+  });
+
+  test("skip link moves focus to main", async ({ page }) => {
+    await page.goto("/home", { waitUntil: "domcontentloaded" });
+    await page.keyboard.press("Tab");
+    await expect(
+      page.getByRole("link", { name: "Skip to main content" }),
+    ).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#main")).toBeFocused();
   });
 });

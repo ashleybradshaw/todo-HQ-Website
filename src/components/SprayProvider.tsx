@@ -101,8 +101,8 @@ function applyPair(pair: AccessibleColorPair) {
     root.setProperty("--text-on-tint", fitTextOnTint(pair.bg, pair.text));
   }
 
-  root.setProperty("--badge-md-ink", fitBadgeInk(pair.bg, synString));
-  root.setProperty("--badge-ts-ink", fitBadgeInk(pair.bg, logo));
+  root.setProperty("--badge-md-ink", fitBadgeInk(pair.bg, synString, pair.text));
+  root.setProperty("--badge-ts-ink", fitBadgeInk(pair.bg, logo, pair.text));
 
   // Brand: mix toward logo blue; sprayed: mix toward canvas.
   root.setProperty(

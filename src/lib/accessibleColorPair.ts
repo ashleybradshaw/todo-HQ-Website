@@ -8,15 +8,15 @@ const WCAG_AA_CONTRAST = 4.5;
 const WCAG_AAA_PREFER = 7;
 /** Floor for muted roles (comment / property) on bg — AA normal text. */
 const MUTED_MIN_CONTRAST = 4.5;
-/** Brand soft tier — matches --text-muted / syn-comment / syn-property. */
-export const BRAND_TEXT_MUTED = "#5A5A99";
-/** Body prose — one step below foreground toward muted; 4.73:1 on powder. */
-export const BRAND_SYN_BODY = "#4a4ae6";
+/** Brand soft tier — matches --text-muted / syn-comment / syn-property. 4.62:1 on IDE chrome. */
+export const BRAND_TEXT_MUTED = "#565693";
+/** Body prose — one step below foreground toward muted; 4.67:1 on IDE chrome. */
+export const BRAND_SYN_BODY = "#4141e5";
 /** Brand text on tinted card/CTA fills — matches --text-on-tint. */
 export const BRAND_TEXT_ON_TINT = "#3636FF";
 /** Brand syn-string / syn-number solids (smallest AA step on powder). */
-export const BRAND_SYN_STRING = "#047351";
-export const BRAND_SYN_NUMBER = "#985304";
+export const BRAND_SYN_STRING = "#04694a";
+export const BRAND_SYN_NUMBER = "#894b04";
 const MAX_ATTEMPTS = 120;
 const HEX_PAIR = /^#([0-9a-fA-F]{6})$/;
 
@@ -210,11 +210,17 @@ export function fitMutedAgainstBackground(background: string, text: string) {
 }
 
 /**
- * Ink for an 18% tint chip of `source` on `canvas`.
- * Keeps `source` when it already clears AA on that chip.
+ * Ink for an 18% tint chip of `source` painted on IDE chrome
+ * (8% foreground mixed into the canvas). Keeps `source` when it
+ * already clears AA on that chip.
  */
-export function fitBadgeInk(canvas: string, source: string) {
-  const chip = mixHex(source, canvas, 0.18);
+export function fitBadgeInk(
+  canvas: string,
+  source: string,
+  foreground: string,
+) {
+  const chrome = mixHex(foreground, canvas, 0.08);
+  const chip = mixHex(source, chrome, 0.18);
   if (contrastRatio(source, chip) >= WCAG_AA_CONTRAST) {
     return source;
   }

@@ -99,7 +99,7 @@ export const uiPage = {
       "The house lock for colour, type, motion and chrome. Not up for debate.",
     metric: "9 RULES",
     items: [
-      "Electric blue #4545FF is the house colour and is never recoloured. Powder #DFDFFF, logo #0B0CB4, muted #5A5A99. Text on tint #3636FF, on tinted cards and CTAs only.",
+      "Electric blue #4545FF is the house colour and is never recoloured. Powder #DFDFFF, logo #0B0CB4, muted #565693. Text on tint #3636FF, on tinted cards and CTAs only.",
       "Status: online uses --syn-string, building uses --foreground, pending is #8B5100 (--status-pending) and is never sprayed. Syntax colours come from globals.css.",
       "Unbounded sets the display hierarchy. JetBrains Mono handles body and code. Body is .type-body at 16/24. .type-prose is for articles only.",
       "4px radius, 400ms transitions, 3px focus rings (or the outline-2 sibling pattern), and sprayed CTAs.",

@@ -122,7 +122,7 @@ export function FactoryDashboard() {
   const scrambleOk = ideInView;
 
   return (
-    <main id="main" className="bg-bg-canvas text-syn-property relative min-h-screen w-full">
+    <main id="main" tabIndex={-1} className="bg-bg-canvas text-syn-property relative min-h-screen w-full">
       <HomePageGrid />
 
       <div className="relative z-10 flex w-full flex-col pt-[var(--site-header-offset)]">

@@ -17,10 +17,6 @@ const CARD_IMAGE_SIZES =
 const WIDE_IMAGE_SIZES =
   "(min-width:1024px) min(596px, calc(50vw - 96px)), (min-width:640px) calc(100vw - 160px), calc(100vw - 96px)";
 
-function statusWord(project: FullProject) {
-  return project.status === "building" ? "in build" : "live";
-}
-
 function StatusStrip({ project }: { project: FullProject }) {
   const platforms = project.spec.platforms
     .map((platform) => platform.toLowerCase())
@@ -33,7 +29,7 @@ function StatusStrip({ project }: { project: FullProject }) {
         className="status-dot-pulse bg-foreground inline-block size-1.5 shrink-0 rounded-full"
       />
       <span>
-        {statusWord(project)} · {project.release} · {platforms}
+        {project.release} · {platforms}
       </span>
     </p>
   );
@@ -62,7 +58,7 @@ export function ProjectCard({
 
   return (
     <article
-      className="relative isolate flex h-full flex-col rounded-[4px] transition-[background-color,color,border-color] duration-[400ms] ease-in-out"
+      className="group relative isolate flex h-full flex-col rounded-[4px] transition-[background-color,color,border-color] duration-[400ms] ease-in-out"
       style={{
         backgroundColor: `color-mix(in srgb, ${project.accent} 6%, var(--background))`,
       }}
@@ -85,7 +81,7 @@ export function ProjectCard({
       >
         <div
           className={cn(
-            "group/still relative w-full overflow-hidden rounded-[4px]",
+            "relative w-full overflow-hidden rounded-[4px]",
             wide && "lg:w-1/2",
           )}
         >

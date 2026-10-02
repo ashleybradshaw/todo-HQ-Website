@@ -28,12 +28,18 @@ export function NextProjectPanel({
 }) {
   const ref = useRef<HTMLAnchorElement>(null);
   const [peek, setPeek] = useState(false);
+  const [playKey, setPlayKey] = useState(0);
   const reduceMotion = useSyncExternalStore(
     subscribeReducedMotion,
     readReducedMotion,
     () => false,
   );
   const shown = reduceMotion || peek;
+
+  function replay() {
+    if (reduceMotion) return;
+    setPlayKey((key) => key + 1);
+  }
 
   useEffect(() => {
     const root = ref.current;
@@ -42,6 +48,7 @@ export function NextProjectPanel({
       (entries) => {
         if (!entries[0]?.isIntersecting) return;
         setPeek(true);
+        setPlayKey((key) => key + 1);
         observer.disconnect();
       },
       { threshold: 0.25 },
@@ -57,12 +64,17 @@ export function NextProjectPanel({
       ref={ref}
       href={`/work/${project.slug}`}
       className="group/next border-border-ide focus-visible:ring-current mt-4 block overflow-hidden rounded-[4px] border focus-visible:ring-[3px] focus-visible:outline-none"
+      onMouseEnter={replay}
+      onFocus={replay}
     >
       <p className="type-label px-4 pt-4">{label}</p>
-      <h2 className="type-heading text-foreground px-4 pt-2 tracking-tight">
+      <h2
+        data-decode-play={playKey}
+        className="type-heading text-foreground px-4 pt-2 tracking-tight"
+      >
         <DecodeLabel
           text={project.name}
-          playKey={1}
+          playKey={playKey}
           settleColor="var(--foreground)"
         />
       </h2>

@@ -81,7 +81,7 @@ export function CountUp({
       className={cn(
         "inline-grid tabular-nums",
         variant === "stat"
-          ? "type-display text-syn-number"
+          ? "type-heading work-stat-figure text-syn-number"
           : variant === "display"
             ? "type-heading text-syn-number"
             : "font-jetbrains text-syn-number",

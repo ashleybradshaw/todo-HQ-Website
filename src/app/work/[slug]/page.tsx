@@ -159,6 +159,35 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
           </div>
         }
         ledeClassName="mt-4"
+        anchorId="work-article-body"
+        mobileLead={
+          <>
+            {hero ? <CaseHero item={hero} /> : null}
+            <section
+              aria-label={workDetailPage.metricsAria(project.name)}
+              className="mt-8"
+            >
+              <ul className="grid grid-cols-2 gap-6 sm:grid-cols-3">
+                {project.metrics.map((metric) => (
+                  <li
+                    key={metric.label}
+                    className="border-border-ide border-t pt-4"
+                  >
+                    <CountUp
+                      variant="stat"
+                      value={metric.value}
+                      prefix={metric.prefix}
+                      suffix={metric.suffix}
+                    />
+                    <span className="font-jetbrains text-syn-comment mt-1 block text-xs">
+                      {metric.label}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </>
+        }
         aside={
           <ProjectSpec
             project={project}
@@ -178,33 +207,7 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
           current={project.name}
           progressId="work-article-body"
         />
-        <div id="work-article-body">
-          {hero ? <CaseHero item={hero} /> : null}
-
-          <section
-            aria-label={workDetailPage.metricsAria(project.name)}
-            className="mt-8"
-          >
-            <ul className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-              {project.metrics.map((metric) => (
-                <li
-                  key={metric.label}
-                  className="border-border-ide border-t pt-4"
-                >
-                  <CountUp
-                    variant="stat"
-                    value={metric.value}
-                    prefix={metric.prefix}
-                    suffix={metric.suffix}
-                  />
-                  <span className="font-jetbrains text-syn-comment mt-1 block text-xs">
-                    {metric.label}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
-
+        <div>
           <p className={`type-body ${copy} mt-10 text-foreground`}>
             {project.description}
           </p>

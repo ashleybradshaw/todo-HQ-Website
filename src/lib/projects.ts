@@ -200,14 +200,17 @@ export const PROJECTS: readonly Project[] = [
         id: "repdaily-full",
         layout: "full",
         items: [
-          still(
-            "repdaily",
-            "RepDaily",
-            "session-log",
-            "16:9",
-            "Session log across a full training week",
-            "video",
-          ),
+          {
+            ...still(
+              "repdaily",
+              "RepDaily",
+              "session-log",
+              "16:9",
+              "Session log across a full training week",
+            ),
+            src: "/work/repdaily.webp",
+            alt: "RepDaily on a phone, showing workout progression and a training calendar.",
+          },
         ],
       },
       {

@@ -18,6 +18,8 @@ export type BrowserFrameProps = {
   sizes: string;
   className?: string;
   priority?: boolean;
+  /** Pair/trio only: reserve two caption lines so frame bottoms line up. */
+  pinCaption?: boolean;
   /**
    * Still image path. Required when `children` is omitted.
    * Paths under /work/placeholders/ render PlaceholderStill.
@@ -40,6 +42,7 @@ export function BrowserFrame({
   sizes,
   className,
   priority = false,
+  pinCaption = false,
   children,
 }: BrowserFrameProps) {
   const placeholder = Boolean(src?.startsWith("/work/placeholders/"));
@@ -84,7 +87,12 @@ export function BrowserFrame({
           />
         ) : null}
       </div>
-      <figcaption className="font-jetbrains text-foreground px-2.5 py-1.5 text-xs tracking-wide break-words uppercase">
+      <figcaption
+        className={cn(
+          "font-jetbrains text-foreground px-2.5 py-1.5 text-xs tracking-wide break-words uppercase",
+          pinCaption && "min-h-[calc(2*1lh+0.75rem)]",
+        )}
+      >
         {caption}
       </figcaption>
     </figure>

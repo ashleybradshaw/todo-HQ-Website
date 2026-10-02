@@ -33,6 +33,13 @@ export type PageShellProps = {
   beforeTitle?: ReactNode;
   /** Second column beside the title at lg (case-study spec). Stacks under it below lg. */
   aside?: ReactNode;
+  /**
+   * Case study: hero and stats. Below lg they sit between the lede and the spec.
+   * At lg they stay under the two-column header.
+   */
+  mobileLead?: ReactNode;
+  /** Wraps the case header, lead, spec and body so reading progress covers the page. */
+  anchorId?: string;
   /** Extra class on the lede wrapper. */
   ledeClassName?: string;
 };
@@ -73,6 +80,8 @@ export function PageShell({
   breadcrumbs,
   beforeTitle,
   aside,
+  mobileLead,
+  anchorId,
   ledeClassName,
 }: PageShellProps) {
   const shell = resolveVariant(variant, wide);
@@ -116,7 +125,28 @@ export function PageShell({
     >
       {background}
       <div className={cn("relative z-10 mx-auto", OUTER_MAX[shell])}>
-        {aside ? (
+        {aside && mobileLead ? (
+          <div
+            id={anchorId}
+            className={cn(
+              "flex flex-col lg:grid lg:grid-cols-[minmax(0,calc(688px+2.5rem))_minmax(0,1fr)] lg:items-stretch lg:gap-x-0",
+              headerClassName,
+            )}
+          >
+            <div className="order-1 min-w-0 max-w-[688px] lg:order-none lg:col-start-1 lg:row-start-1 lg:max-w-none lg:border-border-ide lg:border-b lg:pr-10">
+              {header}
+            </div>
+            <div className="border-border-ide order-3 mt-8 border-t pt-2 lg:order-none lg:col-start-2 lg:row-start-1 lg:mt-0 lg:border-t-0 lg:border-b lg:border-l lg:pt-0 lg:pl-8">
+              {aside}
+            </div>
+            <div className="order-2 lg:order-none lg:col-span-2 lg:row-start-2">
+              {mobileLead}
+            </div>
+            <div className="order-4 lg:order-none lg:col-span-2 lg:row-start-3">
+              {children}
+            </div>
+          </div>
+        ) : aside ? (
           <div
             className={cn(
               "lg:border-border-ide lg:grid lg:grid-cols-[minmax(0,688px)_minmax(0,1fr)] lg:items-start lg:gap-10 lg:border-b",
@@ -131,7 +161,7 @@ export function PageShell({
         ) : (
           <div className={cn(copyMax, headerClassName)}>{header}</div>
         )}
-        {shell === "essay" && copyMax ? (
+        {aside && mobileLead ? null : shell === "essay" && copyMax ? (
           <div className={copyMax}>{children}</div>
         ) : (
           children

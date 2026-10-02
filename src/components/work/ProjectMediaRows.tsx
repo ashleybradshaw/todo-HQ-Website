@@ -84,6 +84,7 @@ export function ProjectMediaRows({
                     caption={item.caption}
                     ratio={item.ratio}
                     sizes={sizesFor(row)}
+                    pinCaption={row.layout === "pair" || row.layout === "trio"}
                     className="w-full"
                   />
                 </FrameReveal>

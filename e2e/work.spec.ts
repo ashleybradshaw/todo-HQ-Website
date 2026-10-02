@@ -237,6 +237,12 @@ test.describe("work roster", () => {
     await expect(items.nth(1)).toContainText("300");
     await expect(items.nth(2)).toContainText("15%");
 
+    const hero = page.locator("main [data-ratio='16:9']").first();
+    const specTop = await spec.evaluate((el) => el.getBoundingClientRect().top);
+    const heroTop = await hero.evaluate((el) => el.getBoundingClientRect().top);
+    expect(specTop).toBeLessThan(heroTop);
+    await expect(hero.locator("img")).toHaveAttribute("src", /repdaily\.webp/);
+
     const portrait = page.locator("[data-ratio='4:5']").first();
     const ratio = await portrait.evaluate((el) => {
       const box = el.getBoundingClientRect();
@@ -273,5 +279,81 @@ test.describe("work roster", () => {
     await expect(cta).toBeFocused();
     const shadow = await cta.evaluate((el) => getComputedStyle(el).boxShadow);
     expect(shadow).toMatch(/0px 0px 0px 3px/);
+  });
+
+  test("status strip follows the card and omits the status word", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/work", { waitUntil: "domcontentloaded" });
+
+    const card = page.locator("article").first();
+    const strip = card.locator(".work-status-strip");
+    const translateY = (el: Element) => {
+      const value = getComputedStyle(el).transform;
+      if (value === "none") return 0;
+      return new DOMMatrix(value).m42;
+    };
+
+    expect(await strip.evaluate(translateY)).toBeGreaterThan(0);
+    const text = (await strip.innerText()).replace(/\s+/g, " ").trim();
+    expect(text).toBe("v1.5 · ios / android");
+    expect(text).not.toMatch(/\blive\b|\bin build\b/i);
+
+    const heading = card.getByRole("heading", { name: "RepDaily" });
+    const box = await heading.boundingBox();
+    expect(box).not.toBeNull();
+    await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
+    await expect.poll(() => strip.evaluate(translateY)).toBe(0);
+
+    await page.mouse.move(0, 0);
+    await expect.poll(() => strip.evaluate(translateY)).toBeGreaterThan(0);
+
+    const cta = card.getByRole("link", { name: /^open \.\/repdaily\b/ });
+    await cta.focus();
+    await expect.poll(() => strip.evaluate(translateY)).toBe(0);
+  });
+
+  test("next panel does not scramble until it is in view", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 640 });
+    await page.goto("/work/repdaily", { waitUntil: "domcontentloaded" });
+
+    const panel = page
+      .getByRole("navigation", { name: "Adjacent projects" })
+      .getByRole("link");
+    const title = panel.locator("h2");
+    const top = await panel.evaluate((el) => el.getBoundingClientRect().top);
+    expect(top).toBeGreaterThan(640);
+    await expect(title).toHaveAttribute("data-decode-play", "0");
+
+    await panel.evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await expect(title).toHaveAttribute("data-decode-play", "1");
+  });
+
+  test("mobile case header puts the hero above the spec table", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/work/repdaily", { waitUntil: "domcontentloaded" });
+
+    const title = page.getByRole("heading", { name: "RepDaily", level: 1 });
+    const hero = page.locator("main [data-ratio='16:9']").first();
+    const metrics = page.getByRole("region", { name: "RepDaily metrics" });
+    const spec = page.getByRole("region", { name: "RepDaily specification" });
+    const top = async (locator: typeof title) =>
+      locator.evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
+
+    const titleTop = await top(title);
+    const heroTop = await top(hero);
+    const metricsTop = await top(metrics);
+    const specTop = await top(spec);
+    expect(titleTop).toBeLessThan(heroTop);
+    expect(heroTop).toBeLessThan(specTop);
+    expect(metricsTop).toBeLessThan(specTop);
+
+    const columns = await metrics.locator("ul").evaluate(
+      (el) => getComputedStyle(el).gridTemplateColumns,
+    );
+    expect(columns.split(" ").filter(Boolean)).toHaveLength(2);
   });
 });

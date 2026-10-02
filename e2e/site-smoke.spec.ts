@@ -70,6 +70,13 @@ test.describe("site smoke", () => {
     await expect(page.getByRole("tab", { name: /README\.md/ })).toBeVisible();
     await expect(page.getByRole("tab", { name: /services\.md/ })).toBeVisible();
     await expect(page.getByRole("tab", { name: /book\.ts/ })).toBeVisible();
+    const xLink = page.locator("footer").getByRole("link", {
+      name: "TODO Engineering on X",
+    });
+    await expect(xLink).toHaveAttribute("href", "https://x.com/todoengineering");
+    await expect(xLink).toHaveAttribute("target", "_blank");
+    await expect(xLink).toHaveAttribute("rel", /noopener/);
+    await expect(xLink).toHaveAttribute("rel", /noreferrer/);
     await expect(page.locator("h1")).toHaveCount(1);
 
     await visit(page, "/about");

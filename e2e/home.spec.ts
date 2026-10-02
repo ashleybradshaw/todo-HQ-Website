@@ -402,7 +402,7 @@ test.describe("/home IDE", () => {
     const panel = page.locator("#ide-panel-feed");
     await expect(panel.locator("[data-x-feed] li")).toHaveCount(5);
     await expect(panel.getByText("view on x ↗")).toHaveCount(5);
-    await expect(panel.locator('a[href^="http"]')).toHaveCount(0);
+    await expect(panel.locator('a[href="https://x.com/todoengineering"]')).toHaveCount(6);
 
     const axe = await new AxeBuilder({ page })
       .include("#ide-tab-feed")

@@ -17,8 +17,14 @@ export const CONTENT_BYLINE = "TODO Engineering content team";
  * from Organization sameAs.
  */
 export const SOCIAL = {
-  x: "",
+  x: "https://x.com/todoengineering",
 } as const;
+
+/** Twitter card handle, taken from SOCIAL.x so the account stays one constant. */
+export const X_HANDLE = (() => {
+  const name = SOCIAL.x.split("/").filter(Boolean).pop() ?? "";
+  return name ? `@${name}` : "";
+})();
 
 /** Mock X log in the /home IDE. Turn off when the tab should disappear. */
 export const SHOW_X_FEED = true;

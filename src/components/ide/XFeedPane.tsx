@@ -1,5 +1,5 @@
 import { X_POSTS } from "@/content/social/x";
-import { SOCIAL } from "@/lib/site";
+import { SOCIAL, X_HANDLE } from "@/lib/site";
 
 const MONTHS = [
   "Jan",
@@ -50,7 +50,13 @@ function ViewOnX({ url }: { url: string }) {
   }
 
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" className={linkClass}>
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`${label}, TODO Engineering on X`}
+      className={linkClass}
+    >
       {label}
     </a>
   );
@@ -61,7 +67,21 @@ export function XFeedPane() {
   const posts = X_POSTS.slice(0, 5);
 
   return (
-    <ol className="font-jetbrains flex flex-col py-2 text-sm leading-6" data-x-feed="">
+    <div className="flex flex-col py-2" data-x-feed="">
+      {SOCIAL.x && X_HANDLE ? (
+        <p className="px-3 pb-1">
+          <a
+            href={SOCIAL.x}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${X_HANDLE}, TODO Engineering on X`}
+            className={linkClass}
+          >
+            {X_HANDLE}
+          </a>
+        </p>
+      ) : null}
+      <ol className="font-jetbrains flex flex-col text-sm leading-6">
       {posts.map((post) => (
         <li
           key={post.date}
@@ -79,6 +99,7 @@ export function XFeedPane() {
           </div>
         </li>
       ))}
-    </ol>
+      </ol>
+    </div>
   );
 }

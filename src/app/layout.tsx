@@ -10,7 +10,7 @@ import { SiteFooterGate } from "@/components/SiteFooterGate";
 import { SprayProvider } from "@/components/SprayProvider";
 import { organizationGraph } from "@/lib/schema";
 import { DEFAULT_SHARE_IMAGE } from "@/lib/seo";
-import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL, X_HANDLE } from "@/lib/site";
 import "./globals.css";
 
 const unbounded = Unbounded({
@@ -56,6 +56,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
+    site: X_HANDLE,
+    creator: X_HANDLE,
     title: `${SITE_NAME} — Design and AI Engineering Studio`,
     description: SITE_DESCRIPTION,
     images: [DEFAULT_SHARE_IMAGE.url],

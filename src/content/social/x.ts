@@ -1,7 +1,6 @@
 /**
  * Mock X posts for the /home feed.x tab.
- * // TEST COPY — replace with real posts when the handle is live.
- * While SOCIAL.x is empty, the pane does not link out.
+ * // TEST COPY — posts stay mock. Profile and view links use SOCIAL.x.
  */
 
 export type XPost = {

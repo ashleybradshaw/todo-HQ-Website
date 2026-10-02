@@ -18,6 +18,7 @@ export function SiteFooterBar() {
               href={SOCIAL.x}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="TODO Engineering on X"
               className={linkClass}
             >
               {footer.x}

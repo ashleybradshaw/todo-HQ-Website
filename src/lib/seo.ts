@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { SITE_NAME, SITE_URL, X_HANDLE } from "@/lib/site";
 
 export const DEFAULT_SHARE_IMAGE = {
   url: "/opengraph-image",
@@ -53,6 +53,9 @@ export function pageMetadata({
     },
     twitter: {
       card: "summary_large_image",
+      // Child twitter objects replace the root card, so site/creator are repeated here.
+      site: X_HANDLE,
+      creator: X_HANDLE,
       title: fullTitle,
       description,
       images: shareImages.map((image) => image.url),

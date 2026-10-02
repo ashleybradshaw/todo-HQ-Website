@@ -57,6 +57,8 @@ test.describe("seo", () => {
       }
       expect(html, path).toMatch(/property="og:image"/);
       expect(html, path).toMatch(/name="twitter:image"/);
+      expect(html, path).toMatch(/name="twitter:site" content="@todoengineering"/);
+      expect(html, path).toMatch(/name="twitter:creator" content="@todoengineering"/);
       const h1s = html.match(/<h1[\s>]/g) ?? [];
       expect(h1s, path).toHaveLength(1);
       const ld = jsonLdTypes(html);
@@ -93,6 +95,12 @@ test.describe("seo", () => {
     expect(ready).toBeTruthy();
     expect(ready).not.toHaveProperty("operatingSystem");
     expect(daily).toMatchObject({ operatingSystem: "iOS, Android, Web" });
+    const org = graph.find(
+      (node) =>
+        typeof node["@id"] === "string" &&
+        node["@id"].endsWith("#organization"),
+    );
+    expect(org).toMatchObject({ sameAs: ["https://x.com/todoengineering"] });
     expect(graph.some((node) => node["@type"] === "WebSite")).toBe(true);
     expect(graph.some((node) => node["@type"] === "Person")).toBe(false);
   });

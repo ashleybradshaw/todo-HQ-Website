@@ -17,6 +17,12 @@ export const workPage = {
   queuedLabel: "// queued",
 } as const;
 
+export const workCountLine = (
+  projects: number,
+  live: number,
+  queued: number,
+) => `// ${projects} projects · ${live} live · ${queued} queued`;
+
 // TEST COPY — work detail page chrome (case study body stays in lib/projects.ts)
 export const workDetailPage = {
   notFound: {
@@ -27,6 +33,7 @@ export const workDetailPage = {
   scopeHeading: "Scope",
   outcomeHeading: "Outcome",
   adjacentAria: "Adjacent projects",
+  nextLabel: "// next",
   readygoNote: "Early build: this case study grows as we ship.",
   stillsAria: (name: string) => `${name} stills`,
   specAria: (name: string) => `${name} specification`,

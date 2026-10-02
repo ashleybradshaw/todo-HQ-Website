@@ -5,8 +5,12 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
 import { PageShell } from "@/components/PageShell";
 import { SiteCloser } from "@/components/SiteCloser";
+import { NextProjectPanel } from "@/components/work/NextProjectPanel";
 import { ProjectGlyphField } from "@/components/work/ProjectGlyphField";
-import { ProjectMediaRows } from "@/components/work/ProjectMediaRows";
+import {
+  CaseHero,
+  ProjectMediaRows,
+} from "@/components/work/ProjectMediaRows";
 import { ProjectSpec } from "@/components/work/ProjectSpec";
 import { ProjectStatusChip } from "@/components/work/ProjectStatusChip";
 import { CountUp } from "@/components/work/CountUp";
@@ -76,18 +80,29 @@ function projectJsonLd(project: FullProject) {
 const copy = "mx-auto w-full max-w-[688px]";
 
 const linkClass =
-  "type-label inline-flex min-h-6 items-center font-normal normal-case tracking-normal underline decoration-[color-mix(in_srgb,var(--foreground)_35%,transparent)] underline-offset-2 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]";
+  "font-jetbrains inline-flex min-h-6 items-center rounded-[4px] text-sm underline decoration-[color-mix(in_srgb,var(--foreground)_35%,transparent)] underline-offset-2 transition-opacity hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
 
 function adjacentProjects(slug: string) {
   const pages = getPageProjects();
   const index = pages.findIndex((project) => project.slug === slug);
-  if (index === -1) {
+  if (index === -1 || pages.length < 2) {
     return { prev: null, next: null };
   }
   return {
     prev: index > 0 ? pages[index - 1] : null,
-    next: index < pages.length - 1 ? pages[index + 1] : null,
+    next: pages[(index + 1) % pages.length],
   };
+}
+
+function splitCaseMedia(project: FullProject) {
+  const heroIndex = project.mediaRows.findIndex(
+    (row) => row.layout === "full" && row.items[0]?.ratio === "16:9",
+  );
+  const hero = heroIndex >= 0 ? project.mediaRows[heroIndex].items[0] : null;
+  const rest = project.mediaRows
+    .filter((_, index) => index !== heroIndex)
+    .slice(0, 3);
+  return { hero, rest };
 }
 
 export default async function WorkProjectPage({ params }: WorkProjectParams) {
@@ -98,6 +113,7 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
   }
 
   const { prev, next } = adjacentProjects(project.slug);
+  const { hero, rest } = splitCaseMedia(project);
 
   return (
     <>
@@ -111,8 +127,44 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
       <PageShell
         variant="essayMedia"
         title={project.name}
-        titleClassName="type-title mt-10 text-center text-balance tracking-tight"
+        titleClassName="mt-3 text-left"
         background={<ProjectGlyphField />}
+        beforeTitle={
+          <span
+            aria-hidden="true"
+            className="bg-foreground mt-6 inline-block size-8"
+            style={{
+              maskImage: `url(/logos/${project.slug}.svg)`,
+              WebkitMaskImage: `url(/logos/${project.slug}.svg)`,
+              maskSize: "contain",
+              WebkitMaskSize: "contain",
+              maskRepeat: "no-repeat",
+              WebkitMaskRepeat: "no-repeat",
+              maskPosition: "left center",
+              WebkitMaskPosition: "left center",
+            }}
+          />
+        }
+        lede={
+          <div className="flex flex-col items-start gap-3">
+            <p className="type-body-sm text-foreground">
+              {project.cardDescription}
+            </p>
+            <ProjectStatusChip status={project.status} />
+            {project.slug === "readygo" ? (
+              <p className="type-body-sm text-foreground">
+                {workDetailPage.readygoNote}
+              </p>
+            ) : null}
+          </div>
+        }
+        ledeClassName="mt-4"
+        aside={
+          <ProjectSpec
+            project={project}
+            label={workDetailPage.specAria(project.name)}
+          />
+        }
         breadcrumbs={
           <Breadcrumbs
             parent={{ href: "/work", label: workDetailPage.breadcrumbWork }}
@@ -127,45 +179,35 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
           progressId="work-article-body"
         />
         <div id="work-article-body">
-          <div className={`${copy} mt-4 flex flex-col items-center gap-3`}>
-            <ProjectStatusChip status={project.status} />
-            {project.slug === "readygo" ? (
-              // TEST COPY
-              <p className="type-body-sm text-center text-foreground">
-                {workDetailPage.readygoNote}
-              </p>
-            ) : null}
-          </div>
-
-          <p className={`type-body ${copy} mt-6 text-center text-foreground`}>
-            {project.description}
-          </p>
-
-          <ProjectSpec
-            project={project}
-            label={workDetailPage.specAria(project.name)}
-          />
+          {hero ? <CaseHero item={hero} /> : null}
 
           <section
             aria-label={workDetailPage.metricsAria(project.name)}
-            className={`${copy} mt-8`}
+            className="mt-8"
           >
-            <ul className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-8 sm:gap-y-3">
+            <ul className="grid grid-cols-1 gap-6 sm:grid-cols-3">
               {project.metrics.map((metric) => (
-                <li key={metric.label} className="flex items-baseline gap-2">
+                <li
+                  key={metric.label}
+                  className="border-border-ide border-t pt-4"
+                >
                   <CountUp
-                    variant="literal"
+                    variant="stat"
                     value={metric.value}
                     prefix={metric.prefix}
                     suffix={metric.suffix}
                   />
-                  <span className="font-jetbrains text-syn-comment text-xs">
+                  <span className="font-jetbrains text-syn-comment mt-1 block text-xs">
                     {metric.label}
                   </span>
                 </li>
               ))}
             </ul>
           </section>
+
+          <p className={`type-body ${copy} mt-10 text-foreground`}>
+            {project.description}
+          </p>
 
           <h2 className={`type-label ${copy} mt-8`}>
             {workDetailPage.scopeHeading}
@@ -193,25 +235,21 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
           ))}
 
           <ProjectMediaRows
-            project={project}
+            rows={rest}
             label={workDetailPage.stillsAria(project.name)}
           />
 
-          <nav
-            className={`border-border-ide ${copy} mt-12 flex flex-wrap items-center justify-between gap-4 border-t pt-6`}
-            aria-label={workDetailPage.adjacentAria}
-          >
+          <nav className="mt-12" aria-label={workDetailPage.adjacentAria}>
             {prev ? (
               <Link href={`/work/${prev.slug}`} className={linkClass}>
                 ← {prev.name}
               </Link>
-            ) : (
-              <span />
-            )}
+            ) : null}
             {next ? (
-              <Link href={`/work/${next.slug}`} className={linkClass}>
-                {next.name} →
-              </Link>
+              <NextProjectPanel
+                project={next}
+                label={workDetailPage.nextLabel}
+              />
             ) : null}
           </nav>
         </div>

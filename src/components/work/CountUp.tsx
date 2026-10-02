@@ -7,8 +7,8 @@ type CountUpProps = {
   value: number;
   prefix?: string;
   suffix?: string;
-  /** display = Unbounded headline; literal = JetBrains code number. */
-  variant: "display" | "literal";
+  /** display = card headline; stat = case-page row; literal = JetBrains. */
+  variant: "display" | "stat" | "literal";
   className?: string;
 };
 
@@ -16,9 +16,16 @@ function formatMetric(prefix: string, value: number, suffix: string) {
   return `${prefix}${value}${suffix}`;
 }
 
+function visibleRatio(rect: DOMRect) {
+  const visible =
+    Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
+  if (rect.height <= 0) return 0;
+  return visible / rect.height;
+}
+
 /**
- * Counts from 0 to value over 400ms the first time it enters view.
- * SSR, the first client render, and reduced motion all show the final value.
+ * Counts 0 → value over 400ms the first time it scrolls into view.
+ * Already in view on mount, reduced motion, and the first paint all stay on the final value.
  */
 export function CountUp({
   value,
@@ -35,10 +42,12 @@ export function CountUp({
     const root = rootRef.current;
     if (!root) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (visibleRatio(root.getBoundingClientRect()) >= 0.4) return;
 
     let frame = 0;
     let started = false;
     let cancelled = false;
+    setDisplay(0);
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -53,7 +62,6 @@ export function CountUp({
           setDisplay(Math.round(value * t));
           if (t < 1) frame = requestAnimationFrame(tick);
         };
-        setDisplay(0);
         frame = requestAnimationFrame(tick);
       },
       { threshold: 0.4 },
@@ -72,16 +80,18 @@ export function CountUp({
       ref={rootRef}
       className={cn(
         "inline-grid tabular-nums",
-        variant === "display"
-          ? "type-subhead text-syn-number"
-          : "font-jetbrains text-syn-number",
+        variant === "stat"
+          ? "type-display text-syn-number"
+          : variant === "display"
+            ? "type-heading text-syn-number"
+            : "font-jetbrains text-syn-number",
         className,
       )}
     >
       <span className="invisible col-start-1 row-start-1" aria-hidden="true">
         {finalText}
       </span>
-      <span className="col-start-1 row-start-1">
+      <span data-countup="" className="col-start-1 row-start-1">
         {formatMetric(prefix, display, suffix)}
       </span>
     </span>

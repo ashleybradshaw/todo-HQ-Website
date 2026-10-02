@@ -1,9 +1,9 @@
-import type { CSSProperties } from "react";
 import { BrowserFrame } from "@/components/work/BrowserFrame";
+import { FrameReveal } from "@/components/work/FrameReveal";
 import { cn } from "@/lib/cn";
 import type {
-  FullProject,
   MediaRatio,
+  ProjectMediaItem,
   ProjectMediaRow,
 } from "@/lib/projects";
 
@@ -28,27 +28,46 @@ function frameOffset(rows: readonly ProjectMediaRow[], rowIndex: number) {
 }
 
 function gridFor(row: ProjectMediaRow) {
-  if (row.layout === "full") return "grid grid-cols-1";
-  if (row.layout === "trio") return "grid grid-cols-1 gap-4 md:grid-cols-3";
+  if (row.layout === "full") return "grid grid-cols-1 items-start";
+  if (row.layout === "trio") {
+    return "grid grid-cols-1 items-start gap-4 md:grid-cols-3";
+  }
   const ratio: MediaRatio | undefined = row.items[0]?.ratio;
-  if (ratio === "1:1") return "grid grid-cols-2 gap-4";
-  return "grid grid-cols-1 gap-4 sm:grid-cols-2";
+  if (ratio === "1:1") return "grid grid-cols-2 items-start gap-4";
+  return "grid grid-cols-1 items-start gap-4 sm:grid-cols-2";
+}
+
+function stillSrc(item: ProjectMediaItem) {
+  return item.kind === "video" ? (item.poster ?? item.src) : item.src;
+}
+
+export function CaseHero({ item }: { item: ProjectMediaItem }) {
+  return (
+    <BrowserFrame
+      src={stillSrc(item)}
+      alt={item.alt}
+      caption={item.caption}
+      ratio="16:9"
+      sizes={SIZES.full}
+      priority
+      className="mt-8 w-full"
+    />
+  );
 }
 
 export function ProjectMediaRows({
-  project,
+  rows,
   label,
 }: {
-  project: FullProject;
+  rows: readonly ProjectMediaRow[];
   label: string;
 }) {
+  if (rows.length === 0) return null;
+
   return (
-    <section
-      className="mt-12 flex min-w-0 flex-col gap-4"
-      aria-label={label}
-    >
-      {project.mediaRows.map((row, rowIndex) => {
-        const offset = frameOffset(project.mediaRows, rowIndex);
+    <section className="mt-12 flex min-w-0 flex-col gap-4" aria-label={label}>
+      {rows.map((row, rowIndex) => {
+        const offset = frameOffset(rows, rowIndex);
         return (
           <div
             key={row.id}
@@ -57,24 +76,17 @@ export function ProjectMediaRows({
           >
             {row.items.map((item, itemIndex) => {
               const index = offset + itemIndex;
-              const src =
-                item.kind === "video" ? (item.poster ?? item.src) : item.src;
               return (
-                <div
-                  key={item.id}
-                  className="work-frame-enter min-w-0"
-                  style={{ "--work-frame-i": index } as CSSProperties}
-                >
+                <FrameReveal key={item.id} index={index}>
                   <BrowserFrame
-                    src={src}
+                    src={stillSrc(item)}
                     alt={item.alt}
                     caption={item.caption}
                     ratio={item.ratio}
                     sizes={sizesFor(row)}
-                    priority={index === 0}
                     className="w-full"
                   />
-                </div>
+                </FrameReveal>
               );
             })}
           </div>

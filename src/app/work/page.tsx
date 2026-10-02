@@ -3,7 +3,8 @@ import { PageShell } from "@/components/PageShell";
 import { ProjectCard } from "@/components/ProjectCard";
 import { ProjectStatusChip } from "@/components/work/ProjectStatusChip";
 import { SiteCloser } from "@/components/SiteCloser";
-import { workPage } from "@/content/pages/work";
+import { workCountLine, workPage } from "@/content/pages/work";
+import { cn } from "@/lib/cn";
 import { getListedProjects, projectHasPage } from "@/lib/projects";
 import { pageMetadata } from "@/lib/seo";
 
@@ -17,6 +18,10 @@ export default function WorkPage() {
   const listed = getListedProjects();
   const cards = listed.filter(projectHasPage);
   const queued = listed.filter((project) => !project.hasPage);
+  const lastWide = cards.length % 2 === 1;
+  const live = cards.filter(
+    (project) => project.status === "shipped" || project.status === "live",
+  ).length;
 
   return (
     <PageShell
@@ -26,12 +31,25 @@ export default function WorkPage() {
       lede={<p className="type-body-sm max-w-[592px]">{workPage.lede}</p>}
     >
       <ul className="mt-10 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
-        {cards.map((project, index) => (
-          <li key={project.slug} className="h-full">
-            <ProjectCard project={project} priority={index === 0} />
-          </li>
-        ))}
+        {cards.map((project, index) => {
+          const wide = lastWide && index === cards.length - 1;
+          return (
+            <li
+              key={project.slug}
+              className={cn("h-full", wide && "lg:col-span-2")}
+            >
+              <ProjectCard
+                project={project}
+                priority={index === 0}
+                wide={wide}
+              />
+            </li>
+          );
+        })}
       </ul>
+      <p className="font-jetbrains text-syn-comment mt-6 text-xs">
+        {workCountLine(cards.length, live, queued.length)}
+      </p>
 
       <section className="mt-14" aria-labelledby="work-queued-heading">
         <h2 id="work-queued-heading" className="type-label">

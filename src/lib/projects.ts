@@ -89,6 +89,8 @@ export type FullProject = ProjectBase & {
   mediaRows: readonly ProjectMediaRow[];
   /** Optional MVP / version notes — omit on most projects. */
   phaseNotes?: readonly ProjectPhaseNote[];
+  /** Shown on the card status strip. // TEST COPY until a real release exists. */
+  release: string;
 };
 
 export type PipelineProject = ProjectBase & {
@@ -169,8 +171,9 @@ export const PROJECTS: readonly Project[] = [
       platforms: ["iOS", "Android"],
       role: ["Product", "Design", "iOS", "Android"],
       timeline: "103 days, first half of 2025",
-      links: [{ label: "Product site", href: "https://example.com/repdaily" }],
     },
+    // TEST COPY
+    release: "v1.5",
     // TEST COPY
     scope: [
       "On-device rep counting. Nothing recorded, nothing uploaded.",
@@ -265,8 +268,9 @@ export const PROJECTS: readonly Project[] = [
       platforms: ["iOS", "Web"],
       role: ["Product", "Design", "Build"],
       timeline: "In build through spring 2026",
-      links: [{ label: "Build notes", href: "https://example.com/readygo" }],
     },
+    // TEST COPY
+    release: "v0.1",
     // TEST COPY
     scope: [
       "Conditions, effort and kit settled before you head out.",
@@ -343,8 +347,9 @@ export const PROJECTS: readonly Project[] = [
       platforms: ["Web"],
       role: ["Design", "Build"],
       timeline: "Shipped, still in operation",
-      links: [{ label: "Workspace", href: "https://example.com/contentic" }],
     },
+    // TEST COPY
+    release: "v1.0",
     // TEST COPY
     scope: [
       "Intake, review and publish on one surface.",

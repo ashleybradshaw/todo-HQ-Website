@@ -51,15 +51,12 @@ export function BrowserFrame({
         className,
       )}
     >
-      <div className="border-border-ide flex min-w-0 items-center gap-2 border-b px-2.5 py-1.5">
+      <div className="border-border-ide flex h-7 items-center gap-2 border-b px-2.5">
         <span className="flex shrink-0 gap-1" aria-hidden="true">
           <span className="bg-foreground/25 size-1.5 rounded-full" />
           <span className="bg-foreground/25 size-1.5 rounded-full" />
           <span className="bg-foreground/25 size-1.5 rounded-full" />
         </span>
-        <figcaption className="font-jetbrains min-w-0 flex-1 text-xs tracking-wide break-words text-foreground uppercase">
-          {caption}
-        </figcaption>
       </div>
       <div
         data-ratio={ratio}
@@ -87,6 +84,9 @@ export function BrowserFrame({
           />
         ) : null}
       </div>
+      <figcaption className="font-jetbrains text-foreground px-2.5 py-1.5 text-xs tracking-wide break-words uppercase">
+        {caption}
+      </figcaption>
     </figure>
   );
 }

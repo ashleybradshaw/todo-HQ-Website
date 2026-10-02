@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { StackIcon, STACK_BY_ID } from "@/components/ide/StackIconRow";
+import { cn } from "@/lib/cn";
 import {
   PROJECT_STATUS_LABEL,
   type FullProject,
@@ -27,14 +28,16 @@ function Value({ children }: { children: ReactNode }) {
 export function ProjectSpec({
   project,
   label,
+  className,
 }: {
   project: FullProject;
   label: string;
+  className?: string;
 }) {
   const links = project.spec.links ?? [];
 
   return (
-    <section aria-label={label} className="mx-auto mt-8 w-full max-w-[688px]">
+    <section aria-label={label} className={cn("w-full", className)}>
       <dl>
         <div className={ROW}>
           <Key>client</Key>

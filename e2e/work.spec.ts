@@ -1,3 +1,4 @@
+import AxeBuilder from "@axe-core/playwright";
 import { test, expect } from "@playwright/test";
 
 const PAGE_LINKS = [
@@ -31,6 +32,61 @@ test.describe("work roster", () => {
       return box.width / box.height;
     });
     expect(Math.abs(ratio / (16 / 9) - 1)).toBeLessThan(0.01);
+  });
+
+  test("index contrast, count line, wide card and first-image priority", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.addInitScript(() => {
+      const zeros: string[] = [];
+      (window as unknown as { __countZeros: string[] }).__countZeros = zeros;
+      const watch = () => {
+        const root = document.documentElement;
+        if (!root) return;
+        const observer = new MutationObserver(() => {
+          const node = document.querySelector("article [data-countup]");
+          if (node?.textContent?.trim() === "0") zeros.push("0");
+        });
+        observer.observe(root, {
+          subtree: true,
+          childList: true,
+          characterData: true,
+        });
+      };
+      if (document.documentElement) watch();
+      else document.addEventListener("DOMContentLoaded", watch);
+    });
+    await page.goto("/work", { waitUntil: "domcontentloaded" });
+
+    const contrast = await new AxeBuilder({ page })
+      .include("main")
+      .withRules(["color-contrast"])
+      .analyze();
+    expect(contrast.violations).toEqual([]);
+    await expect(page.locator('a[href*="example.com"]')).toHaveCount(0);
+    await expect(page.getByText("// 3 projects · 2 live · 2 queued")).toBeVisible();
+
+    const firstImage = page.locator("article").first().locator("img");
+    await expect(firstImage).toHaveAttribute("fetchpriority", "high");
+    await expect(page.locator("article").nth(1).locator("img")).not.toHaveAttribute(
+      "fetchpriority",
+      "high",
+    );
+
+    const last = page.locator("article").last();
+    const span = await last.evaluate((el) =>
+      getComputedStyle(el.parentElement as HTMLElement).gridColumn,
+    );
+    expect(span).toContain("span 2");
+
+    await expect(page.locator("article").first().locator("[data-countup]")).toHaveText(
+      "103",
+    );
+    const zeros = await page.evaluate(
+      () => (window as unknown as { __countZeros: string[] }).__countZeros,
+    );
+    expect(zeros).toEqual([]);
   });
 
   test("pipeline and deleted slugs 404", async ({ request }) => {
@@ -76,10 +132,20 @@ test.describe("work roster", () => {
     await page.goto("/work/readygo", { waitUntil: "domcontentloaded" });
     const nav = page.getByRole("navigation", { name: "Adjacent projects" });
     await expect(nav.getByRole("link", { name: "← RepDaily" })).toBeVisible();
-    await expect(nav.getByRole("link", { name: "Contentic →" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: /Contentic/ })).toBeVisible();
     await expect(nav.getByRole("link", { name: /Tower|ErgTrainer/i })).toHaveCount(
       0,
     );
+  });
+
+  test("contentic next panel wraps to RepDaily", async ({ page }) => {
+    await page.goto("/work/contentic", { waitUntil: "domcontentloaded" });
+    const nav = page.getByRole("navigation", { name: "Adjacent projects" });
+    await expect(nav.getByRole("link", { name: /RepDaily/ })).toHaveAttribute(
+      "href",
+      "/work/repdaily",
+    );
+    await expect(nav.getByRole("link", { name: "← ReadyGo" })).toBeVisible();
   });
 
   test("nav breadcrumb appears after the h1 and progress tracks the essay", async ({
@@ -150,10 +216,19 @@ test.describe("work roster", () => {
       "role",
       "stack",
       "timeline",
-      "links",
     ]) {
       await expect(spec.getByText(key, { exact: true })).toBeVisible();
     }
+    await expect(spec.getByText("links", { exact: true })).toHaveCount(0);
+    await expect(page.locator('a[href*="example.com"]')).toHaveCount(0);
+
+    const pairTops = await page
+      .locator("[data-media-layout='pair'] [data-ratio]")
+      .evaluateAll((nodes) =>
+        nodes.map((node) => node.getBoundingClientRect().top),
+      );
+    expect(pairTops.length).toBeGreaterThan(1);
+    expect(Math.abs(pairTops[0] - pairTops[1])).toBeLessThan(1);
 
     const metrics = page.getByRole("region", { name: "RepDaily metrics" });
     const items = metrics.locator("li");

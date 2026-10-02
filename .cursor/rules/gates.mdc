@@ -1,12 +1,14 @@
 ---
-description: Verification gates — smallest covering tier
+description: Verification gates — smallest run, full suite once
 alwaysApply: true
 ---
 
 # Gates
 
-- **T1** copy/docs: `npx tsc --noEmit` + eslint touched files.
-- **T2** one page/component: T1 + `npm run build` + matching spec(s) with `PW_NO_BUILD=1`.
-- **T3** shared / "full gates": T1 + build + `PW_NO_BUILD=1 npm run test:e2e`.
+- **Iterating (every edit):** `npx tsc --noEmit` + eslint on touched files + the one matching spec: `PW_NO_BUILD=1 npx playwright test e2e/<file>.spec.ts`.
+- **T2** one page/component: that, plus `npm run build` once before the spec if the build is stale.
+- **T3 full e2e:** `PW_NO_BUILD=1 npm run test:e2e` **once**, immediately before commit. Never again in the same change.
+- A red spec: re-run **that spec only**. Do not re-run the suite to confirm a one-file fix.
+- Known flaky (book clipboard / “Copied”): report one line. No investigation, no rerun.
 
-No `/tmp` probes unless asked. Report tier + pass/fail only. No screenshots unless asked.
+Build once per push (`npm run build`), then `PW_NO_BUILD=1` for every Playwright call. No `/tmp` probes unless asked. Report tier + pass/fail only. No screenshots unless asked.

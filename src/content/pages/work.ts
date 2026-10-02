@@ -14,6 +14,8 @@ export const workPage = {
     "Apps we've designed and shipped: RepDaily, Contentic and ReadyGo. What each one does, what we built, and where it is now.",
   // TEST COPY
   lede: "Our own products, built the same way we build for clients. Live: RepDaily and Contentic. In build: ReadyGo.",
+  // TEST COPY
+  frameLabel: "// projects",
   queuedLabel: "// queued",
 } as const;
 

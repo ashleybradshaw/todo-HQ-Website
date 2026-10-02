@@ -23,7 +23,7 @@ const POSTS = [
   },
   {
     slug: "repdaily-our-first-time",
-    title: "Our first time",
+    title: "RepDaily: counting was the easy part",
   },
 ] as const;
 
@@ -61,7 +61,9 @@ test.describe("blog loop", () => {
       name: "Blog",
     }).click();
     await expect(page).toHaveURL(/\/blog$/);
-    await expect(page.getByRole("heading", { name: /\/\/ Blog/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Notes from the factory.", level: 1 }),
+    ).toBeVisible();
     await expect(page.getByText("NOTES", { exact: true })).toBeVisible();
     await expect(page.locator("#blog-count")).toHaveText("4 notes");
     await expect(page.locator("#blog-featured-row")).toBeVisible();
@@ -114,7 +116,7 @@ test.describe("blog loop", () => {
     await page.getByRole("button", { name: "Projects" }).click();
     await expect(page.locator("#blog-count")).toHaveText("2 notes");
     await expect(page.locator("#blog-featured")).toContainText(
-      "Our first time",
+      "RepDaily: counting was the easy part",
     );
     await expect(page.locator("#blog-sandbox-sibling")).toBeVisible();
     await expect(page.locator("#blog-notes-grid")).toHaveCount(0);
@@ -368,7 +370,9 @@ test.describe("blog loop", () => {
   test("mobile landing shows HQ chrome and menu", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await visit(page, "/blog");
-    await expect(page.getByRole("heading", { name: /\/\/ Blog/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Notes from the factory.", level: 1 }),
+    ).toBeVisible();
     await expect(page.getByRole("button", { name: "More" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "View all" })).toHaveCount(0);
     await expect(page.getByText(/Notes from the floor/)).toHaveCount(0);
@@ -408,7 +412,7 @@ test.describe("blog loop", () => {
     expect(box!.width / box!.height).toBeCloseTo(16 / 9, 1);
 
     const title = page.locator("#blog-featured h2");
-    await expect(title).toHaveText("Our first time");
+    await expect(title).toHaveText("RepDaily: counting was the easy part");
     await expect(title).toHaveClass(/line-clamp-2/);
     await expect(page.locator("#blog-featured h2 + p")).toHaveClass(
       /line-clamp-3/,
@@ -418,7 +422,9 @@ test.describe("blog loop", () => {
   test("/blog/all redirects to the notes index", async ({ page }) => {
     await page.goto("/blog/all", { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/blog$/);
-    await expect(page.getByRole("heading", { name: /\/\/ Blog/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Notes from the factory.", level: 1 }),
+    ).toBeVisible();
   });
 
   test("copy link and rating thank-you lock on each stub", async ({
@@ -572,16 +578,13 @@ test.describe("blog loop", () => {
   test("pilot note renders craft blocks and larger prose", async ({ page }) => {
     await visit(page, "/blog/repdaily-our-first-time");
     const body = page.locator("#blog-article-body");
-    await expect(body.locator(".blog-note-callout")).toHaveCount(2);
+    await expect(body.locator(".blog-note-callout")).toHaveCount(3);
     await expect(body.locator(".blog-note-callout .type-label").first()).toHaveText(
       "NOTE",
     );
-    await expect(body.getByText(/MOCK — outline only/)).toBeVisible();
-    await expect(body.locator("figure.blog-article-figure img")).toHaveAttribute(
-      "src",
-      /repdaily-our-first-time\.webp/,
-    );
-    await expect(body.locator("hr.blog-article-rule")).toHaveCount(1);
+    await expect(
+      body.getByRole("heading", { name: "The brief we thought we had" }),
+    ).toBeVisible();
     await expect(body).toHaveClass(/type-prose/);
   });
 
@@ -614,7 +617,7 @@ test.describe("blog loop", () => {
 
     const box = await hero.boundingBox();
     expect(box).not.toBeNull();
-    expect(box!.width / box!.height).toBeCloseTo(1200 / 630, 1);
+    expect(box!.width / box!.height).toBeCloseTo(16 / 9, 1);
 
     const og = page.locator('meta[property="og:image"]');
     await expect(og).toHaveAttribute("content", /\/blog\/og-default\.png/);
@@ -645,7 +648,7 @@ test.describe("blog loop", () => {
     await expect(hero.locator("img")).toHaveAttribute("src", /og-default/);
     const box = await hero.boundingBox();
     expect(box).not.toBeNull();
-    expect(box!.width / box!.height).toBeCloseTo(1200 / 630, 1);
+    expect(box!.width / box!.height).toBeCloseTo(16 / 9, 1);
     await expect(
       page.getByRole("link", { name: "Book a call", exact: true }),
     ).toBeVisible();

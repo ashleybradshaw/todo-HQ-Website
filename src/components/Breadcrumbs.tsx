@@ -32,7 +32,7 @@ export function Breadcrumbs({
       aria-label="Breadcrumb"
       className={cn("type-meta", className)}
     >
-      <ol className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+      <ol className="flex flex-wrap items-baseline justify-center gap-x-2 gap-y-1 text-center">
         <li>
           <Link href={parent.href} className={crumbLinkClass}>
             {parent.label}

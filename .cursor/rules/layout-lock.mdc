@@ -1,0 +1,51 @@
+---
+description: HQ layout lock for /about, /work, /blog, /book and both detail routes.
+globs: src/app/{about,work,blog,book}/**,src/components/{PageShell,PageHero}.tsx,src/components/ide/IdeFrame.tsx,src/components/detail/**,src/components/work/ProjectMediaRows.tsx
+alwaysApply: false
+---
+
+# Layout lock
+
+`/` and `/home` are out of scope. Change the lock = update this rule and `e2e/layout-lock.spec.ts` in the same PR.
+
+All heroes and detail headers centred; bodies left.
+
+## Tracks
+
+- **Frame** — `max-w-[1336px]`. `/work` and `/blog`. Page padding (`px-6`) sits on `main`, outside the track, so the frame is 1336 at 1440 and 342 at 390.
+- **Reading** — `max-w-[800px] px-6` on the track. `/about`, `/book`, `/work/[slug]`, `/blog/[slug]`. Content box is 752 (media). Copy column is `max-w-[688px] mx-auto`. The column stays centred; text is left.
+
+## Hero A
+
+`PageHero` on all four index pages. `[data-hero]` is `text-center`. Label top is 112 (`main` keeps `pt-28`).
+
+- `[data-hero-label]`: `TypeComment` `p.type-label` starting `//`, centred, then a full-width `border-t border-border-ide mt-3`.
+- `[data-hero-title]`: `h1.type-display` (36/40 below 768, 60/64 from 768), `font-bold tracking-tight text-balance text-center mx-auto mt-4`.
+- `[data-hero-sub]`: one `type-body` paragraph, 16/24 at all sizes, `max-w-[592px] mx-auto mt-6 text-center text-pretty`.
+- Hero to body: `mt-10`.
+
+## Bodies
+
+- **ide-frame** (`/work`, `/blog`): one `section[data-ide-frame]`. Bar is `flex justify-between border-b border-border-ide px-6 py-2` (left `TypeComment text-syn-keyword`, right `type-label text-syn-comment font-normal`). Body is `flex flex-col gap-6 p-4 sm:p-6`. The bar label is not the `h1`.
+- **Editorial** (`/about`, `/book`): no frame. 688 column, text left. Section divider: `border-t border-border-ide mt-16 pt-12`.
+
+## Detail lock
+
+`DetailHeader` + `DetailHero` on both detail routes, reading track.
+
+- Breadcrumb at 112, centred. `h1` `type-display mt-6 text-center text-balance mx-auto`. Meta row `type-body-sm mt-4`, centred.
+- `figure[data-detail-hero]`: full content width (752), 16:9, `border border-border-ide rounded-[4px]`, optional caption below, `priority`. `sizes="(min-width: 800px) 752px, calc(100vw - 48px)"`.
+- Work order: hero, stats (752, 3-up from `sm`), project facts (meta card at 752, `// build` at 688), copy 688, media, `NextProjectPanel` at 752.
+- `[data-detail-copy]`: `max-w-[688px] mx-auto`. Long-form uses `type-prose` on both.
+- Gaps: hero to the next block `mt-10`, later sections `mt-16`, media `gap-4`.
+
+## Media
+
+Only two frame sizes, plus blog inline copy:
+
+- **L** 752 — full, 16:9. `sizes="(min-width: 800px) 752px, calc(100vw - 48px)"`.
+- **M** 368 — pair, 4:5 or 1:1, `gap-4`. `sizes="(min-width: 800px) 368px, (min-width: 640px) calc(50vw - 32px), calc(100vw - 48px)"`.
+- **Inline** 688 — blog article images inside the copy column.
+- Mobile is 100% width. Trio data renders as a pair plus a full row (or two pairs). No trio layout in the DOM.
+
+Blog OG metadata stays 1200×630. The detail hero is 16:9 and may centre-crop the OG asset until a real 16:9 file exists.

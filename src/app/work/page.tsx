@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { IdeFrame } from "@/components/ide/IdeFrame";
 import { PageShell } from "@/components/PageShell";
 import { ProjectCard } from "@/components/ProjectCard";
 import { ProjectStatusChip } from "@/components/work/ProjectStatusChip";
@@ -28,50 +29,53 @@ export default function WorkPage() {
       variant="index"
       eyebrow={workPage.eyebrow}
       title={workPage.title}
-      lede={<p className="type-body-sm max-w-[592px]">{workPage.lede}</p>}
+      lede={workPage.lede}
     >
-      <ul className="mt-10 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
-        {cards.map((project, index) => {
-          const wide = lastWide && index === cards.length - 1;
-          return (
-            <li
-              key={project.slug}
-              className={cn("h-full", wide && "lg:col-span-2")}
-            >
-              <ProjectCard
-                project={project}
-                priority={index === 0}
-                wide={wide}
-              />
-            </li>
-          );
-        })}
-      </ul>
-      <p className="font-jetbrains text-syn-comment mt-6 text-xs">
-        {workCountLine(cards.length, live, queued.length)}
-      </p>
-
-      <section className="mt-14" aria-labelledby="work-queued-heading">
-        <h2 id="work-queued-heading" className="type-label">
-          {workPage.queuedLabel}
-        </h2>
-        <ul className="border-border-ide mt-4 border-y">
-          {queued.map((project) => (
-            <li
-              key={project.slug}
-              className="border-border-ide flex flex-col items-start gap-2 border-b py-4 last:border-b-0"
-            >
-              <p className="font-jetbrains text-sm font-bold text-foreground">
-                {project.name}
-              </p>
-              <p className="type-body-sm max-w-[688px] text-foreground">
-                {project.cardDescription}
-              </p>
-              <ProjectStatusChip status={project.status} />
-            </li>
-          ))}
+      <IdeFrame
+        label={workPage.frameLabel}
+        meta={workCountLine(cards.length, live, queued.length)}
+        labelledBy="work-frame-label"
+      >
+        <ul className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
+          {cards.map((project, index) => {
+            const wide = lastWide && index === cards.length - 1;
+            return (
+              <li
+                key={project.slug}
+                className={cn("h-full", wide && "lg:col-span-2")}
+              >
+                <ProjectCard
+                  project={project}
+                  priority={index === 0}
+                  wide={wide}
+                />
+              </li>
+            );
+          })}
         </ul>
-      </section>
+
+        <section aria-labelledby="work-queued-heading">
+          <h2 id="work-queued-heading" className="type-label">
+            {workPage.queuedLabel}
+          </h2>
+          <ul className="border-border-ide mt-4 border-y">
+            {queued.map((project) => (
+              <li
+                key={project.slug}
+                className="border-border-ide flex flex-col items-start gap-2 border-b py-4 last:border-b-0"
+              >
+                <p className="font-jetbrains text-sm font-bold text-foreground">
+                  {project.name}
+                </p>
+                <p className="type-body-sm max-w-[688px] text-foreground">
+                  {project.cardDescription}
+                </p>
+                <ProjectStatusChip status={project.status} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      </IdeFrame>
 
       <SiteCloser route="work" />
     </PageShell>

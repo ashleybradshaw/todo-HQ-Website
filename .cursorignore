@@ -1,4 +1,6 @@
 package-lock.json
+node_modules/
+*.tsbuildinfo
 src/assets/phyllotaxisBloomMarkup.ts
 public/
 docs/shots/

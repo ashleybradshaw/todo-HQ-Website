@@ -37,11 +37,8 @@ export default async function BookPage({ searchParams }: BookPageProps) {
       <PageShell
         variant="essay"
         eyebrow={bookPage.eyebrow}
-        eyebrowClassName="text-center"
         title={bookPage.title}
-        titleClassName="type-title text-center text-balance tracking-tight"
-        ledeClassName="text-center"
-        lede={<p className="text-pretty">{bookPage.lede}</p>}
+        lede={bookPage.lede}
       >
         <BookPaths bookingType={bookingType} />
         <SiteCloser route="book" />

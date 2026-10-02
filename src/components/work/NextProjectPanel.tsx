@@ -7,7 +7,7 @@ import { DecodeLabel } from "@/components/DecodeLabel";
 import { PlaceholderStill } from "@/components/work/PlaceholderStill";
 import type { FullProject } from "@/lib/projects";
 
-const SIZES = "(min-width:1384px) 1334px, calc(100vw - 50px)";
+const SIZES = "(min-width: 800px) 752px, calc(100vw - 48px)";
 
 function subscribeReducedMotion(onStoreChange: () => void) {
   const media = window.matchMedia("(prefers-reduced-motion: reduce)");

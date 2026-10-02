@@ -7,7 +7,6 @@ import { BlogMediaCraft } from "@/components/blog/BlogMediaCraft";
 import { BlogNoteCard, ReadMinutes, WriterMeta, categoryPillStyle } from "@/components/blog/BlogNoteCard";
 import { BlogPollTile } from "@/components/blog/BlogPollTile";
 import { BlogSandbox } from "@/components/blog/BlogSandbox";
-import { TypeComment } from "@/components/TypeComment";
 import { getFeaturedPoll, getGridPolls, type BlogPoll } from "@/content/blog-polls";
 import { cn } from "@/lib/cn";
 import {
@@ -128,24 +127,7 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
   }
 
   return (
-    <div className="mx-auto max-w-[1336px] px-6 pt-28 pb-16">
-      <section
-        className="border border-border-ide"
-        aria-labelledby="blog-index-heading"
-      >
-        <div className="flex items-center justify-between border-b border-border-ide px-6 py-2">
-          <TypeComment
-            as="h1"
-            id="blog-index-heading"
-            text={blogPage.heading}
-            className="text-syn-keyword"
-          />
-          <p className="type-label text-syn-comment font-normal">
-            {blogPage.notesLabel}
-          </p>
-        </div>
-
-        <div className="flex flex-col gap-6 p-6">
+    <>
           <div role="group" aria-label={blogPage.filterAria}>
             <ul className="flex flex-wrap gap-2">
               {FILTERS.map((item) => {
@@ -284,8 +266,6 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
               </button>
             </p>
           ) : null}
-        </div>
-      </section>
-    </div>
+    </>
   );
 }

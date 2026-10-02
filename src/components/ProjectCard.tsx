@@ -12,10 +12,10 @@ import { cn } from "@/lib/cn";
 import type { FullProject } from "@/lib/projects";
 
 const CARD_IMAGE_SIZES =
-  "(min-width:1024px) min(548px, calc(50vw - 144px)), (min-width:640px) calc(100vw - 160px), calc(100vw - 96px)";
+  "(min-width:1024px) min(523px, calc(50vw - 169px)), (min-width:640px) calc(100vw - 210px), calc(100vw - 130px)";
 
 const WIDE_IMAGE_SIZES =
-  "(min-width:1024px) min(596px, calc(50vw - 96px)), (min-width:640px) calc(100vw - 160px), calc(100vw - 96px)";
+  "(min-width:1024px) min(587px, calc((100vw - 210px) / 2)), (min-width:640px) calc(100vw - 210px), calc(100vw - 130px)";
 
 function StatusStrip({ project }: { project: FullProject }) {
   const platforms = project.spec.platforms

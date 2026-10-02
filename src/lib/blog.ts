@@ -365,7 +365,15 @@ export function getAdjacentPosts(
   };
 }
 
-export function blogShareImageSrc(
+/** 16:9 detail hero. Falls back to the OG asset until a real 16:9 file exists. */
+export function blogHeroImageSrc(
+  post: Pick<BlogPost, "ogImageSrc" | "heroSrc">,
+) {
+  return post.heroSrc ?? post.ogImageSrc ?? BLOG_OG_DEFAULT_SRC;
+}
+
+/** 1200×630 share image. Metadata stays on this, not the hero crop. */
+export function blogOgImageSrc(
   post: Pick<BlogPost, "ogImageSrc" | "heroSrc">,
 ) {
   return post.ogImageSrc ?? post.heroSrc ?? BLOG_OG_DEFAULT_SRC;
@@ -376,7 +384,7 @@ export function isMockPost(post: Pick<BlogPost, "status">) {
 }
 
 export function blogPostingGraph(post: BlogPost) {
-  const image = `${SITE_URL}${blogShareImageSrc(post)}`;
+  const image = `${SITE_URL}${blogOgImageSrc(post)}`;
   const published = metadataDate(post.date);
   return {
     "@context": "https://schema.org",

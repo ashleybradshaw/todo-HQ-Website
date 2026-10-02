@@ -12,6 +12,11 @@ export const blogPage = {
       "Notes from the //TODO Engineering factory — internal software process, multi-agent systems, and the production roster.",
   },
 
+  eyebrow: "// Blog",
+  // TEST COPY — Autumn reviews in master copy pass
+  title: "Notes from the factory.",
+  // TEST COPY — Autumn reviews in master copy pass
+  sub: "Process, agents, and the apps we run in production.",
   // TEST COPY
   heading: "// Blog",
   notesLabel: "NOTES",

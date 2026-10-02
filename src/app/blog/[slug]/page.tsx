@@ -1,22 +1,23 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { BlogAdjacentNav } from "@/components/blog/BlogAdjacentNav";
-import { BlogMediaCraft } from "@/components/blog/BlogMediaCraft";
 import { ReadMinutes } from "@/components/blog/BlogNoteCard";
 import { BlogWriterBand } from "@/components/blog/BlogWriterBand";
+import { DetailHeader } from "@/components/detail/DetailHeader";
+import { DetailHero } from "@/components/detail/DetailHero";
 import { JsonLd } from "@/components/JsonLd";
+import { PageShell } from "@/components/PageShell";
 import { SiteCloser } from "@/components/SiteCloser";
 import {
+  blogHeroImageSrc,
+  blogOgImageSrc,
   blogPostingGraph,
-  blogShareImageSrc,
   getAdjacentPosts,
   getAllPosts,
   getPostBySlug,
   isMockPost,
   moreByWriter,
-  type BlogPost,
 } from "@/lib/blog";
 import {
   BLOG_OG_HEIGHT,
@@ -62,7 +63,7 @@ export async function generateMetadata({
     path: `/blog/${post.slug}`,
     index: !isMockPost(post),
   });
-  const image = blogShareImageSrc(post);
+  const image = blogOgImageSrc(post);
 
   return {
     ...base,
@@ -89,32 +90,6 @@ export async function generateMetadata({
   };
 }
 
-function BlogHero({ post }: { post: BlogPost }) {
-  const src = blogShareImageSrc(post);
-  const alt = post.imageAlt ?? post.title;
-
-  return (
-    <figure className="mt-10">
-      <div
-        id="blog-post-hero"
-        className="blog-post-hero relative w-full border border-border-ide bg-background"
-        style={{ aspectRatio: `${BLOG_OG_WIDTH} / ${BLOG_OG_HEIGHT}` }}
-      >
-        <BlogMediaCraft className="absolute inset-0" enabled>
-          <Image
-            src={src}
-            alt={alt}
-            fill
-            priority
-            sizes="(min-width: 800px) 752px, calc(100vw - 48px)"
-            className="object-cover object-center"
-          />
-        </BlogMediaCraft>
-      </div>
-    </figure>
-  );
-}
-
 export default async function BlogPostPage({ params }: BlogPostParams) {
   const { slug } = await params;
   const [posts, post] = await Promise.all([getAllPosts(), getPostBySlug(slug)]);
@@ -128,42 +103,51 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
 
   return (
     <>
-      <NavTrail
-        parentHref="/blog"
-        parentLabel="Blog"
-        current={post.title}
-        progressId="blog-article-body"
+      {isMockPost(post) ? null : <JsonLd data={blogPostingGraph(post)} />}
+      <JsonLd
+        data={breadcrumbGraph([
+          { name: "Blog", path: "/blog" },
+          { name: post.title, path: `/blog/${post.slug}` },
+        ])}
       />
-      <div className="mx-auto w-full max-w-[800px] px-6 pt-28 pb-16">
-        {isMockPost(post) ? null : <JsonLd data={blogPostingGraph(post)} />}
-        <JsonLd
-          data={breadcrumbGraph([
-            { name: "Blog", path: "/blog" },
-            { name: post.title, path: `/blog/${post.slug}` },
-          ])}
+      <PageShell variant="essay" constrainCopy={false}>
+        <NavTrail
+          parentHref="/blog"
+          parentLabel="Blog"
+          current={post.title}
+          progressId="blog-article-body"
         />
         <article>
-          <Breadcrumbs
-            id="blog-breadcrumb"
-            parent={{ href: "/blog", label: "Blog" }}
-            current={post.title}
+          <DetailHeader
+            title={post.title}
+            breadcrumbs={
+              <Breadcrumbs
+                id="blog-breadcrumb"
+                parent={{ href: "/blog", label: "Blog" }}
+                current={post.title}
+              />
+            }
+            meta={
+              <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center">
+                <span>{CONTENT_BYLINE}</span>
+                <span aria-hidden="true">·</span>
+                <time dateTime={metadataDate(post.date) ?? undefined}>
+                  {formatBlogDate(post.date)}
+                </time>
+                <span aria-hidden="true">·</span>
+                <ReadMinutes minutes={post.readMinutes} />
+              </div>
+            }
           />
-          <h1 className="type-title mt-10 text-center text-balance tracking-tight">
-            {post.title}
-          </h1>
-          <div className="type-caption mt-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
-            <span>{CONTENT_BYLINE}</span>
-            <span aria-hidden="true">·</span>
-            <time dateTime={metadataDate(post.date) ?? undefined}>
-              {formatBlogDate(post.date)}
-            </time>
-            <span aria-hidden="true">·</span>
-            <ReadMinutes minutes={post.readMinutes} />
-          </div>
-          <BlogHero post={post} />
+          <DetailHero
+            id="blog-post-hero"
+            src={blogHeroImageSrc(post)}
+            alt={post.imageAlt ?? post.title}
+          />
           <div
             id="blog-article-body"
-            className="type-prose mx-auto mt-10 w-full max-w-[688px] [&>blockquote]:mt-6 [&>blockquote]:ml-6 [&>blockquote]:border-l [&>blockquote]:border-border-ide [&>blockquote]:pl-4 [&>blockquote]:font-medium [&>blockquote>p]:mt-0 [&>code]:type-code [&>h2]:type-heading [&>h2]:mt-10 [&>h3]:type-subhead [&>h3]:mt-8 [&>p]:mt-4 [&>p:first-child]:mt-0 [&>ul]:mt-4 [&>ul]:list-disc [&>ul]:space-y-2 [&>ul]:pl-5"
+            data-detail-copy
+            className="type-prose mx-auto mt-10 w-full max-w-[688px] text-left [&>blockquote]:mt-6 [&>blockquote]:ml-6 [&>blockquote]:border-l [&>blockquote]:border-border-ide [&>blockquote]:pl-4 [&>blockquote]:font-medium [&>blockquote>p]:mt-0 [&>code]:type-code [&>h2]:type-heading [&>h2]:mt-10 [&>h3]:type-subhead [&>h3]:mt-8 [&>p]:mt-4 [&>p:first-child]:mt-0 [&>ul]:mt-4 [&>ul]:list-disc [&>ul]:space-y-2 [&>ul]:pl-5"
             dangerouslySetInnerHTML={{ __html: post.html }}
           />
           <div className="mx-auto w-full max-w-[688px]">
@@ -172,8 +156,8 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
             <BlogPostFeedback slug={post.slug} title={post.title} />
           </div>
         </article>
-      </div>
-      <SiteCloser route="blog-detail" />
+        <SiteCloser route="blog-detail" />
+      </PageShell>
     </>
   );
 }

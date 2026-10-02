@@ -2,6 +2,14 @@ import { test, expect, type Page, type Locator } from "@playwright/test";
 
 async function visit(page: Page, path: string) {
   await page.goto(path, { waitUntil: "domcontentloaded" });
+  await page.waitForFunction(
+    () =>
+      [...document.querySelectorAll("button")].some((el) =>
+        Object.keys(el).some((key) => key.startsWith("__react")),
+      ),
+    undefined,
+    { timeout: 30_000 },
+  );
 }
 
 function quickPanel(page: Page) {
@@ -118,6 +126,7 @@ test.describe("book links and draft panel", () => {
     const add = quick.getByRole("button", { name: "+ Add link" });
     await expect(add).toBeVisible();
     await add.click();
+    await expect(quick.getByRole("button", { name: "Remove link 2" })).toBeVisible();
     await add.click();
     await expect(add).toHaveCount(0);
     await expect(quick.getByText("3 links max")).toBeVisible();

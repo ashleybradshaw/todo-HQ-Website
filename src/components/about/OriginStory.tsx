@@ -6,7 +6,7 @@ export function OriginStory() {
   const { origin } = about;
 
   return (
-    <section className="mt-16 grid grid-cols-1 gap-8 border-t border-border-ide pt-10 lg:grid-cols-2 lg:items-start">
+    <section className="mt-16 grid grid-cols-1 gap-8 border-t border-border-ide pt-12 lg:grid-cols-2 lg:items-start">
       <div className="grid grid-cols-1 gap-3">
         {origin.media.map((item, index) => (
           <AsciiReveal

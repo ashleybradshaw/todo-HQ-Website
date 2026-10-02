@@ -1,47 +1,30 @@
 import type { ReactNode } from "react";
-import { TypeComment } from "@/components/TypeComment";
+import { PageHero } from "@/components/PageHero";
 import { cn } from "@/lib/cn";
 
-export type PageShellVariant = "index" | "essay" | "essayMedia";
+export type PageShellVariant = "index" | "essay";
 
 export type PageShellProps = {
   eyebrow?: string;
-  title: ReactNode;
-  lede?: ReactNode;
+  title?: ReactNode;
+  lede?: string;
   children?: ReactNode;
   /**
-   * index — max-w-[1336px] (/work, /blog index)
-   * essay — outer max-w-[800px], copy max-w-[688px] (/about, /book, blog article chrome)
-   * essayMedia — outer max-w-[1336px], copy max-w-[688px], media track full width (/work/[slug])
+   * index — max-w-[1336px] (/work, /blog)
+   * essay — max-w-[800px] (/about, /book, both detail pages)
    */
   variant?: PageShellVariant;
   /** @deprecated Prefer variant. true → index. */
   wide?: boolean;
-  /** display = Unbounded type-display; mono = JetBrains case title */
-  titleStyle?: "display" | "mono";
-  /** Overrides default title token/alignment (e.g. Essay drill: type-title + center). */
-  titleClassName?: string;
-  /** Extra class on the eyebrow label (e.g. text-center for Essay soft-align). */
-  eyebrowClassName?: string;
   overflow?: "x-hidden" | "hidden";
   background?: ReactNode;
-  /** Caps eyebrow, title, and lede. Defaults by variant. */
-  headerClassName?: string;
-  /** Optional trail above the eyebrow/title (Work/Blog detail). */
-  breadcrumbs?: ReactNode;
-  /** Sits in the title column, above the h1 (case-study logo). */
-  beforeTitle?: ReactNode;
-  /** Second column beside the title at lg (case-study spec). Stacks under it below lg. */
-  aside?: ReactNode;
   /**
-   * Case study: hero and stats. Below lg they sit between the lede and the spec.
-   * At lg they stay under the two-column header.
+   * Essay only. True wraps children in the 688 copy column.
+   * Detail pages set false so 752 media and 688 copy share the track.
    */
-  mobileLead?: ReactNode;
-  /** Wraps the case header, lead, spec and body so reading progress covers the page. */
+  constrainCopy?: boolean;
+  /** Wraps the track so reading progress covers the page. */
   anchorId?: string;
-  /** Extra class on the lede wrapper. */
-  ledeClassName?: string;
 };
 
 function resolveVariant(
@@ -55,13 +38,6 @@ function resolveVariant(
 const OUTER_MAX: Record<PageShellVariant, string> = {
   index: "max-w-[1336px]",
   essay: "max-w-[800px]",
-  essayMedia: "max-w-[1336px]",
-};
-
-const COPY_MAX: Record<PageShellVariant, string | undefined> = {
-  index: undefined,
-  essay: "w-full max-w-[688px] mx-auto",
-  essayMedia: "w-full max-w-[688px] mx-auto",
 };
 
 export function PageShell({
@@ -71,101 +47,51 @@ export function PageShell({
   children,
   variant,
   wide = false,
-  titleStyle = "display",
-  titleClassName,
-  eyebrowClassName,
   overflow = "x-hidden",
   background,
-  headerClassName,
-  breadcrumbs,
-  beforeTitle,
-  aside,
-  mobileLead,
+  constrainCopy = true,
   anchorId,
-  ledeClassName,
 }: PageShellProps) {
   const shell = resolveVariant(variant, wide);
-  const copyMax = COPY_MAX[shell];
-  const header = (
-    <>
-      {breadcrumbs}
-      {eyebrow ? (
-        <TypeComment
-          text={eyebrow}
-          className={cn(breadcrumbs ? "mt-6" : undefined, eyebrowClassName)}
-        />
-      ) : null}
-      {eyebrow ? <div className="border-border-ide mt-3 border-t" /> : null}
-      {beforeTitle}
-      <h1
+  const showHero = Boolean(title) && Boolean(eyebrow) && lede != null;
+
+  const body =
+    shell === "essay" && constrainCopy ? (
+      <div
         className={cn(
-          breadcrumbs && !eyebrow ? "mt-6" : "mt-4",
-          titleStyle === "mono"
-            ? "type-label tracking-[-0.01em]"
-            : "type-display tracking-tight",
-          titleClassName,
+          "mx-auto w-full max-w-[688px] text-left",
+          showHero && "mt-10",
         )}
       >
-        {title}
-      </h1>
-      {lede ? (
-        <div className={cn("type-body mt-6", ledeClassName)}>{lede}</div>
-      ) : null}
-    </>
-  );
+        {children}
+      </div>
+    ) : (
+      <div className={showHero ? "mt-10" : undefined}>{children}</div>
+    );
 
   return (
     <main
       id="main"
       tabIndex={-1}
       className={cn(
-        "relative min-h-screen bg-background px-6 pt-28 pb-16 text-foreground transition-[background-color,color] duration-[400ms] ease-in-out",
+        "relative min-h-screen bg-background pt-28 pb-16 text-foreground transition-[background-color,color] duration-[400ms] ease-in-out",
+        shell === "index" && "px-6",
         overflow === "hidden" ? "overflow-hidden" : "overflow-x-hidden",
       )}
     >
       {background}
-      <div className={cn("relative z-10 mx-auto", OUTER_MAX[shell])}>
-        {aside && mobileLead ? (
-          <div
-            id={anchorId}
-            className={cn(
-              "flex flex-col lg:grid lg:grid-cols-[minmax(0,calc(688px+2.5rem))_minmax(0,1fr)] lg:items-stretch lg:gap-x-0",
-              headerClassName,
-            )}
-          >
-            <div className="order-1 min-w-0 max-w-[688px] lg:order-none lg:col-start-1 lg:row-start-1 lg:max-w-none lg:border-border-ide lg:border-b lg:pr-10">
-              {header}
-            </div>
-            <div className="order-3 mt-8 lg:order-none lg:col-start-2 lg:row-start-1 lg:mt-0 lg:self-start lg:pl-8">
-              {aside}
-            </div>
-            <div className="order-2 lg:order-none lg:col-span-2 lg:row-start-2">
-              {mobileLead}
-            </div>
-            <div className="order-4 lg:order-none lg:col-span-2 lg:row-start-3">
-              {children}
-            </div>
-          </div>
-        ) : aside ? (
-          <div
-            className={cn(
-              "lg:border-border-ide lg:grid lg:grid-cols-[minmax(0,688px)_minmax(0,1fr)] lg:items-start lg:gap-10 lg:border-b",
-              headerClassName,
-            )}
-          >
-            <div className="min-w-0 max-w-[688px]">{header}</div>
-            <div className="border-border-ide mt-8 border-t pt-2 lg:mt-0 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-8">
-              {aside}
-            </div>
-          </div>
-        ) : (
-          <div className={cn(copyMax, headerClassName)}>{header}</div>
+      <div
+        id={anchorId}
+        className={cn(
+          "relative z-10 mx-auto",
+          OUTER_MAX[shell],
+          shell === "essay" && "px-6",
         )}
-        {aside && mobileLead ? null : shell === "essay" && copyMax ? (
-          <div className={copyMax}>{children}</div>
-        ) : (
-          children
-        )}
+      >
+        {showHero ? (
+          <PageHero eyebrow={eyebrow!} title={title!} lede={lede!} />
+        ) : null}
+        {body}
       </div>
     </main>
   );

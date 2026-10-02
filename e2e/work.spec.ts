@@ -18,9 +18,7 @@ test.describe("work roster", () => {
       await expect(page.getByRole("link", { name: label })).toHaveCount(1);
     }
 
-    const queued = page.locator("section").filter({
-      has: page.getByRole("heading", { name: "// queued" }),
-    });
+    const queued = page.getByRole("region", { name: "// queued" });
     await expect(queued.getByRole("listitem")).toHaveCount(2);
     await expect(queued.getByRole("link")).toHaveCount(0);
     await expect(queued.getByText("The Tower")).toBeVisible();
@@ -241,19 +239,21 @@ test.describe("work roster", () => {
     const items = metrics.locator("[data-metric-list] > li");
     await expect(items).toHaveCount(3);
     const metricsBox = await metrics.locator("[data-metric-list]").boundingBox();
+    const specBox = await spec.boundingBox();
     const buildBox = await build.boundingBox();
     expect(metricsBox).not.toBeNull();
+    expect(specBox).not.toBeNull();
     expect(buildBox).not.toBeNull();
-    expect(buildBox!.x).toBeGreaterThan(metricsBox!.x + metricsBox!.width - 2);
-    expect(Math.abs(buildBox!.y - metricsBox!.y)).toBeLessThan(24);
+    expect(specBox!.y).toBeGreaterThan(metricsBox!.y + metricsBox!.height - 2);
+    expect(buildBox!.y).toBeGreaterThan(specBox!.y);
     await expect(items.nth(0)).toContainText("103");
     await expect(items.nth(1)).toContainText("300");
     await expect(items.nth(2)).toContainText("15%");
 
-    const hero = page.locator("main [data-ratio='16:9']").first();
+    const hero = page.locator("[data-detail-hero]");
     const specTop = await spec.evaluate((el) => el.getBoundingClientRect().top);
     const heroTop = await hero.evaluate((el) => el.getBoundingClientRect().top);
-    expect(specTop).toBeLessThan(heroTop);
+    expect(heroTop).toBeLessThan(specTop);
     await expect(hero.locator("img")).toHaveAttribute("src", /repdaily\.webp/);
 
     const portrait = page.locator("[data-ratio='4:5']").first();
@@ -350,7 +350,7 @@ test.describe("work roster", () => {
     await page.goto("/work/repdaily", { waitUntil: "domcontentloaded" });
 
     const title = page.getByRole("heading", { name: "RepDaily", level: 1 });
-    const hero = page.locator("main [data-ratio='16:9']").first();
+    const hero = page.locator("[data-detail-hero]");
     const metrics = page.getByRole("region", { name: "RepDaily metrics" });
     const build = page.getByRole("region", { name: "RepDaily build" });
     const spec = page.getByRole("region", { name: "RepDaily specification" });
@@ -364,8 +364,8 @@ test.describe("work roster", () => {
     const specTop = await top(spec);
     expect(titleTop).toBeLessThan(heroTop);
     expect(heroTop).toBeLessThan(metricsTop);
-    expect(metricsTop).toBeLessThan(buildTop);
-    expect(buildTop).toBeLessThan(specTop);
+    expect(metricsTop).toBeLessThan(specTop);
+    expect(specTop).toBeLessThan(buildTop);
 
     const columns = await metrics.locator("[data-metric-list]").evaluate(
       (el) => getComputedStyle(el).gridTemplateColumns,

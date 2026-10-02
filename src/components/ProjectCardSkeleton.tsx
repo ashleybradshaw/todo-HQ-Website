@@ -7,7 +7,7 @@ export function ProjectCardSkeleton() {
       aria-hidden="true"
       className={`flex h-full flex-col items-start gap-2.5 rounded-[4px] bg-foreground/10 px-6 pt-7 pb-12 sm:px-14 ${SHIMMER}`}
     >
-      <div className="aspect-[547/271] w-full shrink-0 rounded-[4px] bg-foreground/10" />
+      <div className="aspect-video w-full shrink-0 rounded-[4px] bg-foreground/10" />
       <div className="flex w-full flex-col items-start gap-1">
         <div className="h-9 w-40 bg-foreground/10" />
         <div className="h-3.5 w-full bg-foreground/10" />

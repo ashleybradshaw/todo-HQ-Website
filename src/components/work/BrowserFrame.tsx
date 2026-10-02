@@ -1,19 +1,21 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
-import type { ProjectMediaAspect } from "@/lib/projects";
+import type { MediaRatio } from "@/lib/projects";
 import { PlaceholderStill } from "@/components/work/PlaceholderStill";
 
-const ASPECT_CLASS: Record<ProjectMediaAspect, string> = {
-  landscape: "aspect-video",
-  portrait: "aspect-[3/4]",
-  square: "aspect-square",
+const ASPECT_CLASS: Record<MediaRatio, string> = {
+  "16:9": "aspect-video",
+  "4:5": "aspect-[4/5]",
+  "1:1": "aspect-square",
 };
 
 export type BrowserFrameProps = {
   alt: string;
   caption: string;
-  aspect: ProjectMediaAspect;
+  ratio: MediaRatio;
+  /** Slot width for next/image. Required so each layout passes its own sizes. */
+  sizes: string;
   className?: string;
   priority?: boolean;
   /**
@@ -34,7 +36,8 @@ export function BrowserFrame({
   src,
   alt,
   caption,
-  aspect,
+  ratio,
+  sizes,
   className,
   priority = false,
   children,
@@ -54,14 +57,15 @@ export function BrowserFrame({
           <span className="bg-foreground/25 size-1.5 rounded-full" />
           <span className="bg-foreground/25 size-1.5 rounded-full" />
         </span>
-        <figcaption className="font-jetbrains min-w-0 flex-1 truncate text-xs tracking-wide text-foreground uppercase">
+        <figcaption className="font-jetbrains min-w-0 flex-1 text-xs tracking-wide break-words text-foreground uppercase">
           {caption}
         </figcaption>
       </div>
       <div
+        data-ratio={ratio}
         className={cn(
           "relative bg-[color-mix(in_srgb,var(--foreground)_5%,var(--background))]",
-          ASPECT_CLASS[aspect],
+          ASPECT_CLASS[ratio],
         )}
       >
         {children ? (
@@ -70,14 +74,14 @@ export function BrowserFrame({
           </div>
         ) : placeholder && src ? (
           <div role="img" aria-label={alt} className="absolute inset-0">
-            <PlaceholderStill aspect={aspect} />
+            <PlaceholderStill ratio={ratio} />
           </div>
         ) : src ? (
           <Image
             src={src}
             alt={alt}
             fill
-            sizes="(min-width:768px) 688px, 100vw"
+            sizes={sizes}
             priority={priority}
             className="object-cover"
           />

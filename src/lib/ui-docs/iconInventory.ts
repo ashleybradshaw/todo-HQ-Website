@@ -30,6 +30,7 @@ export const ICON_INVENTORY: readonly IconEntry[] = [
   { name: "Xcode", kind: "stack", src: "/stack/xcode.svg" },
   { name: "Android", kind: "stack", src: "/stack/android.svg" },
   { name: "Node.js", kind: "stack", src: "/stack/nodejs.svg" },
+  { name: "TypeScript", kind: "stack", src: "/stack/typescript.svg" },
   { name: "PostgreSQL", kind: "stack", src: "/stack/postgresql.svg" },
   { name: "Redis", kind: "stack", src: "/stack/redis.svg" },
   { name: "Docker", kind: "stack", src: "/stack/docker.svg" },

@@ -39,7 +39,8 @@ export function ComponentsSpec() {
           <BrowserFrame
             alt="Ghost browser frame"
             caption="preview"
-            aspect="landscape"
+            ratio="16:9"
+            sizes="(min-width:768px) 686px, calc(100vw - 50px)"
           >
             <div className="absolute inset-0 flex flex-col gap-2 p-3">
               <Bone className="h-3 w-1/3" />

@@ -1,17 +1,48 @@
-export type ProjectMediaAspect = "landscape" | "portrait" | "square";
-export type ProjectMediaWidth = "hero" | "support" | "tall";
-export type ProjectMediaOffset = "left" | "center" | "right";
+import type { StackId } from "@/components/ide/StackIconRow";
+
 export type ProjectStatus = "shipped" | "building" | "live" | "pipeline";
 
-export type ProjectMedia = {
-  /** Stable key for a later image-SEO pass (alt, dimensions, OG). */
+export type MediaRatio = "16:9" | "4:5" | "1:1";
+export type MediaLayout = "full" | "pair" | "trio";
+export type MediaKind = "image" | "video";
+
+export type ProjectMetric = {
+  value: number;
+  prefix?: string;
+  suffix?: string;
+  label: string;
+};
+
+export type ProjectSpecLink = {
+  label: string;
+  href: string;
+};
+
+/** Status stays on the project. Links are omitted from the spec table when empty. */
+export type ProjectSpec = {
+  client: string;
+  year: string;
+  platforms: readonly string[];
+  role: readonly string[];
+  timeline: string;
+  links?: readonly ProjectSpecLink[];
+};
+
+export type ProjectMediaItem = {
   id: string;
+  kind: MediaKind;
+  ratio: MediaRatio;
   src: string;
+  poster?: string;
   alt: string;
-  aspect: ProjectMediaAspect;
   caption: string;
-  width: ProjectMediaWidth;
-  offset: ProjectMediaOffset;
+};
+
+/** Items in one row share a ratio. */
+export type ProjectMediaRow = {
+  id: string;
+  layout: MediaLayout;
+  items: readonly ProjectMediaItem[];
 };
 
 /** Optional labelled chapter between Outcome and stills (RepDaily only today). */
@@ -48,11 +79,14 @@ type ProjectBase = {
 export type FullProject = ProjectBase & {
   status: Exclude<ProjectStatus, "pipeline">;
   hasPage: true;
+  /** CSS variable, e.g. var(--foreground). Home rows and work cards wash with it. */
+  accent: string;
+  metrics: readonly ProjectMetric[];
+  stack: readonly StackId[];
+  spec: ProjectSpec;
   scope: readonly string[];
-  /** Hide stack chip row when empty / omitted. */
-  stack?: readonly string[];
   outcome: string;
-  media: readonly ProjectMedia[];
+  mediaRows: readonly ProjectMediaRow[];
   /** Optional MVP / version notes — omit on most projects. */
   phaseNotes?: readonly ProjectPhaseNote[];
 };
@@ -64,32 +98,30 @@ export type PipelineProject = ProjectBase & {
 
 export type Project = FullProject | PipelineProject;
 
-type MediaSpec = {
-  aspect: ProjectMediaAspect;
-  caption: string;
-  width: ProjectMediaWidth;
-  offset: ProjectMediaOffset;
-  /** Real still path; omit to use placeholder art. */
-  src?: string;
+const PLACEHOLDER_SRC: Record<MediaRatio, string> = {
+  "16:9": "/work/placeholders/landscape.svg",
+  "4:5": "/work/placeholders/portrait.svg",
+  "1:1": "/work/placeholders/square.svg",
 };
 
-function media(
+function still(
   slug: string,
   name: string,
-  slots: readonly MediaSpec[],
-): readonly ProjectMedia[] {
-  return slots.map((slot, index) => {
-    const n = String(index + 1).padStart(2, "0");
-    return {
-      id: `${slug}-${n}`,
-      src: slot.src ?? `/work/placeholders/${slot.aspect}.svg`,
-      alt: `${name} — ${slot.caption}`,
-      aspect: slot.aspect,
-      caption: slot.caption,
-      width: slot.width,
-      offset: slot.offset,
-    };
-  });
+  id: string,
+  ratio: MediaRatio,
+  caption: string,
+  kind: MediaKind = "image",
+): ProjectMediaItem {
+  const src = PLACEHOLDER_SRC[ratio];
+  return {
+    id: `${slug}-${id}`,
+    kind,
+    ratio,
+    src,
+    ...(kind === "video" ? { poster: src } : {}),
+    alt: `${name} — ${caption}`,
+    caption,
+  };
 }
 
 export const PROJECT_STATUS_LABEL: Record<ProjectStatus, string> = {
@@ -110,6 +142,7 @@ export const PROJECTS: readonly Project[] = [
     listed: true,
     status: "shipped",
     hasPage: true,
+    accent: "var(--foreground)",
     // TEST COPY
     description:
       "Camera-based push-up tracking for iOS and Android. Designed and built by two people in 103 days, from a push-up counter to a daily habit.",
@@ -122,6 +155,22 @@ export const PROJECTS: readonly Project[] = [
       "RepDaily on a phone, showing workout progression and a training calendar.",
     imageWidth: 1400,
     imageHeight: 787,
+    metrics: [
+      { value: 103, label: "days to launch" },
+      { value: 300, label: "active users" },
+      { value: 15, suffix: "%", label: "paid conversion" },
+    ],
+    // TEST COPY
+    stack: ["swift", "android", "nodejs", "postgresql"],
+    // TEST COPY
+    spec: {
+      client: "Internal",
+      year: "2025",
+      platforms: ["iOS", "Android"],
+      role: ["Product", "Design", "iOS", "Android"],
+      timeline: "103 days, first half of 2025",
+      links: [{ label: "Product site", href: "https://example.com/repdaily" }],
+    },
     // TEST COPY
     scope: [
       "On-device rep counting. Nothing recorded, nothing uploaded.",
@@ -129,8 +178,6 @@ export const PROJECTS: readonly Project[] = [
       "Streaks, Rep Points and 24 stages to bring people back.",
       "Brand, website and launch, alongside the iOS and Android builds.",
     ],
-    // Stack hidden until product copy is ready.
-    stack: [],
     // TEST COPY
     outcome: "Live on iOS and Android. Now moving from MVP to v1.5.",
     // TEST COPY
@@ -144,18 +191,46 @@ export const PROJECTS: readonly Project[] = [
         body: "FreeRep and PowerPath 10K are now free. Pro adds PushPass 24, timed UltraTasks and a 17-badge Trophy Cabinet. Friends and leaderboards come next.",
       },
     ],
-    // PENDING new stills — apply when assets match:
-    // ["RepDaily", "Calibration", "FreeRep", "Rep count", "PushPass 24", "Rep Points", "UltraTasks", "Trophy Cabinet", "Handoff"]
-    media: media("repdaily", "RepDaily", [
-      { aspect: "landscape", caption: "Session log", width: "hero", offset: "right" },
-      { aspect: "portrait", caption: "Set detail", width: "support", offset: "left" },
-      { aspect: "square", caption: "Rep count", width: "support", offset: "right" },
-      { aspect: "landscape", caption: "Week view", width: "support", offset: "left" },
-      { aspect: "portrait", caption: "Form check", width: "tall", offset: "center" },
-      { aspect: "square", caption: "Calendar", width: "support", offset: "right" },
-      { aspect: "landscape", caption: "Progression", width: "hero", offset: "left" },
-      { aspect: "square", caption: "Handoff", width: "support", offset: "right" },
-    ]),
+    // TEST MEDIA
+    mediaRows: [
+      {
+        id: "repdaily-full",
+        layout: "full",
+        items: [
+          still(
+            "repdaily",
+            "RepDaily",
+            "session-log",
+            "16:9",
+            "Session log across a full training week",
+            "video",
+          ),
+        ],
+      },
+      {
+        id: "repdaily-pair",
+        layout: "pair",
+        items: [
+          still("repdaily", "RepDaily", "set-detail", "4:5", "Set detail"),
+          still(
+            "repdaily",
+            "RepDaily",
+            "form-check",
+            "4:5",
+            "Form check across the full set, with the angle, the count and the cue that keeps the next rep honest",
+          ),
+        ],
+      },
+      {
+        id: "repdaily-trio",
+        layout: "trio",
+        items: [
+          still("repdaily", "RepDaily", "rep-count", "1:1", "Rep count"),
+          still("repdaily", "RepDaily", "calendar", "1:1", "Calendar"),
+          still("repdaily", "RepDaily", "handoff", "1:1", "Handoff"),
+        ],
+      },
+    ],
   },
   {
     slug: "readygo",
@@ -163,6 +238,7 @@ export const PROJECTS: readonly Project[] = [
     listed: true,
     status: "building",
     hasPage: true,
+    accent: "var(--blog-cat-agents)",
     // TEST COPY
     description:
       "Pre-activity planning for runners and cyclists. Conditions, effort and kit, sorted before the session starts.",
@@ -175,25 +251,65 @@ export const PROJECTS: readonly Project[] = [
     imageWidth: 1400,
     imageHeight: 756,
     // TEST COPY
+    metrics: [
+      { value: 12, label: "weeks in build" },
+      { value: 4, label: "session types" },
+      { value: 2, label: "sports" },
+    ],
+    // TEST COPY
+    stack: ["swift", "nodejs", "postgresql", "vercel"],
+    // TEST COPY
+    spec: {
+      client: "Internal",
+      year: "2026",
+      platforms: ["iOS", "Web"],
+      role: ["Product", "Design", "Build"],
+      timeline: "In build through spring 2026",
+      links: [{ label: "Build notes", href: "https://example.com/readygo" }],
+    },
+    // TEST COPY
     scope: [
       "Conditions, effort and kit settled before you head out.",
       "A short plan you can read on the way out the door.",
       "Built like RepDaily: map, prototype, spec, ship.",
       "One record for the session instead of a stack of notes.",
     ],
-    stack: ["Swift", "Node.js", "PostgreSQL", "Vercel"],
     // TEST COPY
     outcome: "In build: pre-activity planning for runners and cyclists.",
-    media: media("readygo", "ReadyGo", [
-      { aspect: "landscape", caption: "Route brief", width: "hero", offset: "left" },
-      { aspect: "square", caption: "Conditions", width: "support", offset: "right" },
-      { aspect: "portrait", caption: "Effort", width: "support", offset: "left" },
-      { aspect: "landscape", caption: "Kit list", width: "support", offset: "right" },
-      { aspect: "square", caption: "Start line", width: "tall", offset: "center" },
-      { aspect: "portrait", caption: "Split plan", width: "support", offset: "left" },
-      { aspect: "landscape", caption: "Session card", width: "hero", offset: "right" },
-      { aspect: "square", caption: "Handoff", width: "support", offset: "left" },
-    ]),
+    // TEST MEDIA
+    mediaRows: [
+      {
+        id: "readygo-full",
+        layout: "full",
+        items: [
+          still("readygo", "ReadyGo", "route-brief", "16:9", "Route brief"),
+        ],
+      },
+      {
+        id: "readygo-pair",
+        layout: "pair",
+        items: [
+          still("readygo", "ReadyGo", "conditions", "1:1", "Conditions"),
+          still(
+            "readygo",
+            "ReadyGo",
+            "start-line",
+            "1:1",
+            "Start line",
+            "video",
+          ),
+        ],
+      },
+      {
+        id: "readygo-trio",
+        layout: "trio",
+        items: [
+          still("readygo", "ReadyGo", "effort", "4:5", "Effort"),
+          still("readygo", "ReadyGo", "kit-list", "4:5", "Kit list"),
+          still("readygo", "ReadyGo", "split-plan", "4:5", "Split plan"),
+        ],
+      },
+    ],
   },
   {
     slug: "contentic",
@@ -201,6 +317,7 @@ export const PROJECTS: readonly Project[] = [
     listed: true,
     status: "live",
     hasPage: true,
+    accent: "var(--syn-string)",
     // TEST COPY
     description:
       "Content operations in one place. Intake, review and publish, without the side channels.",
@@ -212,25 +329,65 @@ export const PROJECTS: readonly Project[] = [
     imageWidth: 1600,
     imageHeight: 900,
     // TEST COPY
+    metrics: [
+      { value: 3, label: "review stages" },
+      { value: 1, label: "draft queue" },
+      { value: 8, suffix: " min", label: "median publish" },
+    ],
+    // TEST COPY
+    stack: ["typescript", "nodejs", "postgresql"],
+    // TEST COPY
+    spec: {
+      client: "Internal",
+      year: "2024",
+      platforms: ["Web"],
+      role: ["Design", "Build"],
+      timeline: "Shipped, still in operation",
+      links: [{ label: "Workspace", href: "https://example.com/contentic" }],
+    },
+    // TEST COPY
     scope: [
       "Intake, review and publish on one surface.",
       "A queue for drafts instead of a side channel.",
       "Status anyone can read without opening the file.",
       "Built and run on the same process as our other products.",
     ],
-    stack: ["TypeScript", "Node.js", "PostgreSQL"],
     // TEST COPY
     outcome: "Live. Content operations from intake to publish.",
-    media: media("contentic", "Contentic", [
-      { aspect: "portrait", caption: "Intake queue", width: "hero", offset: "left" },
-      { aspect: "landscape", caption: "Draft board", width: "support", offset: "right" },
-      { aspect: "square", caption: "Review pass", width: "support", offset: "left" },
-      { aspect: "landscape", caption: "Publish set", width: "support", offset: "right" },
-      { aspect: "portrait", caption: "Asset tray", width: "tall", offset: "center" },
-      { aspect: "square", caption: "Status", width: "support", offset: "left" },
-      { aspect: "landscape", caption: "Pipeline", width: "hero", offset: "right" },
-      { aspect: "square", caption: "Handoff", width: "support", offset: "left" },
-    ]),
+    // TEST MEDIA
+    mediaRows: [
+      {
+        id: "contentic-full",
+        layout: "full",
+        items: [
+          still(
+            "contentic",
+            "Contentic",
+            "pipeline",
+            "16:9",
+            "Pipeline from intake to publish",
+            "video",
+          ),
+        ],
+      },
+      {
+        id: "contentic-pair",
+        layout: "pair",
+        items: [
+          still("contentic", "Contentic", "intake", "4:5", "Intake queue"),
+          still("contentic", "Contentic", "asset-tray", "4:5", "Asset tray"),
+        ],
+      },
+      {
+        id: "contentic-trio",
+        layout: "trio",
+        items: [
+          still("contentic", "Contentic", "review", "1:1", "Review pass"),
+          still("contentic", "Contentic", "status", "1:1", "Status"),
+          still("contentic", "Contentic", "handoff", "1:1", "Handoff"),
+        ],
+      },
+    ],
   },
   {
     slug: "the-tower",

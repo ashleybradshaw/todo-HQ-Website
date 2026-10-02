@@ -14,6 +14,7 @@ export const workPage = {
     "Apps we've designed and shipped: RepDaily, Contentic and ReadyGo. What each one does, what we built, and where it is now.",
   // TEST COPY
   lede: "Our own products, built the same way we build for clients. Live: RepDaily and Contentic. In build: ReadyGo.",
+  queuedLabel: "// queued",
 } as const;
 
 // TEST COPY — work detail page chrome (case study body stays in lib/projects.ts)
@@ -28,4 +29,6 @@ export const workDetailPage = {
   adjacentAria: "Adjacent projects",
   readygoNote: "Early build: this case study grows as we ship.",
   stillsAria: (name: string) => `${name} stills`,
+  specAria: (name: string) => `${name} specification`,
+  metricsAria: (name: string) => `${name} metrics`,
 } as const;

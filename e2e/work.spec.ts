@@ -1,30 +1,36 @@
 import { test, expect } from "@playwright/test";
 
 const PAGE_LINKS = [
-  "Open RepDaily",
-  "Open ReadyGo",
-  "Open Contentic",
+  /^open \.\/repdaily\b/,
+  /^open \.\/readygo\b/,
+  /^open \.\/contentic\b/,
 ] as const;
 
 test.describe("work roster", () => {
-  test("index shows five cards with three Open links and two pipeline cards", async ({
-    page,
-  }) => {
+  test("index shows three cards and two queued items", async ({ page }) => {
     await page.goto("/work", { waitUntil: "domcontentloaded" });
 
     const cards = page.locator("article[aria-label]");
-    await expect(cards).toHaveCount(5);
+    await expect(cards).toHaveCount(3);
 
     for (const label of PAGE_LINKS) {
       await expect(page.getByRole("link", { name: label })).toHaveCount(1);
     }
 
-    const tower = page.locator('article[aria-label="The Tower"]');
-    const erg = page.locator('article[aria-label="ErgTrainer"]');
-    await expect(tower).toBeVisible();
-    await expect(erg).toBeVisible();
-    await expect(tower.getByRole("link")).toHaveCount(0);
-    await expect(erg.getByRole("link")).toHaveCount(0);
+    const queued = page.locator("section").filter({
+      has: page.getByRole("heading", { name: "// queued" }),
+    });
+    await expect(queued.getByRole("listitem")).toHaveCount(2);
+    await expect(queued.getByRole("link")).toHaveCount(0);
+    await expect(queued.getByText("The Tower")).toBeVisible();
+    await expect(queued.getByText("ErgTrainer")).toBeVisible();
+
+    const imageBox = cards.first().locator("[data-ratio='16:9']");
+    const ratio = await imageBox.evaluate((el) => {
+      const box = el.getBoundingClientRect();
+      return box.width / box.height;
+    });
+    expect(Math.abs(ratio / (16 / 9) - 1)).toBeLessThan(0.01);
   });
 
   test("pipeline and deleted slugs 404", async ({ request }) => {
@@ -127,5 +133,70 @@ test.describe("work roster", () => {
         }),
       )
       .toBeGreaterThan(before);
+  });
+
+  test("repdaily shows the spec table, metrics and a 4:5 frame", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/work/repdaily", { waitUntil: "domcontentloaded" });
+
+    const spec = page.getByRole("region", { name: "RepDaily specification" });
+    for (const key of [
+      "client",
+      "year",
+      "status",
+      "platforms",
+      "role",
+      "stack",
+      "timeline",
+      "links",
+    ]) {
+      await expect(spec.getByText(key, { exact: true })).toBeVisible();
+    }
+
+    const metrics = page.getByRole("region", { name: "RepDaily metrics" });
+    const items = metrics.locator("li");
+    await expect(items).toHaveCount(3);
+    await expect(items.nth(0)).toContainText("103");
+    await expect(items.nth(1)).toContainText("300");
+    await expect(items.nth(2)).toContainText("15%");
+
+    const portrait = page.locator("[data-ratio='4:5']").first();
+    const ratio = await portrait.evaluate((el) => {
+      const box = el.getBoundingClientRect();
+      return box.width / box.height;
+    });
+    expect(Math.abs(ratio / (4 / 5) - 1)).toBeLessThan(0.01);
+
+    const captions = page.locator("figcaption");
+    const count = await captions.count();
+    expect(count).toBeGreaterThan(0);
+    for (let i = 0; i < count; i += 1) {
+      const caption = captions.nth(i);
+      const box = await caption.evaluate((el) => {
+        const style = getComputedStyle(el);
+        return {
+          overflow: style.textOverflow,
+          whiteSpace: style.whiteSpace,
+          truncated: el.scrollWidth > el.clientWidth + 1,
+        };
+      });
+      expect(box.overflow).not.toBe("ellipsis");
+      expect(box.whiteSpace).not.toBe("nowrap");
+      expect(box.truncated).toBe(false);
+    }
+  });
+
+  test("card CTA focus ring is 3px", async ({ page }) => {
+    await page.goto("/work", { waitUntil: "domcontentloaded" });
+    const cta = page.getByRole("link", { name: /^open \.\/repdaily\b/ });
+    for (let i = 0; i < 40; i += 1) {
+      if (await cta.evaluate((el) => el === document.activeElement)) break;
+      await page.keyboard.press("Tab");
+    }
+    await expect(cta).toBeFocused();
+    const shadow = await cta.evaluate((el) => getComputedStyle(el).boxShadow);
+    expect(shadow).toMatch(/0px 0px 0px 3px/);
   });
 });

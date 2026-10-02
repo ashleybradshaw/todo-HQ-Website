@@ -1,6 +1,6 @@
 import { homePage } from "@/content/pages/home";
 
-const STACK = [
+export const STACK = [
   { id: "figma", label: "Figma" },
   { id: "cursor", label: "Cursor" },
   { id: "openai", label: "Codex" },
@@ -11,18 +11,20 @@ const STACK = [
   { id: "xcode", label: "iOS" },
   { id: "android", label: "Android" },
   { id: "nodejs", label: "Node.js" },
+  { id: "typescript", label: "TypeScript" },
   { id: "postgresql", label: "PostgreSQL" },
   { id: "redis", label: "Redis" },
   { id: "docker", label: "Docker" },
 ] as const;
 
-type StackId = (typeof STACK)[number]["id"];
+export type StackId = (typeof STACK)[number]["id"];
 
-const STACK_BY_ID = Object.fromEntries(
+export const STACK_BY_ID = Object.fromEntries(
   STACK.map((item) => [item.id, item]),
 ) as Record<StackId, (typeof STACK)[number]>;
 
-function StackIcon({ id, label }: { id: string; label: string }) {
+export function StackIcon({ id, label }: { id: StackId; label: string }) {
+  void label;
   return (
     <span
       aria-hidden="true"

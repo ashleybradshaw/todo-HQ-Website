@@ -1,4 +1,4 @@
-import type { ProjectMediaAspect } from "@/lib/projects";
+import type { MediaRatio } from "@/lib/projects";
 
 /**
  * Spray-safe stand-in still. Fills use currentColor so they track --foreground.
@@ -6,31 +6,31 @@ import type { ProjectMediaAspect } from "@/lib/projects";
  */
 
 type PlaceholderStillProps = {
-  aspect: ProjectMediaAspect;
+  ratio: MediaRatio;
   /** Card thumbs crop; essay frames show the full composition. */
   fit?: "meet" | "slice";
 };
 
-const VIEWBOX: Record<ProjectMediaAspect, string> = {
-  landscape: "0 0 1600 900",
-  portrait: "0 0 900 1200",
-  square: "0 0 1000 1000",
+const VIEWBOX: Record<MediaRatio, string> = {
+  "16:9": "0 0 1600 900",
+  "4:5": "0 0 1000 1250",
+  "1:1": "0 0 1000 1000",
 };
 
 export function PlaceholderStill({
-  aspect,
+  ratio,
   fit = "meet",
 }: PlaceholderStillProps) {
   return (
     <svg
-      viewBox={VIEWBOX[aspect]}
+      viewBox={VIEWBOX[ratio]}
       preserveAspectRatio={fit === "slice" ? "xMidYMid slice" : "xMidYMid meet"}
       className="h-full w-full text-foreground"
       aria-hidden="true"
     >
-      {aspect === "landscape" ? <LandscapeArt /> : null}
-      {aspect === "portrait" ? <PortraitArt /> : null}
-      {aspect === "square" ? <SquareArt /> : null}
+      {ratio === "16:9" ? <LandscapeArt /> : null}
+      {ratio === "4:5" ? <PortraitArt /> : null}
+      {ratio === "1:1" ? <SquareArt /> : null}
     </svg>
   );
 }
@@ -75,25 +75,25 @@ function LandscapeArt() {
 function PortraitArt() {
   return (
     <>
-      <rect width="900" height="1200" fill="currentColor" fillOpacity="0.06" />
+      <rect width="1000" height="1250" fill="currentColor" fillOpacity="0.06" />
       <rect
-        x="64"
-        y="64"
-        width="772"
-        height="1072"
+        x="72"
+        y="72"
+        width="856"
+        height="1106"
         fill="none"
         stroke="currentColor"
         strokeOpacity="0.28"
         strokeWidth="2"
       />
-      <rect x="120" y="140" width="660" height="280" fill="currentColor" fillOpacity="0.1" />
-      <rect x="120" y="480" width="420" height="16" fill="currentColor" fillOpacity="0.45" />
-      <rect x="120" y="516" width="280" height="12" fill="currentColor" fillOpacity="0.2" />
+      <rect x="128" y="148" width="744" height="292" fill="currentColor" fillOpacity="0.1" />
+      <rect x="128" y="500" width="460" height="16" fill="currentColor" fillOpacity="0.45" />
+      <rect x="128" y="536" width="300" height="12" fill="currentColor" fillOpacity="0.2" />
       <rect
-        x="120"
-        y="600"
-        width="660"
-        height="420"
+        x="128"
+        y="620"
+        width="744"
+        height="460"
         fill="currentColor"
         fillOpacity="0.08"
         stroke="currentColor"

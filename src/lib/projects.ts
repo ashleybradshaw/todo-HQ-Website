@@ -171,6 +171,10 @@ export const PROJECTS: readonly Project[] = [
       platforms: ["iOS", "Android"],
       role: ["Product", "Design", "iOS", "Android"],
       timeline: "103 days, first half of 2025",
+      links: [
+        { label: "repdaily.app", href: "https://www.repdaily.app" },
+        { label: "Instagram", href: "https://www.instagram.com/repdailyapp" },
+      ],
     },
     // TEST COPY
     release: "v1.5",

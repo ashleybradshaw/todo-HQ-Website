@@ -136,7 +136,7 @@ export function PageShell({
             <div className="order-1 min-w-0 max-w-[688px] lg:order-none lg:col-start-1 lg:row-start-1 lg:max-w-none lg:border-border-ide lg:border-b lg:pr-10">
               {header}
             </div>
-            <div className="border-border-ide order-3 mt-8 border-t pt-2 lg:order-none lg:col-start-2 lg:row-start-1 lg:mt-0 lg:border-t-0 lg:border-b lg:border-l lg:pt-0 lg:pl-8">
+            <div className="order-3 mt-8 lg:order-none lg:col-start-2 lg:row-start-1 lg:mt-0 lg:self-start lg:pl-8">
               {aside}
             </div>
             <div className="order-2 lg:order-none lg:col-span-2 lg:row-start-2">

@@ -1691,6 +1691,45 @@ html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-bone-overlay 
   }
 }
 
+/* Case hairlines — one draw, same clip idea as the IDE line reveal. */
+@keyframes work-draw-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes work-draw-y {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .work-draw-x {
+    transform-origin: left center;
+    animation: work-draw-x 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .work-draw-y {
+    transform-origin: center top;
+    animation: work-draw-y 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-draw-x,
+  .work-draw-y {
+    animation: none;
+    transform: none;
+  }
+}
+
 /* Card status strip: below the shot on touch; slides over it on hover. */
 .work-status-strip {
   margin-top: 0;

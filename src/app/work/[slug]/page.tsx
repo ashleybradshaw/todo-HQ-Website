@@ -11,7 +11,7 @@ import {
   CaseHero,
   ProjectMediaRows,
 } from "@/components/work/ProjectMediaRows";
-import { ProjectSpec } from "@/components/work/ProjectSpec";
+import { ProjectBuild, ProjectSpec } from "@/components/work/ProjectSpec";
 import { ProjectStatusChip } from "@/components/work/ProjectStatusChip";
 import { CountUp } from "@/components/work/CountUp";
 import {
@@ -68,12 +68,14 @@ export async function generateMetadata({
 }
 
 function projectJsonLd(project: FullProject) {
+  const sameAs = project.spec.links?.map((link) => link.href) ?? [];
   return {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     name: project.name,
     description: project.description,
     url: `${SITE_URL}/work/${project.slug}`,
+    ...(sameAs.length > 0 ? { sameAs } : {}),
   };
 }
 
@@ -165,14 +167,18 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
             {hero ? <CaseHero item={hero} /> : null}
             <section
               aria-label={workDetailPage.metricsAria(project.name)}
-              className="mt-8"
+              className="mt-8 lg:flex lg:items-stretch"
             >
-              <ul className="grid grid-cols-2 gap-6 sm:grid-cols-3">
+              <ul
+                data-metric-list=""
+                className="grid min-w-0 flex-1 grid-cols-2 gap-6 sm:grid-cols-3"
+              >
                 {project.metrics.map((metric) => (
-                  <li
-                    key={metric.label}
-                    className="border-border-ide border-t pt-4"
-                  >
+                  <li key={metric.label} className="pt-4">
+                    <span
+                      aria-hidden="true"
+                      className="work-draw-x bg-border-ide -mt-4 mb-4 block h-px w-full"
+                    />
                     <CountUp
                       variant="stat"
                       value={metric.value}
@@ -185,6 +191,19 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
                   </li>
                 ))}
               </ul>
+              <div
+                aria-hidden="true"
+                className="work-draw-x bg-border-ide mt-8 block h-px w-full lg:hidden"
+              />
+              <div
+                aria-hidden="true"
+                className="work-draw-y bg-border-ide mx-8 hidden w-px shrink-0 self-stretch lg:block"
+              />
+              <ProjectBuild
+                project={project}
+                label={workDetailPage.buildAria(project.name)}
+                className="mt-8 lg:mt-0 lg:w-64 lg:shrink-0"
+              />
             </section>
           </>
         }

@@ -1,95 +1,77 @@
 ---
-title: "Our first time"
+title: "RepDaily: counting was the easy part"
 authorId: "grow-04"
 date: "2026-09-17"
-readMinutes: 10
+readMinutes: 4
 emoji: "📱"
 slug: "repdaily-our-first-time"
-excerpt: "Idea, design, build, ship, test, repeat. Repdaily was the first full lap of the factory, and the still still holds the grind."
+excerpt: "RepDaily started as a camera push-up counter. The counting worked. The hard part was getting people to come back tomorrow. How two of us built that."
 category: projects
 featured: true
 hero: "/blog/repdaily-our-first-time.webp"
 ogImage: "/blog/repdaily-our-first-time.webp"
-imageAlt: "Two women doing push-ups behind Repdaily on two phones, showing PushPass tracking and achievements in the neon lime brand frame."
+imageAlt: "Two women doing push-ups behind RepDaily on two phones, showing PushPass tracking and achievements in the lime brand frame."
+series: "Factory log"
+tags: "repdaily, push-up tracking, computer vision, build log"
 status: mock
 editor: ashley
 ---
 
-> NOTE
-> MOCK — outline only; finalize later.
+We wanted a phone on the floor to count push-ups properly. It could. But a counter is the kind of app you open twice and then forget, so the real work on RepDaily turned out to be the part a demo never shows: giving someone a reason to come back tomorrow. Here's how two of us, one designer and one engineer, built that in 103 days, and what has changed on the way to v1.5.
 
-## Background
+## The brief we thought we had
 
-Placeholder: why RepDaily, and why it was the first full factory lap — idea through ship, then living in production. No traction claims here; fill in the brief later.
+The push-up is about as basic as exercise gets, and tracking it was oddly clumsy. You either stopped mid-set to tap a sweaty screen, or trusted a watch that had no real idea whether your chest went anywhere near the floor.
 
-- [TBD] Problem the product was meant to close
-- [TBD] Why this lap before the rest of the roster
-- [TBD] What “done enough to ship” meant on day one
+So the opening question was narrow. Could the front camera of a phone, lying face up on the floor, count a clean rep with nobody touching it? Full depth, full extension, every time.
 
-## Workflow
-
-Placeholder: intake → stations → gates. How the floor actually ran this lap.
-
-- Intake before code — name the week / Pass before agents touch the stack
-- Stations, not a monolith chatbot — tracking, achievements, roster each own a lane
-- Gates you cannot fake — a build that did not run on device did not leave the floor
-
-## Pages & flows
-
-Placeholder list of surfaces to cover in the final write-up:
-
-- Home
-- Track
-- Roster
-- PushPass
-- Achievements
-- [TBD] other flows
-
-### Why this still
-
-Camera-based tracking, a weekly PushPass rhythm, and a roster that had to feel alive on day one. Not a pitch deck. A ship. The cover frame is loud on purpose: neon lime, concrete gym, phones close enough to read.
+[NEEDS: the first time the camera counted a real rep, where you were, and what broke just before it worked]
 
 > NOTE
-> The still is not decoration. It is proof the loop closed — UI on device, athletes in frame, brand locked before the marketing pass.
+> **Checkpoint 1 of 5 · findMoment.** Passed: a phone on the floor can count a clean push-up. Flagged: a counter on its own keeps nobody.
 
-![Repdaily PushPass and achievements on two phones in the neon lime frame, athletes mid push-up behind the glass.](/blog/repdaily-our-first-time.webp)
+## The brief we actually had
 
-The crop discipline matters. Center the UI, keep the athletes readable, and refuse soft collage treatments that fight the house grid.
+A number on a screen is satisfying once. It doesn't get you off the sofa on day nine. So before anything looked polished, the designer mapped flows: first launch and signup, the daily session, progression, the free and paid dashboards, and how the app should behave across months rather than minutes.
 
-## Ups & downs
+Underneath all of it sits one loop. Open it, train, see what you did, see how far you've come, return tomorrow. Streaks, stages, points and badges are there to push someone round that loop one more time.
 
-Placeholder: what held, what slipped, what we would re-run.
+We also decided early that the free version had to be a proper app, not a trailer for the paid one. Pro would add structure and stakes, not switch the basics back on.
 
-- [TBD] Ups from the lap
-- [TBD] Downs / false starts
-- [TBD] Lessons that carried into the next app
+The brand went loud lime from early on. It is very hard to scroll past, which was rather the idea.
 
-## Idea → MVP → v1.5
+## 103 days, then real people
 
-Placeholder arc only — no version marketing claims until the rewrite.
+From the first question to a launch-ready app took 103 days. That covered more than 40 screens across iOS and Android, a design system built in code, and the unglamorous rest: the brand, a website, the CRM and everything a launch needs.
 
-- Idea: [TBD]
-- MVP: [TBD]
-- v1.5: [TBD]
+The split was clean. The designer owned the flows, the screens, every word of copy, the brand and the site. The engineer owned the tracking, the workout logic, the points system, the rules for how momentum fades when you skip days, and the cross-platform build.
 
-## Marketing
+AI tools did real work, and we still made the calls. That's [how we work](/about) on everything. Rather than draw wireframes, we tried interaction states and edge cases as small live builds in Cursor. Claude Code helped on the engineering side. Image prompts were tuned until marketing shots came out on brand, with consistent light and angles.
 
-Placeholders only — fill after the real pass lands. No spend figures, channel claims, or legal copy here.
+Then we handed it to a beta group, a mix of personal trainers and some of our first users, and ran structured feedback rounds. What they told us changed the setup flow and the order of the dashboard. Setup is now a short step before your first camera workout, and then it gets out of the way.
 
-- [TBD] Channels we tried
-- [TBD] Creative that stuck
-- [TBD] What we would skip next time
+[NEEDS: one specific thing a trainer or beta user said, and what we changed because of it]
 
-## AI workflow & tools
+> NOTE
+> **Checkpoint 3 of 5 · shipMvp.** 103 days. 40+ screens. Two platforms. Rep counting runs on the phone itself: nothing recorded, nothing uploaded.
 
-Placeholder: factory tools and AI workflow used on this lap. Name the floor, not people. No secrets or keys.
+## v1.5: what's free, what Pro adds
 
-- Cursor and the editor loop
-- Pen / brief handoff into stations
-- [TBD] other factory tooling worth naming
+v1.5 went out on Product Hunt with one ask: tell us what you think of the tracking and the flow. You can try it at [repdaily.app](https://repdaily.app).
 
----
+Free covers open FreeRep sessions with camera counting, plus basic streaks and workout history. Every rep, in every mode, banks into PowerPath 10K: a 10,000-rep lifetime target with no daily minimum, ranked from Couch Potato to Absolute Unit.
 
-## Closing the lap
+Pro adds PushPass 24, a run of 24 stages that starts at beginner rep ranges, and UltraTasks. Explosive 20 is twenty clean reps against the clock. Max Load is everything you've got in 60 seconds. There's a 17-badge trophy cabinet too, and a 7-day free trial.
 
-Outline only for now. The WebP, alt text, and sidecar meta stay so the next batch ships faster. Full SEO and final copy land in a later pass.
+The whole app is under 2.9 MB, and the computer vision runs entirely on the phone.
+
+[NEEDS: confirm active users and paid conversion, with the date, or cut this line]
+
+> NOTE
+> **Checkpoint 5 of 5 · parkOrPush.** Our rule: park a product unless people use it. RepDaily got pushed to v1.5.
+
+## Next run
+
+Next on the RepDaily roadmap: training with friends, shared challenges, and local and global leaderboards, planned for late 2026. Same loop, more reasons to come back.
+
+See the full build, stack and screens on the [RepDaily project page](/work/repdaily).

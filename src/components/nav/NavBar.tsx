@@ -38,23 +38,26 @@ export function NavBar({
     <div
       data-solid={solid ? "" : undefined}
       className={cn(
-        "relative z-10 flex items-center gap-3 px-6 py-4 text-foreground transition-[background-color,color,border-color,border-radius,backdrop-filter] duration-[400ms] ease-out",
+        "relative z-10 flex items-center gap-3 overflow-hidden px-6 py-4 text-foreground transition-[background-color,color,border-color,border-radius,backdrop-filter] duration-[400ms] ease-out",
         solid
           ? "rounded-[4px] border border-border-ide bg-bg-canvas/95 backdrop-blur-md"
           : "border border-transparent bg-transparent",
       )}
     >
-      <Link
-        href="/home"
-        aria-label="//TODO Engineering"
-        className="relative z-10 min-w-0 shrink-0"
-        onClick={() => {
-          requestIdeBootReplay();
-          onNavigate?.();
-        }}
-      >
-        <LogoNav className="text-brand-logo h-7 w-auto max-w-[11rem]" />
-      </Link>
+      <div className="flex min-w-0 flex-1 items-center gap-4">
+        <Link
+          href="/home"
+          aria-label="//TODO Engineering"
+          className="relative z-10 shrink-0"
+          onClick={() => {
+            requestIdeBootReplay();
+            onNavigate?.();
+          }}
+        >
+          <LogoNav className="text-brand-logo h-7 w-auto max-w-[11rem]" />
+        </Link>
+        {trail ? <NavCrumb trail={trail} visible={crumbVisible} /> : null}
+      </div>
 
       {simple ? (
         <>
@@ -97,9 +100,6 @@ export function NavBar({
           </div>
         </div>
       )}
-      {trail ? (
-        <NavCrumb trail={trail} visible={crumbVisible} />
-      ) : null}
       {trail ? (
         <div
           data-nav-progress=""
@@ -193,22 +193,16 @@ function NavCrumb({
       aria-hidden={visible ? undefined : true}
       inert={visible ? undefined : true}
       className={cn(
-        "font-jetbrains pointer-events-none absolute top-1/2 left-1/2 z-20 max-w-[min(28rem,calc(100%-12rem))] -translate-x-1/2 text-xs text-foreground transition-[opacity,transform] duration-[400ms] ease-in-out motion-reduce:transition-none",
-        visible
-          ? "pointer-events-auto -translate-y-1/2 opacity-100"
-          : "-translate-y-[calc(50%-0.375rem)] opacity-0",
+        "font-jetbrains pointer-events-none hidden min-w-0 items-center gap-4 text-xs text-muted transition-opacity duration-[400ms] ease-in-out motion-reduce:transition-none sm:flex",
+        visible ? "pointer-events-auto opacity-100" : "opacity-0",
       )}
     >
+      <span
+        aria-hidden="true"
+        className="border-border-ide h-4 w-px shrink-0 self-center border-l"
+      />
       <ol className="flex min-w-0 items-center gap-2">
-        <li className="md:hidden">
-          <Link
-            href={trail.parentHref}
-            className="inline-flex min-h-6 items-center hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]"
-          >
-            ← {trail.parentLabel}
-          </Link>
-        </li>
-        <li className="hidden shrink-0 md:block">
+        <li className="shrink-0">
           <Link
             href={trail.parentHref}
             className="inline-flex min-h-6 items-center hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]"
@@ -216,10 +210,10 @@ function NavCrumb({
             {trail.parentLabel}
           </Link>
         </li>
-        <li className="hidden shrink-0 md:block" aria-hidden="true">
+        <li className="shrink-0" aria-hidden="true">
           →
         </li>
-        <li className="hidden min-w-0 truncate md:block" aria-current="page">
+        <li className="min-w-0 truncate" aria-current="page">
           {trail.current}
         </li>
       </ol>

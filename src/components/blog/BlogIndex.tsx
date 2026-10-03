@@ -4,35 +4,20 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { BlogMediaCraft } from "@/components/blog/BlogMediaCraft";
-import { BlogNoteCard, ReadMinutes, WriterMeta, categoryPillStyle } from "@/components/blog/BlogNoteCard";
+import { BlogFilterPills, type BlogFilterId } from "@/components/blog/BlogFilterPills";
+import { BlogNoteCard, ReadMinutes, WriterMeta } from "@/components/blog/BlogNoteCard";
 import { BlogPollTile } from "@/components/blog/BlogPollTile";
 import { BlogSandbox } from "@/components/blog/BlogSandbox";
 import { getFeaturedPoll, getGridPolls, type BlogPoll } from "@/content/blog-polls";
 import { cn } from "@/lib/cn";
 import {
-  BLOG_CATEGORIES,
-  BLOG_CATEGORY_LABELS,
   BLOG_IMAGE_MASTER_HEIGHT,
   BLOG_IMAGE_MASTER_WIDTH,
   BLOG_INDEX_PAGE_SIZE,
   pickFeaturedPost,
-  type BlogCategory,
   type BlogIndexPost,
 } from "@/lib/blog-shared";
 import { blogPage } from "@/content/pages/blog";
-
-const FILTERS: readonly { id: "all" | BlogCategory; label: string }[] = [
-  { id: "all", label: blogPage.allFilter },
-  ...BLOG_CATEGORIES.map((id) => ({
-    id,
-    label: BLOG_CATEGORY_LABELS[id],
-  })),
-];
-
-type FilterId = (typeof FILTERS)[number]["id"];
-
-const pillClass =
-  "type-label cursor-pointer rounded-[4px] border px-3 py-1.5 transition-[color,background-color,border-color,opacity] duration-[400ms] ease-in-out focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
 
 const moreClass =
   "type-label inline-flex cursor-pointer items-center justify-center rounded-[4px] border border-current px-3 py-1.5 transition-[opacity,color,background-color] duration-[400ms] ease-in-out hover:opacity-80 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none";
@@ -78,7 +63,7 @@ function FeaturedCover({ src }: { src: string | null }) {
   );
 }
 
-function filterPosts(posts: readonly BlogIndexPost[], filter: FilterId) {
+function filterPosts(posts: readonly BlogIndexPost[], filter: BlogFilterId) {
   if (filter === "all") {
     return posts;
   }
@@ -87,7 +72,7 @@ function filterPosts(posts: readonly BlogIndexPost[], filter: FilterId) {
 
 function mixNotesAndPolls(
   notes: readonly BlogIndexPost[],
-  filter: FilterId,
+  filter: BlogFilterId,
 ): GridItem[] {
   const items: GridItem[] = [];
   const gridPolls = getGridPolls();
@@ -106,7 +91,7 @@ function mixNotesAndPolls(
 }
 
 export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
-  const [filter, setFilter] = useState<FilterId>("all");
+  const [filter, setFilter] = useState<BlogFilterId>("all");
   const [visibleCount, setVisibleCount] = useState(BLOG_INDEX_PAGE_SIZE);
 
   const filtered = useMemo(() => filterPosts(posts, filter), [posts, filter]);
@@ -121,45 +106,14 @@ export function BlogIndex({ posts }: { posts: readonly BlogIndexPost[] }) {
   const hasMore = notePosts.length > visibleCount;
   const featuredPoll = filter === "all" ? getFeaturedPoll() : undefined;
 
-  function selectFilter(next: FilterId) {
+  function selectFilter(next: BlogFilterId) {
     setFilter(next);
     setVisibleCount(BLOG_INDEX_PAGE_SIZE);
   }
 
   return (
     <>
-          <div role="group" aria-label={blogPage.filterAria}>
-            <ul className="flex flex-wrap gap-2">
-              {FILTERS.map((item) => {
-                const active = filter === item.id;
-                return (
-                  <li key={item.id}>
-                    <button
-                      type="button"
-                      aria-pressed={active}
-                      data-category={item.id}
-                      onClick={() => selectFilter(item.id)}
-                      className={cn(
-                        pillClass,
-                        item.id === "all"
-                          ? active
-                            ? "border-foreground bg-foreground text-background"
-                            : "border-current bg-transparent hover:opacity-80"
-                          : "hover:opacity-80",
-                      )}
-                      style={
-                        item.id === "all"
-                          ? undefined
-                          : categoryPillStyle(item.id, active)
-                      }
-                    >
-                      {item.label}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
+          <BlogFilterPills value={filter} onChange={selectFilter} />
 
           <p
             id="blog-count"

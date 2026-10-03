@@ -21,7 +21,7 @@ test.describe("ui spec", () => {
   });
 
   test("hero is centred and the page has one h1", async ({ page }) => {
-    const hero = page.locator("[data-hero]");
+    const hero = page.locator("[data-hero]").first();
     await expect(hero).toHaveCSS("text-align", "center");
     await expect(page.locator("h1")).toHaveCount(1);
     await expect(page.locator("h1")).toContainText("Built to spec.");
@@ -43,6 +43,32 @@ test.describe("ui spec", () => {
         name: "Layout and tracks",
       }),
     ).toBeVisible();
+  });
+
+  test("live parts keep a single page heading", async ({ page }) => {
+    for (const name of [
+      "Heroes and headers",
+      "Frames and media",
+      "Work parts",
+      "Blog and about",
+    ]) {
+      await expect(page.getByRole("heading", { name, level: 2 })).toBeVisible();
+    }
+    await expect(page.locator("h1")).toHaveCount(1);
+    await expect(page.locator("[data-nav-breadcrumb]")).toHaveCount(0);
+    await expect(page.locator("[data-nav-progress]")).toHaveCount(0);
+    await expect(page.locator("[data-nav-trail-specimen]")).toBeVisible();
+  });
+
+  test("poll specimen does not store a vote", async ({ page }) => {
+    const poll = page.locator("[data-blog-poll='ui-specimen-poll']");
+    const option = poll.getByRole("radio").first();
+    await expect(option).toBeDisabled();
+    await option.click({ force: true });
+    const stored = await page.evaluate(() =>
+      window.localStorage.getItem("todo-blog-poll:ui-specimen-poll"),
+    );
+    expect(stored).toBeNull();
   });
 
   test("spec sections have no em dashes", async ({ page }) => {

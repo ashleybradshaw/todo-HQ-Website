@@ -1,4 +1,5 @@
 import { SprayCanIcon } from "@animateicons/react/lucide";
+import { NotFoundNav } from "@/components/NotFoundNav";
 import { MetricChips } from "@/components/ui-docs/spec/MetricChips";
 import { SpecBox } from "@/components/ui-docs/spec/SpecBox";
 import { SpecSection } from "@/components/ui-docs/spec/SpecSection";
@@ -160,6 +161,13 @@ export function ButtonsSpec() {
               </div>
             ))}
           </div>
+        </SpecBox>
+
+        <SpecBox caption="// 404 links">
+          <NotFoundNav />
+          <p className="type-caption text-muted mt-4">
+            The skip link is the real one in the site layout.
+          </p>
         </SpecBox>
       </div>
     </SpecSection>

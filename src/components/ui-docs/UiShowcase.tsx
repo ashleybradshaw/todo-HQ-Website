@@ -5,10 +5,13 @@ import { BrandSpec } from "@/components/ui-docs/spec/sections/BrandSpec";
 import { ColourSpec } from "@/components/ui-docs/spec/sections/ColourSpec";
 import { TypeSpec } from "@/components/ui-docs/spec/sections/TypeSpec";
 import { GridSpacingSpec } from "@/components/ui-docs/spec/sections/GridSpacingSpec";
+import { HeroesSpec } from "@/components/ui-docs/spec/sections/HeroesSpec";
+import { FramesMediaSpec } from "@/components/ui-docs/spec/sections/FramesMediaSpec";
+import { WorkPartsSpec } from "@/components/ui-docs/spec/sections/WorkPartsSpec";
+import { BlogAboutSpec } from "@/components/ui-docs/spec/sections/BlogAboutSpec";
 import { IconographySpec } from "@/components/ui-docs/spec/sections/IconographySpec";
 import { ButtonsSpec } from "@/components/ui-docs/spec/sections/ButtonsSpec";
 import { InputsSpec } from "@/components/ui-docs/spec/sections/InputsSpec";
-import { ComponentsSpec } from "@/components/ui-docs/spec/sections/ComponentsSpec";
 import { MotionSpec } from "@/components/ui-docs/spec/sections/MotionSpec";
 import { RulesBand } from "@/components/ui-docs/tiles/RulesBand";
 import { uiPage } from "@/content/pages/ui";
@@ -35,10 +38,13 @@ export function UiShowcase() {
       <ColourSpec />
       <TypeSpec />
       <GridSpacingSpec />
+      <HeroesSpec />
+      <FramesMediaSpec />
+      <WorkPartsSpec />
+      <BlogAboutSpec />
       <IconographySpec />
       <ButtonsSpec />
       <InputsSpec />
-      <ComponentsSpec />
       <MotionSpec />
       <RulesBand />
     </PageShell>

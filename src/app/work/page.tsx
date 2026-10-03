@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { IdeFrame } from "@/components/ide/IdeFrame";
 import { PageShell } from "@/components/PageShell";
 import { ProjectCard } from "@/components/ProjectCard";
-import { ProjectStatusChip } from "@/components/work/ProjectStatusChip";
+import { QueuedProjectList } from "@/components/work/QueuedProjectList";
 import { SiteCloser } from "@/components/SiteCloser";
 import { workCountLine, workPage } from "@/content/pages/work";
 import { cn } from "@/lib/cn";
@@ -54,27 +54,7 @@ export default function WorkPage() {
           })}
         </ul>
 
-        <section aria-labelledby="work-queued-heading">
-          <h2 id="work-queued-heading" className="type-label">
-            {workPage.queuedLabel}
-          </h2>
-          <ul className="border-border-ide mt-4 border-y">
-            {queued.map((project) => (
-              <li
-                key={project.slug}
-                className="border-border-ide flex flex-col items-start gap-2 border-b py-4 last:border-b-0"
-              >
-                <p className="font-jetbrains text-sm font-bold text-foreground">
-                  {project.name}
-                </p>
-                <p className="type-body-sm max-w-[688px] text-foreground">
-                  {project.cardDescription}
-                </p>
-                <ProjectStatusChip status={project.status} />
-              </li>
-            ))}
-          </ul>
-        </section>
+        <QueuedProjectList projects={queued} label={workPage.queuedLabel} />
       </IdeFrame>
 
       <SiteCloser route="work" />

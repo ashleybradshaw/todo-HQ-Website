@@ -83,18 +83,22 @@ const optionClass =
 export function BlogPollTile({
   poll,
   className,
+  readOnly = false,
 }: {
   poll: BlogPoll;
   className?: string;
+  /** Spec sheet only. Shows the tile and never reads or writes a vote. */
+  readOnly?: boolean;
 }) {
   const groupId = useId();
   const resultsId = `${groupId}-results`;
   // Primitive snapshot — object identity from readVote() would thrash Object.is.
-  const voteOptionId = useSyncExternalStore(
+  const storedVoteId = useSyncExternalStore(
     subscribePoll,
-    () => readVote(poll)?.optionId ?? null,
+    () => (readOnly ? null : (readVote(poll)?.optionId ?? null)),
     () => null,
   );
+  const voteOptionId = readOnly ? null : storedVoteId;
   const reducedMotion = useSyncExternalStore(
     subscribeReducedMotion,
     getReducedMotion,
@@ -119,12 +123,12 @@ export function BlogPollTile({
 
   const onVote = useCallback(
     (optionId: string) => {
-      if (voteOptionId) {
+      if (readOnly || voteOptionId) {
         return;
       }
       writeVote(poll.id, optionId);
     },
-    [poll.id, voteOptionId],
+    [poll.id, readOnly, voteOptionId],
   );
 
   return (
@@ -157,7 +161,8 @@ export function BlogPollTile({
               type="button"
               role="radio"
               aria-checked={false}
-              className={optionClass}
+              className={cn(optionClass, readOnly && "cursor-default")}
+              disabled={readOnly}
               onClick={() => onVote(option.id)}
             >
               {option.label}

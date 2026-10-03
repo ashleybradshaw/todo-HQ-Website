@@ -53,36 +53,57 @@ export const uiPage = {
         "Frame 1336, reading 800, content 752, copy 688, hero sub 592. Spacing stays on a 4px ladder.",
       metric: "5 TRACKS · 4PX",
     },
+    heroes: {
+      eyebrow: "// 05 HEROES",
+      title: "Heroes and headers",
+      description:
+        "Essay and frame heroes, the detail header, the breadcrumb, and a static nav crumb.",
+      metric: "HERO A · DETAIL",
+    },
+    frames: {
+      eyebrow: "// 06 FRAMES",
+      title: "Frames and media",
+      description:
+        "The index frame, the detail hero, full and pair media, and the article figure.",
+      metric: "752 · 368 · 688",
+    },
+    work: {
+      eyebrow: "// 07 WORK",
+      title: "Work parts",
+      description:
+        "Cards, the queued list, the spec panel, the live count, status chips, and the next project.",
+      metric: "SPEC · QUEUE",
+    },
+    blog: {
+      eyebrow: "// 08 BLOG",
+      title: "Blog and about",
+      description:
+        "The note, filter pills, a read-only poll, adjacent notes, the writer band, and the about ledger.",
+      metric: "NOTES · FLOOR",
+    },
     icons: {
-      eyebrow: "// 05 ICONOGRAPHY",
+      eyebrow: "// 09 ICONOGRAPHY",
       title: "Iconography",
       description:
         "Lucide at 16, 20 and 24. One stroke, one colour, same as the live UI.",
       metric: "LUCIDE · 3 SIZES",
     },
     buttons: {
-      eyebrow: "// 06 BUTTONS",
+      eyebrow: "// 10 BUTTONS",
       title: "Buttons",
       description:
-        "Four styles, each forced into default, hover, focus and disabled.",
-      metric: "4 STYLES · 4 STATES",
+        "Four styles, each forced into default, hover, focus and disabled, plus the 404 text link and CTA.",
+      metric: "4 STYLES · 404 PAIR",
     },
     inputs: {
-      eyebrow: "// 07 INPUTS",
+      eyebrow: "// 11 INPUTS",
       title: "Inputs",
       description:
         "Three interaction states and four addon variants. Static, so nothing moves while you inspect it.",
       metric: "3 STATES · 4 VARIANTS",
     },
-    components: {
-      eyebrow: "// 08 COMPONENTS",
-      title: "Components",
-      description:
-        "The parts that ship, stripped to the bone: browser frame, cards, status dots and nav.",
-      metric: "6 PARTS",
-    },
     motion: {
-      eyebrow: "// 09 MOTION",
+      eyebrow: "// 12 MOTION",
       title: "Motion",
       description:
         "400ms cubic-bezier(0.22, 1, 0.36, 1) reveals, a 2.4s status pulse, 400ms CountUp, and TypeComment typing capped at 480ms.",
@@ -92,7 +113,7 @@ export const uiPage = {
 
   // TEST COPY
   rules: {
-    eyebrow: "// 10 RULES",
+    eyebrow: "// 13 RULES",
     title: "Rules",
     description:
       "The house lock for colour, type, motion and chrome. Not up for debate.",

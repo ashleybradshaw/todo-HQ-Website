@@ -36,6 +36,7 @@ All heroes and detail headers centred; bodies left.
 - Breadcrumb at 112, centred. `h1` `type-display mt-6 text-center text-balance mx-auto`. Meta row `type-body-sm mt-4`, centred.
 - `figure[data-detail-hero]`: full content width (752), 16:9, `border border-border-ide rounded-[4px]`, optional caption below, `priority`. `sizes="(min-width: 800px) 752px, calc(100vw - 48px)"`.
 - Work order: hero, one spec panel (full content width, same as the detail hero), copy 688, media, `NextProjectPanel` at 752. Stats, meta, and build share one `[data-spec-panel]` frame. Below `sm`, stats are 2 columns with the third full width, and meta and build stack.
+- Spec panel: stats, a contribution graph (52 weeks from `sm`, 26 below, no scroller), facts, and a chrome footer. The graph stays inside the panel (≤702 at 1440).
 - `[data-detail-copy]`: `max-w-[688px] mx-auto`. `type-prose` on `/blog/[slug]` only; `/work/[slug]` copy is `type-body`.
 - Gaps: hero to the next block `mt-10`, later sections `mt-16`, media `gap-4`.
 

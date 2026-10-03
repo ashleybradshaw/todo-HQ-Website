@@ -130,6 +130,28 @@ for (const viewport of VIEWPORTS) {
       expect(panelBox).not.toBeNull();
       expect(heroBox).not.toBeNull();
       expect(Math.round(panelBox!.width)).toBe(Math.round(heroBox!.width));
+      const graph = page.locator("[data-contribution-graph]");
+      await expect(graph).toHaveCount(1);
+      if (viewport.width === 1440) {
+        const graphWidth = await graph.evaluate((el) =>
+          Math.round(el.getBoundingClientRect().width),
+        );
+        expect(graphWidth).toBeLessThanOrEqual(702);
+      }
+      if (viewport.width === 390) {
+        const scroll = await graph.evaluate((el) => {
+          const style = getComputedStyle(el);
+          return {
+            overflow: style.overflow,
+            overflowX: style.overflowX,
+            scrollWidth: el.scrollWidth,
+            clientWidth: el.clientWidth,
+          };
+        });
+        expect(scroll.scrollWidth).toBeLessThanOrEqual(scroll.clientWidth);
+        expect(scroll.overflow).not.toMatch(/auto|scroll/);
+        expect(scroll.overflowX).not.toMatch(/auto|scroll/);
+      }
       await expect(page.locator("[data-detail-copy]")).toHaveCSS("font-size", "16px");
       await expect(page.locator("main .type-prose")).toHaveCount(0);
       await expect(

@@ -10,7 +10,12 @@ import { SiteCloser } from "@/components/SiteCloser";
 import { NextProjectPanel } from "@/components/work/NextProjectPanel";
 import { ProjectGlyphField } from "@/components/work/ProjectGlyphField";
 import { ProjectMediaRows } from "@/components/work/ProjectMediaRows";
+import {
+  ContributionGraph,
+  contributionLegend,
+} from "@/components/work/ContributionGraph";
 import { ProjectSpecPanel } from "@/components/work/ProjectSpecPanel";
+import { getContributions } from "@/lib/contributions";
 import {
   getPageProjects,
   getProject,
@@ -116,6 +121,7 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
 
   const { prev, next } = adjacentProjects(project.slug);
   const { hero, rest } = splitCaseMedia(project);
+  const contributions = getContributions(project.slug);
 
   return (
     <>
@@ -165,6 +171,14 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
         <ProjectSpecPanel
           project={project}
           label={workDetailPage.specAria(project.name)}
+          activity={
+            contributions ? (
+              <ContributionGraph contributions={contributions} />
+            ) : null
+          }
+          activityLegend={
+            contributions ? contributionLegend(contributions.source) : null
+          }
         />
         <div
           data-detail-copy

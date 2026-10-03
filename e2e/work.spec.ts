@@ -288,6 +288,60 @@ test.describe("work roster", () => {
     }
   });
 
+  test("case pages show a sample contribution graph and no sparklines", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+
+    for (const slug of ["repdaily", "readygo", "contentic"] as const) {
+      await page.goto(`/work/${slug}`, { waitUntil: "domcontentloaded" });
+      const panel = page.locator("[data-spec-panel]");
+      await expect(panel.locator("[data-metric-list] svg path")).toHaveCount(0);
+
+      const graph = panel.locator("[data-contribution-graph]");
+      await expect(graph).toHaveCount(1);
+      const alignment = await graph.locator("svg:visible rect").evaluateAll(
+        (nodes) => {
+          let maxX = -1;
+          let maxDate = "";
+          let maxDateX = -1;
+          for (const node of nodes) {
+            const x = Number(node.getAttribute("x"));
+            const date = node.getAttribute("data-date") ?? "";
+            if (x > maxX) maxX = x;
+            if (date > maxDate) {
+              maxDate = date;
+              maxDateX = x;
+            }
+          }
+          const rows = new Set(nodes.map((node) => node.getAttribute("y"))).size;
+          return { count: nodes.length, rows, maxX, maxDateX };
+        },
+      );
+      expect(alignment.rows).toBe(7);
+      expect(alignment.count).toBe(52 * 7);
+      expect(alignment.maxDateX).toBe(alignment.maxX);
+
+      await expect(
+        panel.getByText("// factory activity", { exact: true }),
+      ).toBeVisible();
+      for (const key of [
+        "client",
+        "year",
+        "platforms",
+        "role",
+        "timeline",
+        "stack",
+      ]) {
+        await expect(panel.getByText(key, { exact: true })).toBeVisible();
+      }
+      const valueFamily = await panel
+        .locator("dd", { hasText: "Internal" })
+        .evaluate((el) => getComputedStyle(el).fontFamily);
+      expect(valueFamily.toLowerCase()).toContain("jetbrains");
+    }
+  });
+
   test("card CTA focus ring is 3px", async ({ page }) => {
     await page.goto("/work", { waitUntil: "domcontentloaded" });
     const cta = page.getByRole("link", { name: /^open \.\/repdaily\b/ });

@@ -1694,13 +1694,7 @@ html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-bone-overlay 
   }
 }
 
-/* Spec panel: sparkline draw, stack lift, one scan. Syn tokens only. */
-@keyframes spec-spark-draw {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
+/* Spec panel: stack lift, one scan. Syn tokens only. */
 @keyframes spec-stack-in {
   to {
     opacity: 1;
@@ -1719,12 +1713,6 @@ html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-bone-overlay 
   }
 }
 
-.spec-spark {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1;
-}
-
 .spec-scan {
   position: absolute;
   top: 0;
@@ -1737,15 +1725,6 @@ html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-bone-overlay 
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .spec-spark {
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-  }
-
-  [data-spec-panel].is-revealed .spec-spark {
-    animation: spec-spark-draw 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
   .spec-stack-in {
     opacity: 0;
     transform: translateY(4px);
@@ -1761,11 +1740,6 @@ html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-bone-overlay 
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .spec-spark {
-    stroke-dashoffset: 0;
-    animation: none;
-  }
-
   .spec-stack-in {
     opacity: 1;
     transform: none;

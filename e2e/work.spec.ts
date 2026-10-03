@@ -223,6 +223,13 @@ test.describe("work roster", () => {
       await expect(node.locator("xpath=ancestor::*[@data-spec-panel]")).toHaveCount(1);
     }
     await expect(panel.locator("[data-countup]")).toHaveText(["103", "300", "15%"]);
+    await expect(page.getByText("// Shipped", { exact: true })).toHaveCount(1);
+    await expect(panel.getByText("// Shipped", { exact: true })).toHaveCount(1);
+    const clientValue = panel.locator("dd", { hasText: "Internal" });
+    const valueFamily = await clientValue.evaluate(
+      (el) => getComputedStyle(el).fontFamily,
+    );
+    expect(valueFamily.toLowerCase()).toContain("jetbrains");
     await expect(page.locator('a[href*="example.com"]')).toHaveCount(0);
     await expect(
       panel.getByRole("link", { name: "repdaily.app (opens in a new tab)" }),

@@ -65,7 +65,9 @@ function StatValue({ metric }: { metric: ProjectMetric }) {
 }
 
 function Key({ children }: { children: string }) {
-  return <dt className="type-caption text-muted shrink-0">{children}</dt>;
+  return (
+    <dt className="text-muted shrink-0 text-[10px] lg:text-[11px]">{children}</dt>
+  );
 }
 
 function Value({
@@ -103,7 +105,7 @@ function SpecLinks({ project }: { project: FullProject }) {
             className="text-muted inline-flex min-h-6 max-w-full items-center gap-1 rounded-[4px] break-words focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none"
           >
             <span className="min-w-0 break-words">{link.label}</span>
-            <span aria-hidden="true">↗</span>
+            <span aria-hidden="true">{"\u2197\uFE0E"}</span>
           </a>
         </li>
       ))}
@@ -156,7 +158,7 @@ export function ProjectSpecPanel({
       data-spec-panel
       aria-label={label}
       className={cn(
-        "border-border-ide relative mt-10 w-full border",
+        "border-border-ide font-jetbrains relative mt-10 w-full border",
         revealed && "is-revealed",
       )}
     >

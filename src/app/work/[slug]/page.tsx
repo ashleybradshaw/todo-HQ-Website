@@ -11,7 +11,6 @@ import { NextProjectPanel } from "@/components/work/NextProjectPanel";
 import { ProjectGlyphField } from "@/components/work/ProjectGlyphField";
 import { ProjectMediaRows } from "@/components/work/ProjectMediaRows";
 import { ProjectSpecPanel } from "@/components/work/ProjectSpecPanel";
-import { ProjectStatusChip } from "@/components/work/ProjectStatusChip";
 import {
   getPageProjects,
   getProject,
@@ -150,7 +149,6 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
           meta={
             <div className="flex flex-col items-center gap-3 text-center">
               <p>{project.cardDescription}</p>
-              <ProjectStatusChip status={project.status} />
               {project.slug === "readygo" ? (
                 <p>{workDetailPage.readygoNote}</p>
               ) : null}

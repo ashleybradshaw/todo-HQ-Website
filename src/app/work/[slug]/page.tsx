@@ -102,7 +102,7 @@ function ProjectMark({ slug }: { slug: string }) {
   return (
     <span
       aria-hidden="true"
-      className="bg-foreground inline-block size-4 shrink-0"
+      className="bg-foreground mx-auto mb-4 block size-10 sm:size-12"
       style={{
         maskImage: `url(/logos/${slug}.svg)`,
         WebkitMaskImage: `url(/logos/${slug}.svg)`,
@@ -161,6 +161,7 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
         />
         <DetailHeader
           title={project.name}
+          logo={<ProjectMark slug={project.slug} />}
           breadcrumbs={
             <Breadcrumbs
               parent={{ href: "/work", label: workDetailPage.breadcrumbWork }}
@@ -169,10 +170,7 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
           }
           meta={
             <div className="flex flex-col items-center gap-3 text-center">
-              <div className="flex items-start justify-center gap-2">
-                <ProjectMark slug={project.slug} />
-                <p>{project.cardDescription}</p>
-              </div>
+              <p>{project.cardDescription}</p>
               <ProjectStatusChip status={project.status} />
               {project.slug === "readygo" ? (
                 <p>{workDetailPage.readygoNote}</p>

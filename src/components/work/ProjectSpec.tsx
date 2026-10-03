@@ -52,7 +52,7 @@ function SpecLinks({ project }: { project: FullProject }) {
   if (links.length === 0) return null;
 
   return (
-    <ul className="flex min-w-0 flex-wrap justify-end gap-x-3 gap-y-1">
+    <ul className="flex min-w-0 flex-wrap justify-end gap-x-3 gap-y-1 text-[10px] lg:text-[11px]">
       {links.map((link) => (
         <li key={link.href} className="min-w-0">
           <a

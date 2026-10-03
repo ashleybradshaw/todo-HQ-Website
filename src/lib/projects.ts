@@ -3,7 +3,7 @@ import type { StackId } from "@/components/ide/StackIconRow";
 export type ProjectStatus = "shipped" | "building" | "live" | "pipeline";
 
 export type MediaRatio = "16:9" | "4:5" | "1:1";
-export type MediaLayout = "full" | "pair" | "trio";
+export type MediaLayout = "full" | "pair";
 export type MediaKind = "image" | "video";
 
 export type ProjectMetric = {
@@ -232,12 +232,11 @@ export const PROJECTS: readonly Project[] = [
         ],
       },
       {
-        id: "repdaily-trio",
-        layout: "trio",
+        id: "repdaily-pair-2",
+        layout: "pair",
         items: [
           still("repdaily", "RepDaily", "rep-count", "1:1", "Rep count"),
           still("repdaily", "RepDaily", "calendar", "1:1", "Calendar"),
-          still("repdaily", "RepDaily", "handoff", "1:1", "Handoff"),
         ],
       },
     ],
@@ -312,12 +311,11 @@ export const PROJECTS: readonly Project[] = [
         ],
       },
       {
-        id: "readygo-trio",
-        layout: "trio",
+        id: "readygo-pair-2",
+        layout: "pair",
         items: [
           still("readygo", "ReadyGo", "effort", "4:5", "Effort"),
           still("readygo", "ReadyGo", "kit-list", "4:5", "Kit list"),
-          still("readygo", "ReadyGo", "split-plan", "4:5", "Split plan"),
         ],
       },
     ],
@@ -391,12 +389,11 @@ export const PROJECTS: readonly Project[] = [
         ],
       },
       {
-        id: "contentic-trio",
-        layout: "trio",
+        id: "contentic-pair-2",
+        layout: "pair",
         items: [
           still("contentic", "Contentic", "review", "1:1", "Review pass"),
           still("contentic", "Contentic", "status", "1:1", "Status"),
-          still("contentic", "Contentic", "handoff", "1:1", "Handoff"),
         ],
       },
     ],

@@ -125,6 +125,25 @@ for (const viewport of VIEWPORTS) {
       await expectDetailHero(page, viewport.hero);
       await expect(page.locator("[data-detail-copy]")).toHaveCSS("font-size", "16px");
       await expect(page.locator("main .type-prose")).toHaveCount(0);
+      if (viewport.width === 1440) {
+        const centres = await page.evaluate(() => {
+          const logo = document.querySelector(
+            "main header > [aria-hidden='true']",
+          );
+          const title = document.querySelector("main h1");
+          if (!(logo instanceof HTMLElement) || !(title instanceof HTMLElement)) {
+            return null;
+          }
+          const logoBox = logo.getBoundingClientRect();
+          const titleBox = title.getBoundingClientRect();
+          return {
+            logo: logoBox.left + logoBox.width / 2,
+            title: titleBox.left + titleBox.width / 2,
+          };
+        });
+        expect(centres).not.toBeNull();
+        expect(Math.abs(centres!.logo - centres!.title)).toBeLessThanOrEqual(2);
+      }
       if (viewport.copy) {
         await expectCopyWidth(page, viewport.copy);
         await expectMediaWidths(page);
@@ -189,13 +208,54 @@ async function expectCopyWidth(
 }
 
 async function expectMediaWidths(page: import("@playwright/test").Page) {
-  const widths = await page
-    .locator("main figure:has([data-ratio])")
+  await expect(page.locator("[data-media-layout='trio']")).toHaveCount(0);
+
+  const rows = page.locator("[data-media-layout]");
+  const rowCount = await rows.count();
+  expect(rowCount).toBeGreaterThan(0);
+
+  for (let index = 0; index < rowCount; index += 1) {
+    const row = rows.nth(index);
+    const figures = row.locator("figure");
+    const figureCount = await figures.count();
+    for (let figureIndex = 0; figureIndex < figureCount; figureIndex += 1) {
+      const box = await figures.nth(figureIndex).boundingBox();
+      expect(box).not.toBeNull();
+      expect(box!.width).toBeLessThanOrEqual(752);
+    }
+
+    if ((await row.getAttribute("data-media-layout")) === "full") {
+      const ratios = await row.locator("[data-ratio]").evaluateAll((nodes) =>
+        nodes.map((node) => node.getAttribute("data-ratio")),
+      );
+      expect(ratios.length).toBeGreaterThan(0);
+      for (const ratio of ratios) {
+        expect(ratio).toBe("16:9");
+      }
+    }
+  }
+
+  const squares = await page
+    .locator("[data-media-layout] [data-ratio]")
     .evaluateAll((nodes) =>
-      nodes.map((node) => Math.round(node.getBoundingClientRect().width)),
+      nodes.flatMap((node) => {
+        const box = node.getBoundingClientRect();
+        if (Math.abs(box.width - box.height) > 1) return [];
+        const figure = node.closest("figure");
+        const row = node.closest("[data-media-layout]");
+        return [
+          {
+            layout: row?.getAttribute("data-media-layout") ?? "",
+            figureWidth: figure
+              ? Math.round(figure.getBoundingClientRect().width)
+              : null,
+          },
+        ];
+      }),
     );
-  expect(widths.length).toBeGreaterThan(0);
-  for (const width of widths) {
-    expect([752, 368]).toContain(width);
+  expect(squares.length).toBeGreaterThan(0);
+  for (const square of squares) {
+    expect(square.layout).toBe("pair");
+    expect(square.figureWidth).toBe(368);
   }
 }

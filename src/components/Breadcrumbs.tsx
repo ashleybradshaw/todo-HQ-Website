@@ -30,16 +30,22 @@ export function Breadcrumbs({
     <nav
       id={id}
       aria-label="Breadcrumb"
-      className={cn("type-meta", className)}
+      className={cn("type-meta min-w-0 max-w-full", className)}
     >
-      <ol className="flex flex-wrap items-baseline justify-center gap-x-2 gap-y-1 text-center">
-        <li>
+      <ol className="flex flex-nowrap items-baseline justify-center gap-x-2 gap-y-1 text-center sm:flex-wrap">
+        <li className="shrink-0">
           <Link href={parent.href} className={crumbLinkClass}>
             {parent.label}
           </Link>
         </li>
-        <li aria-hidden="true">→</li>
-        <li className="min-w-0 text-pretty" aria-current="page">
+        <li aria-hidden="true" className="shrink-0">
+          →
+        </li>
+        <li
+          className="min-w-0 truncate sm:overflow-visible sm:whitespace-normal sm:text-pretty"
+          title={current}
+          aria-current="page"
+        >
           {current}
         </li>
       </ol>

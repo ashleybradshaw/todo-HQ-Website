@@ -8,35 +8,6 @@ const SIZES = {
   pair: "(min-width: 800px) 368px, (min-width: 640px) calc(50vw - 32px), calc(100vw - 48px)",
 } as const;
 
-/** Trio data becomes pairs, with a trailing full row when the count is odd. */
-function expandRows(rows: readonly ProjectMediaRow[]): ProjectMediaRow[] {
-  return rows.flatMap((row) => {
-    if (row.layout !== "trio") return [row];
-    const expanded: ProjectMediaRow[] = [];
-    let index = 0;
-    let pair = 0;
-    while (index < row.items.length) {
-      const remaining = row.items.length - index;
-      if (remaining === 1) {
-        expanded.push({
-          id: `${row.id}-full`,
-          layout: "full",
-          items: [row.items[index]],
-        });
-        break;
-      }
-      expanded.push({
-        id: `${row.id}-pair-${pair}`,
-        layout: "pair",
-        items: [row.items[index], row.items[index + 1]],
-      });
-      pair += 1;
-      index += 2;
-    }
-    return expanded;
-  });
-}
-
 function sizesFor(row: ProjectMediaRow) {
   return row.layout === "full" ? SIZES.full : SIZES.pair;
 }
@@ -63,13 +34,12 @@ export function ProjectMediaRows({
   rows: readonly ProjectMediaRow[];
   label: string;
 }) {
-  const expanded = expandRows(rows);
-  if (expanded.length === 0) return null;
+  if (rows.length === 0) return null;
 
   return (
     <section className="mt-16 flex min-w-0 flex-col gap-4" aria-label={label}>
-      {expanded.map((row, rowIndex) => {
-        const offset = frameOffset(expanded, rowIndex);
+      {rows.map((row, rowIndex) => {
+        const offset = frameOffset(rows, rowIndex);
         return (
           <div
             key={row.id}

@@ -46,6 +46,6 @@ Only two frame sizes, plus blog inline copy:
 - **L** 752 — full, 16:9. `sizes="(min-width: 800px) 752px, calc(100vw - 48px)"`.
 - **M** 368 — pair, 4:5 or 1:1, `gap-4`. `sizes="(min-width: 800px) 368px, (min-width: 640px) calc(50vw - 32px), calc(100vw - 48px)"`.
 - **Inline** 688 — blog article images inside the copy column.
-- Mobile is 100% width. Trio data renders as a pair plus a full row (or two pairs). No trio layout in the DOM.
+- Mobile is 100% width. Rows are full (16:9, 752) or pair (368) only. No trio layout.
 
 Blog OG metadata stays 1200×630. The detail hero is 16:9 and may centre-crop the OG asset until a real 16:9 file exists.

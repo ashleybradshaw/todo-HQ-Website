@@ -18,7 +18,7 @@ export type BrowserFrameProps = {
   sizes: string;
   className?: string;
   priority?: boolean;
-  /** Pair/trio only: reserve two caption lines so frame bottoms line up. */
+  /** Pair only: reserve two caption lines so frame bottoms line up. */
   pinCaption?: boolean;
   /**
    * Still image path. Required when `children` is omitted.

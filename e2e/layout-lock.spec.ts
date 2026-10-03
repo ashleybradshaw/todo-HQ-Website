@@ -123,6 +123,13 @@ for (const viewport of VIEWPORTS) {
       await page.evaluate(() => document.fonts.ready);
       await expectDetailTitle(page);
       await expectDetailHero(page, viewport.hero);
+      const specPanel = page.locator("[data-spec-panel]");
+      await expect(specPanel).toHaveCount(1);
+      const panelBox = await specPanel.boundingBox();
+      const heroBox = await page.locator("[data-detail-hero]").boundingBox();
+      expect(panelBox).not.toBeNull();
+      expect(heroBox).not.toBeNull();
+      expect(Math.round(panelBox!.width)).toBe(Math.round(heroBox!.width));
       await expect(page.locator("[data-detail-copy]")).toHaveCSS("font-size", "16px");
       await expect(page.locator("main .type-prose")).toHaveCount(0);
       await expect(

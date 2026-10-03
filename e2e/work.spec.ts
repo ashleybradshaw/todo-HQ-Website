@@ -205,26 +205,30 @@ test.describe("work roster", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/work/repdaily", { waitUntil: "domcontentloaded" });
 
-    const spec = page.getByRole("region", { name: "RepDaily specification" });
-    await expect(spec.getByText("// meta")).toBeVisible();
-    for (const key of ["client", "year", "platforms", "links"]) {
-      await expect(spec.getByText(key, { exact: true })).toBeVisible();
+    const panel = page.locator("[data-spec-panel]");
+    await expect(panel).toHaveCount(1);
+    await expect(panel).toHaveAttribute("aria-label", "RepDaily specification");
+    await expect(page.getByRole("region", { name: "RepDaily metrics" })).toHaveCount(0);
+    await expect(page.getByRole("region", { name: "RepDaily build" })).toHaveCount(0);
+    for (const key of ["client", "year", "platforms", "links", "role", "timeline", "stack"]) {
+      await expect(panel.getByText(key, { exact: true })).toBeVisible();
     }
-    await expect(spec.getByText("status", { exact: true })).toHaveCount(0);
-    for (const key of ["role", "timeline", "stack"]) {
-      await expect(spec.getByText(key, { exact: true })).toHaveCount(0);
+    await expect(panel.getByText("status", { exact: true })).toHaveCount(0);
+    await expect(panel.getByText("// meta")).toHaveCount(0);
+    await expect(panel.getByText("// build")).toHaveCount(0);
+    const stat = panel.locator("[data-countup]").first();
+    const client = panel.getByText("client", { exact: true });
+    const role = panel.getByText("role", { exact: true });
+    for (const node of [stat, client, role]) {
+      await expect(node.locator("xpath=ancestor::*[@data-spec-panel]")).toHaveCount(1);
     }
-    const build = page.getByRole("region", { name: "RepDaily build" });
-    await expect(build.getByText("// build")).toBeVisible();
-    for (const key of ["role", "timeline", "stack"]) {
-      await expect(build.getByText(key, { exact: true })).toBeVisible();
-    }
+    await expect(panel.locator("[data-countup]")).toHaveText(["103", "300", "15%"]);
     await expect(page.locator('a[href*="example.com"]')).toHaveCount(0);
     await expect(
-      spec.getByRole("link", { name: "repdaily.app (opens in a new tab)" }),
+      panel.getByRole("link", { name: "repdaily.app (opens in a new tab)" }),
     ).toHaveAttribute("href", "https://www.repdaily.app");
     await expect(
-      spec.getByRole("link", { name: "Instagram (opens in a new tab)" }),
+      panel.getByRole("link", { name: "Instagram (opens in a new tab)" }),
     ).toHaveAttribute("href", "https://www.instagram.com/repdailyapp");
 
     const pairTops = await page
@@ -235,25 +239,20 @@ test.describe("work roster", () => {
     expect(pairTops.length).toBeGreaterThan(1);
     expect(Math.abs(pairTops[0] - pairTops[1])).toBeLessThan(1);
 
-    const metrics = page.getByRole("region", { name: "RepDaily metrics" });
-    const items = metrics.locator("[data-metric-list] > li");
+    const items = panel.locator("[data-metric-list] > div");
     await expect(items).toHaveCount(3);
-    const metricsBox = await metrics.locator("[data-metric-list]").boundingBox();
-    const specBox = await spec.boundingBox();
-    const buildBox = await build.boundingBox();
-    expect(metricsBox).not.toBeNull();
-    expect(specBox).not.toBeNull();
-    expect(buildBox).not.toBeNull();
-    expect(specBox!.y).toBeGreaterThan(metricsBox!.y + metricsBox!.height - 2);
-    expect(buildBox!.y).toBeGreaterThan(specBox!.y);
-    await expect(items.nth(0)).toContainText("103");
-    await expect(items.nth(1)).toContainText("300");
-    await expect(items.nth(2)).toContainText("15%");
+    const metricsTop = await panel.locator("[data-metric-list]").evaluate((el) =>
+      el.getBoundingClientRect().top,
+    );
+    const clientTop = await client.evaluate((el) => el.getBoundingClientRect().top);
+    const roleTop = await role.evaluate((el) => el.getBoundingClientRect().top);
+    expect(metricsTop).toBeLessThan(clientTop);
+    expect(Math.abs(clientTop - roleTop)).toBeLessThan(8);
 
     const hero = page.locator("[data-detail-hero]");
-    const specTop = await spec.evaluate((el) => el.getBoundingClientRect().top);
+    const panelTop = await panel.evaluate((el) => el.getBoundingClientRect().top);
     const heroTop = await hero.evaluate((el) => el.getBoundingClientRect().top);
-    expect(heroTop).toBeLessThan(specTop);
+    expect(heroTop).toBeLessThan(panelTop);
     await expect(hero.locator("img")).toHaveAttribute("src", /repdaily\.webp/);
 
     const portrait = page.locator("[data-ratio='4:5']").first();
@@ -351,25 +350,30 @@ test.describe("work roster", () => {
 
     const title = page.getByRole("heading", { name: "RepDaily", level: 1 });
     const hero = page.locator("[data-detail-hero]");
-    const metrics = page.getByRole("region", { name: "RepDaily metrics" });
-    const build = page.getByRole("region", { name: "RepDaily build" });
-    const spec = page.getByRole("region", { name: "RepDaily specification" });
+    const panel = page.locator("[data-spec-panel]");
     const top = async (locator: typeof title) =>
       locator.evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
 
     const titleTop = await top(title);
     const heroTop = await top(hero);
-    const metricsTop = await top(metrics);
-    const buildTop = await top(build);
-    const specTop = await top(spec);
+    const panelTop = await top(panel);
+    const clientTop = await top(panel.getByText("client", { exact: true }));
+    const roleTop = await top(panel.getByText("role", { exact: true }));
     expect(titleTop).toBeLessThan(heroTop);
-    expect(heroTop).toBeLessThan(metricsTop);
-    expect(metricsTop).toBeLessThan(specTop);
-    expect(specTop).toBeLessThan(buildTop);
+    expect(heroTop).toBeLessThan(panelTop);
+    expect(clientTop).toBeLessThan(roleTop);
 
-    const columns = await metrics.locator("[data-metric-list]").evaluate(
+    const list = panel.locator("[data-metric-list]");
+    const columns = await list.evaluate(
       (el) => getComputedStyle(el).gridTemplateColumns,
     );
     expect(columns.split(" ").filter(Boolean)).toHaveLength(2);
+    const listWidth = await list.evaluate((el) =>
+      Math.round(el.getBoundingClientRect().width),
+    );
+    const thirdWidth = await list.locator("> div").nth(2).evaluate((el) =>
+      Math.round(el.getBoundingClientRect().width),
+    );
+    expect(thirdWidth).toBe(listWidth);
   });
 });

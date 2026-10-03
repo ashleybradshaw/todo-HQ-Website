@@ -39,6 +39,4 @@ export const workDetailPage = {
   readygoNote: "Early build: this case study grows as we ship.",
   stillsAria: (name: string) => `${name} stills`,
   specAria: (name: string) => `${name} specification`,
-  metricsAria: (name: string) => `${name} metrics`,
-  buildAria: (name: string) => `${name} build`,
 } as const;

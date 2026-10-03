@@ -10,9 +10,8 @@ import { SiteCloser } from "@/components/SiteCloser";
 import { NextProjectPanel } from "@/components/work/NextProjectPanel";
 import { ProjectGlyphField } from "@/components/work/ProjectGlyphField";
 import { ProjectMediaRows } from "@/components/work/ProjectMediaRows";
-import { ProjectBuild, ProjectSpec } from "@/components/work/ProjectSpec";
+import { ProjectSpecPanel } from "@/components/work/ProjectSpecPanel";
 import { ProjectStatusChip } from "@/components/work/ProjectStatusChip";
-import { CountUp } from "@/components/work/CountUp";
 import {
   getPageProjects,
   getProject,
@@ -165,44 +164,10 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
             caption={hero.caption}
           />
         ) : null}
-        <section
-          aria-label={workDetailPage.metricsAria(project.name)}
-          className="mt-10"
-        >
-          <ul
-            data-metric-list=""
-            className="grid w-full grid-cols-2 gap-6 sm:grid-cols-3"
-          >
-            {project.metrics.map((metric) => (
-              <li key={metric.label} className="pt-4">
-                <span
-                  aria-hidden="true"
-                  className="work-draw-x bg-border-ide -mt-4 mb-4 block h-px w-full"
-                />
-                <CountUp
-                  variant="stat"
-                  value={metric.value}
-                  prefix={metric.prefix}
-                  suffix={metric.suffix}
-                />
-                <span className="font-jetbrains text-syn-comment mt-1 block text-xs">
-                  {metric.label}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-        <div className="mt-16 flex w-full flex-col gap-8">
-          <ProjectSpec
-            project={project}
-            label={workDetailPage.specAria(project.name)}
-          />
-          <ProjectBuild
-            project={project}
-            label={workDetailPage.buildAria(project.name)}
-            className="mx-auto w-full max-w-[688px]"
-          />
-        </div>
+        <ProjectSpecPanel
+          project={project}
+          label={workDetailPage.specAria(project.name)}
+        />
         <div
           data-detail-copy
           className="type-body mx-auto mt-16 w-full max-w-[688px] text-left"

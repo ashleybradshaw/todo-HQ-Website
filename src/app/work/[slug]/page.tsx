@@ -98,25 +98,6 @@ function stillSrc(item: ProjectMediaItem) {
   return item.kind === "video" ? (item.poster ?? item.src) : item.src;
 }
 
-function ProjectMark({ slug }: { slug: string }) {
-  return (
-    <span
-      aria-hidden="true"
-      className="bg-foreground mx-auto mb-4 block size-10 sm:size-12"
-      style={{
-        maskImage: `url(/logos/${slug}.svg)`,
-        WebkitMaskImage: `url(/logos/${slug}.svg)`,
-        maskSize: "contain",
-        WebkitMaskSize: "contain",
-        maskRepeat: "no-repeat",
-        WebkitMaskRepeat: "no-repeat",
-        maskPosition: "left center",
-        WebkitMaskPosition: "left center",
-      }}
-    />
-  );
-}
-
 function splitCaseMedia(project: FullProject) {
   const heroIndex = project.mediaRows.findIndex(
     (row) => row.layout === "full" && row.items[0]?.ratio === "16:9",
@@ -161,7 +142,6 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
         />
         <DetailHeader
           title={project.name}
-          logo={<ProjectMark slug={project.slug} />}
           breadcrumbs={
             <Breadcrumbs
               parent={{ href: "/work", label: workDetailPage.breadcrumbWork }}

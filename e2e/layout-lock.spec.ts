@@ -125,25 +125,9 @@ for (const viewport of VIEWPORTS) {
       await expectDetailHero(page, viewport.hero);
       await expect(page.locator("[data-detail-copy]")).toHaveCSS("font-size", "16px");
       await expect(page.locator("main .type-prose")).toHaveCount(0);
-      if (viewport.width === 1440) {
-        const centres = await page.evaluate(() => {
-          const logo = document.querySelector(
-            "main header > [aria-hidden='true']",
-          );
-          const title = document.querySelector("main h1");
-          if (!(logo instanceof HTMLElement) || !(title instanceof HTMLElement)) {
-            return null;
-          }
-          const logoBox = logo.getBoundingClientRect();
-          const titleBox = title.getBoundingClientRect();
-          return {
-            logo: logoBox.left + logoBox.width / 2,
-            title: titleBox.left + titleBox.width / 2,
-          };
-        });
-        expect(centres).not.toBeNull();
-        expect(Math.abs(centres!.logo - centres!.title)).toBeLessThanOrEqual(2);
-      }
+      await expect(
+        page.locator("main header").locator("img, [style*='mask-image']"),
+      ).toHaveCount(0);
       if (viewport.copy) {
         await expectCopyWidth(page, viewport.copy);
         await expectMediaWidths(page);

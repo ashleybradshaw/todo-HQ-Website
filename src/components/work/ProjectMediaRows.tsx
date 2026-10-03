@@ -3,13 +3,13 @@ import { FrameReveal } from "@/components/work/FrameReveal";
 import { cn } from "@/lib/cn";
 import type { ProjectMediaItem, ProjectMediaRow } from "@/lib/projects";
 
-const SIZES = {
+export const MEDIA_FRAME_SIZES = {
   full: "(min-width: 800px) 752px, calc(100vw - 48px)",
   pair: "(min-width: 800px) 368px, (min-width: 640px) calc(50vw - 32px), calc(100vw - 48px)",
 } as const;
 
 function sizesFor(row: ProjectMediaRow) {
-  return row.layout === "full" ? SIZES.full : SIZES.pair;
+  return row.layout === "full" ? MEDIA_FRAME_SIZES.full : MEDIA_FRAME_SIZES.pair;
 }
 
 function frameOffset(rows: readonly ProjectMediaRow[], rowIndex: number) {

@@ -27,6 +27,7 @@ export function IconographySpec() {
 
   return (
     <SpecSection
+      id="ui-icons"
       eyebrow={icons.eyebrow}
       metric={icons.metric}
       title={icons.title}

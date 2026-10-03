@@ -106,6 +106,7 @@ export function ButtonsSpec() {
 
   return (
     <SpecSection
+      id="ui-buttons"
       eyebrow={buttons.eyebrow}
       metric={buttons.metric}
       title={buttons.title}

@@ -2,45 +2,52 @@ import { Bone } from "@/components/ui-docs/spec/Bone";
 import { MetricChips } from "@/components/ui-docs/spec/MetricChips";
 import { SpecBox } from "@/components/ui-docs/spec/SpecBox";
 import { SpecSection } from "@/components/ui-docs/spec/SpecSection";
+import { SPACING_STEPS } from "@/lib/ui-docs/tokenRegistry";
 import { uiPage } from "@/content/pages/ui";
 
-const LADDER = [
-  { px: "4px", rem: "0.25rem" },
-  { px: "8px", rem: "0.5rem" },
-  { px: "12px", rem: "0.75rem" },
-  { px: "16px", rem: "1rem" },
-  { px: "24px", rem: "1.5rem" },
-  { px: "32px", rem: "2rem" },
-  { px: "48px", rem: "3rem" },
-  { px: "64px", rem: "4rem" },
+const FRAME = 1336;
+
+const TRACKS = [
+  { name: "Frame", px: 1336, note: "/work and /blog" },
+  { name: "Reading", px: 800, note: "track" },
+  { name: "Content", px: 752, note: "media" },
+  { name: "Copy", px: 688, note: "column" },
+  { name: "Hero sub", px: 592, note: "lede" },
 ] as const;
 
 export function GridSpacingSpec() {
-  const { grid } = uiPage.sections;
+  const { layout } = uiPage.sections;
 
   return (
     <SpecSection
-      eyebrow={grid.eyebrow}
-      metric={grid.metric}
-      title={grid.title}
-      description={grid.description}
+      id="ui-layout"
+      eyebrow={layout.eyebrow}
+      metric={layout.metric}
+      title={layout.title}
+      description={layout.description}
     >
       <div className="flex min-w-0 flex-col gap-6">
-        <SpecBox variant="master" caption="// 12 columns">
-          <div className="grid min-w-0 grid-cols-6 gap-1.5 sm:grid-cols-8 sm:gap-2 lg:grid-cols-12">
-            {Array.from({ length: 12 }, (_, i) => (
-              <Bone key={i} className="h-16 min-w-0 sm:h-20" />
+        <SpecBox variant="master" caption="// tracks, share of 1336">
+          <ul className="flex min-w-0 flex-col gap-3">
+            {TRACKS.map((track) => (
+              <li key={track.name} className="min-w-0">
+                <div
+                  className="border-border-ide max-w-full border-b py-2"
+                  style={{ width: `${(track.px / FRAME) * 100}%` }}
+                >
+                  <MetricChips
+                    name={track.name}
+                    values={[`${track.px}px`, track.note]}
+                  />
+                </div>
+              </li>
             ))}
-          </div>
-          <p className="type-caption text-muted mt-3">
-            {/* // TEST COPY */}
-            6 cols mobile · 8 tablet · 12 desktop
-          </p>
+          </ul>
         </SpecBox>
 
         <SpecBox caption="// spacing ladder">
           <ul className="space-y-2.5">
-            {LADDER.map((step) => (
+            {SPACING_STEPS.map((step) => (
               <li
                 key={step.px}
                 className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3"

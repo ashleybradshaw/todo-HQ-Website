@@ -6,6 +6,7 @@ export function RulesBand() {
 
   return (
     <SpecSection
+      id="ui-rules"
       eyebrow={rules.eyebrow}
       metric={rules.metric}
       title={rules.title}

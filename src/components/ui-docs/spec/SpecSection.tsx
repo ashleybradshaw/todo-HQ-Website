@@ -3,6 +3,7 @@ import { TypeComment } from "@/components/TypeComment";
 import { cn } from "@/lib/cn";
 
 type SpecSectionProps = {
+  id: string;
   eyebrow: string;
   metric: string;
   title: string;
@@ -16,6 +17,7 @@ type SpecSectionProps = {
  * Spacing: always mt-6 sm:mt-8 (header sits above; never first-child).
  */
 export function SpecSection({
+  id,
   eyebrow,
   metric,
   title,
@@ -25,6 +27,7 @@ export function SpecSection({
 }: SpecSectionProps) {
   return (
     <section
+      id={id}
       className={cn(
         "border-border-ide mt-6 min-w-0 border sm:mt-8",
         className,

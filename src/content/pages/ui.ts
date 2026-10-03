@@ -15,7 +15,6 @@ export const uiPage = {
   // TEST COPY
   header: {
     eyebrow: "// TODO UI",
-    barLabel: "LIVE TOKENS",
     /** Full title (a11y / tools). Rendered as line1 + mobile break + line2. */
     title: "Built to spec. Here's the spec.",
     titleLine1: "Built to spec.",
@@ -44,15 +43,15 @@ export const uiPage = {
       eyebrow: "// 03 TYPE",
       title: "Type",
       description:
-        "Unbounded for display, JetBrains Mono for body and code. Eight styles, and that's all of them.",
-      metric: "2 FAMILIES · 8 STYLES",
+        "Unbounded for display, JetBrains Mono for body and code. Eleven tokens, plus the stat figure and the article headings.",
+      metric: "2 FAMILIES · 11 TOKENS",
     },
-    grid: {
-      eyebrow: "// 04 GRID & SPACING",
-      title: "Grid & spacing",
+    layout: {
+      eyebrow: "// 04 LAYOUT & TRACKS",
+      title: "Layout and tracks",
       description:
-        "Twelve columns on a 4px base, plus the eight-step spacing ladder.",
-      metric: "12 COL · 4PX BASE",
+        "Frame 1336, reading 800, content 752, copy 688, hero sub 592. Spacing stays on a 4px ladder.",
+      metric: "5 TRACKS · 4PX",
     },
     icons: {
       eyebrow: "// 05 ICONOGRAPHY",
@@ -86,8 +85,8 @@ export const uiPage = {
       eyebrow: "// 09 MOTION",
       title: "Motion",
       description:
-        "One curve for everything: 400ms ease-in-out on every fade, slide and bone morph.",
-      metric: "400MS · EASE-IN-OUT",
+        "400ms cubic-bezier(0.22, 1, 0.36, 1) reveals, a 2.4s status pulse, 400ms CountUp, and TypeComment typing capped at 480ms.",
+      metric: "400MS · 2.4S PULSE",
     },
   },
 
@@ -97,12 +96,14 @@ export const uiPage = {
     title: "Rules",
     description:
       "The house lock for colour, type, motion and chrome. Not up for debate.",
-    metric: "9 RULES",
+    metric: "11 RULES",
     items: [
       "Electric blue #4545FF is the house colour and is never recoloured. Powder #DFDFFF, logo #0B0CB4, muted #565693. Text on tint #3636FF, on tinted cards and CTAs only.",
       "Status: online uses --syn-string, building uses --foreground, pending is #8B5100 (--status-pending) and is never sprayed. Syntax colours come from globals.css.",
       "Unbounded sets the display hierarchy. JetBrains Mono handles body and code. Body is .type-body at 16/24. .type-prose is for articles only.",
-      "4px radius, 400ms transitions, 3px focus rings (or the outline-2 sibling pattern), and sprayed CTAs.",
+      "Frames are square. Cards, media and chips are 4px. 400ms transitions, 3px focus rings (or the outline-2 sibling pattern), and sprayed CTAs.",
+      "Media is a full frame at 752 (16:9) or a pair at 368 (4:5 or 1:1).",
+      "type-* rules live in @layer components, so utilities override them. .work-stat-figure stays outside the layer.",
       "No blur, except the nav's existing backdrop-blur.",
       "Text selection uses --selection-bg and --selection-fg, and follows Spray.",
       "Motion on this page is CSS or Tailwind only. No new Framer Motion or GSAP for docs demos. Lucide and animateicons are fine.",

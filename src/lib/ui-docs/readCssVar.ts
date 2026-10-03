@@ -85,10 +85,10 @@ export function formatContrast(
   ratio: number | null,
   opts?: { self?: boolean },
 ): string {
-  if (opts?.self) return "—";
-  if (ratio === null || !Number.isFinite(ratio)) return "—";
-  // Same colour vs itself reads as ~1:1 — show an em dash instead.
-  if (ratio < 1.05) return "—";
+  if (opts?.self) return "n/a";
+  if (ratio === null || !Number.isFinite(ratio)) return "n/a";
+  // Same colour vs itself reads as ~1:1.
+  if (ratio < 1.05) return "n/a";
   return `${ratio.toFixed(2)}:1`;
 }
 

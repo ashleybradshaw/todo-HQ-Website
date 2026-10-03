@@ -1815,49 +1815,46 @@ html[data-ide-first] .ide-boot-stage[data-ide-boot="content"] .ide-bone-overlay 
 /* -------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: no-preference) {
   @keyframes ui-spec-fade {
-    0%,
-    100% {
+    from {
       opacity: 0.25;
     }
-    50% {
+    to {
       opacity: 1;
     }
   }
 
   @keyframes ui-spec-slide {
-    0%,
-    100% {
+    from {
       transform: translateY(8px);
       opacity: 0.4;
     }
-    50% {
+    to {
       transform: translateY(0);
       opacity: 1;
     }
   }
 
   @keyframes ui-spec-bone {
-    0%,
-    100% {
+    from {
       transform: scaleX(1);
       opacity: 0.5;
     }
-    50% {
+    to {
       transform: scaleX(1.15);
       opacity: 1;
     }
   }
 
   .ui-spec-fade {
-    animation: ui-spec-fade 1.6s ease-in-out infinite;
+    animation: ui-spec-fade 400ms cubic-bezier(0.22, 1, 0.36, 1) infinite alternate;
   }
 
   .ui-spec-slide {
-    animation: ui-spec-slide 1.6s ease-in-out infinite;
+    animation: ui-spec-slide 400ms cubic-bezier(0.22, 1, 0.36, 1) infinite alternate;
   }
 
   .ui-spec-bone {
-    animation: ui-spec-bone 1.6s ease-in-out infinite;
+    animation: ui-spec-bone 400ms cubic-bezier(0.22, 1, 0.36, 1) infinite alternate;
     transform-origin: center;
   }
 }

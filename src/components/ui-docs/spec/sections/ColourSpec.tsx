@@ -70,7 +70,7 @@ function isEffectEntry(entry: TokenEntry, hex: string | null) {
 
 function aaChip(ratio: number | null, pairLabel: string): string {
   const formatted = formatContrast(ratio);
-  if (formatted === "—") return `AA ${pairLabel} —`;
+  if (formatted === "n/a") return `AA ${pairLabel} n/a`;
   const pass = (ratio ?? 0) >= 4.5;
   return `AA ${pairLabel} ${formatted} ${pass ? "pass" : "fail"}`;
 }
@@ -94,7 +94,7 @@ function SwatchBlock({
         "border-border-ide flex min-w-0 flex-col overflow-hidden rounded-[4px] border text-left transition-opacity duration-[400ms] ease-in-out hover:opacity-90 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none",
         !hex && "cursor-default opacity-60",
       )}
-      aria-label={hex ? `Copy ${entry.name} ${hex}` : `${entry.name} — unresolved`}
+      aria-label={hex ? `Copy ${entry.name} ${hex}` : `${entry.name}, unresolved`}
     >
       <span
         className="border-border-ide block h-16 w-full border-b md:h-24"
@@ -104,7 +104,7 @@ function SwatchBlock({
       <span className="font-jetbrains flex min-w-0 flex-col gap-1 p-3 text-[10px] leading-4 tracking-wide">
         <span className="text-foreground break-words font-bold">{entry.name}</span>
         <span className="text-muted break-words">{entry.token}</span>
-        <span className="text-foreground tabular-nums">{hex ?? "—"}</span>
+        <span className="text-foreground tabular-nums">{hex ?? "unset"}</span>
         <MetricChips
           name="contrast"
           values={[aaChip(state?.ratio ?? null, state?.pairLabel ?? "vs canvas")]}
@@ -171,6 +171,7 @@ export function ColourSpec() {
 
   return (
     <SpecSection
+      id="ui-colour"
       eyebrow={colour.eyebrow}
       metric={metric}
       title={colour.title}

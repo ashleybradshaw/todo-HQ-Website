@@ -52,6 +52,7 @@ export function BrandSpec() {
 
   return (
     <SpecSection
+      id="ui-brand"
       eyebrow={brand.eyebrow}
       metric={brand.metric}
       title={brand.title}

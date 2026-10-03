@@ -4,41 +4,36 @@ import { useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useSpray } from "@/components/SprayProvider";
 import { MetricChips } from "@/components/ui-docs/spec/MetricChips";
 import { SpecSection } from "@/components/ui-docs/spec/SpecSection";
-import type { TypeClassName } from "@/lib/ui-docs/tokenRegistry";
+import { TYPE_CLASSES, type TypeClassName } from "@/lib/ui-docs/tokenRegistry";
 import { uiPage } from "@/content/pages/ui";
 
-const SPEC_STYLES: readonly {
-  className: TypeClassName;
-  sample: string;
-}[] = [
-  { className: "type-display", sample: "Display" },
-  { className: "type-title", sample: "Title" },
-  { className: "type-subhead", sample: "Subhead" },
-  { className: "type-body", sample: "Body — global 16/24. JetBrains." },
-  {
-    className: "type-prose",
-    sample: "Prose — articles only. Slightly larger leading.",
-  },
-  { className: "type-label", sample: "Label" },
-  { className: "type-caption", sample: "Caption" },
-  { className: "type-meta", sample: "Meta · timestamp" },
-];
+const SAMPLES: Record<TypeClassName, string> = {
+  "type-display": "Display",
+  "type-title": "Title",
+  "type-heading": "Heading",
+  "type-subhead": "Subhead",
+  "type-body": "Body. Global 16/24. JetBrains.",
+  "type-prose": "Prose. Articles only. Slightly larger leading.",
+  "type-body-sm": "Body small",
+  "type-meta": "Meta · timestamp",
+  "type-caption": "Caption",
+  "type-label": "Label",
+  "type-code": "const ship = true",
+};
 
 function formatPx(raw: string): string {
   const n = Number.parseFloat(raw);
-  if (!Number.isFinite(n)) return raw || "—";
+  if (!Number.isFinite(n)) return raw || "unset";
   return `${Math.round(n * 100) / 100}px`;
 }
 
 function readTypeMetrics(el: HTMLElement) {
   const styles = getComputedStyle(el);
   const family =
-    styles.fontFamily.split(",")[0]?.replace(/['"]/g, "").trim() || "—";
+    styles.fontFamily.split(",")[0]?.replace(/['"]/g, "").trim() || "unset";
   const size = formatPx(styles.fontSize);
   const lead =
-    styles.lineHeight === "normal"
-      ? "normal"
-      : formatPx(styles.lineHeight);
+    styles.lineHeight === "normal" ? "normal" : formatPx(styles.lineHeight);
   const tracking =
     styles.letterSpacing === "normal" ? "0px" : formatPx(styles.letterSpacing);
   return {
@@ -49,17 +44,19 @@ function readTypeMetrics(el: HTMLElement) {
 }
 
 function TypeRow({
+  name,
   className,
   sample,
 }: {
-  className: TypeClassName;
+  name: string;
+  className: string;
   sample: string;
 }) {
   const ref = useRef<HTMLParagraphElement>(null);
   const [chips, setChips] = useState({
-    family: "—",
-    sizeLead: "—",
-    tracking: "—",
+    family: "unset",
+    sizeLead: "unset",
+    tracking: "unset",
   });
   const { pair } = useSpray();
   const mounted = useSyncExternalStore(
@@ -82,7 +79,6 @@ function TypeRow({
       setChips(readTypeMetrics(ref.current));
     };
 
-    // Double rAF so layout + webfonts have settled after the mounted gate.
     raf1 = requestAnimationFrame(() => {
       raf2 = requestAnimationFrame(() => {
         apply();
@@ -102,7 +98,7 @@ function TypeRow({
   return (
     <div className="border-border-ide flex min-w-0 flex-col gap-3 border-b py-4 last:border-b-0">
       <MetricChips
-        name={`.${className}`}
+        name={name}
         values={[chips.family, chips.sizeLead, chips.tracking]}
       />
       <p
@@ -121,19 +117,39 @@ export function TypeSpec() {
 
   return (
     <SpecSection
+      id="ui-type"
       eyebrow={type.eyebrow}
       metric={type.metric}
       title={type.title}
       description={type.description}
     >
+      <p className="type-body-sm text-muted mb-4 max-w-[688px]">
+        type-* live in @layer components, so utilities override them.
+      </p>
       <div className="min-w-0">
-        {SPEC_STYLES.map((row) => (
+        {TYPE_CLASSES.map((className) => (
           <TypeRow
-            key={row.className}
-            className={row.className}
-            sample={row.sample}
+            key={className}
+            name={`.${className}`}
+            className={className}
+            sample={SAMPLES[className]}
           />
         ))}
+        <TypeRow
+          name=".work-stat-figure"
+          className="type-heading work-stat-figure"
+          sample="48"
+        />
+      </div>
+      <div className="border-border-ide mt-6 border-t pt-6">
+        <MetricChips
+          name=".article-copy"
+          values={["h2 = .type-heading", "h3 = .type-subhead"]}
+        />
+        <div className="article-copy mt-4 max-w-[688px]">
+          <h2>Article heading</h2>
+          <h3>Article subhead</h3>
+        </div>
       </div>
     </SpecSection>
   );

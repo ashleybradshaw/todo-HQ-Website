@@ -73,6 +73,7 @@ export function InputsSpec() {
 
   return (
     <SpecSection
+      id="ui-inputs"
       eyebrow={inputs.eyebrow}
       metric={inputs.metric}
       title={inputs.title}

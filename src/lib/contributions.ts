@@ -92,14 +92,37 @@ function intBetween(rand: () => number, min: number, max: number) {
   return min + Math.floor(rand() * (max - min + 1));
 }
 
+/** ~6 weeks between release bursts on the support tail. */
+const BURST_EVERY_DAYS = 42;
+
+function burstDates(buildTo: string, to: string, rand: () => number) {
+  const dates = new Set<string>();
+  let cursor = addUtcDays(utcDate(buildTo), 1);
+  const end = utcDate(to).getTime();
+
+  while (cursor.getTime() <= end) {
+    const length = intBetween(rand, 3, 5);
+    for (let offset = 0; offset < length; offset += 1) {
+      const day = addUtcDays(cursor, offset);
+      if (day.getTime() > end) break;
+      dates.add(isoDate(day));
+    }
+    cursor = addUtcDays(cursor, BURST_EVERY_DAYS);
+  }
+
+  return dates;
+}
+
 function countForDay(
   rand: () => number,
   date: string,
   buildTo: string | null,
+  bursts: ReadonlySet<string>,
 ) {
   const inBuild = buildTo == null || date <= buildTo;
   if (!inBuild) {
-    return rand() < 0.22 ? intBetween(rand, 1, 3) : 0;
+    if (bursts.has(date)) return intBetween(rand, 4, 8);
+    return rand() < 0.35 ? intBetween(rand, 1, 4) : 0;
   }
 
   const weekend = [0, 6].includes(utcDate(date).getUTCDay());
@@ -117,6 +140,14 @@ function testContributions(slug: string): Contributions | null {
   const to = TEST_AS_OF;
   const from = clipStart(window.from, to);
   const rand = mulberry32(hashSlug(slug));
+  const bursts =
+    window.buildTo == null
+      ? new Set<string>()
+      : burstDates(
+          window.buildTo,
+          to,
+          mulberry32(hashSlug(slug) ^ 0x9e3779b9),
+        );
   const days: ContributionDay[] = [];
   let cursor = utcDate(from);
   const end = utcDate(to).getTime();
@@ -125,7 +156,7 @@ function testContributions(slug: string): Contributions | null {
     const date = isoDate(cursor);
     days.push({
       date,
-      count: countForDay(rand, date, window.buildTo),
+      count: countForDay(rand, date, window.buildTo, bursts),
     });
     cursor = addUtcDays(cursor, 1);
   }

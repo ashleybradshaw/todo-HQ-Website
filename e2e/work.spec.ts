@@ -318,9 +318,36 @@ test.describe("work roster", () => {
           return { count: nodes.length, rows, maxX, maxDateX };
         },
       );
+      const broken = slug !== "readygo";
       expect(alignment.rows).toBe(7);
-      expect(alignment.count).toBe(52 * 7);
+      expect(alignment.count).toBe((broken ? 51 : 52) * 7);
       expect(alignment.maxDateX).toBe(alignment.maxX);
+      await expect(graph.locator("[data-axis-gap]")).toHaveCount(broken ? 2 : 0);
+      const stroked = await graph.locator("rect").evaluateAll((nodes) =>
+        nodes.some((node) => {
+          const stroke = node.getAttribute("stroke");
+          return stroke != null && stroke !== "none";
+        }),
+      );
+      expect(stroked).toBe(false);
+      await expect(graph.locator("svg:visible")).toHaveAttribute("width", "675");
+      const label = await graph.locator("svg:visible").getAttribute("aria-label");
+      expect(label).toMatch(/Sample data/);
+      expect(label).toMatch(/Not commits/);
+      expect(label?.includes("and from")).toBe(broken);
+
+      await expect(panel.locator(".status-dot-pulse")).toHaveCount(1);
+      await expect(panel.locator("[data-status-chip] .status-dot-pulse")).toHaveCount(1);
+      const gutters = await panel.locator("[data-spec-gutter]").allTextContents();
+      expect(gutters).toEqual(
+        gutters.map((_, index) => String(index + 1).padStart(2, "0")),
+      );
+      const footer = slug === "repdaily"
+        ? "main · v1.5 · iOS · Android"
+        : slug === "readygo"
+          ? "main · v0.1 · iOS · Web"
+          : "main · v1.0 · Web";
+      await expect(panel.getByText(footer, { exact: true })).toBeVisible();
 
       await expect(
         panel.getByText("// factory activity", { exact: true }),
@@ -428,13 +455,17 @@ test.describe("work roster", () => {
     const columns = await list.evaluate(
       (el) => getComputedStyle(el).gridTemplateColumns,
     );
-    expect(columns.split(" ").filter(Boolean)).toHaveLength(2);
+    expect(columns.split(" ").filter(Boolean)).toHaveLength(3);
+    await expect(panel.locator("[data-countup]").first()).toHaveCSS(
+      "font-size",
+      "22px",
+    );
     const listWidth = await list.evaluate((el) =>
       Math.round(el.getBoundingClientRect().width),
     );
     const thirdWidth = await list.locator("> div").nth(2).evaluate((el) =>
       Math.round(el.getBoundingClientRect().width),
     );
-    expect(thirdWidth).toBe(listWidth);
+    expect(thirdWidth).toBeLessThan(listWidth);
   });
 });

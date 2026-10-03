@@ -51,18 +51,26 @@ function Fact({
   gutter,
   label,
   playKey,
+  align = "start",
   children,
 }: {
   gutter: string;
   label: string;
   playKey: number;
+  align?: "start" | "baseline";
   children: ReactNode;
 }) {
   return (
-    <div className="flex items-start justify-between gap-3 py-1.5">
+    <div
+      className={cn(
+        "flex justify-between gap-3 py-1.5",
+        align === "baseline" ? "items-baseline" : "items-start",
+      )}
+    >
       <dt className="text-muted flex shrink-0 items-baseline gap-2 text-[10px] lg:text-[11px]">
         <span
           aria-hidden="true"
+          data-spec-gutter=""
           className="text-syn-number w-5 shrink-0 text-right tabular-nums"
         >
           {gutter}
@@ -130,7 +138,7 @@ function SpecLinks({ project }: { project: FullProject }) {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`${link.label} (opens in a new tab)`}
-            className="text-muted inline-flex min-h-6 max-w-full items-center gap-1 rounded-[4px] break-words focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none"
+            className="text-muted inline-flex min-h-6 max-w-full items-baseline gap-1 rounded-[4px] break-words focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none"
           >
             <span className="min-w-0 break-words">{link.label}</span>
             <span aria-hidden="true">{"\u2197\uFE0E"}</span>
@@ -192,24 +200,16 @@ export function ProjectSpecPanel({
           text={`// ${project.slug}.spec`}
           className="text-syn-keyword"
         />
-        <div className="flex shrink-0 items-center gap-1.5">
-          <span
-            aria-hidden="true"
-            className="status-dot-pulse bg-foreground inline-block size-1.5 shrink-0 rounded-full"
-          />
-          <ProjectStatusChip status={project.status} />
-        </div>
+        <ProjectStatusChip status={project.status} pulse />
       </div>
 
-      <dl data-metric-list="" className="grid grid-cols-2 sm:grid-cols-3">
+      <dl data-metric-list="" className="grid grid-cols-3">
         {project.metrics.map((metric, index) => (
           <div
             key={metric.label}
             className={cn(
               "border-border-ide px-4 py-4",
-              index === 0 && "border-r",
-              index === 1 && "sm:border-r",
-              index === 2 && "col-span-2 border-t sm:col-span-1 sm:border-t-0",
+              index < project.metrics.length - 1 && "border-r",
             )}
           >
             <dd>
@@ -241,7 +241,7 @@ export function ProjectSpecPanel({
           {links.length > 0 ? (
             <>
               <DrawX />
-              <Fact gutter="04" label="links" playKey={playKey}>
+              <Fact gutter="04" label="links" playKey={playKey} align="baseline">
                 <dd className="min-w-0">
                   <SpecLinks project={project} />
                 </dd>
@@ -254,15 +254,27 @@ export function ProjectSpecPanel({
           className="bg-border-ide work-draw-x col-span-full block h-px w-full sm:hidden"
         />
         <dl className="px-4 py-4">
-          <Fact gutter="05" label="role" playKey={playKey}>
+          <Fact
+            gutter={links.length > 0 ? "05" : "04"}
+            label="role"
+            playKey={playKey}
+          >
             <DotJoined items={project.spec.role} />
           </Fact>
           <DrawX />
-          <Fact gutter="06" label="timeline" playKey={playKey}>
+          <Fact
+            gutter={links.length > 0 ? "06" : "05"}
+            label="timeline"
+            playKey={playKey}
+          >
             <Value>{project.spec.timeline}</Value>
           </Fact>
           <DrawX />
-          <Fact gutter="07" label="stack" playKey={playKey}>
+          <Fact
+            gutter={links.length > 0 ? "07" : "06"}
+            label="stack"
+            playKey={playKey}
+          >
             <dd className="min-w-0">
               <ul className="flex flex-wrap justify-end gap-x-3 gap-y-2">
                 {project.stack.map((id, index) => {
@@ -286,7 +298,7 @@ export function ProjectSpecPanel({
 
       <div className="bg-ide-chrome border-border-ide text-muted flex items-center justify-between gap-3 border-t px-6 py-1 font-jetbrains text-[10px] lg:text-[11px]">
         <span className="min-w-0">
-          {`main · ${project.release} · ${project.spec.platforms.join(" / ")}`}
+          {`main · ${project.release} · ${project.spec.platforms.join(" · ")}`}
         </span>
         {activityLegend ? <span className="shrink-0">{activityLegend}</span> : null}
       </div>

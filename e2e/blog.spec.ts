@@ -6,7 +6,7 @@ declare global {
   }
 }
 
-const BYLINE = "TODO Engineering content team";
+const BYLINE = "//TODO Engineering";
 
 const POSTS = [
   {
@@ -19,7 +19,7 @@ const POSTS = [
   },
   {
     slug: "readygo-deep-dive",
-    title: "ReadyGo: the next lap",
+    title: "ReadyGo: the ten minutes before you go",
   },
   {
     slug: "repdaily-our-first-time",

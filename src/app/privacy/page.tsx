@@ -13,17 +13,17 @@ export default function PrivacyPage() {
   return (
     <main id="main" tabIndex={-1} className="relative min-h-screen overflow-x-hidden bg-background px-6 pt-28 pb-16 text-foreground transition-[background-color,color] duration-[400ms] ease-in-out">
       <div className="relative z-10 mx-auto max-w-[720px]">
-        <p className="font-jetbrains text-base leading-5 font-bold">
+        <p className="type-label">
           {privacyPage.eyebrow}
         </p>
-        <h1 className="font-unbounded mt-4 max-w-[20ch] text-4xl font-bold tracking-tight md:text-5xl">
+        <h1 className="type-display mt-4 max-w-[20ch] text-balance">
           {privacyPage.h1}
         </h1>
-        <div className="mt-8 space-y-4 text-base leading-relaxed md:text-lg">
+        <div className="type-body mt-8 space-y-4">
           {privacyPage.body.map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>
           ))}
-          <p className="font-jetbrains text-syn-comment text-sm">
+          <p className="type-body-sm text-syn-comment">
             {privacyPage.testNote}
           </p>
         </div>

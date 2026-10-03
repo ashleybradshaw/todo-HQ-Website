@@ -227,7 +227,7 @@ export default async function WorkProjectPage({ params }: WorkProjectParams) {
         </div>
         <div
           data-detail-copy
-          className="type-prose mx-auto mt-16 w-full max-w-[688px] text-left"
+          className="type-body mx-auto mt-16 w-full max-w-[688px] text-left"
         >
           <p>{project.description}</p>
           <h2 className="type-label mt-8">{workDetailPage.scopeHeading}</h2>

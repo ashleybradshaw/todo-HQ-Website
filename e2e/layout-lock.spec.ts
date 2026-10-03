@@ -80,7 +80,35 @@ for (const viewport of VIEWPORTS) {
           await expect(frames).toHaveCount(0);
         }
 
+        await expect(page.locator("main .type-prose")).toHaveCount(0);
+
         await noHorizontalOverflow(page);
+      }
+
+      if (viewport.width === 1440) {
+        for (const path of ["/about", "/book"] as const) {
+          await page.goto(path, { waitUntil: "domcontentloaded" });
+          const aligned = await page.evaluate(() => {
+            const hero = document.querySelector("[data-hero]");
+            const hairline = hero?.querySelector("[data-hero-label] .border-t");
+            const bodyRule = [...document.querySelectorAll("main .border-t")].find(
+              (el) => hero != null && !hero.contains(el),
+            );
+            if (!(hairline instanceof HTMLElement) || !(bodyRule instanceof HTMLElement)) {
+              return null;
+            }
+            const hair = hairline.getBoundingClientRect();
+            const body = bodyRule.getBoundingClientRect();
+            return {
+              width: Math.round(hair.width),
+              hairLeft: Math.round(hair.left),
+              bodyLeft: Math.round(body.left),
+            };
+          });
+          expect(aligned).not.toBeNull();
+          expect(aligned!.width).toBe(688);
+          expect(aligned!.hairLeft).toBe(aligned!.bodyLeft);
+        }
       }
 
       const first = tops[0];
@@ -95,6 +123,8 @@ for (const viewport of VIEWPORTS) {
       await page.evaluate(() => document.fonts.ready);
       await expectDetailTitle(page);
       await expectDetailHero(page, viewport.hero);
+      await expect(page.locator("[data-detail-copy]")).toHaveCSS("font-size", "16px");
+      await expect(page.locator("main .type-prose")).toHaveCount(0);
       if (viewport.copy) {
         await expectCopyWidth(page, viewport.copy);
         await expectMediaWidths(page);
@@ -104,8 +134,14 @@ for (const viewport of VIEWPORTS) {
       await page.goto("/blog/repdaily-our-first-time", {
         waitUntil: "domcontentloaded",
       });
+      await page.evaluate(() => document.fonts.ready);
       await expectDetailTitle(page);
       await expectDetailHero(page, viewport.hero);
+      const headingFamily = await page
+        .locator("#blog-article-body > h2")
+        .first()
+        .evaluate((el) => getComputedStyle(el).fontFamily);
+      expect(headingFamily.toLowerCase()).toContain("unbounded");
       if (viewport.copy) {
         await expectCopyWidth(page, viewport.copy);
         const inlineWidths = await page

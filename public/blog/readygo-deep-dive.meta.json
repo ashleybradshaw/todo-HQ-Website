@@ -9,10 +9,9 @@
   "quality": 82,
   "title": "ReadyGo Deep Dive",
   "alt": "ReadyGo product still for the factory blog deep dive.",
-  "description": "Placeholder still for the ReadyGo deep-dive mock outline.",
+  "description": "ReadyGo plans your run or ride before you head out: route, conditions and effort, sorted in minutes. How we built it, and everything we left out.",
   "keywords": [
     "ReadyGo",
-    "software factory",
     "//TODO Engineering"
   ],
   "credit": "//TODO Engineering",

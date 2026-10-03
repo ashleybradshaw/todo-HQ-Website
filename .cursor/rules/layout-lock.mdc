@@ -17,11 +17,11 @@ All heroes and detail headers centred; bodies left.
 
 ## Hero A
 
-`PageHero` on all four index pages. `[data-hero]` is `text-center`. Label top is 112 (`main` keeps `pt-28`).
+`PageHero` on all four index pages. `[data-hero]` is `text-center`. Label top is 112 (`main` keeps `pt-28`). On the reading track `[data-hero]` is `mx-auto w-full max-w-[688px]`; the hairline equals the body column.
 
 - `[data-hero-label]`: `TypeComment` `p.type-label` starting `//`, centred, then a full-width `border-t border-border-ide mt-3`.
 - `[data-hero-title]`: `h1.type-display` (36/40 below 768, 60/64 from 768), `font-bold tracking-tight text-balance text-center mx-auto mt-4`.
-- `[data-hero-sub]`: one `type-body` paragraph, 16/24 at all sizes, `max-w-[592px] mx-auto mt-6 text-center text-pretty`.
+- `[data-hero-sub]`: one or two `type-body` paragraphs, the second `mt-4`. 16/24 at all sizes, `max-w-[592px] mx-auto text-center text-pretty`. The first stays `mt-6` on `[data-hero-sub]`.
 - Hero to body: `mt-10`.
 
 ## Bodies
@@ -36,7 +36,7 @@ All heroes and detail headers centred; bodies left.
 - Breadcrumb at 112, centred. `h1` `type-display mt-6 text-center text-balance mx-auto`. Meta row `type-body-sm mt-4`, centred.
 - `figure[data-detail-hero]`: full content width (752), 16:9, `border border-border-ide rounded-[4px]`, optional caption below, `priority`. `sizes="(min-width: 800px) 752px, calc(100vw - 48px)"`.
 - Work order: hero, stats (752, 3-up from `sm`), project facts (meta card at 752, `// build` at 688), copy 688, media, `NextProjectPanel` at 752.
-- `[data-detail-copy]`: `max-w-[688px] mx-auto`. Long-form uses `type-prose` on both.
+- `[data-detail-copy]`: `max-w-[688px] mx-auto`. `type-prose` on `/blog/[slug]` only; `/work/[slug]` copy is `type-body`.
 - Gaps: hero to the next block `mt-10`, later sections `mt-16`, media `gap-4`.
 
 ## Media

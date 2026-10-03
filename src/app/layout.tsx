@@ -90,7 +90,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full bg-[#4545FF] text-[#DFDFFF]">
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[80] focus:inline-flex focus:min-h-11 focus:items-center focus:bg-bg-canvas focus:px-3 focus:py-2 focus:text-sm focus:text-foreground focus:ring-[3px] focus:ring-foreground focus:outline-none"
+          className="font-jetbrains sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[80] focus:inline-flex focus:min-h-11 focus:items-center focus:bg-bg-canvas focus:px-3 focus:py-2 focus:text-sm focus:text-foreground focus:ring-[3px] focus:ring-foreground focus:outline-none"
         >
           Skip to main content
         </a>

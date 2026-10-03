@@ -271,7 +271,7 @@ export function SignalStrip() {
             >
               <StatCountUp
                 figure={stat.figure}
-                className="font-[family-name:var(--font-unbounded)] text-[40px] leading-none font-bold tracking-tight sm:text-[48px] lg:text-[52px]"
+                className="type-display"
               />
               <p className="type-body mt-3 text-muted">{stat.label}</p>
               {stat.source ? (

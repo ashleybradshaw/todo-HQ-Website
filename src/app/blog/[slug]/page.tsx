@@ -147,7 +147,7 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
           <div
             id="blog-article-body"
             data-detail-copy
-            className="type-prose mx-auto mt-10 w-full max-w-[688px] text-left [&>blockquote]:mt-6 [&>blockquote]:ml-6 [&>blockquote]:border-l [&>blockquote]:border-border-ide [&>blockquote]:pl-4 [&>blockquote]:font-medium [&>blockquote>p]:mt-0 [&>code]:type-code [&>h2]:type-heading [&>h2]:mt-10 [&>h3]:type-subhead [&>h3]:mt-8 [&>p]:mt-4 [&>p:first-child]:mt-0 [&>ul]:mt-4 [&>ul]:list-disc [&>ul]:space-y-2 [&>ul]:pl-5"
+            className="article-copy type-prose mx-auto mt-10 w-full max-w-[688px] text-left [&>blockquote]:mt-6 [&>blockquote]:ml-6 [&>blockquote]:border-l [&>blockquote]:border-border-ide [&>blockquote]:pl-4 [&>blockquote]:font-medium [&>blockquote>p]:mt-0 [&>h2]:mt-10 [&>h3]:mt-8 [&>p]:mt-4 [&>p:first-child]:mt-0 [&>ul]:mt-4 [&>ul]:list-disc [&>ul]:space-y-2 [&>ul]:pl-5"
             dangerouslySetInnerHTML={{ __html: post.html }}
           />
           <div className="mx-auto w-full max-w-[688px]">

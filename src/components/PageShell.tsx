@@ -7,15 +7,13 @@ export type PageShellVariant = "index" | "essay";
 export type PageShellProps = {
   eyebrow?: string;
   title?: ReactNode;
-  lede?: string;
+  lede?: string | readonly string[];
   children?: ReactNode;
   /**
    * index — max-w-[1336px] (/work, /blog)
    * essay — max-w-[800px] (/about, /book, both detail pages)
    */
   variant?: PageShellVariant;
-  /** @deprecated Prefer variant. true → index. */
-  wide?: boolean;
   overflow?: "x-hidden" | "hidden";
   background?: ReactNode;
   /**
@@ -27,14 +25,6 @@ export type PageShellProps = {
   anchorId?: string;
 };
 
-function resolveVariant(
-  variant: PageShellVariant | undefined,
-  wide: boolean,
-): PageShellVariant {
-  if (variant) return variant;
-  return wide ? "index" : "essay";
-}
-
 const OUTER_MAX: Record<PageShellVariant, string> = {
   index: "max-w-[1336px]",
   essay: "max-w-[800px]",
@@ -45,14 +35,13 @@ export function PageShell({
   title,
   lede,
   children,
-  variant,
-  wide = false,
+  variant = "essay",
   overflow = "x-hidden",
   background,
   constrainCopy = true,
   anchorId,
 }: PageShellProps) {
-  const shell = resolveVariant(variant, wide);
+  const shell = variant;
   const showHero = Boolean(title) && Boolean(eyebrow) && lede != null;
 
   const body =
@@ -89,7 +78,14 @@ export function PageShell({
         )}
       >
         {showHero ? (
-          <PageHero eyebrow={eyebrow!} title={title!} lede={lede!} />
+          <PageHero
+            className={
+              shell === "essay" ? "mx-auto w-full max-w-[688px]" : undefined
+            }
+            eyebrow={eyebrow!}
+            title={title!}
+            lede={lede!}
+          />
         ) : null}
         {body}
       </div>

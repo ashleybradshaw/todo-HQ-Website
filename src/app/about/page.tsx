@@ -31,9 +31,8 @@ export default function AboutPage() {
       variant="essay"
       eyebrow={about.hero.eyebrow}
       title={about.hero.h1}
-      lede={about.hero.p1}
+      lede={[about.hero.p1, about.hero.p2]}
     >
-      <p className="type-body text-pretty">{about.hero.p2}</p>
       <ClientStrip />
       <OriginStory />
       <OperatingRules />

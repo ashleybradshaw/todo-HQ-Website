@@ -39,10 +39,13 @@ export function ProjectCard({
   project,
   priority = false,
   wide = false,
+  prefetch,
 }: {
   project: FullProject;
   priority?: boolean;
   wide?: boolean;
+  /** Specimen cards point at a page that does not exist. */
+  prefetch?: boolean;
 }) {
   const placeholder = project.imageSrc.startsWith("/work/placeholders/");
   const [loaded, setLoaded] = useState(placeholder);
@@ -156,6 +159,7 @@ export function ProjectCard({
           </ul>
           <Link
             href={`/work/${project.slug}`}
+            prefetch={prefetch}
             aria-label={`open ./${project.slug}, ${project.name} case study`}
             className="group/cta font-jetbrains mt-auto inline-flex min-h-6 w-max cursor-pointer items-center gap-1.5 rounded-[4px] border border-current px-2.5 py-1 text-xs tracking-wide before:absolute before:inset-0 before:z-[1] before:content-[''] focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none"
           >

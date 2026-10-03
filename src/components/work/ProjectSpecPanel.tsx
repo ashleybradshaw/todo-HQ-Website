@@ -52,12 +52,15 @@ function Fact({
   label,
   playKey,
   align = "start",
+  lift = false,
   children,
 }: {
   gutter: string;
   label: string;
   playKey: number;
   align?: "start" | "baseline";
+  /** Pull the key up to the first line of a taller value. */
+  lift?: boolean;
   children: ReactNode;
 }) {
   return (
@@ -67,7 +70,12 @@ function Fact({
         align === "baseline" ? "items-baseline" : "items-start",
       )}
     >
-      <dt className="text-muted flex shrink-0 items-baseline gap-2 text-[10px] lg:text-[11px]">
+      <dt
+        className={cn(
+          "text-muted flex shrink-0 items-baseline gap-2 text-[10px] lg:text-[11px]",
+          lift && "-translate-y-[3px]",
+        )}
+      >
         <span
           aria-hidden="true"
           data-spec-gutter=""
@@ -208,7 +216,7 @@ export function ProjectSpecPanel({
           <div
             key={metric.label}
             className={cn(
-              "border-border-ide px-4 py-4",
+              "border-border-ide px-3 py-4 sm:px-4",
               index < project.metrics.length - 1 && "border-r",
             )}
           >
@@ -216,7 +224,12 @@ export function ProjectSpecPanel({
               <StatValue metric={metric} />
             </dd>
             <dt className="font-jetbrains text-syn-comment mt-1 block text-xs">
-              <DecodeLabel text={metric.label} playKey={playKey} />
+              <DecodeLabel
+                text={metric.label}
+                playKey={playKey}
+                wrap
+                align="start"
+              />
             </dt>
           </div>
         ))}
@@ -274,6 +287,7 @@ export function ProjectSpecPanel({
             gutter={links.length > 0 ? "07" : "06"}
             label="stack"
             playKey={playKey}
+            lift
           >
             <dd className="min-w-0">
               <ul className="flex flex-wrap justify-end gap-x-3 gap-y-2">

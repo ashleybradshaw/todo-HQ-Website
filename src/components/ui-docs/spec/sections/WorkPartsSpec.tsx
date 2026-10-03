@@ -28,10 +28,10 @@ export function WorkPartsSpec() {
       <div className="flex min-w-0 flex-col gap-10">
         <ul className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
           <li className="h-full">
-            <ProjectCard project={UI_SAMPLE_PROJECT} />
+            <ProjectCard project={UI_SAMPLE_PROJECT} prefetch={false} />
           </li>
           <li className="h-full lg:col-span-2">
-            <ProjectCard project={UI_SAMPLE_PROJECT} wide />
+            <ProjectCard project={UI_SAMPLE_PROJECT} wide prefetch={false} />
           </li>
         </ul>
 
@@ -56,7 +56,11 @@ export function WorkPartsSpec() {
           ))}
         </ul>
 
-        <NextProjectPanel project={UI_SAMPLE_PROJECT} label="Next specimen" />
+        <NextProjectPanel
+          project={UI_SAMPLE_PROJECT}
+          label="Next specimen"
+          prefetch={false}
+        />
       </div>
     </SpecSection>
   );

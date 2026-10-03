@@ -30,7 +30,7 @@ export function BlogAboutSpec() {
       description={blog.description}
     >
       <div className="flex min-w-0 flex-col gap-10">
-        <BlogNoteCard post={UI_NOTE} />
+        <BlogNoteCard post={UI_NOTE} prefetch={false} />
         <BlogFilterPills value={filter} onChange={setFilter} />
         <div>
           <p className="type-caption text-muted mb-4">
@@ -38,8 +38,8 @@ export function BlogAboutSpec() {
           </p>
           <BlogPollTile poll={UI_POLL} readOnly />
         </div>
-        <BlogAdjacentNav prev={UI_PREV_POST} next={UI_NEXT_POST} />
-        <BlogWriterBand more={[UI_NEXT_POST]} />
+        <BlogAdjacentNav prev={UI_PREV_POST} next={UI_NEXT_POST} prefetch={false} />
+        <BlogWriterBand more={[UI_NEXT_POST]} prefetch={false} />
         <SignalStrip />
         <OperatingRules />
       </div>

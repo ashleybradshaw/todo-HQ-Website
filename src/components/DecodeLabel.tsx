@@ -81,6 +81,7 @@ export function DecodeLabel({
   playKey,
   chroma = false,
   wrap = false,
+  align = "center",
   settleColor,
   className,
 }: {
@@ -89,6 +90,8 @@ export function DecodeLabel({
   chroma?: boolean;
   /** Allow soft wrap (helper copy on narrow viewports). */
   wrap?: boolean;
+  /** Scramble layer alignment while wrapping. Default stays centred. */
+  align?: "start" | "center";
   /** Override settle color (default syn-comment). */
   settleColor?: string;
   className?: string;
@@ -163,7 +166,7 @@ export function DecodeLabel({
           className={cn(
             "absolute inset-0",
             whiteSpace,
-            wrap && "text-center",
+            wrap && align === "center" && "text-center",
           )}
         >
           {inheritOnly

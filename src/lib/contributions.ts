@@ -92,9 +92,6 @@ function intBetween(rand: () => number, min: number, max: number) {
   return min + Math.floor(rand() * (max - min + 1));
 }
 
-/** ~6 weeks between release bursts on the support tail. */
-const BURST_EVERY_DAYS = 42;
-
 function burstDates(buildTo: string, to: string, rand: () => number) {
   const dates = new Set<string>();
   let cursor = addUtcDays(utcDate(buildTo), 1);
@@ -107,7 +104,7 @@ function burstDates(buildTo: string, to: string, rand: () => number) {
       if (day.getTime() > end) break;
       dates.add(isoDate(day));
     }
-    cursor = addUtcDays(cursor, BURST_EVERY_DAYS);
+    cursor = addUtcDays(cursor, intBetween(rand, 35, 56));
   }
 
   return dates;

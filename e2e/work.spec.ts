@@ -215,7 +215,7 @@ test.describe("work roster", () => {
     }
     await expect(panel.getByText("status", { exact: true })).toHaveCount(0);
     await expect(panel.getByText("// meta")).toHaveCount(0);
-    await expect(panel.getByText("// build")).toHaveCount(0);
+    await expect(panel.getByText("// build", { exact: true })).toHaveCount(0);
     const stat = panel.locator("[data-countup]").first();
     const client = panel.getByText("client", { exact: true });
     const role = panel.getByText("role", { exact: true });
@@ -322,7 +322,15 @@ test.describe("work roster", () => {
       expect(alignment.rows).toBe(7);
       expect(alignment.count).toBe((broken ? 51 : 52) * 7);
       expect(alignment.maxDateX).toBe(alignment.maxX);
-      await expect(graph.locator("[data-axis-gap]")).toHaveCount(broken ? 2 : 0);
+      await expect(graph.getByText("// …")).toHaveCount(0);
+      const visible = graph.locator(":visible");
+      await expect(visible.getByText("// now", { exact: true })).toBeVisible();
+      if (slug === "repdaily") {
+        await expect(visible.getByText("// build 2025", { exact: true })).toBeVisible();
+      }
+      if (slug === "readygo") {
+        await expect(graph.getByText("// build", { exact: false })).toHaveCount(0);
+      }
       const stroked = await graph.locator("rect").evaluateAll((nodes) =>
         nodes.some((node) => {
           const stroke = node.getAttribute("stroke");
@@ -330,7 +338,10 @@ test.describe("work roster", () => {
         }),
       );
       expect(stroked).toBe(false);
-      await expect(graph.locator("svg:visible")).toHaveAttribute("width", "675");
+      await expect(graph.locator("svg:visible")).toHaveAttribute(
+        "width",
+        broken ? "671" : "675",
+      );
       const label = await graph.locator("svg:visible").getAttribute("aria-label");
       expect(label).toMatch(/Sample data/);
       expect(label).toMatch(/Not commits/);
@@ -433,6 +444,35 @@ test.describe("work roster", () => {
   test("mobile case header puts the hero above the spec table", async ({
     page,
   }) => {
+    for (const width of [390, 360]) {
+      await page.setViewportSize({ width, height: 844 });
+      await page.goto("/work/repdaily", { waitUntil: "domcontentloaded" });
+      const panel = page.locator("[data-spec-panel]");
+      const labels = panel.locator("[data-metric-list] dt");
+      const labelCount = await labels.count();
+      expect(labelCount).toBe(3);
+      for (let index = 0; index < labelCount; index += 1) {
+        const fits = await labels.nth(index).evaluate((el) => {
+          const column = el.parentElement;
+          if (!(column instanceof HTMLElement)) return false;
+          return (
+            el.getBoundingClientRect().width <=
+              column.getBoundingClientRect().width + 1 &&
+            el.scrollWidth <= el.clientWidth + 1
+          );
+        });
+        expect(fits).toBe(true);
+      }
+      const panelFits = await panel.evaluate(
+        (el) => el.scrollWidth <= el.clientWidth + 1,
+      );
+      expect(panelFits).toBe(true);
+      const pageFits = await page.evaluate(
+        () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+      );
+      expect(pageFits).toBe(true);
+    }
+
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/work/repdaily", { waitUntil: "domcontentloaded" });
 

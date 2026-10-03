@@ -9,9 +9,11 @@ import { CONTENT_BYLINE } from "@/lib/site";
 
 type BlogWriterBandProps = {
   more: readonly BlogPost[];
+  /** Specimen notes point at pages that do not exist. */
+  prefetch?: boolean;
 };
 
-export function BlogWriterBand({ more }: BlogWriterBandProps) {
+export function BlogWriterBand({ more, prefetch }: BlogWriterBandProps) {
   return (
     <section
       id="blog-writer-band"
@@ -43,6 +45,7 @@ export function BlogWriterBand({ more }: BlogWriterBandProps) {
                 <li key={item.slug}>
                   <Link
                     href={`/blog/${item.slug}`}
+                    prefetch={prefetch}
                     className="blog-more-link flex min-h-6 flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-[4px] border border-solid px-3 py-2.5 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none"
                     style={{
                       borderColor: `color-mix(in srgb, ${accent} 34%, transparent)`,

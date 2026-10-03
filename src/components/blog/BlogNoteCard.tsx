@@ -61,11 +61,17 @@ type BlogNoteCardProps = {
   className?: string;
 };
 
-export function BlogNoteCard({ post, id, className }: BlogNoteCardProps) {
+export function BlogNoteCard({
+  post,
+  id,
+  className,
+  prefetch,
+}: BlogNoteCardProps & { prefetch?: boolean }) {
   return (
     <article id={id} className={cn("min-w-0 h-full", className)}>
       <Link
         href={`/blog/${post.slug}`}
+        prefetch={prefetch}
         data-category={post.category}
         className="blog-note-link flex h-full flex-col border border-border-ide p-5 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none"
       >

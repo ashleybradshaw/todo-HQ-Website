@@ -71,6 +71,22 @@ test.describe("ui spec", () => {
     expect(stored).toBeNull();
   });
 
+  test("specimen links do not 404 on load", async ({ page }) => {
+    const missed: string[] = [];
+    page.on("response", (response) => {
+      if (response.status() !== 404) return;
+      const path = new URL(response.url()).pathname;
+      if (
+        path.startsWith("/work/specimen") ||
+        path.startsWith("/blog/specimen")
+      ) {
+        missed.push(path);
+      }
+    });
+    await page.goto("/ui", { waitUntil: "networkidle" });
+    expect(missed).toEqual([]);
+  });
+
   test("spec sections have no em dashes", async ({ page }) => {
     const sections = page.locator("section[id^='ui-']");
     const count = await sections.count();

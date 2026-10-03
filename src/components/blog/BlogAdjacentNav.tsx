@@ -13,14 +13,17 @@ function AdjacentCell({
   label,
   post,
   align,
+  prefetch,
 }: {
   label: "PREV" | "NEXT";
   post: BlogPost;
   align: "start" | "end";
+  prefetch?: boolean;
 }) {
   return (
     <Link
       href={`/blog/${post.slug}`}
+      prefetch={prefetch}
       className={cn(
         "blog-note-link flex min-h-6 min-w-0 flex-col gap-1 border border-border-ide p-4 focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none",
         align === "end" && "md:items-end md:text-right",
@@ -38,7 +41,11 @@ function AdjacentCell({
   );
 }
 
-export function BlogAdjacentNav({ prev, next }: BlogAdjacentNavProps) {
+export function BlogAdjacentNav({
+  prev,
+  next,
+  prefetch,
+}: BlogAdjacentNavProps & { prefetch?: boolean }) {
   if (!prev && !next) {
     return null;
   }
@@ -50,12 +57,12 @@ export function BlogAdjacentNav({ prev, next }: BlogAdjacentNavProps) {
       aria-label="Adjacent notes"
     >
       {prev ? (
-        <AdjacentCell label="PREV" post={prev} align="start" />
+        <AdjacentCell label="PREV" post={prev} align="start" prefetch={prefetch} />
       ) : (
         <div className="hidden md:block" aria-hidden="true" />
       )}
       {next ? (
-        <AdjacentCell label="NEXT" post={next} align="end" />
+        <AdjacentCell label="NEXT" post={next} align="end" prefetch={prefetch} />
       ) : null}
     </nav>
   );

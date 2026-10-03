@@ -67,7 +67,7 @@ type WeekColumn = {
   mode: "build" | "recent" | "open";
 };
 
-type GapColumn = { kind: "gap" };
+type GapColumn = { kind: "gap"; span: number };
 
 type Column = WeekColumn | GapColumn;
 
@@ -108,7 +108,7 @@ function columnsFor(contributions: Contributions, weeks: number): Column[] {
     }),
   );
 
-  return [...build, { kind: "gap" }, ...recent];
+  return [...build, { kind: "gap", span: 2 }, ...recent];
 }
 
 function countOn(
@@ -175,6 +175,20 @@ export function contributionLegend(source: Contributions["source"]) {
   return source === "test" ? "// factory activity" : "contributions";
 }
 
+function AxisLabels({ contributions }: { contributions: Contributions }) {
+  const year = contributions.buildTo?.slice(0, 4);
+
+  return (
+    <div
+      aria-hidden="true"
+      className="text-muted mt-1 flex font-jetbrains text-[10px] lg:text-[11px]"
+    >
+      {year ? <span>{`// build ${year}`}</span> : null}
+      <span className="ml-auto">{"// now"}</span>
+    </div>
+  );
+}
+
 function WeekGrid({
   contributions,
   counts,
@@ -190,29 +204,17 @@ function WeekGrid({
 }) {
   const columns = columnsFor(contributions, weeks);
   const step = cell + GAP;
-  const width = columns.length * cell + (columns.length - 1) * GAP;
   const height = 7 * cell + 6 * GAP;
   const nodes: ReactNode[] = [];
+  let x = 0;
 
   columns.forEach((column, index) => {
-    const x = index * step;
+    const previous = columns[index - 1];
+    if (index > 0 && column.kind !== "gap" && previous?.kind !== "gap") {
+      x += GAP;
+    }
     if (column.kind === "gap") {
-      nodes.push(
-        <text
-          key="gap"
-          data-axis-gap=""
-          aria-hidden="true"
-          x={x + cell / 2}
-          y={height / 2}
-          textAnchor="middle"
-          dominantBaseline="central"
-          fill="var(--text-muted)"
-          fontSize={9}
-          fontFamily="var(--font-jetbrains), ui-monospace, monospace"
-        >
-          {"// …"}
-        </text>,
-      );
+      x += column.span * (cell === 10 ? 4 : 5);
       return;
     }
 
@@ -233,7 +235,9 @@ function WeekGrid({
         />,
       );
     }
+    x += cell;
   });
+  const width = x;
 
   return (
     <svg
@@ -271,20 +275,26 @@ export function ContributionGraph({
       data-variant={variant}
       className="mx-6 overflow-hidden py-4"
     >
-      <WeekGrid
-        contributions={contributions}
-        counts={counts}
-        weeks={26}
-        cell={10}
-        className="ml-auto block h-auto max-w-full sm:hidden"
-      />
-      <WeekGrid
-        contributions={contributions}
-        counts={counts}
-        weeks={52}
-        cell={12}
-        className="ml-auto hidden h-auto max-w-full sm:block"
-      />
+      <div className="ml-auto w-fit max-w-full sm:hidden">
+        <WeekGrid
+          contributions={contributions}
+          counts={counts}
+          weeks={26}
+          cell={10}
+          className="block h-auto max-w-full"
+        />
+        <AxisLabels contributions={contributions} />
+      </div>
+      <div className="ml-auto hidden w-fit max-w-full sm:block">
+        <WeekGrid
+          contributions={contributions}
+          counts={counts}
+          weeks={52}
+          cell={12}
+          className="block h-auto max-w-full"
+        />
+        <AxisLabels contributions={contributions} />
+      </div>
     </div>
   );
 }

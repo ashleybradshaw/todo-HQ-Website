@@ -22,9 +22,12 @@ function readReducedMotion() {
 export function NextProjectPanel({
   project,
   label,
+  prefetch,
 }: {
   project: FullProject;
   label: string;
+  /** Specimen panels point at a page that does not exist. */
+  prefetch?: boolean;
 }) {
   const ref = useRef<HTMLAnchorElement>(null);
   const [peek, setPeek] = useState(false);
@@ -63,6 +66,7 @@ export function NextProjectPanel({
     <Link
       ref={ref}
       href={`/work/${project.slug}`}
+      prefetch={prefetch}
       className="group/next border-border-ide focus-visible:ring-current mt-4 block overflow-hidden rounded-[4px] border focus-visible:ring-[3px] focus-visible:outline-none"
       onMouseEnter={replay}
       onFocus={replay}
